@@ -1,0 +1,9 @@
+tqdm
+gym
+Pillow
+numpy
+matplotlib
+torchvision
+torch
+neodroid
+visdom
