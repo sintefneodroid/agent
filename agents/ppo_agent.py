@@ -9,7 +9,7 @@ from agents.ac_agent import ACAgent
 
 cv2.setNumThreads(0)
 
-import configs.ppo_config as c
+
 import utilities as U
 
 
@@ -77,15 +77,19 @@ class PPOAgent(ACAgent):
     T = tqdm(range(1, n + 1), f'Step #{self._step_i}', leave=False)
     for t in T:
       self._step_i += 1
-      action, valuations, action_prob, *_ = self.sample_model(state)
+      action, valuations, action_prob, *_ = self.continues_sample_model(state)
 
-      successor_state, signal, terminated, _ = environment.step(action)
+      next_state, signal, terminated, _ = environment.step(action)
+
+      successor_state = None
+      if not terminated:  # If environment terminated then there is no successor state
+        successor_state = next_state
 
       transitions.append(
           U.ValuedTransition(state, action, action_prob, valuations, signal, successor_state,
                              not terminated))
 
-      state = successor_state
+      state = next_state
 
       accum_signal += signal
 
@@ -195,6 +199,7 @@ class PPOAgent(ACAgent):
 
 def test_agent(env_id='CartPole-v0', seed=31):
   import gym
+  import configs.ppo_config as c
 
   U.set_seed(seed)
 

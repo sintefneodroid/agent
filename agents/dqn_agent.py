@@ -178,7 +178,7 @@ class DQNAgent(ValueAgent):
       self._step_n += 1
 
       action = self.sample_action(state)
-      state, signal, terminated, info = environment.step(action)
+      next_state, signal, terminated, info = environment.step(action)
 
       if render:
         environment.render()
@@ -188,10 +188,10 @@ class DQNAgent(ValueAgent):
 
       successor_state = None
       if not terminated:  # If environment terminated then there is no successor state
-        successor_state = state
+        successor_state = next_state
 
       self._memory.add_transition(state, action, signal, successor_state, not terminated)
-      state = successor_state
+      state = next_state
 
       td_l = 0
 
@@ -267,7 +267,8 @@ class DQNAgent(ValueAgent):
     return sample > eps_threshold
 
   def step(self, state, env):
-    a = self.sample_model(state)
+    self._step_n += 1
+    a = self.sample_action(state)
     return env.step(a)
 
   def infer(self, environment, render=True):
@@ -388,6 +389,7 @@ def test_dqn_agent(config):
   agent = DQNAgent(C)
   listener = U.add_early_stopping_key_combination(agent.stop_training)
 
+  _trained_model=None
   listener.start()
   try:
     agent.build_model(environment)
@@ -400,11 +402,85 @@ def test_dqn_agent(config):
 
   environment.close()
 
+def main2():
+  args = parser.parse_args()
+  torch.manual_seed(args.seed)
+
+  if not os.path.exists(args.dump_location):
+    os.makedirs(args.dump_location)
+
+  logging.basicConfig(
+      filename=args.dump_location +
+               'train.log',
+      level=logging.INFO)
+
+  assert args.evaluate == 0 or args.num_processes == 0, \
+    "Can't train while evaluating, either n=0 or e=0"
+
+  class Net(torch.nn.Module):
+    def __init__(self, args):
+      super(Net, self).__init__()
+      self.conv1 = torch.nn.Conv2d(1, 10, kernel_size=5)
+      self.conv2 = torch.nn.Conv2d(10, 20, kernel_size=5)
+      self.conv2_drop = torch.nn.Dropout2d()
+      self.fc1 = torch.nn.Linear(320, 50)
+      self.fc2 = torch.nn.Linear(50, 10)
+
+    def forward(self, x):
+      x = F.relu(F.max_pool2d(self.conv1(x), 2))
+      x = F.relu(F.max_pool2d(self.conv2_drop(self.conv2(x)), 2))
+      x = x.view(-1, 320)
+      x = F.relu(self.fc1(x))
+      x = F.dropout(x, training=self.training)
+      x = self.fc2(x)
+      return F.log_softmax(x, dim=1)
+
+  def train(rank, args, model):
+    torch.manual_seed(args.seed + rank)
+
+    pass
+
+  def test(rank, args, model):
+    torch.manual_seed(args.seed + rank)
+
+    pass
+
+  shared_model = Net(args)
+
+  if args.load != "0":
+    shared_model.load_state_dict(torch.load(args.load))
+  shared_model.share_memory()
+
+  signal.signal(signal.SIGINT, signal.signal(signal.SIGINT, signal.SIG_IGN))
+  processes = []
+
+  p = TMP.Process(target=test, args=(args.num_processes, args, shared_model))
+  p.start()
+  processes.append(p)
+
+  for rank in range(0, args.num_processes):
+    p = TMP.Process(target=train, args=(rank, args, shared_model))
+    p.start()
+    processes.append(p)
+
+  try:
+    for p in processes:
+      p.join()
+  except KeyboardInterrupt:
+    print("Stopping training. " +
+          "Best model stored at {}model_best".format(args.dump_location))
+    for p in processes:
+      p.terminate()
 
 if __name__ == '__main__':
   import gym
   import configs.dqn_config as C
   import argparse
+  import logging
+  import os
+  import signal
+  import torch
+  import torch.multiprocessing as TMP
 
   parser = argparse.ArgumentParser(description='DQN Agent')
   # parser.add_argument('integers', metavar='N', type=int, nargs='+', help='')
@@ -426,4 +502,8 @@ if __name__ == '__main__':
     setattr(C, k, arg)
     print(k, arg)
 
-  test_dqn_agent(C)
+  try:
+    test_dqn_agent(C)
+  except KeyboardInterrupt:
+    print('Stopping')
+

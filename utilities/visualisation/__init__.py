@@ -7,3 +7,4 @@ from .plotting import *
 from .run_visdom_server import *
 from .visdom_manager import *
 from .visualisation import *
+from .sprint import sprint, color2num

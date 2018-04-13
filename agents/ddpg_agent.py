@@ -219,20 +219,24 @@ class DDPGAgent(ACAgent):
       if self._C.ACTION_CLIPPING:
         action = np.clip(action, -1.0, 1.0)
 
-      successor_state, signal, terminated, info = environment.step(action)
+      next_state, signal, terminated, info = environment.step(action)
+
+      if render:
+        environment.render()
 
       if self._C.SIGNAL_CLIPPING:
         signal = np.clip(action, -1.0, 1.0)
 
-      if render:
-        environment.render()
+      successor_state = None
+      if not terminated:  # If environment terminated then there is no successor state
+        successor_state = next_state
 
       self._replay_memory.add_transition(state,
                                          action,
                                          signal,
                                          successor_state,
                                          not terminated)
-      state = successor_state
+      state = next_state
 
       self.update(self._gamma)
       episode_signal += signal
