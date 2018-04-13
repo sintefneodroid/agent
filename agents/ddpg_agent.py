@@ -12,7 +12,6 @@ from agents.ac_agent import ACAgent
 from utilities.random_process.ornstein_uhlenbeck import OrnsteinUhlenbeckProcess
 from utilities.visualisation.term_plot import term_plot
 
-
 class DDPGAgent(ACAgent):
   '''
   The Deep Deterministic Policy Gradient (DDPG) Agent
@@ -78,9 +77,9 @@ class DDPGAgent(ACAgent):
     self._sync_target_model_frequency = config.SYNC_TARGET_MODEL_FREQUENCY
     self._state_tensor_type = config.STATE_TENSOR_TYPE
 
-    self._eps_start = config.EPS_START
-    self._eps_end = config.EPS_END
-    self._eps_decay = config.EPS_DECAY
+    self._eps_start = config.EXPLORATION_EPSILON_START
+    self._eps_end = config.EXPLORATION_EPSILON_END
+    self._eps_decay = config.EXPLORATION_EPSILON_DECAY
 
     self._early_stopping_condition = None
     self._model = None
@@ -155,7 +154,7 @@ class DDPGAgent(ACAgent):
   def sample_action(self, state):
     return self.sample_model(state)
 
-  def update(self, gamma=1.0):
+  def update(self):
 
     if len(self._replay_memory) < self._batch_size:
       return
@@ -177,7 +176,7 @@ class DDPGAgent(ACAgent):
     next_max_q = self.target_critic(next_state_batch, target_actions).detach().max(1)[0]
 
     next_Q_values = non_terminal_mask * next_max_q
-    Q_target = signal_batch + (gamma * next_Q_values)  # Compute the target of the current Q values
+    Q_target = signal_batch + (self._gamma * next_Q_values)  # Compute the target of the current Q values
     critic_loss = F.smooth_l1_loss(Q_current, Q_target)  # Compute Bellman error (using Huber loss)
 
     self.critic_optimizer.zero_grad()
@@ -227,9 +226,9 @@ class DDPGAgent(ACAgent):
       if self._C.SIGNAL_CLIPPING:
         signal = np.clip(action, -1.0, 1.0)
 
-      successor_state = None
-      if not terminated:  # If environment terminated then there is no successor state
-        successor_state = next_state
+      #successor_state = None
+      #if not terminated:  # If environment terminated then there is no successor state
+      successor_state = next_state
 
       self._replay_memory.add_transition(state,
                                          action,
@@ -238,7 +237,7 @@ class DDPGAgent(ACAgent):
                                          not terminated)
       state = next_state
 
-      self.update(self._gamma)
+      self.update()
       episode_signal += signal
 
       if terminated:
@@ -285,8 +284,9 @@ class DDPGAgent(ACAgent):
       self._random_process.reset()
 
       if episode_i % stat_frequency == 0:
-        term_plot([i for i in range(1, episode_i + 1)], stats.signal_mas, E.write, offset=0)
-        E.set_description(f'Episode: {episode_i}, Moving signal: {stats.signal_mas[-1]}')
+        t_episode = [i for i in range(1, episode_i + 1)]
+        term_plot(t_episode, stats.signal_mas, 'Moving signal' ,printer=E.write)
+        E.set_description(f'Episode: {episode_i}, Last Moving signal: {stats.signal_mas[-1]}')
 
       signal, dur = 0, 0
       if render and episode_i % render_frequency == 0:
@@ -406,27 +406,51 @@ class DDPGAgent(ACAgent):
       self.actor = self.actor.cpu()
 
 
-def test_ddpg_agent():
-  import configs.ddpg_config as C
+def test_ddpg_agent(config):
   from utilities.environment_wrappers.normalise_actions import NormaliseActionsWrapper
   import gym
 
   env = NormaliseActionsWrapper(gym.make('Pendulum-v0'))
   # env = neo.make('satellite',connect_to_running=False)
 
-  agent = DDPGAgent(C)
+  agent = DDPGAgent(config)
   listener = U.add_early_stopping_key_combination(agent.stop_training)
 
   listener.start()
   try:
     agent.build_model(env)
-    actor_model, critic_model, stats = agent.train(env, C.EPISODES, render=True)
+    actor_model, critic_model, stats = agent.train(env, config.EPISODES, render=True)
   finally:
     listener.stop()
 
-  U.save_model(actor_model, C, name='actor')
-  U.save_model(critic_model, C, name='critic')
+  U.save_model(actor_model, config, name='actor')
+  U.save_model(critic_model, config, name='critic')
 
 
 if __name__ == '__main__':
-  test_ddpg_agent()
+  import configs.ddpg_config as C
+  import argparse
+
+  parser = argparse.ArgumentParser(description='DDPG Agent')
+  parser.add_argument('--ENVIRONMENT_NAME', '-E', type=str, default=C.ENVIRONMENT_NAME,
+                      metavar='ENVIRONMENT_NAME',
+                      help='name of the environment to run')
+  parser.add_argument('--PRETRAINED_PATH', '-T', metavar='PATH', type=str, default='',
+                      help='path of pre-trained model')
+  parser.add_argument('--RENDER_ENVIRONMENT', '-R', action='store_true',
+                      default=C.RENDER_ENVIRONMENT,
+                      help='render the environment')
+  parser.add_argument('--NUM_WORKERS', '-N', type=int, default=4, metavar='NUM_WORKERS',
+                      help='number of threads for agent (default: 4)')
+  parser.add_argument('--RANDOM_SEED', '-S', type=int, default=1, metavar='RANDOM_SEED',
+                      help='random seed (default: 1)')
+  args = parser.parse_args()
+
+  for k, arg in args.__dict__.items():
+    setattr(C, k, arg)
+    print(k, arg)
+
+  try:
+    test_ddpg_agent(C)
+  except KeyboardInterrupt:
+    print('Stopping')

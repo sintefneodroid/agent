@@ -23,13 +23,13 @@ class PPOAgent(ACAgent):
   - adam seems better than rmsprop for ppo
   '''
 
-  def __init__(self, state_dim, action_dim, config):
+  def __init__(self, config):
 
     super().__init__()
     self._rollout_i = 0
     self._step_i = 0
-    self.state_dim = state_dim
-    self.action_dim = action_dim
+    self.state_dim = config.ARCH_PARAMS['input_size']
+    self.action_dim = config.ARCH_PARAMS['output_size']
     self.steps = config.STEPS
 
     self.gamma = config.GAMMA
@@ -61,7 +61,7 @@ class PPOAgent(ACAgent):
     self.actor_critic_target = U.ActorCriticNetwork(config)
     self.actor_critic_target.load_state_dict(self.actor_critic.state_dict())
 
-    self.optimiser = config.OPTIMISER(self.actor_critic.parameters(), lr=self.actor_critic_lr)
+    self.optimiser = config.OPTIMISER_TYPE(self.actor_critic.parameters(), lr=self.actor_critic_lr)
 
     if self.use_cuda:
       self.actor_critic.cuda()
@@ -69,7 +69,7 @@ class PPOAgent(ACAgent):
 
   def maybe_take_n_steps(self, initial_state, environment, n=100):
     state = initial_state
-    accum_signal = 0
+    accumulated_signal = 0
 
     transitions = []
     terminated = False
@@ -91,7 +91,7 @@ class PPOAgent(ACAgent):
 
       state = next_state
 
-      accum_signal += signal
+      accumulated_signal += signal
 
       if self._step_i % self.update_target_interval == 0:
         self.actor_critic_target.load_state_dict(self.actor_critic.state_dict())
@@ -99,7 +99,7 @@ class PPOAgent(ACAgent):
       if terminated:
         break
 
-    return transitions, accum_signal, terminated, state
+    return transitions, accumulated_signal, terminated, state
 
   def trace_back_steps(self, transitions):
     n_step_summary = U.ValuedTransition(*zip(*transitions))
@@ -149,7 +149,7 @@ class PPOAgent(ACAgent):
     surrogate_1 = ratio * advantage
     surrogate_2 = torch.clamp(ratio, min=1. - self.clip, max=1. + self.clip) * advantage  # (L^CLIP)
 
-    policy_loss = -torch.min(surrogate_1, surrogate_2).mean()
+    policy_loss = -torch.min([surrogate_1, surrogate_2]).mean()
     value_loss = (.5 * (values_var - returns_var) ** 2.).mean()
     entropy_loss = U.entropy(action_probs_var).mean()
 
@@ -197,43 +197,28 @@ class PPOAgent(ACAgent):
     return action
 
 
-def test_agent(env_id='CartPole-v0', seed=31):
+def test_agent(env_id='Pendulum-v0', seed=31):
   import gym
-  import configs.ppo_config as c
+  import configs.ppo_config as C
 
   U.set_seed(seed)
 
   env = gym.make(env_id)
-  env.seed(c.RANDOM_SEED)
-
-  # env_fns = []
-  # for rank in range(4):
-  #  env_fns.append(lambda: make_env(env_id, rank, seed + rank))
-  #  if False:
-  #    env = RenderSubprocVecEnv(env_fns, 4)
-  #  else:
-  #    env = SubprocVecEnv(env_fns)
-
-  # env = make_env(env_id, 0, seed)
-  # env = VecFrameStack(env, 4)
-
-  # test_env = make_env(env_id, 0, seed)
-  # test_env = FrameStack(test_env, 4)
-  print_interval = 10
+  env.seed(C.RANDOM_SEED)
 
   state_dim = env.observation_space.shape[0]
-  if len(env.action_space.shape) > 1:
+  if len(env.action_space.shape) >= 1:
     action_dim = env.action_space.shape[0]
   else:
     action_dim = env.action_space.n
 
-  c.ARCH_PARAMS['input_size'] = [state_dim]
-  c.ARCH_PARAMS['output_size'] = [action_dim]
+  C.ARCH_PARAMS['input_size'] = [state_dim]
+  C.ARCH_PARAMS['output_size'] = [action_dim]
 
-  ppo_agent = PPOAgent(state_dim, action_dim, c)
+  ppo_agent = PPOAgent(C)
 
   initial_state = env.reset()
-  cs = tqdm(range(1, c.ROLLOUTS + 1), f'Rollout {0}, {0}', leave=True)
+  cs = tqdm(range(1, C.ROLLOUTS + 1), f'Rollout {0}, {0}', leave=True)
   for rollout_i in cs:
 
     transitions, accum_signal, terminated, initial_state = ppo_agent.maybe_take_n_steps(initial_state, env)
@@ -241,15 +226,12 @@ def test_agent(env_id='CartPole-v0', seed=31):
     if terminated:
       initial_state = env.reset()
 
-    if rollout_i >= c.EPISODES_BEFORE_TRAIN:
+    if rollout_i >= C.EPISODES_BEFORE_TRAIN:
       advantage_memories = ppo_agent.trace_back_steps(transitions)
       for m in advantage_memories:
         ppo_agent.experience_buffer.remember(m)
       ppo_agent.train()
       ppo_agent.experience_buffer.forget()
-
-    if rollout_i % print_interval == 0:
-      cs.set_description(f'Rollout {rollout_i}, {accum_signal}')
 
 
 if __name__ == '__main__':
