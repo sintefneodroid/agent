@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # coding=utf-8
+__author__='cnheider'
 """
 Description: Config for training
 Author: Christian Heider Nielsen
@@ -10,7 +11,8 @@ from configs.base_config import *
 
 # Optimiser
 OPTIMISER_TYPE = torch.optim.Adam
-ENVIRONMENT_NAME = 'InvertedDoublePendulum-v1'
+# ENVIRONMENT_NAME = 'InvertedDoublePendulum-v1'
+ENVIRONMENT_NAME = 'CartPole-v0'
 
 EPISODES = 10000
 EPISODES_BEFORE_TRAIN = 0
@@ -50,13 +52,13 @@ CLIP_FUNC = lambda a: CLIP * (1. - a)  # clip range schedule function
 ACTOR_LR = 3e-4
 CRITIC_LR = 3e-4
 
-use_cuda = False
-
-ENVIRONMENT = 'satellite_test'
+USE_CUDA = False
 
 ARCH_PARAMS = {'input_size':              '',
                'actor_hidden_size':       [32],
                'critic_hidden_size':      [32],
                'output_size':             '',
-               'actor_output_activation': F.log_softmax
+               'actor_output_activation': F.log_softmax,
+               'critic_output_size':      [1],
+               'continuous':              False
                }

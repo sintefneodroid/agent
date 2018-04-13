@@ -1,3 +1,7 @@
+#!/usr/local/bin/python
+# coding: utf-8
+__author__ = 'cnheider'
+
 import cv2
 import torch
 import torch as th
@@ -77,7 +81,7 @@ class PPOAgent(ACAgent):
     T = tqdm(range(1, n + 1), f'Step #{self._step_i}', leave=False)
     for t in T:
       self._step_i += 1
-      action, valuations, action_prob, *_ = self.continues_sample_model(state)
+      action, value_estimates, action_prob, *_ = self.discrete_categorical_sample_model(state)
 
       next_state, signal, terminated, _ = environment.step(action)
 
@@ -86,7 +90,7 @@ class PPOAgent(ACAgent):
         successor_state = next_state
 
       transitions.append(
-          U.ValuedTransition(state, action, action_prob, valuations, signal, successor_state,
+          U.ValuedTransition(state, action, action_prob, value_estimates, signal, successor_state,
                              not terminated))
 
       state = next_state
@@ -129,41 +133,43 @@ class PPOAgent(ACAgent):
 
     return advantage_memories
 
-  def evaluate_model_error(self):
+  def evaluate_model_cost(self):
     batch = U.AdvantageMemory(*zip(*self.experience_buffer.memory))
 
-    states_var = U.to_var(batch.state, use_cuda=self.use_cuda).view(-1, self.state_dim)
-    action_var = U.to_var(batch.action, use_cuda=self.use_cuda, dtype='long').view(-1, 1)
-    # action_probs_var = U.to_var(batch.action_prob, use_cuda=self.use_cuda).view(-1, self.action_dim)
-    action_probs_var = U.to_var(batch.action_prob, use_cuda=self.use_cuda).view(-1, 1)
+    states_var = U.to_var(batch.state, use_cuda=self.use_cuda).view(-1, self.state_dim[0])
+    action_var = U.to_var(batch.action, use_cuda=self.use_cuda, dtype='long')
+    action_probs_var = U.to_var(batch.action_prob, use_cuda=self.use_cuda).view(-1, self.action_dim[0])
     values_var = U.to_var(batch.value_estimate, use_cuda=self.use_cuda).view(-1, 1)
     advantages_var = U.to_var(batch.advantage, use_cuda=self.use_cuda).view(-1, 1)
     returns_var = U.to_var(batch.discounted_return, use_cuda=self.use_cuda).view(-1, 1)
 
-    # action_prob = action_probs_var.gather(1, action_var)
-    action_prob = action_probs_var
+    action_prob = action_probs_var.gather(1, action_var)
+
     action_probs_t, _ = self.actor_critic_target(states_var)
     action_prob_t = action_probs_t.gather(1, action_var)
-    ratio = action_prob / (action_prob_t + 1e-10)
-    advantage = (advantages_var - advantages_var.mean()) / (advantages_var.std() + 1e-5)
-    surrogate_1 = ratio * advantage
-    surrogate_2 = torch.clamp(ratio, min=1. - self.clip, max=1. + self.clip) * advantage  # (L^CLIP)
 
-    policy_loss = -torch.min([surrogate_1, surrogate_2]).mean()
-    value_loss = (.5 * (values_var - returns_var) ** 2.).mean()
+    ratio = action_prob / (action_prob_t + 1e-10)
+
+    advantage = (advantages_var - advantages_var.mean()) / (advantages_var.std() + 1e-10)
+
+    surrogate = ratio * advantage
+    surrogate_clipped = torch.clamp(ratio, min=1. - self.clip, max=1. + self.clip) * advantage  # (L^CLIP)
+
+    policy_loss = -torch.min(surrogate, surrogate_clipped).mean()
+    value_error = (.5 * (values_var - returns_var) ** 2.).mean()
     entropy_loss = U.entropy(action_probs_var).mean()
 
-    loss = policy_loss + value_loss * self.value_reg_coef + entropy_loss * self.entropy_reg_coef
+    cost = policy_loss + value_error * self.value_reg_coef + entropy_loss * self.entropy_reg_coef
 
-    return loss
+    return cost
 
   def train(self):
-    loss = self.evaluate_model_error()
-    self.optimise_wrt(loss)
+    cost = self.evaluate_model_cost()
+    self.optimise_wrt(cost)
 
-  def optimise_wrt(self, loss):
+  def optimise_wrt(self, cost):
     self.optimiser.zero_grad()
-    loss.backward()
+    cost.backward()
     if self.max_grad_norm is not None:
       nn.utils.clip_grad_norm(self.actor_critic.parameters(), self.max_grad_norm)
     self.optimiser.step()
@@ -174,10 +180,11 @@ class PPOAgent(ACAgent):
     m = Categorical(softmax_probs)
     action = m.sample()
     a = action.cpu().data.numpy()[0]
-    return a, value_estimate, m.log_prob(action.data), m.probs
+    return a, value_estimate, m.log_prob(action), m.probs
 
-  def continues_sample_model(self, state):
-    a_mean, a_log_std, value_estimate = self.actor_critic(state)
+  def continuous_sample_model(self, state):
+    state_var = U.to_var([state])
+    a_mean, a_log_std, value_estimate = self.actor_critic(state_var)
 
     # randomly sample from normal distribution, whose mean and variance come from policy network.
     # [b, a_dim]
@@ -197,13 +204,12 @@ class PPOAgent(ACAgent):
     return action
 
 
-def test_agent(env_id='Pendulum-v0', seed=31):
+def test_ppo_agent(C):
   import gym
-  import configs.ppo_config as C
 
-  U.set_seed(seed)
+  U.set_seed(C.RANDOM_SEED)
 
-  env = gym.make(env_id)
+  env = gym.make(C.ENVIRONMENT_NAME)
   env.seed(C.RANDOM_SEED)
 
   state_dim = env.observation_space.shape[0]
@@ -233,6 +239,34 @@ def test_agent(env_id='Pendulum-v0', seed=31):
       ppo_agent.train()
       ppo_agent.experience_buffer.forget()
 
-
 if __name__ == '__main__':
-  test_agent()
+  import argparse
+  import configs.ppo_config as C
+
+  parser = argparse.ArgumentParser(description='PG Agent')
+  parser.add_argument('--ENVIRONMENT_NAME', '-E', type=str, default=C.ENVIRONMENT_NAME,
+                      metavar='ENVIRONMENT_NAME',
+                      help='name of the environment to run')
+  parser.add_argument('--PRETRAINED_PATH', '-T', metavar='PATH', type=str, default='',
+                      help='path of pre-trained model')
+  parser.add_argument('--RENDER_ENVIRONMENT', '-R', action='store_true',
+                      default=C.RENDER_ENVIRONMENT,
+                      help='render the environment')
+  parser.add_argument('--NUM_WORKERS', '-N', type=int, default=4, metavar='NUM_WORKERS',
+                      help='number of threads for agent (default: 4)')
+  parser.add_argument('--RANDOM_SEED', '-S', type=int, default=1, metavar='RANDOM_SEED',
+                      help='random seed (default: 1)')
+  args = parser.parse_args()
+
+  for k, arg in args.__dict__.items():
+    setattr(C, k, arg)
+
+  for k, arg in U.get_upper_vars_of(C).items():
+    print(f'{k} = {arg}')
+
+  input('\nPress any key to begin... ')
+
+  try:
+    test_ppo_agent(C)
+  except KeyboardInterrupt:
+    print('Stopping')

@@ -1,3 +1,8 @@
+#!/usr/bin/env python3
+# coding=utf-8
+__author__ = 'cnheider'
+
+
 class Agent(object):
   """
   All agent should inherit from this class

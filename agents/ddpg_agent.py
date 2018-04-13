@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # coding=utf-8
+__author__='cnheider'
 from itertools import count
 
 import numpy as np
@@ -89,7 +90,7 @@ class DDPGAgent(ACAgent):
     self._end_training = False
 
     self._batch_size = config.BATCH_SIZE
-    self._tau = config.TAU
+    self._update_tau = config.TAU
     self._gamma = config.GAMMA
 
     self._end_training = False
@@ -154,19 +155,7 @@ class DDPGAgent(ACAgent):
   def sample_action(self, state):
     return self.sample_model(state)
 
-  def update(self):
-
-    if len(self._replay_memory) < self._batch_size:
-      return
-    state_batch, action_batch, signal_batch, next_state_batch, non_terminal_batch = \
-      self._replay_memory.sample_transitions(self._batch_size)
-
-    state_batch = U.to_var(state_batch, use_cuda=self._use_cuda).view(-1, self._input_size[0])
-    next_state_batch = U.to_var(next_state_batch, use_cuda=self._use_cuda).view(-1, self._input_size[0])
-    action_batch = U.to_var(action_batch, use_cuda=self._use_cuda).view(-1, self._output_size[0])
-    signal_batch = U.to_var(signal_batch, use_cuda=self._use_cuda).unsqueeze(0)
-    non_terminal_mask = U.to_var(non_terminal_batch, use_cuda=self._use_cuda).unsqueeze(0)
-
+  def evaluate_td_error(self, state_batch, action_batch, signal_batch, next_state_batch, non_terminal_mask):
     ### Critic ###
     # Compute current Q value, critic takes state and action choosen
     Q_current = self.critic(state_batch, action_batch)
@@ -177,25 +166,54 @@ class DDPGAgent(ACAgent):
 
     next_Q_values = non_terminal_mask * next_max_q
     Q_target = signal_batch + (self._gamma * next_Q_values)  # Compute the target of the current Q values
-    critic_loss = F.smooth_l1_loss(Q_current, Q_target)  # Compute Bellman error (using Huber loss)
+    td_error = F.smooth_l1_loss(Q_current, Q_target)  # Compute Bellman error (using Huber loss)
 
-    self.critic_optimizer.zero_grad()
-    critic_loss.backward()
-    self.critic_optimizer.step()  # Optimize the critic
+    return td_error
+
+  def update_models(self):
+
+    if len(self._replay_memory) < self._batch_size:
+      return
+
+    state_batch, action_batch, signal_batch, next_state_batch, non_terminal_batch = \
+      self._replay_memory.sample_transitions(self._batch_size)
+
+    state_batch = U.to_var(state_batch, use_cuda=self._use_cuda).view(-1, self._input_size[0])
+    next_state_batch = U.to_var(next_state_batch, use_cuda=self._use_cuda).view(-1, self._input_size[0])
+    action_batch = U.to_var(action_batch, use_cuda=self._use_cuda).view(-1, self._output_size[0])
+    signal_batch = U.to_var(signal_batch, use_cuda=self._use_cuda).unsqueeze(0)
+    non_terminal_mask = U.to_var(non_terminal_batch, use_cuda=self._use_cuda).unsqueeze(0)
+
+    td_error = self.evaluate_td_error(state_batch,action_batch,signal_batch,next_state_batch,non_terminal_mask)
+
+    self.optimise_critic_wrt(td_error)
 
     ### Actor ###
-    actor_loss = -self.critic(state_batch, self.actor(state_batch)).mean()
+    loss = -self.critic(state_batch, self.actor(state_batch)).mean()
+    #loss = -torch.sum(self.critic(state_batch, self.actor(state_batch)))
 
-    self.actor_optimizer.zero_grad()
-    actor_loss.backward()
-    self.actor_optimizer.step()  # Optimize the actor
+    self.optimise_actor_wrt(loss)
 
     self.update_target(self.target_critic, self.critic)
     self.update_target(self.target_actor, self.actor)  # Update the target networks
 
+    # self._memory.batch_update(indices, errors.tolist())  # Cuda trouble
+
+    return td_error.data[0], loss.data[0]
+
+  def optimise_critic_wrt(self, error):
+    self.critic_optimizer.zero_grad()
+    error.backward()
+    self.critic_optimizer.step()  # Optimize the critic
+
+  def optimise_actor_wrt(self, loss):
+    self.actor_optimizer.zero_grad()
+    loss.backward()
+    self.actor_optimizer.step()  # Optimize the actor
+
   def update_target(self, target_model, model):
     for target_param, param in zip(target_model.parameters(), model.parameters()):
-      target_param.data.copy_(self._tau * param.data + (1 - self._tau) * target_param.data)
+      target_param.data.copy_(self._update_tau * param.data + (1 - self._update_tau) * target_param.data)
 
   def rollout(self, initial_state, environment, render=False):
     self._rollout_i += 1
@@ -203,7 +221,6 @@ class DDPGAgent(ACAgent):
     state = initial_state
     episode_signal = 0
     episode_length = 0
-    episode_q_error = 0
 
     T = tqdm(count(1), f'Rollout #{self._rollout_i}', leave=False)
     for t in T:
@@ -237,7 +254,7 @@ class DDPGAgent(ACAgent):
                                          not terminated)
       state = next_state
 
-      self.update()
+      self.update_models()
       episode_signal += signal
 
       if terminated:
@@ -448,7 +465,11 @@ if __name__ == '__main__':
 
   for k, arg in args.__dict__.items():
     setattr(C, k, arg)
-    print(k, arg)
+
+  for k, arg in U.get_upper_vars_of(C).items():
+    print(f'{k} = {arg}')
+
+  input('\nPress any key to begin... ')
 
   try:
     test_ddpg_agent(C)

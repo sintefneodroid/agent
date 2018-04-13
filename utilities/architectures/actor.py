@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # coding=utf-8
+__author__='cnheider'
 
 from torch import nn
 from torch.nn import functional as F, init

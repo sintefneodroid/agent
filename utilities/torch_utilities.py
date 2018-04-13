@@ -27,7 +27,7 @@ def kl_log_probs(log_p1, log_p2):
   return -torch.sum(torch.exp(log_p1) * (log_p2 - log_p1), 1)
 
 
-def to_var(x, dtype="float", volatile=False, use_cuda=True, unsqueeze=False):
+def to_var(x, dtype="float", volatile=False, use_cuda=False, unsqueeze=False):
   if unsqueeze:
     var = torch.autograd.Variable(to_tensor(x, dtype=dtype, use_cuda=use_cuda).unsqueeze(0),
                                   volatile=volatile)
@@ -50,11 +50,12 @@ def to_tensor(x, dtype="float", use_cuda=True):
   return FloatTensor(x)
 
 
-# torch_pi = to_var([np.math.pi])
+def pi_torch(use_cuda=False):
+  to_var([np.math.pi], use_cuda=use_cuda)
 
-def normal(x, mu, sigma_sq):
+def normal(x, mu, sigma_sq,use_cuda=False):
   a = (-1 * (Variable(x) - mu).pow(2) / (2 * sigma_sq)).exp()
-  b = 1 / (2 * sigma_sq * torch_pi.expand_as(sigma_sq)).sqrt()
+  b = 1 / (2 * sigma_sq * pi_torch(use_cuda).expand_as(sigma_sq)).sqrt()
   return a * b
 
 

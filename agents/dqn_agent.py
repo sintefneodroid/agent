@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # coding=utf-8
+__author__='cnheider'
 import math
 import random
 import time
@@ -125,7 +126,7 @@ class DQNAgent(ValueAgent):
         params.grad.data.clamp_(-1, 1)
     self._optimiser.step()
 
-  def evaluate_td_loss(self, batch):
+  def evaluate_td_error(self, batch):
     """
 
     :param batch:
@@ -163,13 +164,25 @@ class DQNAgent(ValueAgent):
 
     return self._evaluation_function(Q_state, Q_expected)
 
+  def update_models(self):
+    # indices, transitions = self._memory.sample_transitions(self.C.BATCH_SIZE)
+    transitions = self._memory.sample_transitions(self._batch_size)
+
+    td_error = self.evaluate_td_error(transitions)
+    self.optimise_wrt(td_error)
+
+    error = td_error.data[0]
+    # self._memory.batch_update(indices, errors.tolist())  # Cuda trouble
+
+    return error
+
   def rollout(self, initial_state, environment, render=False):
     self._rollout_i += 1
 
     state = initial_state
     episode_signal = 0
     episode_length = 0
-    episode_td_loss = 0
+    episode_td_error = 0
 
     T = count(1)
     T = tqdm(T, f'Rollout #{self._rollout_i}', leave=False)
@@ -199,29 +212,22 @@ class DQNAgent(ValueAgent):
           self._step_n > self._initial_observation_period and \
           self._step_n % self._learning_frequency == 0:
 
-        # indices, transitions = self._memory.sample_transitions(self.C.BATCH_SIZE)
-        transitions = self._memory.sample_transitions(self._batch_size)
+        error = self.update_models()
 
-        td_loss = self.evaluate_td_loss(transitions)
-        self.optimise_wrt(td_loss)
-
-        td_l = td_loss.data[0]
-        # self._memory.batch_update(indices, errors.tolist())  # Cuda trouble
-
-        T.set_description(f'TD loss: {td_l}')
+        T.set_description(f'TD error: {error}')
 
       if self._use_double_dqn and self._step_n % self._sync_target_model_frequency == 0:
         self._target_model.load_state_dict(self._model.state_dict())
         T.write('Target Model Synced')
 
       episode_signal += signal
-      episode_td_loss += td_l
+      episode_td_error += td_l
 
       if terminated:
         episode_length = t
         break
 
-    return episode_signal, episode_length, episode_td_loss
+    return episode_signal, episode_length, episode_td_error
 
   def forward(self, state, *args, **kwargs):
     model_input = Variable(state, volatile=True).type(self._state_tensor_type)
@@ -323,10 +329,10 @@ class DQNAgent(ValueAgent):
     """
     running_signal = 0
     dur = 0
-    td_loss = 0
+    td_error = 0
     running_signals = []
     durations = []
-    td_losses = []
+    td_errors = []
 
     E = range(1, rollouts)
     E = tqdm(E, leave=True)
@@ -349,14 +355,14 @@ class DQNAgent(ValueAgent):
                   printer=E.write, percent_size=(1,
                                                  .24))
         term_plot(t_episode,
-                  td_losses,
-                  'TD Loss',
+                  td_errors,
+                  'TD Error',
                   printer=E.write,
                   percent_size=(1, .24))
         E.set_description(f'Episode: {episode_i}, '
                           f'Running Signal: {running_signal}, '
                           f'Duration: {dur}, '
-                          f'TD Loss: {td_loss}')
+                          f'TD Error: {td_error}')
 
       if render and episode_i % render_frequency == 0:
         signal, dur, *stats = self.rollout(initial_state, _environment, render=render)
@@ -366,8 +372,8 @@ class DQNAgent(ValueAgent):
       running_signal = running_signal * 0.99 + signal * 0.01
       running_signals.append(running_signal)
       durations.append(dur)
-      td_loss = stats[0]
-      td_losses.append(td_loss)
+      td_error = stats[0]
+      td_errors.append(td_error)
 
       if self._end_training:
         break
@@ -501,7 +507,11 @@ if __name__ == '__main__':
 
   for k, arg in args.__dict__.items():
     setattr(C, k, arg)
-    print(k, arg)
+
+  for k, arg in U.get_upper_vars_of(C).items():
+    print(f'{k} = {arg}')
+
+  input('\nPress any key to begin... ')
 
   try:
     test_dqn_agent(C)

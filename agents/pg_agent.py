@@ -1,3 +1,7 @@
+#!/usr/bin/env python3
+# coding=utf-8
+__author__ = 'cnheider'
+
 import time
 from itertools import count
 
@@ -16,7 +20,6 @@ import utilities as U
 from torch.distributions import Categorical
 from agents.policy_agent import PolicyAgent
 
-
 class PGAgent(PolicyAgent):
   def __init__(self, config, gamma=0.99, lr=1e-4, entropy_reg=1e-4):
 
@@ -34,7 +37,7 @@ class PGAgent(PolicyAgent):
 
     self._use_batched_updates = False  # self.C.BATCHED_UPDATES
     self._batch_size = 5  # self.C.BATCH_SIZE
-    self._accum_error = U.to_var([0.0], use_cuda=self.C.USE_CUDA_IF_AVAILABLE)
+    self._accumulated_error = U.to_var([0.0], use_cuda=self.C.USE_CUDA_IF_AVAILABLE)
 
   def build_model(self, env):
     if type(self.C.POLICY_ARCH_PARAMS['input_size']) == str:
@@ -79,7 +82,7 @@ class PGAgent(PolicyAgent):
     # calculate the probability
     action = (mu + sigma_sq.sqrt() * Variable(eps).cuda()).data
     prob = U.normal(action, mu, sigma_sq)
-    entropy = -0.5 * ((sigma_sq + 2 * U.torch_pi.expand_as(sigma_sq)).log() + 1)
+    entropy = -0.5 * ((sigma_sq + 2 * U.pi_torch(self.C.USE_CUDA_IF_AVAILABLE).expand_as(sigma_sq)).log() + 1)
 
     log_prob = prob.log()
     return action, log_prob, entropy
@@ -141,10 +144,10 @@ class PGAgent(PolicyAgent):
     self._trajectory.forget()
     if error is not None:
       if self._use_batched_updates:
-        self._accum_error += error
+        self._accumulated_error += error
         if self._rollout_i % self._batch_size == 0:
-          self.optimise_wrt(self._accum_error / self._batch_size)
-          self._accum_error = U.to_var([0.0], use_cuda=self.C.USE_CUDA_IF_AVAILABLE)
+          self.optimise_wrt(self._accumulated_error / self._batch_size)
+          self._accumulated_error = U.to_var([0.0], use_cuda=self.C.USE_CUDA_IF_AVAILABLE)
       else:
         self.optimise_wrt(error)
 
@@ -318,7 +321,11 @@ if __name__ == '__main__':
 
   for k, arg in args.__dict__.items():
     setattr(C, k, arg)
-    print(k, arg)
+
+  for k, arg in U.get_upper_vars_of(C).items():
+    print(f'{k} = {arg}')
+
+  input('\nPress any key to begin... ')
 
   try:
     test_pg_agent(C)
