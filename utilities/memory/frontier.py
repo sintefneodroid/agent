@@ -1,3 +1,7 @@
+#!/usr/bin/env python3
+# coding=utf-8
+__author__ = 'cnheider'
+
 class Frontier(object):
   """For storing transitions explored in the environment."""
 

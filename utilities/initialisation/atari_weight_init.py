@@ -1,3 +1,8 @@
+#!/usr/bin/env python3
+# coding=utf-8
+__author__ = 'cnheider'
+
+
 import numpy as np
 
 from utilities.initialisation.ortho_weight_init import ortho_weights

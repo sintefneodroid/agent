@@ -1,3 +1,8 @@
+#!/usr/bin/env python3
+# coding=utf-8
+__author__ = 'cnheider'
+
+
 def get_upper_vars_of(module):
   v = vars(module)
   if v:

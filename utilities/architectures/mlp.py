@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 # coding=utf-8
 __author__='cnheider'
+
 """
-Description: DQN
+Description: Multi Layer Perceptron
 Author: Christian Heider Nielsen
 """
 import torch

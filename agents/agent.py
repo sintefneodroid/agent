@@ -19,6 +19,3 @@ class Agent(object):
 
   def rollout(self, init_obs, env):
     raise NotImplementedError()
-
-  def infer(self, env, render=True):
-    raise NotImplementedError()

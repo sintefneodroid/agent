@@ -1,3 +1,7 @@
+#!/usr/bin/env python3
+# coding=utf-8
+__author__ = 'cnheider'
+
 from .episode_memory import *
 from .experience_memory import *
 from .frontier import *

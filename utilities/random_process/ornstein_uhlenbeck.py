@@ -1,3 +1,7 @@
+#!/usr/bin/env python3
+# coding=utf-8
+__author__ = 'cnheider'
+
 # Based on http://math.stackexchange.com/questions/1287634/implementing-ornstein-uhlenbeck-in-matlab
 import numpy as np
 

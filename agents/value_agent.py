@@ -13,5 +13,4 @@ class ValueAgent(Agent):
   def __init__(self):
     super().__init__()
 
-  def forward(self, state, *args, **kwargs):
-    raise NotImplementedError()
+
