@@ -15,7 +15,7 @@ def main():
   """
   # _environment = neo.make(C.ENVIRONMENT, connect_to_running=C.CONNECT_TO_RUNNING)
   _environment = BinaryActionEncodingWrapper(name=C.ENVIRONMENT, connect_to_running=C.CONNECT_TO_RUNNING)
-  _environment.seed(C.RANDOM_SEED)
+  _environment.seed(C.SEED)
 
   # C.ARCH_PARAMS['input_size'] = [4]
   # C.ARCH_PARAMS['output_size'] = [_environment.action_space.n]

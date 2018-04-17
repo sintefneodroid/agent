@@ -22,8 +22,8 @@ import neodroid.wrappers.gym_wrapper as neo
 from utilities.environment_wrappers.action_encoding import BinaryActionEncodingWrapper
 import utilities as U
 
-torch.manual_seed(C.RANDOM_SEED)
-neo.seed(C.RANDOM_SEED)
+torch.manual_seed(C.SEED)
+neo.seed(C.SEED)
 
 _keep_stats = True
 _plot_stats = False
@@ -32,7 +32,7 @@ _plot_stats = False
 # _environment = neo.make(C.ENVIRONMENT)
 _environment = BinaryActionEncodingWrapper(name=C.ENVIRONMENT, connect_to_running=C.CONNECT_TO_RUNNING)
 # _environment = gym.make('CartPole-v0')
-_environment.seed(C.RANDOM_SEED)
+_environment.seed(C.SEED)
 
 # C.ARCH_PARAMS['input_size'] = [4]
 # C.ARCH_PARAMS['output_size'] = [_environment.action_space.n]

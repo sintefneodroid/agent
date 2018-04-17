@@ -35,10 +35,11 @@ class DDPGAgent(ACAgent):
           The update rate that target networks slowly track the learned networks.
   '''
 
-  def __init__(self, config):
-    super().__init__()
-    self._step_n = 0
-    self._rollout_i = 0
+  def optimise_wrt(self, error):
+    pass
+
+  def __init__(self, config=None, *args, **kwargs):
+    self._C = config
 
     self._use_cuda = config.USE_CUDA_IF_AVAILABLE
     self._optimiser_type = config.OPTIMISER_TYPE
@@ -63,8 +64,6 @@ class DDPGAgent(ACAgent):
     self._critic_arch = config.CRITIC_ARCH
     self._critic_arch_parameters = config.CRITIC_ARCH_PARAMS
 
-    self._C = config
-
     self._input_size = config.ACTOR_ARCH_PARAMS['input_size']
     self._output_size = config.ACTOR_ARCH_PARAMS['output_size']
     self._batch_size = config.BATCH_SIZE
@@ -79,9 +78,9 @@ class DDPGAgent(ACAgent):
     self._sync_target_model_frequency = config.SYNC_TARGET_MODEL_FREQUENCY
     self._state_tensor_type = config.STATE_TENSOR_TYPE
 
-    self._eps_start = config.EXPLORATION_EPSILON_START
-    self._eps_end = config.EXPLORATION_EPSILON_END
-    self._eps_decay = config.EXPLORATION_EPSILON_DECAY
+    self._epsilon_start = config.EXPLORATION_EPSILON_START
+    self._epsilon_end = config.EXPLORATION_EPSILON_END
+    self._epsilon_decay = config.EXPLORATION_EPSILON_DECAY
 
     self._early_stopping_condition = None
     self._model = None
@@ -99,8 +98,7 @@ class DDPGAgent(ACAgent):
     # Construct the replay memory
     self._replay_memory = U.ReplayMemory(config.REPLAY_MEMORY_SIZE)
 
-  def stop_training(self):
-    self._end_training = True
+    super().__init__(config, *args, **kwargs)
 
   def save_model(self, C):
     U.save_model(self.actor, C)
@@ -156,7 +154,16 @@ class DDPGAgent(ACAgent):
   def sample_action(self, state):
     return self.sample_model(state)
 
-  def evaluate_td_error(self, state_batch, action_batch, signal_batch, next_state_batch, non_terminal_mask):
+  def evaluate(self, batch):
+
+    state_batchss, action_batchss, signal_batchss, next_state_batchss, non_terminal_batchss = batch
+
+    state_batch = U.to_var(state_batchss, use_cuda=self._use_cuda).view(-1, self._input_size[0])
+    next_state_batch = U.to_var(next_state_batchss, use_cuda=self._use_cuda).view(-1, self._input_size[0])
+    action_batch = U.to_var(action_batchss, use_cuda=self._use_cuda).view(-1, self._output_size[0])
+    signal_batch = U.to_var(signal_batchss, use_cuda=self._use_cuda).unsqueeze(0)
+    non_terminal_mask = U.to_var(non_terminal_batchss, use_cuda=self._use_cuda).unsqueeze(0)
+
     ### Critic ###
     # Compute current Q value, critic takes state and action choosen
     Q_current = self.critic(state_batch, action_batch)
@@ -169,24 +176,16 @@ class DDPGAgent(ACAgent):
     Q_target = signal_batch + (self._gamma * next_Q_values)  # Compute the target of the current Q values
     td_error = F.smooth_l1_loss(Q_current, Q_target)  # Compute Bellman error (using Huber loss)
 
-    return td_error
+    return td_error, state_batch
 
   def update_models(self):
 
     if len(self._replay_memory) < self._batch_size:
       return
 
-    state_batch, action_batch, signal_batch, next_state_batch, non_terminal_batch = \
-      self._replay_memory.sample_transitions(self._batch_size)
+    batch = self._replay_memory.sample_transitions(self._batch_size)
 
-    state_batch = U.to_var(state_batch, use_cuda=self._use_cuda).view(-1, self._input_size[0])
-    next_state_batch = U.to_var(next_state_batch, use_cuda=self._use_cuda).view(-1, self._input_size[0])
-    action_batch = U.to_var(action_batch, use_cuda=self._use_cuda).view(-1, self._output_size[0])
-    signal_batch = U.to_var(signal_batch, use_cuda=self._use_cuda).unsqueeze(0)
-    non_terminal_mask = U.to_var(non_terminal_batch, use_cuda=self._use_cuda).unsqueeze(0)
-
-    td_error = self.evaluate_td_error(state_batch, action_batch, signal_batch, next_state_batch,
-                                      non_terminal_mask)
+    td_error, state_batch = self.evaluate(batch)
 
     self.optimise_critic_wrt(td_error)
 
@@ -226,7 +225,7 @@ class DDPGAgent(ACAgent):
 
     T = tqdm(count(1), f'Rollout #{self._rollout_i}', leave=False)
     for t in T:
-      self._step_n += 1
+      self._step_i += 1
 
       action = self.sample_action(state)
 
@@ -461,7 +460,7 @@ if __name__ == '__main__':
                       help='render the environment')
   parser.add_argument('--NUM_WORKERS', '-N', type=int, default=4, metavar='NUM_WORKERS',
                       help='number of threads for agent (default: 4)')
-  parser.add_argument('--RANDOM_SEED', '-S', type=int, default=1, metavar='RANDOM_SEED',
+  parser.add_argument('--SEED', '-S', type=int, default=1, metavar='SEED',
                       help='random seed (default: 1)')
   args = parser.parse_args()
 

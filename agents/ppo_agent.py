@@ -26,11 +26,11 @@ class PPOAgent(ACAgent):
   - adam seems better than rmsprop for ppo
   '''
 
-  def __init__(self, config):
+  def rollout(self, init_obs, env):
+    pass
 
-    super().__init__()
-    self._rollout_i = 0
-    self._step_i = 0
+  def __init__(self, config=None, *args, **kwargs):
+
     self._state_dim = config.ARCH_PARAMS['input_size']
     self._action_dim = config.ARCH_PARAMS['output_size']
     self._steps = config.STEPS
@@ -51,9 +51,9 @@ class PPOAgent(ACAgent):
     self._max_grad_norm = config.MAX_GRADIENT_NORM
 
     # params for epsilon greedy
-    self._epsilon_start = config.EPSILON_START
-    self._epsilon_end = config.EPSILON_END
-    self._epsilon_decay = config.EPSILON_DECAY
+    self._epsilon_start = config.EXPLORATION_EPSILON_START
+    self._epsilon_end = config.EXPLORATION_EPSILON_END
+    self._epsilon_decay = config.EXPLORATION_EPSILON_DECAY
 
     self._use_cuda = config.USE_CUDA and th.cuda.is_available()
 
@@ -65,8 +65,9 @@ class PPOAgent(ACAgent):
     self._actor_critic_arch = U.ActorCriticNetwork
     self._actor_critic_params = config
 
+    super().__init__(config, *args, **kwargs)
+
     self.__build_model__()
-    self._end_training = False
 
   def __build_model__(self):
     self._actor_critic = self._actor_critic_arch(self._actor_critic_params)
@@ -78,9 +79,6 @@ class PPOAgent(ACAgent):
     if self._use_cuda:
       self._actor_critic.cuda()
       self._actor_critic_target.cuda()
-
-  def stop_training(self):
-    self._end_training = True
 
   def maybe_take_n_steps(self, initial_state, environment, n=100):
     state = initial_state
@@ -143,8 +141,7 @@ class PPOAgent(ACAgent):
 
     return advantage_memories
 
-  def evaluate_model_cost(self):
-    batch = U.AdvantageMemory(*zip(*self._experience_buffer.memory))
+  def evaluate(self, batch):
 
     states_var = U.to_var(batch.state, use_cuda=self._use_cuda).view(-1, self._state_dim[0])
     action_var = U.to_var(batch.action, use_cuda=self._use_cuda, dtype='long')
@@ -158,9 +155,10 @@ class PPOAgent(ACAgent):
     action_probs_t, _ = self._actor_critic_target(states_var)
     action_prob_t = action_probs_t.gather(1, action_var)
 
-    ratio = action_prob / (action_prob_t + 1e-10)
+    ratio = action_prob / (action_prob_t + self._divide_by_zero_safety)
 
-    advantage = (advantages_var - advantages_var.mean()) / (advantages_var.std() + 1e-10)
+    advantage = (advantages_var - advantages_var.mean()) / (
+          advantages_var.std() + self._divide_by_zero_safety)
 
     surrogate = ratio * advantage
     surrogate_clipped = torch.clamp(ratio, min=1. - self._clip, max=1. + self._clip) * advantage  # (L^CLIP)
@@ -174,7 +172,8 @@ class PPOAgent(ACAgent):
     return cost
 
   def train(self):
-    cost = self.evaluate_model_cost()
+    batch = U.AdvantageMemory(*zip(*self._experience_buffer.memory))
+    cost = self.evaluate(batch)
     self.optimise_wrt(cost)
 
   def optimise_wrt(self, cost):
@@ -216,11 +215,11 @@ class PPOAgent(ACAgent):
   def save_model(self, C):
     U.save_model(self._model, C)
 
-  def load_model(self, model_path, eval=False):
+  def load_model(self, model_path, evaluation=False):  # TODO: dont use _model as model
     print('Loading latest model: ' + model_path)
     self._model = self._actor_critic(**self._value_arch_parameters)
     self._model.load_state_dict(torch.load(model_path))
-    if eval:
+    if evaluation:
       self._model = self._model.eval()
       self._model.train(False)
     if self._use_cuda:
@@ -232,10 +231,10 @@ class PPOAgent(ACAgent):
 def test_ppo_agent(C):
   import gym
 
-  U.set_seed(C.RANDOM_SEED)
+  U.set_seed(C.SEED)
 
   env = gym.make(C.ENVIRONMENT_NAME)
-  env.seed(C.RANDOM_SEED)
+  env.seed(C.SEED)
 
   state_dim = env.observation_space.shape[0]
   if len(env.action_space.shape) >= 1:
@@ -281,7 +280,7 @@ if __name__ == '__main__':
                       help='render the environment')
   parser.add_argument('--NUM_WORKERS', '-N', type=int, default=4, metavar='NUM_WORKERS',
                       help='number of threads for agent (default: 4)')
-  parser.add_argument('--RANDOM_SEED', '-S', type=int, default=1, metavar='RANDOM_SEED',
+  parser.add_argument('--SEED', '-S', type=int, default=1, metavar='SEED',
                       help='random seed (default: 1)')
   args = parser.parse_args()
 
@@ -297,5 +296,3 @@ if __name__ == '__main__':
     test_ppo_agent(C)
   except KeyboardInterrupt:
     print('Stopping')
-
-ed

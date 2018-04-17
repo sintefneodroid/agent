@@ -13,6 +13,10 @@ RENDER_ENVIRONMENT = True
 
 EVALUATION_FUNCTION = torch.nn.CrossEntropyLoss
 
+PG_GAMMA = 0.99
+PG_LR = 1e-4
+PG_ENTROPY_REG = 1e-4
+
 # Architecture
 POLICY_ARCH_PARAMS = {
   'input_size':    '',  # Obtain from environment

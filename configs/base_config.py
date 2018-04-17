@@ -27,7 +27,7 @@ ByteTensor = torch.cuda.ByteTensor if USE_CUDA_IF_AVAILABLE else torch.ByteTenso
 # CONSTANTS
 MOVING_AVERAGE_WINDOW = 100
 SPACER_SIZE = 60
-RANDOM_SEED = 6
+SEED = 6
 SAVE_MODEL_INTERVAL = 100
 
 # Visualisation

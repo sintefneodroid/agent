@@ -21,7 +21,7 @@ class SegmentTree(object):
            a contiguous subsequence of items in the
            array.
 
-    Paramters
+    Parameters
     ---------
     capacity: int
         Total size of the array - must be a power of two.
@@ -107,9 +107,10 @@ class SumSegmentTree(SegmentTree):
     """Returns arr[start] + ... + arr[end]"""
     return super(SumSegmentTree, self).reduce(start, end)
 
-  def find_prefixsum_idx(self, prefixsum):
-    """Find the highest index `i` in the array such that
-        sum(arr[0] + arr[1] + ... + arr[i - i]) <= prefixsum
+  def find_prefix_sum_idx(self, prefix_sum):
+    """
+    Find the highest index `i` in the array such that
+        sum(arr[0] + arr[1] + ... + arr[i - i]) <= prefix_sum
 
     if array values are probabilities, this function
     allows to sample indexes according to the discrete
@@ -117,21 +118,16 @@ class SumSegmentTree(SegmentTree):
 
     Parameters
     ----------
-    perfixsum: float
-        upperbound on the sum of array prefix
-
-    Returns
-    -------
-    idx: int
-        highest index satisfying the prefixsum constraint
+    :param prefix_sum: upper bound on the sum of array prefix
+    :type prefix_sum: float
     """
-    assert 0 <= prefixsum <= self.sum() + 1e-5
+    assert 0 <= prefix_sum <= self.sum() + 1e-5
     idx = 1
     while idx < self._capacity:  # while non-leaf
-      if self._value[2 * idx] > prefixsum:
+      if self._value[2 * idx] > prefix_sum:
         idx = 2 * idx
       else:
-        prefixsum -= self._value[2 * idx]
+        prefix_sum -= self._value[2 * idx]
         idx = 2 * idx + 1
     return idx - self._capacity
 

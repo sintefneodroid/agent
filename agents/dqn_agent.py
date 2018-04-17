@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
 # coding=utf-8
 __author__ = 'cnheider'
-import math
-import random
 import time
 from itertools import count
 
@@ -22,11 +20,7 @@ class DQNAgent(ValueAgent):
 
   """
 
-  def __init__(self, config):
-    super().__init__()
-    self._step_n = 0
-    self._rollout_i = 0
-
+  def __init__(self, config=None, *args, **kwargs):
     self._memory = U.ReplayBuffer(config.REPLAY_MEMORY_SIZE)
     # self._memory = U.PrioritisedReplayMemory(config.REPLAY_MEMORY_SIZE)  # Cuda trouble
 
@@ -69,14 +63,7 @@ class DQNAgent(ValueAgent):
     self._optimiser_epsilon = config.OPTIMISER_EPSILON
     self._optimiser_momentum = config.OPTIMISER_MOMENTUM
 
-    self._end_training = False
-
-  def __int__(self, **kwargs):
-    for k, v in kwargs.items():
-      self.__setattr__(f'_{str.lower(k)}', v)
-
-  def stop_training(self):
-    self._end_training = True
+    super().__init__(config, *args, **kwargs)
 
   def build_model(self, env):
     if type(self._input_size) is str:
@@ -126,7 +113,7 @@ class DQNAgent(ValueAgent):
         params.grad.data.clamp_(-1, 1)
     self._optimiser.step()
 
-  def evaluate_td_error(self, batch):
+  def evaluate(self, batch):
     """
 
     :param batch:
@@ -168,7 +155,7 @@ class DQNAgent(ValueAgent):
     # indices, transitions = self._memory.sample_transitions(self.C.BATCH_SIZE)
     transitions = self._memory.sample_transitions(self._batch_size)
 
-    td_error = self.evaluate_td_error(transitions)
+    td_error = self.evaluate(transitions)
     self.optimise_wrt(td_error)
 
     error = td_error.data[0]
@@ -188,7 +175,7 @@ class DQNAgent(ValueAgent):
     T = tqdm(T, f'Rollout #{self._rollout_i}', leave=False)
 
     for t in T:
-      self._step_n += 1
+      self._step_i += 1
 
       action = self.sample_action(state)
       next_state, signal, terminated, info = environment.step(action)
@@ -209,14 +196,14 @@ class DQNAgent(ValueAgent):
       td_l = 0
 
       if len(self._memory) >= self._batch_size and \
-          self._step_n > self._initial_observation_period and \
-          self._step_n % self._learning_frequency == 0:
+          self._step_i > self._initial_observation_period and \
+          self._step_i % self._learning_frequency == 0:
 
         error = self.update_models()
 
         T.set_description(f'TD error: {error}')
 
-      if self._use_double_dqn and self._step_n % self._sync_target_model_frequency == 0:
+      if self._use_double_dqn and self._step_i % self._sync_target_model_frequency == 0:
         self._target_model.load_state_dict(self._model.state_dict())
         T.write('Target Model Synced')
 
@@ -239,7 +226,7 @@ class DQNAgent(ValueAgent):
     :param state:
     :return:
     """
-    if self.epsilon_random(self._step_n) and self._step_n > self._initial_observation_period:
+    if self.epsilon_random(self._step_i) and self._step_i > self._initial_observation_period:
       return self.sample_model(state)
     return self.sample_random_process()
 
@@ -250,30 +237,8 @@ class DQNAgent(ValueAgent):
     # max_value_action_idx = np.argmax(action_value_estimates.data.cpu().numpy()[0])
     return max_value_action_idx
 
-  def sample_random_process(self):
-    sample = np.random.choice(self._output_size[0])
-    return sample
-
-  def epsilon_random(self, steps_taken):
-    """
-    :param steps_taken:
-    :return:
-    """
-    # assert type(steps_taken) is int
-
-    if steps_taken == 0:
-      return True
-
-    sample = random.random()
-
-    a = self._eps_start - self._eps_end
-    b = math.exp(-1. * steps_taken / self._eps_decay)
-    eps_threshold = self._eps_end + a * b
-
-    return sample > eps_threshold
-
   def step(self, state, env):
-    self._step_n += 1
+    self._step_i += 1
     a = self.sample_action(state)
     return env.step(a)
 
@@ -295,12 +260,13 @@ class DQNAgent(ValueAgent):
   def save_model(self, C):
     U.save_model(self._model, C)
 
-  def load_model(self, model_path):
+  def load_model(self, model_path, evaluation):
     print('Loading latest model: ' + model_path)
     self._model = self._value_arch(**self._value_arch_parameters)
     self._model.load_state_dict(torch.load(model_path))
-    # self._model = self._model.eval()
-    # self._model.train(False)
+    if evaluation:
+      self._model = self._model.eval()
+      self._model.train(False)
     if self._use_cuda:
       self._model = self._model.cuda()
     else:
@@ -389,7 +355,7 @@ def test_dqn_agent(config):
   import gym
 
   environment = gym.make(config.ENVIRONMENT_NAME)
-  environment.seed(config.RANDOM_SEED)
+  environment.seed(config.SEED)
 
   config.VALUE_ARCH_PARAMS['input_size'] = [4]
   config.VALUE_ARCH_PARAMS['output_size'] = [environment.action_space.n]
@@ -489,16 +455,16 @@ if __name__ == '__main__':
   parser = argparse.ArgumentParser(description='DQN Agent')
   parser.add_argument('--ENVIRONMENT_NAME', '-E', type=str, default=C.ENVIRONMENT_NAME,
                       metavar='ENVIRONMENT_NAME',
-                      help='name of the environment to run')
+                      help='Name of the environment to run')
   parser.add_argument('--PRETRAINED_PATH', '-T', metavar='PATH', type=str, default='',
-                      help='path of pre-trained model')
+                      help='Path of pre-trained model')
   parser.add_argument('--RENDER_ENVIRONMENT', '-R', action='store_true',
                       default=C.RENDER_ENVIRONMENT,
-                      help='render the environment')
+                      help='Render the environment')
   parser.add_argument('--NUM_WORKERS', '-N', type=int, default=4, metavar='NUM_WORKERS',
-                      help='number of threads for agent (default: 4)')
-  parser.add_argument('--RANDOM_SEED', '-S', type=int, default=1, metavar='RANDOM_SEED',
-                      help='random seed (default: 1)')
+                      help='Number of threads for agent (default: 4)')
+  parser.add_argument('--SEED', '-S', type=int, default=1, metavar='SEED',
+                      help='Random seed (default: 1)')
   args = parser.parse_args()
 
   for k, arg in args.__dict__.items():

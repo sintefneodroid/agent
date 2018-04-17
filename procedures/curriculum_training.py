@@ -23,8 +23,8 @@ import configs.curriculum.curriculum_config as C
 
 import utilities as U
 
-torch.manual_seed(C.RANDOM_SEED)
-neo.seed(C.RANDOM_SEED)
+torch.manual_seed(C.SEED)
+neo.seed(C.SEED)
 
 _episode_signals = U.Aggregator()
 _episode_durations = U.Aggregator()

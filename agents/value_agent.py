@@ -2,6 +2,10 @@
 # coding=utf-8
 __author__ = 'cnheider'
 
+import random
+
+import numpy as np
+
 from agents.agent import Agent
 
 
@@ -10,5 +14,41 @@ class ValueAgent(Agent):
   All value iteration agents should inherit from this class
   """
 
-  def __init__(self):
-    super().__init__()
+  def __init__(self, config=None, *args, **kwargs):
+    self._eps_start = 0
+    self._eps_end = 0
+    self._eps_decay = 0
+    self._initial_observation_period = 0
+
+    super().__init__(config, *args, **kwargs)
+
+  def sample_action(self, state):
+    if self.epsilon_random(self._step_i) and self._step_i > self._initial_observation_period:
+      return self.sample_model(state)
+    return self.sample_random_process()
+
+  def sample_random_process(self):
+    sample = np.random.choice(self._output_size[0])
+    return sample
+
+  def epsilon_random(self, steps_taken):
+    """
+    :param steps_taken:
+    :return:
+    """
+    # assert type(steps_taken) is int
+
+    if steps_taken == 0:
+      return True
+
+    sample = random.random()
+
+    a = self._eps_start - self._eps_end
+    import math
+    b = math.exp(-1. * steps_taken / self._eps_decay + self._divide_by_zero_safety)
+    eps_threshold = self._eps_end + a * b
+
+    return sample > eps_threshold
+
+  def sample_model(self, state):
+    raise NotImplementedError

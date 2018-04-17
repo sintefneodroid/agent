@@ -139,7 +139,7 @@ class PrioritizedReplayBuffer(ReplayBuffer):
     for _ in range(batch_size):
       # TODO(szymon): should we ensure no repeats?
       mass = random.random() * self._it_sum.sum(0, len(self._storage) - 1)
-      idx = self._it_sum.find_prefixsum_idx(mass)
+      idx = self._it_sum.find_prefix_sum_idx(mass)
       res.append(idx)
     return res
 
