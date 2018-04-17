@@ -2,5 +2,4 @@
 # coding=utf-8
 __author__ = 'cnheider'
 
-
 from .difficulty import *

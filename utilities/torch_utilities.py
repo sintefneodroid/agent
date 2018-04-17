@@ -57,7 +57,8 @@ def to_tensor(x, dtype="float", use_cuda=True):
 def pi_torch(use_cuda=False):
   to_var([np.math.pi], use_cuda=use_cuda)
 
-def normal(x, mu, sigma_sq,use_cuda=False):
+
+def normal(x, mu, sigma_sq, use_cuda=False):
   a = (-1 * (Variable(x) - mu).pow(2) / (2 * sigma_sq)).exp()
   b = 1 / (2 * sigma_sq * pi_torch(use_cuda).expand_as(sigma_sq)).sqrt()
   return a * b

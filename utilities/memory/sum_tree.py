@@ -2,6 +2,7 @@
 # coding=utf-8
 __author__ = 'cnheider'
 
+
 class SumTree:
 
   def __init__(self, capacity):

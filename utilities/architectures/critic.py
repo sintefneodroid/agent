@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # coding=utf-8
-__author__='cnheider'
+__author__ = 'cnheider'
 import torch
 from torch import nn
 from torch.nn import functional as F, init

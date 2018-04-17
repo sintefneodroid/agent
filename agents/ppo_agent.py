@@ -13,7 +13,6 @@ from agents.ac_agent import ACAgent
 
 cv2.setNumThreads(0)
 
-
 import utilities as U
 
 
@@ -32,44 +31,56 @@ class PPOAgent(ACAgent):
     super().__init__()
     self._rollout_i = 0
     self._step_i = 0
-    self.state_dim = config.ARCH_PARAMS['input_size']
-    self.action_dim = config.ARCH_PARAMS['output_size']
-    self.steps = config.STEPS
+    self._state_dim = config.ARCH_PARAMS['input_size']
+    self._action_dim = config.ARCH_PARAMS['output_size']
+    self._steps = config.STEPS
 
-    self.gamma = config.GAMMA
-    self.glp = config.GAE_LAMBDA_PARAMETER
-    self.horizon_penalty = config.DONE_PENALTY
+    self._gamma = config.GAMMA
+    self._glp = config.GAE_LAMBDA_PARAMETER
+    self._horizon_penalty = config.DONE_PENALTY
 
-    self.experience_buffer = U.ExpandableBuffer()
-    self.critic_loss = config.CRITIC_LOSS
-    self.actor_critic_lr = config.ACTOR_LR
-    self.critic_lr = config.CRITIC_LR
-    self.entropy_reg_coef = config.ENTROPY_REG_COEF
-    self.value_reg_coef = config.VALUE_REG_COEF
-    self.batch_size = config.BATCH_SIZE
-    self.episodes_before_train = config.EPISODES_BEFORE_TRAIN
-    self.target_tau = config.TARGET_TAU
-    self.max_grad_norm = config.MAX_GRADIENT_NORM
+    self._experience_buffer = U.ExpandableBuffer()
+    self._critic_loss = config.CRITIC_LOSS
+    self._actor_critic_lr = config.ACTOR_LR
+    self._critic_lr = config.CRITIC_LR
+    self._entropy_reg_coef = config.ENTROPY_REG_COEF
+    self._value_reg_coef = config.VALUE_REG_COEF
+    self._batch_size = config.BATCH_SIZE
+    self._episodes_before_train = config.EPISODES_BEFORE_TRAIN
+    self._target_tau = config.TARGET_TAU
+    self._max_grad_norm = config.MAX_GRADIENT_NORM
 
     # params for epsilon greedy
-    self.epsilon_start = config.EPSILON_START
-    self.epsilon_end = config.EPSILON_END
-    self.epsilon_decay = config.EPSILON_DECAY
+    self._epsilon_start = config.EPSILON_START
+    self._epsilon_end = config.EPSILON_END
+    self._epsilon_decay = config.EPSILON_DECAY
 
-    self.use_cuda = config.use_cuda and th.cuda.is_available()
+    self._use_cuda = config.USE_CUDA and th.cuda.is_available()
 
-    self.update_target_interval = config.TARGET_UPDATE_STEPS
-    self.clip = config.CLIP
+    self._update_target_interval = config.TARGET_UPDATE_STEPS
+    self._clip = config.CLIP
 
-    self.actor_critic = U.ActorCriticNetwork(config)
-    self.actor_critic_target = U.ActorCriticNetwork(config)
-    self.actor_critic_target.load_state_dict(self.actor_critic.state_dict())
+    self._optimiser_type = config.OPTIMISER_TYPE
 
-    self.optimiser = config.OPTIMISER_TYPE(self.actor_critic.parameters(), lr=self.actor_critic_lr)
+    self._actor_critic_arch = U.ActorCriticNetwork
+    self._actor_critic_params = config
 
-    if self.use_cuda:
-      self.actor_critic.cuda()
-      self.actor_critic_target.cuda()
+    self.__build_model__()
+    self._end_training = False
+
+  def __build_model__(self):
+    self._actor_critic = self._actor_critic_arch(self._actor_critic_params)
+    self._actor_critic_target = U.ActorCriticNetwork(self._actor_critic_params)
+    self._actor_critic_target.load_state_dict(self._actor_critic.state_dict())
+
+    self._optimiser = self._optimiser_type(self._actor_critic.parameters(), lr=self._actor_critic_lr)
+
+    if self._use_cuda:
+      self._actor_critic.cuda()
+      self._actor_critic_target.cuda()
+
+  def stop_training(self):
+    self._end_training = True
 
   def maybe_take_n_steps(self, initial_state, environment, n=100):
     state = initial_state
@@ -97,8 +108,8 @@ class PPOAgent(ACAgent):
 
       accumulated_signal += signal
 
-      if self._step_i % self.update_target_interval == 0:
-        self.actor_critic_target.load_state_dict(self.actor_critic.state_dict())
+      if self._step_i % self._update_target_interval == 0:
+        self._actor_critic_target.load_state_dict(self._actor_critic.state_dict())
 
       if terminated:
         break
@@ -113,9 +124,8 @@ class PPOAgent(ACAgent):
     advantages, discounted_returns = U.gae(signals,
                                            value_estimates,
                                            n_step_summary.non_terminal,
-                                           self.gamma,
-                                           glp=self.glp)  # compute GAE(lambda) advantages and discounted
-    # returns
+                                           self._gamma,
+                                           glp=self._glp)
 
     i = 0
     advantage_memories = []
@@ -134,18 +144,18 @@ class PPOAgent(ACAgent):
     return advantage_memories
 
   def evaluate_model_cost(self):
-    batch = U.AdvantageMemory(*zip(*self.experience_buffer.memory))
+    batch = U.AdvantageMemory(*zip(*self._experience_buffer.memory))
 
-    states_var = U.to_var(batch.state, use_cuda=self.use_cuda).view(-1, self.state_dim[0])
-    action_var = U.to_var(batch.action, use_cuda=self.use_cuda, dtype='long')
-    action_probs_var = U.to_var(batch.action_prob, use_cuda=self.use_cuda).view(-1, self.action_dim[0])
-    values_var = U.to_var(batch.value_estimate, use_cuda=self.use_cuda).view(-1, 1)
-    advantages_var = U.to_var(batch.advantage, use_cuda=self.use_cuda).view(-1, 1)
-    returns_var = U.to_var(batch.discounted_return, use_cuda=self.use_cuda).view(-1, 1)
+    states_var = U.to_var(batch.state, use_cuda=self._use_cuda).view(-1, self._state_dim[0])
+    action_var = U.to_var(batch.action, use_cuda=self._use_cuda, dtype='long')
+    action_probs_var = U.to_var(batch.action_prob, use_cuda=self._use_cuda).view(-1, self._action_dim[0])
+    values_var = U.to_var(batch.value_estimate, use_cuda=self._use_cuda)
+    advantages_var = U.to_var(batch.advantage, use_cuda=self._use_cuda)
+    returns_var = U.to_var(batch.discounted_return, use_cuda=self._use_cuda)
 
     action_prob = action_probs_var.gather(1, action_var)
 
-    action_probs_t, _ = self.actor_critic_target(states_var)
+    action_probs_t, _ = self._actor_critic_target(states_var)
     action_prob_t = action_probs_t.gather(1, action_var)
 
     ratio = action_prob / (action_prob_t + 1e-10)
@@ -153,13 +163,13 @@ class PPOAgent(ACAgent):
     advantage = (advantages_var - advantages_var.mean()) / (advantages_var.std() + 1e-10)
 
     surrogate = ratio * advantage
-    surrogate_clipped = torch.clamp(ratio, min=1. - self.clip, max=1. + self.clip) * advantage  # (L^CLIP)
+    surrogate_clipped = torch.clamp(ratio, min=1. - self._clip, max=1. + self._clip) * advantage  # (L^CLIP)
 
     policy_loss = -torch.min(surrogate, surrogate_clipped).mean()
     value_error = (.5 * (values_var - returns_var) ** 2.).mean()
     entropy_loss = U.entropy(action_probs_var).mean()
 
-    cost = policy_loss + value_error * self.value_reg_coef + entropy_loss * self.entropy_reg_coef
+    cost = policy_loss + value_error * self._value_reg_coef + entropy_loss * self._entropy_reg_coef
 
     return cost
 
@@ -168,15 +178,15 @@ class PPOAgent(ACAgent):
     self.optimise_wrt(cost)
 
   def optimise_wrt(self, cost):
-    self.optimiser.zero_grad()
+    self._optimiser.zero_grad()
     cost.backward()
-    if self.max_grad_norm is not None:
-      nn.utils.clip_grad_norm(self.actor_critic.parameters(), self.max_grad_norm)
-    self.optimiser.step()
+    if self._max_grad_norm is not None:
+      nn.utils.clip_grad_norm(self._actor_critic.parameters(), self._max_grad_norm)
+    self._optimiser.step()
 
   def discrete_categorical_sample_model(self, state):
-    state_var = U.to_var(state, use_cuda=self.use_cuda, unsqueeze=True)
-    softmax_probs, value_estimate = self.actor_critic(state_var)
+    state_var = U.to_var(state, use_cuda=self._use_cuda, unsqueeze=True)
+    softmax_probs, value_estimate = self._actor_critic(state_var)
     m = Categorical(softmax_probs)
     action = m.sample()
     a = action.cpu().data.numpy()[0]
@@ -184,7 +194,7 @@ class PPOAgent(ACAgent):
 
   def continuous_sample_model(self, state):
     state_var = U.to_var([state])
-    a_mean, a_log_std, value_estimate = self.actor_critic(state_var)
+    a_mean, a_log_std, value_estimate = self._actor_critic(state_var)
 
     # randomly sample from normal distribution, whose mean and variance come from policy network.
     # [b, a_dim]
@@ -202,6 +212,21 @@ class PPOAgent(ACAgent):
   def sample_action(self, state):
     action, *_ = self.discrete_categorical_sample_model(state)
     return action
+
+  def save_model(self, C):
+    U.save_model(self._model, C)
+
+  def load_model(self, model_path, eval=False):
+    print('Loading latest model: ' + model_path)
+    self._model = self._actor_critic(**self._value_arch_parameters)
+    self._model.load_state_dict(torch.load(model_path))
+    if eval:
+      self._model = self._model.eval()
+      self._model.train(False)
+    if self._use_cuda:
+      self._model = self._model.cuda()
+    else:
+      self._model = self._model.cpu()
 
 
 def test_ppo_agent(C):
@@ -235,9 +260,11 @@ def test_ppo_agent(C):
     if rollout_i >= C.EPISODES_BEFORE_TRAIN:
       advantage_memories = ppo_agent.trace_back_steps(transitions)
       for m in advantage_memories:
-        ppo_agent.experience_buffer.remember(m)
+        ppo_agent._experience_buffer.remember(m)
+
       ppo_agent.train()
-      ppo_agent.experience_buffer.forget()
+      ppo_agent._experience_buffer.forget()
+
 
 if __name__ == '__main__':
   import argparse
@@ -270,3 +297,5 @@ if __name__ == '__main__':
     test_ppo_agent(C)
   except KeyboardInterrupt:
     print('Stopping')
+
+ed

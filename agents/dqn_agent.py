@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # coding=utf-8
-__author__='cnheider'
+__author__ = 'cnheider'
 import math
 import random
 import time
@@ -386,12 +386,6 @@ class DQNAgent(ValueAgent):
 
 
 def test_dqn_agent(config):
-
-  import logging
-  import os
-  import signal
-  import torch
-  import torch.multiprocessing as TMP
   import gym
 
   environment = gym.make(config.ENVIRONMENT_NAME)
@@ -403,7 +397,7 @@ def test_dqn_agent(config):
   agent = DQNAgent(C)
   listener = U.add_early_stopping_key_combination(agent.stop_training)
 
-  _trained_model=None
+  _trained_model = None
   listener.start()
   try:
     agent.build_model(environment)
@@ -415,6 +409,8 @@ def test_dqn_agent(config):
   U.save_model(_trained_model, C)
 
   environment.close()
+
+
 #
 # def main2():
 #   args = parser.parse_args()
@@ -517,4 +513,3 @@ if __name__ == '__main__':
     test_dqn_agent(C)
   except KeyboardInterrupt:
     print('Stopping')
-

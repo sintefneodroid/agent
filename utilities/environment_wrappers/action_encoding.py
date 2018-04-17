@@ -2,7 +2,6 @@
 # coding=utf-8
 __author__ = 'cnheider'
 
-
 import utilities as U
 from neodroid.wrappers.curriculum_wrapper import NeodroidCurriculumWrapper
 from neodroid.wrappers.gym_wrapper import NeodroidGymWrapper

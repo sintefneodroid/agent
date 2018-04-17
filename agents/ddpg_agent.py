@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # coding=utf-8
-__author__='cnheider'
+__author__ = 'cnheider'
 from itertools import count
 
 import numpy as np
@@ -12,6 +12,7 @@ import utilities as U
 from agents.ac_agent import ACAgent
 from utilities.random_process.ornstein_uhlenbeck import OrnsteinUhlenbeckProcess
 from utilities.visualisation.term_plot import term_plot
+
 
 class DDPGAgent(ACAgent):
   '''
@@ -184,13 +185,14 @@ class DDPGAgent(ACAgent):
     signal_batch = U.to_var(signal_batch, use_cuda=self._use_cuda).unsqueeze(0)
     non_terminal_mask = U.to_var(non_terminal_batch, use_cuda=self._use_cuda).unsqueeze(0)
 
-    td_error = self.evaluate_td_error(state_batch,action_batch,signal_batch,next_state_batch,non_terminal_mask)
+    td_error = self.evaluate_td_error(state_batch, action_batch, signal_batch, next_state_batch,
+                                      non_terminal_mask)
 
     self.optimise_critic_wrt(td_error)
 
     ### Actor ###
     loss = -self.critic(state_batch, self.actor(state_batch)).mean()
-    #loss = -torch.sum(self.critic(state_batch, self.actor(state_batch)))
+    # loss = -torch.sum(self.critic(state_batch, self.actor(state_batch)))
 
     self.optimise_actor_wrt(loss)
 
@@ -243,8 +245,8 @@ class DDPGAgent(ACAgent):
       if self._C.SIGNAL_CLIPPING:
         signal = np.clip(action, -1.0, 1.0)
 
-      #successor_state = None
-      #if not terminated:  # If environment terminated then there is no successor state
+      # successor_state = None
+      # if not terminated:  # If environment terminated then there is no successor state
       successor_state = next_state
 
       self._replay_memory.add_transition(state,
@@ -302,14 +304,14 @@ class DDPGAgent(ACAgent):
 
       if episode_i % stat_frequency == 0:
         t_episode = [i for i in range(1, episode_i + 1)]
-        term_plot(t_episode, stats.signal_mas, 'Moving signal' ,printer=E.write)
+        term_plot(t_episode, stats.signal_mas, 'Moving signal', printer=E.write)
         E.set_description(f'Episode: {episode_i}, Last Moving signal: {stats.signal_mas[-1]}')
 
       signal, dur = 0, 0
       if render and episode_i % render_frequency == 0:
-        signal, dur, *rolloutstats = self.rollout(state, env, render=render)
+        signal, dur, *rollout_stats = self.rollout(state, env, render=render)
       else:
-        signal, dur, *rolloutstats = self.rollout(state, env)
+        signal, dur, *rollout_stats = self.rollout(state, env)
 
       stats.episode_lengths.append(dur)
       stats.episode_signals.append(signal)

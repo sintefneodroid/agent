@@ -2,8 +2,6 @@
 # coding=utf-8
 __author__ = 'cnheider'
 
-
-
 CURRICULUM = {
   'level1': {
     'when_reward':   0.5,

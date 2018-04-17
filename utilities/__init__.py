@@ -3,6 +3,7 @@
 __author__ = 'cnheider'
 
 from .architectures import *
+from .configuration import *
 from .curriculum import *
 from .environment_wrappers import *
 from .functions import *
@@ -16,4 +17,3 @@ from .stopping import *
 from .torch_utilities import *
 from .transformation import *
 from .visualisation import *
-from .configuration import *

@@ -15,28 +15,28 @@ color2num = dict(
     cyan=36,
     white=37,
     crimson=38
-)
+    )
 
 
-def sprint(obj, color='white', bold=False, highlight = False):
-    """
-    Stylised print.
-    Valid colors: gray, red, green, yellow, blue, magenta, cyan, white, crimson
-    """
+def sprint(obj, color='white', bold=False, highlight=False):
+  """
+  Stylised print.
+  Valid colors: gray, red, green, yellow, blue, magenta, cyan, white, crimson
+  """
 
+  attr = []
+  if color in color2num:
+    num = color2num[color]
+  else:
+    num = color2num['white']
+  if highlight:
+    num += 10
+  attr.append(six.u(str(num)))
+  if bold:
+    attr.append(six.u('1'))
+  attrs = six.u(';').join(attr)
+  print(six.u(f'\x1b[{attrs}m{obj}\x1b[0m'))
 
-    attr = []
-    if color in color2num:
-      num = color2num[color]
-    else:
-      num= color2num['white']
-    if highlight:
-      num += 10
-    attr.append(six.u(str(num)))
-    if bold:
-      attr.append(six.u('1'))
-    attrs = six.u(';').join(attr)
-    print(six.u(f'\x1b[{attrs}m{obj}\x1b[0m'))
 
 if __name__ == '__main__':
-    sprint(f'{numpy.zeros(4)}, it works!','green')
+  sprint(f'{numpy.zeros(4)}, it works!', 'green')

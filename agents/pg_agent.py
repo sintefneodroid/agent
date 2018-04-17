@@ -20,6 +20,7 @@ import utilities as U
 from torch.distributions import Categorical
 from agents.policy_agent import PolicyAgent
 
+
 class PGAgent(PolicyAgent):
   def __init__(self, config, gamma=0.99, lr=1e-4, entropy_reg=1e-4):
 

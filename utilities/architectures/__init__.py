@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # coding=utf-8
-__author__='cnheider'
+__author__ = 'cnheider'
 from .actor import *
 from .actor import *
 from .actor_critic import *

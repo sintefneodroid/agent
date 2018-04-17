@@ -2,7 +2,6 @@
 # coding=utf-8
 __author__ = 'cnheider'
 
-
 import random
 
 import numpy as np
@@ -16,6 +15,22 @@ def set_seed(seed):
 
 
 def gae(signals, value_estimates, masks, gamma=0.99, glp=0.95):  # , cuda=True):
+  """
+  compute GAE(lambda) advantages and discounted returns
+
+  :param signals:
+  :type signals:
+  :param value_estimates:
+  :type value_estimates:
+  :param masks:
+  :type masks:
+  :param gamma:
+  :type gamma:
+  :param glp:
+  :type glp:
+  :return:
+  :rtype:
+  """
   T = len(signals)
 
   advantages = np.zeros(T)

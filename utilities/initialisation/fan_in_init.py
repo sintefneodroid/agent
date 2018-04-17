@@ -2,7 +2,6 @@
 # coding=utf-8
 __author__ = 'cnheider'
 
-
 import numpy as np
 from torch.nn import init
 

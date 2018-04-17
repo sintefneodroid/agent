@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 # coding=utf-8
-__author__='cnheider'
+__author__ = 'cnheider'
+
+
 # http://localhost:8097
 # python -m visdom.server
 
