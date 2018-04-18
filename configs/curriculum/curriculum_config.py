@@ -142,19 +142,19 @@ CURRICULUM2 = {
 
 # Architecture
 POLICY_ARCH_PARAMS = {
-  'input_size':    '',  # Obtain from environment
+  'input_size':    None,  # Obtain from environment
   'activation':    F.leaky_relu,
   'hidden_layers': [128, 64, 32, 16],
-  'output_size':   '',  # Obtain from environment,
+  'output_size':   None,  # Obtain from environment,
   'use_bias':      False
   }
 POLICY_ARCH = CategoricalMLP
 
 VALUE_ARCH_PARAMS = {
-  'input_size':    '',  # Obtain from environment
+  'input_size':    None,  # Obtain from environment
   'activation':    F.relu,
   'hidden_layers': [128, 64, 32, 16],
-  'output_size':   '',  # Obtain from environment
+  'output_size':   None,  # Obtain from environment
   'use_bias':      False
   }
 VALUE_ARCH = MLP

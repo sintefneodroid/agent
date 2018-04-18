@@ -6,6 +6,7 @@ Description: Config for training
 Author: Christian Heider Nielsen
 """
 from configs.base_config import *
+import utilities as U
 
 CONFIG_NAME = __name__
 CONFIG_FILE = __file__
@@ -19,6 +20,7 @@ EPISODES = 10000
 INITIAL_OBSERVATION_PERIOD = 0
 LEARNING_FREQUENCY = 1
 REPLAY_MEMORY_SIZE = 1000
+MEMORY = U.ReplayBuffer(REPLAY_MEMORY_SIZE)
 
 BATCH_SIZE = 32
 DISCOUNT_FACTOR = 0.99
@@ -37,10 +39,10 @@ ENVIRONMENT_NAME = 'CartPole-v0'
 
 
 # Architecture
-VALUE_ARCH_PARAMS = {
-  'input_size':    '',  # Obtain from environment
-  'hidden_layers': [64, 32, 16],
-  'output_size':   '',  # Obtain from environment
-  'activation':    F.relu,
-  'use_bias':      True
+VALUE_ARCH_PARAMETERS = {
+  'input_size':  None,  # Obtain from environment
+  'hidden_size': [64, 32, 16],
+  'output_size': None,  # Obtain from environment
+  'activation':  F.relu,
+  'use_bias':    True
   }

@@ -8,59 +8,82 @@ from itertools import count
 import gym
 import numpy as np
 import torch
+import torch.nn.functional as F
 from torch.autograd import Variable
+from torch.distributions import Categorical
 from tqdm import tqdm
 
+import utilities as U
+from agents.policy_agent import PolicyAgent
 from utilities.visualisation.term_plot import term_plot
 
 tqdm.monitor_interval = 0
 
-import utilities as U
-
-from torch.distributions import Categorical
-from agents.policy_agent import PolicyAgent
-
 
 class PGAgent(PolicyAgent):
 
+  def __defaults__(self):
+
+    self._policy_arch = U.CategoricalMLP
+    self._accumulated_error = U.to_var([0.0], use_cuda=self._use_cuda_if_available)
+    self._evaluation_function = torch.nn.CrossEntropyLoss()
+    self._trajectory = U.Trajectory()
+
+    self._policy_arch_params = {
+      'input_size':    None,  # Obtain from environment
+      'hidden_layers': [64, 32, 16],
+      'output_size':   None,  # Obtain from environment
+      'activation':    F.relu,
+      'use_bias':      True
+      }
+
+    self._use_cuda_if_available = False
+    self._discount_factor = 0.99
+    self._use_batched_updates = False
+    self._batch_size = 5
+    self._pg_entropy_reg = 1e-4
+    self._signal_clipping = False
+
+    self._optimiser_learning_rate = 1e-4
+    self._optimiser_type = torch.optim.Adam
+    self._optimiser_weight_decay = 1e-5
+
+  def sample_model(self, state, **kwargs):
+    state_var = U.to_var(state, use_cuda=self._use_cuda_if_available, unsqueeze=True)
+    probs = self._policy(state_var)
+    m = Categorical(probs)
+    action = m.sample()
+    return action.cpu().data.numpy()[0]
+
   def build_model(self, env):
-    if type(self._policy_arch_params['input_size']) == str:
-      self._policy_arch_params['input_size'] = env.observation_space.shape
-    print('observation dimensions: ', self._policy_arch_params['input_size'])
+    self.infer_input_output_sizes(env)
 
-    if type(self._policy_arch_params['output_size']) == str:
-      if hasattr(env.action_space, 'num_binary_actions'):
-        self._policy_arch_params['output_size'] = [env.action_space.num_binary_actions]
-      else:
-        self._policy_arch_params['output_size'] = [env.action_space.n]
-    print('action dimensions: ', self._policy_arch_params['output_size'])
-
-    self._model = self.__build_model__()
+    self._policy = self.__build_model__()
 
   def __build_model__(self):
 
-    model = self._policy_arch(**self._policy_arch_params)
+    policy = self._policy_arch(**self._policy_arch_params)
 
     if self._use_cuda_if_available:
-      model = model.cuda()
+      policy = policy.cuda()
 
-    self.optimiser = self._optimiser_type(model.parameters(), lr=self._optimiser_learning_rate,
+    self.optimiser = self._optimiser_type(policy.parameters(), lr=self._optimiser_learning_rate,
                                           weight_decay=self._optimiser_weight_decay)
 
-    return model
+    return policy
 
-  def sample_action(self, state):
+  def sample_action(self, state, **kwargs):
     state_var = U.to_var(state, use_cuda=self._use_cuda_if_available, unsqueeze=True)
-    probs = self._model(state_var)
+    probs = self._policy(state_var)
     m = Categorical(probs)
-    action = m.sample()
-    a = action.cpu().data.numpy()[0]
-    # a = np.argmax(a)
-    return a, m.log_prob(action), U.log_entropy(probs)
+    action_sample = m.sample()
+    action = action_sample.cpu().data.numpy()[0]
+    # action = np.argmax(action)
+    return action, m.log_prob(action_sample), U.log_entropy(probs)
 
   def sample_cont_action(self, state):
     state_var = U.to_var(state, use_cuda=self._use_cuda_if_available, unsqueeze=True)
-    mu, sigma_sq = self._model(state_var)  # requires MultiheadedMLP
+    mu, sigma_sq = self._policy(state_var)  # requires MultiheadedMLP
 
     eps = torch.randn(mu.size())
     # calculate the probability
@@ -71,12 +94,12 @@ class PGAgent(PolicyAgent):
     log_prob = prob.log()
     return action, log_prob, entropy
 
-  def evaluate(self, not_used):
+  def evaluate(self, not_used, **kwargs):
     R = 0
     policy_loss = []
     signals = []
     for r in self._trajectory.signals[::-1]:
-      R = r + self._pg_gamma * R
+      R = r + self._discount_factor * R
       signals.insert(0, R)
 
     signals = U.to_tensor(signals, use_cuda=self._use_cuda_if_available)
@@ -137,50 +160,12 @@ class PGAgent(PolicyAgent):
 
     return episode_signal, episode_length, episode_entropy / episode_length
 
-  def __init__(self, config=None, *args, **kwargs):
-
-    self.C = config
-
-    self._policy_arch = None
-    self._policy_arch_params = None
-    self._use_cuda_if_available = False
-    self._pg_gamma = config.PG_GAMMA
-    self._pg_learning_rate = config.PG_LR
-    self._optimiser_type = config.OPTIMISER_TYPE
-    self._optimiser_learning_rate = config.OPTIMISER_LEARNING_RATE
-
-    self._pg_entropy_reg = config.PG_ENTROPY_REG
-    self._signal_clipping = config.SIGNAL_CLIPPING
-
-    self._optimiser_weight_decay = config.OPTIMISER_WEIGHT_DECAY
-    self._evaluation_function = config.EVALUATION_FUNCTION()
-
-    self._trajectory = U.Trajectory()
-    self._use_batched_updates = False  # self.C.BATCHED_UPDATES
-    self._batch_size = 5  # self.C.BATCH_SIZE
-    self._accumulated_error = U.to_var([0.0], use_cuda=self._use_cuda_if_available)
-
-    super().__init__(config, *args, **kwargs)
-
-  def optimise_wrt(self, loss):
+  def optimise_wrt(self, loss, **kwargs):
     self.optimiser.zero_grad()
     loss.backward()
-    for params in self._model.parameters():
+    for params in self._policy.parameters():
       params.grad.data.clamp_(-1, 1)
     self.optimiser.step()
-
-  def save_model(self, C):
-    U.save_model(self._model, C)
-
-  def load_model(self, model_path, evaluation=False):
-    print('loading latest model: ' + model_path)
-    self._model = self._policy_arch(**self._policy_arch_params)
-    self._model.load_state_dict(torch.load(model_path))
-    if evaluation:
-      self.model = self._model.eval()
-      self._model.train(False)
-    if self._use_cuda_if_available:
-      self._model = self._model.cuda()
 
   def infer(self, env, render=True):
 
@@ -198,7 +183,7 @@ class PGAgent(PolicyAgent):
         if terminated:
           break
 
-  def train(self, _environment, rollouts=1000, render=False, render_frequency=100, stat_frequency=100):
+  def train(self, _environment, rollouts=2000, render=False, render_frequency=100, stat_frequency=100):
 
     training_start_timestamp = time.time()
     E = range(1, rollouts)
@@ -226,21 +211,14 @@ class PGAgent(PolicyAgent):
     end_message = f'Training done, time elapsed: {time_elapsed // 60:.0f}m {time_elapsed %60:.0f}s'
     print('\n{} {} {}\n'.format('-' * 9, end_message, '-' * 9))
 
-    return self._model, []
+    return self._policy, []
 
 
 def test_pg_agent(config):
-  env_name = 'CartPole-v0'
-  # env_name = 'LunarLander-v2' # (coord_x, coord_y, vel_x, vel_y, angle, angular_vel, l_leg_on_ground,
-  # r_leg_on_ground)
 
-  env = gym.make(env_name)
+  env = gym.make(config.ENVIRONMENT_NAME)
   env.seed(config.SEED)
-
   torch.manual_seed(config.SEED)
-  config.USE_CUDA_IF_AVAILABLE = False
-  config.ARCH_PARAMS['input_size'] = [4]
-  config.ARCH_PARAMS['output_size'] = [env.action_space.n]
 
   agent = PGAgent(config)
   agent.build_model(env)
@@ -250,64 +228,6 @@ def test_pg_agent(config):
   U.save_model(_trained_model, config)
 
   env.close()
-
-
-#
-# def test_agent():
-#   import configs.pg_config as C
-#
-#   env_name = 'CartPole-v0' # 'LunarLander-v2'
-#   env = gym.make(env_name)
-#   env.seed(C.SEED)
-#
-#   torch.manual_seed(C.SEED)
-#   C.USE_CUDA_IF_AVAILABLE = False
-#   C.ARCH_PARAMS['input_size'] = [4]
-#   C.ARCH_PARAMS['output_size'] = [env.action_space.n]
-#   agent = PGAgent(C)
-#   agent.build_model(env)
-#   render = False
-#
-#   running_length = 0
-#   for i_episode in count(1):
-#     state = env.reset()
-#
-#     episode_length=0
-#     T=range(10000)
-#     for t in T:
-#       action, log_prob, entropy, *_ = agent.sample_action(state)
-#       state, reward, done, _ = env.step(action)
-#
-#       if render:
-#         env.render()
-#
-#       agent.trajectory.remember(reward, log_prob, entropy)
-#       if done:
-#         episode_length = t
-#         break
-#
-#     running_length = running_length * 0.99 + episode_length * 0.01
-#     error = agent.evaluate_model()
-#     agent.trajectory.forget()
-#     if error is not None:
-#       if agent.use_batched_updates:
-#         agent.accum_error += error
-#         if agent._rollout_i % agent.batch_size == 0:
-#           agent.optimise_wrt(agent.accum_error / agent.batch_size)
-#           agent.accum_error = U.to_var([0.0], use_cuda=agent.C.USE_CUDA_IF_AVAILABLE)
-#       else:
-#         agent.optimise_wrt(error)
-#
-#     if i_episode % 10 == 0:
-#       print('Episode {}\tLast length: {:5d}\tAverage length: {:.2f}'.format(
-#           i_episode, episode_length, running_length))
-#
-#     if running_length > env.spec.reward_threshold:
-#       print("Solved! Running reward is now {} and "
-#             "the last episode runs to {} time steps!".format(running_length,
-#                                                              episode_length))
-#       torch.save(agent._model.state_dict(), 'policy.model')
-#       break
 
 
 if __name__ == '__main__':
@@ -327,15 +247,19 @@ if __name__ == '__main__':
                       help='number of threads for agent (default: 4)')
   parser.add_argument('--SEED', '-S', type=int, default=1, metavar='SEED',
                       help='random seed (default: 1)')
+  parser.add_argument('--skip_confirmation', '-skip', action='store_true',
+                      default=False,
+                      help='Skip confirmation of config to be used')
   args = parser.parse_args()
 
   for k, arg in args.__dict__.items():
     setattr(C, k, arg)
 
-  for k, arg in U.get_upper_vars_of(C).items():
-    print(f'{k} = {arg}')
-
-  input('\nPress any key to begin... ')
+  print(f'Using config: {C}')
+  if not args.skip_confirmation:
+    for k, arg in U.get_upper_vars_of(C).items():
+      print(f'{k} = {arg}')
+    input('\nPress any key to begin... ')
 
   try:
     test_pg_agent(C)

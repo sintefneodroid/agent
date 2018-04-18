@@ -57,10 +57,10 @@ CRITIC_LR = 3e-4
 
 USE_CUDA = False
 
-ARCH_PARAMS = {'input_size':              '',
+ARCH_PARAMS = {'input_size':              None,
                'actor_hidden_size':       [32],
                'critic_hidden_size':      [32],
-               'output_size':             '',
+               'output_size':             None,
                'actor_output_activation': F.log_softmax,
                'critic_output_size':      [1],
                'continuous':              False

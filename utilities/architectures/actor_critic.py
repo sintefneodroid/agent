@@ -1,38 +1,66 @@
 #!/usr/bin/env python3
 # coding=utf-8
+from utilities.architectures.architecture import Architecture
+
 __author__ = 'cnheider'
 
 from torch import nn
 from torch.nn import functional as F
 
 
-class ActorCriticNetwork(nn.Module):
+class ActorCriticNetwork(Architecture):
   """
   An actor-critic network that shared lower-layer representations but
   have distinct output layers
   """
 
-  def __init__(self, C):
-    super(ActorCriticNetwork, self).__init__()
-    self.fc1 = nn.Linear(C.ARCH_PARAMS['input_size'][0], C.ARCH_PARAMS['actor_hidden_size'][0])
-    self.fc2 = nn.Linear(C.ARCH_PARAMS['actor_hidden_size'][0], C.ARCH_PARAMS['actor_hidden_size'][0])
-    self.actor_linear = nn.Linear(C.ARCH_PARAMS['actor_hidden_size'][0], C.ARCH_PARAMS['output_size'][0])
-    self.critic = nn.Linear(C.ARCH_PARAMS['actor_hidden_size'][0], C.ARCH_PARAMS['critic_output_size'][0])
-    self.actor_output_activation = C.ARCH_PARAMS['actor_output_activation']
+  def __init__(self,
+               input_size,
+               hidden_size,
+               actor_hidden_size,
+               actor_output_size,
+               critic_hidden_size,
+               critic_output_size,
+               actor_output_activation,
+               continuous):
+    super().__init__()
 
-    self.continuous = C.ARCH_PARAMS['continuous']
+    self.input_size = input_size
+    self.hidden_size = hidden_size
 
-  def __call__(self, state):
+    self.actor_hidden_size = actor_hidden_size
+    self.actor_output_size = actor_output_size
+
+    self.critic_hidden_size = critic_hidden_size
+    self.critic_output_size = critic_output_size
+
+    self.continuous = continuous
+
+    self.actor_output_activation = actor_output_activation
+
+    self.fc1 = nn.Linear(self.input_size, self.hidden_size[0])
+    self.fc2 = nn.Linear(self.hidden_size[0], self.hidden_size[1])
+
+    self.actor_fc1 = nn.Linear(self.hidden_size[1], self.actor_hidden_size[0])
+    self.actor_head = nn.Linear(self.actor_hidden_size[0], self.actor_output_size[0])
+
+    self.critic_fc1 = nn.Linear(self.hidden_size[1], self.critic_hidden_size[0])
+    self.critic_output = nn.Linear(self.critic_hidden_size[0], self.critic_output_size[0])
+
+  def forward(self, state):
     x = F.relu(self.fc1(state))
     x = F.relu(self.fc2(x))
 
-    prob = self.actor_linear(x)
+    prob = self.actor_fc1(x)
     # act = self.actor_output_activation(act)
-    prob = F.softmax(prob, dim=1)
+    prob = self.actor_head(prob)
+    prob_out = F.softmax(prob, dim=1)
 
-    value = self.critic(x)
+    value = self.critic_fc1(x)
+    value_out = self.critic_output(value)
+
     if not self.continuous:
-      return prob, value
+      return prob_out, value_out
     else:
-      log_prob = F.log_softmax(x, dim=1)
-      return prob, log_prob, value
+      log_prob = F.log_softmax(prob, dim=1)
+      return prob_out, log_prob, value_out

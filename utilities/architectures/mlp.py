@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 # coding=utf-8
+from utilities.architectures.architecture import Architecture
+
 __author__ = 'cnheider'
 
 """
@@ -12,7 +14,7 @@ from torch.autograd import Variable
 from torch.nn import functional as F
 
 
-class MLP(nn.Module):
+class MLP(Architecture):
   """
   OOOO input_size
   |XX|                                        fc1
@@ -23,26 +25,26 @@ class MLP(nn.Module):
   0000 output_size * (Weights,Biases)
   """
 
-  def __init__(self, **kwargs):
+  def __init__(self, input_size, hidden_size, output_size, activation, use_bias):
     super().__init__()
 
-    self.input_size = kwargs['input_size'][0]
-    self.hidden_sizes = kwargs['hidden_layers']
-    self.activation = kwargs['activation']
-    self.output_size = kwargs['output_size'][0]
-    self.use_bias = kwargs['use_bias']
+    self._input_size = input_size
+    self._hidden_size = hidden_size
+    self._activation = activation
+    self._output_size = output_size
+    self._use_bias = use_bias
 
-    previous_layer_size = self.input_size
+    previous_layer_size = self._input_size[0]
 
-    self.num_of_layer = len(self.hidden_sizes)
+    self.num_of_layer = len(self._hidden_size)
     if self.num_of_layer > 0:
       for i in range(self.num_of_layer):
-        layer = nn.Linear(previous_layer_size, self.hidden_sizes[i], bias=self.use_bias)
+        layer = nn.Linear(previous_layer_size, self._hidden_size[i], bias=self._use_bias)
         # fan_in_init(layer.weight)
         setattr(self, 'fc' + str(i + 1), layer)
-        previous_layer_size = self.hidden_sizes[i]
+        previous_layer_size = self._hidden_size[i]
 
-    self.head = nn.Linear(previous_layer_size, self.output_size, bias=self.use_bias)
+    self.head = nn.Linear(previous_layer_size, self._output_size[0], bias=self._use_bias)
 
   def forward(self, x, **kwargs):
     """
@@ -61,7 +63,7 @@ class MLP(nn.Module):
     for i in range(1, self.num_of_layer + 1):
       layer = getattr(self, 'fc' + str(i))
       x = layer(x)
-      x = self.activation(x)
+      x = self._activation(x)
 
     return self.head(x)
 
@@ -69,50 +71,63 @@ class MLP(nn.Module):
 class CategoricalMLP(MLP):
 
   def forward(self, x, **kwargs):
-    x = super().forward(x)
+    x = super().forward(x, **kwargs)
     return F.softmax(x, dim=1)
 
 
-class MultiheadedMLP(MLP):
+class MultiHeadedMLP(MLP):
 
-  def __init__(self, **kwargs):
+  def __init__(self, heads, **kwargs):
     super().__init__(**kwargs)
 
-    self.heads = kwargs['heads']
+    self._heads = heads
 
-    self.num_of_heads = len(self.heads)
+    self.num_of_heads = len(self._heads)
     if self.num_of_heads > 0:
       for i in range(self.num_of_heads):
-        layer = nn.Linear(self.output_size, self.heads[i])
+        layer = nn.Linear(self._output_size[0], self._heads[i])
         # fan_in_init(layer.weight)
         setattr(self, 'subhead' + str(i + 1), layer)
     else:
       raise ValueError('Number of head must be >0')
 
   def forward(self, x, **kwargs):
-    x = super().forward(x)
+    x = super().forward(x, **kwargs)
 
     output = []
-    for i in range(1, self.heads + 1):
+    for i in range(1, self._heads + 1):
       layer = getattr(self, 'subhead' + str(i))
       output.append(layer(x))
 
     return output
 
 
-class RecurrentMLP(MLP):
+class RecurrentCategoricalMLP(MLP):
 
   def __init__(self, r_hidden_size=10, **kwargs):
     super().__init__(**kwargs)
-    self.hidden_size = r_hidden_size
+    self._r_hidden_size = r_hidden_size
+    self._r_input_size = self._output_size[0] + r_hidden_size
 
-    self.hidden = nn.Linear(kwargs['output_size'][0] + r_hidden_size, r_hidden_size)
-    self.out = nn.Linear(kwargs['output_size'][0] + r_hidden_size, r_hidden_size)
+    self.hidden = nn.Linear(self._r_input_size, r_hidden_size)
+    self.out = nn.Linear(self._r_input_size, r_hidden_size)
+
+    self._prev_hidden_x = torch.zeros(r_hidden_size)
 
   def forward(self, x, **kwargs):
-    x = super().forward(x)
-    combined = torch.cat((x, kwargs['hidden']), 1)
+    x = super().forward(x, **kwargs)
+    combined = torch.cat((x, self._prev_hidden_x), 1)
     out_x = self.out(combined)
     hidden_x = self.hidden(combined)
+    self._prev_hidden_x = hidden_x
 
-    return F.softmax(out_x, dim=1), hidden_x
+    return F.softmax(out_x, dim=1)
+
+
+class ExposedRecurrentCategoricalMLP(RecurrentCategoricalMLP):
+
+  def forward(self, x, hidden_x, **kwargs):
+    self._prev_hidden_x = hidden_x
+    out_x = super().forward(x, **kwargs)
+
+    return F.softmax(out_x, dim=1), self._prev_hidden_x

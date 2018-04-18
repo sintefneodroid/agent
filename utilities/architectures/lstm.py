@@ -4,13 +4,15 @@ from torch.autograd import Variable
 from torch.nn import functional as F
 
 # LSTM Memory
+from utilities.architectures import Architecture
+
 LSTM_MEMORY = 128
 
 
-class LSTMDQN(nn.Module):
+class LSTMDQN(Architecture):
   def __init__(self, n_action):
-    super(LSTMDQN, self).__init__()
-    self.n_action = n_action
+    super().__init__()
+    self._n_action = n_action
 
     self.conv1 = nn.Conv2d(4, 32, kernel_size=8, stride=1, padding=1)  # (In Channel, Out Channel, ...)
     self.conv2 = nn.Conv2d(32, 64, kernel_size=5, stride=1, padding=1)
@@ -21,7 +23,7 @@ class LSTMDQN(nn.Module):
 
     self.affine1 = nn.Linear(LSTM_MEMORY * 64, 512)
     # self.affine2 = nn.Linear(2048, 512)
-    self.affine2 = nn.Linear(512, self.n_action)
+    self.affine2 = nn.Linear(512, self._n_action)
 
   def forward(self, x, hidden_state, cell_state):
     # CNN

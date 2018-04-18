@@ -5,7 +5,9 @@ __author__ = 'cnheider'
 import random
 
 import numpy as np
+import torch
 
+import utilities as U
 from agents.agent import Agent
 
 
@@ -20,9 +22,13 @@ class ValueAgent(Agent):
     self._eps_decay = 0
     self._initial_observation_period = 0
 
+    self._value_arch_parameters = None
+    self._value_arch = None
+    self._value_model = None
+
     super().__init__(config, *args, **kwargs)
 
-  def sample_action(self, state):
+  def sample_action(self, state, **kwargs):
     if self.epsilon_random(self._step_i) and self._step_i > self._initial_observation_period:
       return self.sample_model(state)
     return self.sample_random_process()
@@ -50,5 +56,20 @@ class ValueAgent(Agent):
 
     return sample > eps_threshold
 
-  def sample_model(self, state):
+  def sample_model(self, state, **kwargs):
     raise NotImplementedError
+
+  def save_model(self, C):
+    U.save_model(self._value_model, C)
+
+  def load_model(self, model_path, evaluation):
+    print('Loading latest model: ' + model_path)
+    self._value_model = self._value_arch(**self._value_arch_parameters)
+    self._value_model.load_state_dict(torch.load(model_path))
+    if evaluation:
+      self._value_model = self._value_model.eval()
+      self._value_model.train(False)
+    if self._use_cuda_if_available:
+      self._value_model = self._value_model.cuda()
+    else:
+      self._value_model = self._value_model.cpu()

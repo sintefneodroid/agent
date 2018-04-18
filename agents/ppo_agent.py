@@ -9,11 +9,10 @@ from torch import nn
 from torch.distributions import Categorical
 from tqdm import tqdm
 
+import utilities as U
 from agents.ac_agent import ACAgent
 
 cv2.setNumThreads(0)
-
-import utilities as U
 
 
 class PPOAgent(ACAgent):
@@ -26,13 +25,10 @@ class PPOAgent(ACAgent):
   - adam seems better than rmsprop for ppo
   '''
 
-  def rollout(self, init_obs, env):
+  def rollout(self, init_obs, env, **kwargs):
     pass
 
-  def __init__(self, config=None, *args, **kwargs):
-
-    self._state_dim = config.ARCH_PARAMS['input_size']
-    self._action_dim = config.ARCH_PARAMS['output_size']
+  def __defaults__(self):
     self._steps = config.STEPS
 
     self._gamma = config.GAMMA
@@ -55,7 +51,7 @@ class PPOAgent(ACAgent):
     self._epsilon_end = config.EXPLORATION_EPSILON_END
     self._epsilon_decay = config.EXPLORATION_EPSILON_DECAY
 
-    self._use_cuda = config.USE_CUDA and th.cuda.is_available()
+    self._use_cuda_if_available = config.USE_CUDA and th.cuda.is_available()
 
     self._update_target_interval = config.TARGET_UPDATE_STEPS
     self._clip = config.CLIP
@@ -63,22 +59,29 @@ class PPOAgent(ACAgent):
     self._optimiser_type = config.OPTIMISER_TYPE
 
     self._actor_critic_arch = U.ActorCriticNetwork
-    self._actor_critic_params = config
+    self._actor_critic_params = config.ARCH_PARAMS
 
-    super().__init__(config, *args, **kwargs)
+    self._actor_critic = None
+    self._actor_critic_target = None
+    self._optimiser = None
 
-    self.__build_model__()
+  def build_model(self, env):
+    self.infer_input_output_sizes(env)
+
+    self._actor_critic, self._actor_critic_target, self._optimiser = self.__build_model__()
 
   def __build_model__(self):
-    self._actor_critic = self._actor_critic_arch(self._actor_critic_params)
-    self._actor_critic_target = U.ActorCriticNetwork(self._actor_critic_params)
-    self._actor_critic_target.load_state_dict(self._actor_critic.state_dict())
+    actor_critic = self._actor_critic_arch(**self._actor_critic_params)
+    actor_critic_target = self._actor_critic_arch(**self._actor_critic_params)
+    actor_critic_target.load_state_dict(self._actor_critic.state_dict())
 
-    self._optimiser = self._optimiser_type(self._actor_critic.parameters(), lr=self._actor_critic_lr)
+    if self._use_cuda_if_available:
+      actor_critic.cuda()
+      actor_critic_target.cuda()
 
-    if self._use_cuda:
-      self._actor_critic.cuda()
-      self._actor_critic_target.cuda()
+    optimiser = self._optimiser_type(actor_critic.parameters(), lr=self._actor_critic_lr)
+
+    return actor_critic, actor_critic_target, optimiser
 
   def maybe_take_n_steps(self, initial_state, environment, n=100):
     state = initial_state
@@ -141,14 +144,16 @@ class PPOAgent(ACAgent):
 
     return advantage_memories
 
-  def evaluate(self, batch):
+  def evaluate(self, batch, **kwargs):
 
-    states_var = U.to_var(batch.state, use_cuda=self._use_cuda).view(-1, self._state_dim[0])
-    action_var = U.to_var(batch.action, use_cuda=self._use_cuda, dtype='long')
-    action_probs_var = U.to_var(batch.action_prob, use_cuda=self._use_cuda).view(-1, self._action_dim[0])
-    values_var = U.to_var(batch.value_estimate, use_cuda=self._use_cuda)
-    advantages_var = U.to_var(batch.advantage, use_cuda=self._use_cuda)
-    returns_var = U.to_var(batch.discounted_return, use_cuda=self._use_cuda)
+    states_var = U.to_var(batch.state, use_cuda=self._use_cuda_if_available).view(-1, self._input_size[0])
+    action_var = U.to_var(batch.action, use_cuda=self._use_cuda_if_available, dtype='long')
+    action_probs_var = U.to_var(batch.action_prob, use_cuda=self._use_cuda_if_available).view(-1,
+                                                                                              self._output_size[
+                                                                                                0])
+    values_var = U.to_var(batch.value_estimate, use_cuda=self._use_cuda_if_available)
+    advantages_var = U.to_var(batch.advantage, use_cuda=self._use_cuda_if_available)
+    returns_var = U.to_var(batch.discounted_return, use_cuda=self._use_cuda_if_available)
 
     action_prob = action_probs_var.gather(1, action_var)
 
@@ -158,7 +163,7 @@ class PPOAgent(ACAgent):
     ratio = action_prob / (action_prob_t + self._divide_by_zero_safety)
 
     advantage = (advantages_var - advantages_var.mean()) / (
-          advantages_var.std() + self._divide_by_zero_safety)
+        advantages_var.std() + self._divide_by_zero_safety)
 
     surrogate = ratio * advantage
     surrogate_clipped = torch.clamp(ratio, min=1. - self._clip, max=1. + self._clip) * advantage  # (L^CLIP)
@@ -176,7 +181,7 @@ class PPOAgent(ACAgent):
     cost = self.evaluate(batch)
     self.optimise_wrt(cost)
 
-  def optimise_wrt(self, cost):
+  def optimise_wrt(self, cost, **kwargs):
     self._optimiser.zero_grad()
     cost.backward()
     if self._max_grad_norm is not None:
@@ -184,7 +189,7 @@ class PPOAgent(ACAgent):
     self._optimiser.step()
 
   def discrete_categorical_sample_model(self, state):
-    state_var = U.to_var(state, use_cuda=self._use_cuda, unsqueeze=True)
+    state_var = U.to_var(state, use_cuda=self._use_cuda_if_available, unsqueeze=True)
     softmax_probs, value_estimate = self._actor_critic(state_var)
     m = Categorical(softmax_probs)
     action = m.sample()
@@ -208,24 +213,9 @@ class PPOAgent(ACAgent):
     return a
 
   # choose an action based on state for execution
-  def sample_action(self, state):
+  def sample_action(self, state, **kwargs):
     action, *_ = self.discrete_categorical_sample_model(state)
     return action
-
-  def save_model(self, C):
-    U.save_model(self._model, C)
-
-  def load_model(self, model_path, evaluation=False):  # TODO: dont use _model as model
-    print('Loading latest model: ' + model_path)
-    self._model = self._actor_critic(**self._value_arch_parameters)
-    self._model.load_state_dict(torch.load(model_path))
-    if evaluation:
-      self._model = self._model.eval()
-      self._model.train(False)
-    if self._use_cuda:
-      self._model = self._model.cuda()
-    else:
-      self._model = self._model.cpu()
 
 
 def test_ppo_agent(C):
@@ -236,16 +226,8 @@ def test_ppo_agent(C):
   env = gym.make(C.ENVIRONMENT_NAME)
   env.seed(C.SEED)
 
-  state_dim = env.observation_space.shape[0]
-  if len(env.action_space.shape) >= 1:
-    action_dim = env.action_space.shape[0]
-  else:
-    action_dim = env.action_space.n
-
-  C.ARCH_PARAMS['input_size'] = [state_dim]
-  C.ARCH_PARAMS['output_size'] = [action_dim]
-
   ppo_agent = PPOAgent(C)
+  ppo_agent.build_model(env)
 
   initial_state = env.reset()
   cs = tqdm(range(1, C.ROLLOUTS + 1), f'Rollout {0}, {0}', leave=True)
@@ -282,15 +264,19 @@ if __name__ == '__main__':
                       help='number of threads for agent (default: 4)')
   parser.add_argument('--SEED', '-S', type=int, default=1, metavar='SEED',
                       help='random seed (default: 1)')
+  parser.add_argument('--skip_confirmation', '-skip', action='store_true',
+                      default=False,
+                      help='Skip confirmation of config to be used')
   args = parser.parse_args()
 
   for k, arg in args.__dict__.items():
     setattr(C, k, arg)
 
-  for k, arg in U.get_upper_vars_of(C).items():
-    print(f'{k} = {arg}')
-
-  input('\nPress any key to begin... ')
+  print(f'Using config: {C}')
+  if not args.skip_confirmation:
+    for k, arg in U.get_upper_vars_of(C).items():
+      print(f'{k} = {arg}')
+    input('\nPress any key to begin... ')
 
   try:
     test_ppo_agent(C)

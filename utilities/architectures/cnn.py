@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 # coding=utf-8
+from utilities.architectures import Architecture
+
 __author__ = 'cnheider'
 from torch import nn
 from torch.nn import functional as F
@@ -8,15 +10,19 @@ from utilities.initialisation.atari_weight_init import atari_initializer
 from utilities.initialisation.ortho_weight_init import ortho_weights
 
 
-class CNN(nn.Module):
-  def __init__(self, configuration):
-    super(CNN, self).__init__()
-    self.conv1 = nn.Conv2d(configuration['input_channels'][0], 32, kernel_size=8,
+class CNN(Architecture):
+  def __init__(self, input_channels, output_size):
+    super().__init__()
+
+    self._input_channels = input_channels
+    self._output_size = output_size
+
+    self.conv1 = nn.Conv2d(self._input_channels[0], 32, kernel_size=8,
                            stride=4)
     self.conv2 = nn.Conv2d(32, 64, kernel_size=4, stride=2)
     self.conv3 = nn.Conv2d(64, 64, kernel_size=3, stride=1)
     self.fc1 = nn.Linear(7 * 7 * 64, 512)
-    self.fc2 = nn.Linear(512, configuration['output_size'][0])
+    self.fc2 = nn.Linear(512, self._output_size[0])
 
   def forward(self, x):
     x = F.relu(self.conv1(x))

@@ -20,86 +20,79 @@ class DQNAgent(ValueAgent):
 
   """
 
-  def __init__(self, config=None, *args, **kwargs):
-    self._memory = U.ReplayBuffer(config.REPLAY_MEMORY_SIZE)
+  def __defaults__(self):
+    self._memory = U.ReplayBuffer(1000)
     # self._memory = U.PrioritisedReplayMemory(config.REPLAY_MEMORY_SIZE)  # Cuda trouble
 
-    self._use_cuda = config.USE_CUDA_IF_AVAILABLE if hasattr(config, 'USE_CUDA_IF_AVAILABLE') else False
+    self._use_cuda_if_available = False
 
-    self._evaluation_function = config.EVALUATION_FUNCTION if hasattr(config,
-                                                                      'EVALUATION_FUNCTION') else \
-      F.smooth_l1_loss
+    self._evaluation_function = F.smooth_l1_loss
 
-    self._value_arch = config.VALUE_ARCH
-    self._value_arch_parameters = config.VALUE_ARCH_PARAMS
-    self._input_size = config.VALUE_ARCH_PARAMS['input_size']
-    self._output_size = config.VALUE_ARCH_PARAMS['output_size']
-    self._batch_size = config.BATCH_SIZE
+    self._value_arch = U.MLP
+    self._value_arch_parameters = {
+  'input_size':  None,  # Obtain from environment
+  'hidden_size': [64, 32, 16],
+  'output_size': None,  # Obtain from environment
+  'activation':  F.relu,
+  'use_bias':    True
+  }
 
-    self._discount_factor = config.DISCOUNT_FACTOR
-    self._learning_frequency = config.LEARNING_FREQUENCY
-    self._initial_observation_period = config.INITIAL_OBSERVATION_PERIOD
-    self._sync_target_model_frequency = config.SYNC_TARGET_MODEL_FREQUENCY
+    self._batch_size = 32
 
-    self._state_tensor_type = config.STATE_TENSOR_TYPE
-    self._value_type = config.VALUE_TENSOR_TYPE
+    self._discount_factor = 0.99
+    self._learning_frequency = 1
+    self._initial_observation_period = 0
+    self._sync_target_model_frequency = 1000
 
-    self._use_double_dqn = config.DOUBLE_DQN
-    self._clamp_gradient = config.CLAMP_GRADIENT
-    self._signal_clipping = config.SIGNAL_CLIPPING
+    self._state_tensor_type = torch.FloatTensor
+    self._value_type = torch.FloatTensor
 
-    self._eps_start = config.EXPLORATION_EPSILON_START
-    self._eps_end = config.EXPLORATION_EPSILON_END
-    self._eps_decay = config.EXPLORATION_EPSILON_DECAY
+    self._use_double_dqn = True
+    self._clamp_gradient = False
+    self._signal_clipping = True
+
+    self._eps_start = 1.0
+    self._eps_end = 0.01
+    self._eps_decay = 500
 
     self._early_stopping_condition = None
-    self._model = None
-    self._target_model = None
+    self._target_value_model = None
 
-    self._optimiser_type = config.OPTIMISER_TYPE if hasattr(config, 'OPTIMISER_TYPE') else torch.optim.Adam
+    self._optimiser_type = torch.optim.RMSprop
     self._optimiser = None
-    self._optimiser_alpha = config.OPTIMISER_ALPHA
-    self._optimiser_learning_rate = config.OPTIMISER_LEARNING_RATE
-    self._optimiser_epsilon = config.OPTIMISER_EPSILON
-    self._optimiser_momentum = config.OPTIMISER_MOMENTUM
-
-    super().__init__(config, *args, **kwargs)
+    self._optimiser_alpha = 0.9
+    self._optimiser_learning_rate = 0.0025
+    self._optimiser_epsilon = 1e-02
+    self._optimiser_momentum = 0.0
 
   def build_model(self, env):
-    if type(self._input_size) is str:
-      self._input_size = env.observation_space.shape
-    print('observation dimensions: ', self._input_size)
+    self.infer_input_output_sizes(env)
 
-    if type(self._output_size) is str:
-      self._output_size = [env.action_space.num_binary_actions]
-      if len(env.action_space.shape) > 1:
-        self._output_size = env.action_space.shape
-      else:
-        self._output_size = [env.action_space.n]
-    print('action dimensions: ', self._output_size)
+    self._value_arch_parameters['input_size'] = self._input_size
+    self._value_arch_parameters['output_size'] = self._output_size
 
-    self._model, self._target_model, self._optimiser = self.__build_models__()
+    self._value_model, self._target_value_model, self._optimiser = self.__build_models__()
 
   def __build_models__(self):
 
-    model = self._value_arch(**self._value_arch_parameters)
+    value_model = self._value_arch(**self._value_arch_parameters)
 
-    target_model = self._value_arch(**self._value_arch_parameters)
-    target_model.load_state_dict(model.state_dict())
+    target_value_model = self._value_arch(**self._value_arch_parameters)
+    target_value_model.load_state_dict(value_model.state_dict())
 
-    if self._use_cuda:
-      model = model.cuda()
-      target_model = target_model.cuda()
+    if self._use_cuda_if_available:
+      value_model = value_model.cuda()
+      target_value_model = target_value_model.cuda()
 
-    optimiser = self._optimiser_type(model.parameters(),
+    optimiser = self._optimiser_type(value_model.parameters(),
                                      lr=self._optimiser_learning_rate,
                                      eps=self._optimiser_epsilon,
                                      alpha=self._optimiser_alpha,
                                      momentum=self._optimiser_momentum)
 
-    return model, target_model, optimiser
+    return value_model, target_value_model, optimiser
 
-  def optimise_wrt(self, error):
+  def optimise_wrt(self, error, **kwargs):
     """
 
     :param error:
@@ -109,11 +102,11 @@ class DQNAgent(ValueAgent):
     self._optimiser.zero_grad()
     error.backward()
     if self._clamp_gradient:
-      for params in self._model.parameters():
+      for params in self._value_model.parameters():
         params.grad.data.clamp_(-1, 1)
     self._optimiser.step()
 
-  def evaluate(self, batch):
+  def evaluate(self, batch, **kwargs):
     """
 
     :param batch:
@@ -123,23 +116,25 @@ class DQNAgent(ValueAgent):
     """
 
     # Torchify batch
-    states = U.to_var(batch.state, use_cuda=self._use_cuda).view(-1, self._input_size[0])
-    action_indices = U.to_var(batch.action, 'long', use_cuda=self._use_cuda).view(-1, 1)
-    true_signals = U.to_var(batch.signal, use_cuda=self._use_cuda)
-    non_terminal_mask = U.to_tensor(batch.non_terminal, 'byte', use_cuda=self._use_cuda)
+    states = U.to_var(batch.state, use_cuda=self._use_cuda_if_available).view(-1, self._input_size[0])
+    action_indices = U.to_var(batch.action, 'long', use_cuda=self._use_cuda_if_available).view(-1, 1)
+    true_signals = U.to_var(batch.signal, use_cuda=self._use_cuda_if_available)
+    non_terminal_mask = U.to_tensor(batch.non_terminal, 'byte', use_cuda=self._use_cuda_if_available)
     non_terminal_successors = U.to_tensor([states
                                            for (states, non_terminal_mask)
                                            in zip(batch.successor_state, batch.non_terminal)
-                                           if non_terminal_mask], 'float', use_cuda=self._use_cuda)
+                                           if non_terminal_mask], 'float',
+                                          use_cuda=self._use_cuda_if_available)
     if not len(non_terminal_successors) > 0:
       return 0  # Nothing to be learned, all states are terminal
-    non_terminal_successors_var = U.to_var(non_terminal_successors, use_cuda=self._use_cuda, volatile=True)
+    non_terminal_successors_var = U.to_var(non_terminal_successors, use_cuda=self._use_cuda_if_available,
+                                           volatile=True)
 
     # Calculate Q of successors
-    Q_successors = self._model(non_terminal_successors_var)
+    Q_successors = self._value_model(non_terminal_successors_var)
     Q_successors_max_action_indices = Q_successors.max(1)[1].view(-1, 1)
     if self._use_double_dqn:
-      Q_successors = self._target_model(non_terminal_successors_var)
+      Q_successors = self._target_value_model(non_terminal_successors_var)
     Q_max_successor = Variable(torch.zeros(self._batch_size).type(self._value_type))
     Q_max_successor[non_terminal_mask] = Q_successors.gather(1, Q_successors_max_action_indices)
 
@@ -147,7 +142,7 @@ class DQNAgent(ValueAgent):
     Q_expected = true_signals + (self._discount_factor * Q_max_successor)
 
     # Calculate Q of state
-    Q_state = self._model(states).gather(1, action_indices)
+    Q_state = self._value_model(states).gather(1, action_indices)
 
     return self._evaluation_function(Q_state, Q_expected)
 
@@ -204,7 +199,7 @@ class DQNAgent(ValueAgent):
         T.set_description(f'TD error: {error}')
 
       if self._use_double_dqn and self._step_i % self._sync_target_model_frequency == 0:
-        self._target_model.load_state_dict(self._model.state_dict())
+        self._target_value_model.load_state_dict(self._value_model.state_dict())
         T.write('Target Model Synced')
 
       episode_signal += signal
@@ -216,11 +211,11 @@ class DQNAgent(ValueAgent):
 
     return episode_signal, episode_length, episode_td_error
 
-  def forward(self, state, *args, **kwargs):
+  def infer(self, state, *args, **kwargs):
     model_input = Variable(state, volatile=True).type(self._state_tensor_type)
-    return self._model(model_input)
+    return self._value_model(model_input)
 
-  def sample_action(self, state):
+  def sample_action(self, state,**kwargs):
     """
 
     :param state:
@@ -230,47 +225,17 @@ class DQNAgent(ValueAgent):
       return self.sample_model(state)
     return self.sample_random_process()
 
-  def sample_model(self, state):
-    model_input = U.to_var([state], volatile=True, use_cuda=self._use_cuda)
-    action_value_estimates = self._model(model_input)
+  def sample_model(self, state,**kwargs):
+    model_input = U.to_var([state], volatile=True, use_cuda=self._use_cuda_if_available)
+    action_value_estimates = self._value_model(model_input)
     max_value_action_idx = action_value_estimates.max(1)[1].data[0]
     # max_value_action_idx = np.argmax(action_value_estimates.data.cpu().numpy()[0])
     return max_value_action_idx
 
   def step(self, state, env):
     self._step_i += 1
-    a = self.sample_action(state)
-    return env.step(a)
-
-  def infer(self, environment, render=True):
-    for episode_i in count(1):
-      print('Episode {}'.format(episode_i))
-
-      state = environment.reset()
-      for episode_frame_i in count(1):
-
-        a = self.sample_model(state)
-        state, reward, terminated, info = environment.step(a)
-        if render:
-          environment.render()
-
-        if terminated:
-          break
-
-  def save_model(self, C):
-    U.save_model(self._model, C)
-
-  def load_model(self, model_path, evaluation):
-    print('Loading latest model: ' + model_path)
-    self._model = self._value_arch(**self._value_arch_parameters)
-    self._model.load_state_dict(torch.load(model_path))
-    if evaluation:
-      self._model = self._model.eval()
-      self._model.train(False)
-    if self._use_cuda:
-      self._model = self._model.cuda()
-    else:
-      self._model = self._model.cpu()
+    action = self.sample_action(state)
+    return env.step(action)
 
   def train_episodic(self,
                      _environment,
@@ -348,7 +313,7 @@ class DQNAgent(ValueAgent):
     end_message = f'Training done, time elapsed: {time_elapsed // 60:.0f}m {time_elapsed %60:.0f}s'
     print('\n{} {} {}\n'.format('-' * 9, end_message, '-' * 9))
 
-    return self._model, []
+    return self._value_model, []
 
 
 def test_dqn_agent(config):
@@ -357,16 +322,15 @@ def test_dqn_agent(config):
   environment = gym.make(config.ENVIRONMENT_NAME)
   environment.seed(config.SEED)
 
-  config.VALUE_ARCH_PARAMS['input_size'] = [4]
-  config.VALUE_ARCH_PARAMS['output_size'] = [environment.action_space.n]
-
   agent = DQNAgent(C)
+  agent.build_model(environment)
+
   listener = U.add_early_stopping_key_combination(agent.stop_training)
 
   _trained_model = None
   listener.start()
   try:
-    agent.build_model(environment)
+
     _trained_model, training_statistics, *_ = agent.train_episodic(environment, config.EPISODES,
                                                                    render=config.RENDER_ENVIRONMENT)
   finally:
@@ -465,15 +429,19 @@ if __name__ == '__main__':
                       help='Number of threads for agent (default: 4)')
   parser.add_argument('--SEED', '-S', type=int, default=1, metavar='SEED',
                       help='Random seed (default: 1)')
+  parser.add_argument('--skip_confirmation', '-skip', action='store_true',
+                      default=False,
+                      help='Skip confirmation of config to be used')
   args = parser.parse_args()
 
   for k, arg in args.__dict__.items():
     setattr(C, k, arg)
 
-  for k, arg in U.get_upper_vars_of(C).items():
-    print(f'{k} = {arg}')
-
-  input('\nPress any key to begin... ')
+  print(f'Using config: {C}')
+  if not args.skip_confirmation:
+    for k, arg in U.get_upper_vars_of(C).items():
+      print(f'{k} = {arg}')
+    input('\nPress any key to begin... ')
 
   try:
     test_dqn_agent(C)

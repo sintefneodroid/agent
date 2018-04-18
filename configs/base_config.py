@@ -93,9 +93,9 @@ OPTIMISER_MOMENTUM = 0.0
 
 # Architecture
 ARCH_PARAMS = {
-  'input_size':    '',  # Obtain from environment
-  'hidden_layers': [32, 16],
-  'output_size':   '',  # Obtain from environment
-  'use_bias':      False
+  'input_size':  None,  # Obtain from environment
+  'hidden_size': [32, 16],
+  'output_size': None,  # Obtain from environment
+  'use_bias':    False
   }
 ARCH = CategoricalMLP
