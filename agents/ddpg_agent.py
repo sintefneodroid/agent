@@ -110,7 +110,7 @@ class DDPGAgent(ACAgent):
     self._end_training = False
 
     self._batch_size = 60
-    self._update_tau = 0.001
+    self._target_update_tau = 0.001
 
     self._end_training = False
 
@@ -192,33 +192,37 @@ class DDPGAgent(ACAgent):
   def sample_action(self, state, **kwargs):
     return self.sample_model(state)
 
-  def evaluate(self, batch, **kwargs):
+  def evaluate(self,
+               state_batch,
+               action_batch,
+               signal_batch,
+               next_state_batch,
+               non_terminal_batch,
+               **kwargs):
 
-    state_batchss, action_batchss, signal_batchss, next_state_batchss, non_terminal_batchss = batch
-
-    state_batch = U.to_var(state_batchss, use_cuda=self._use_cuda_if_available).view(-1, self._input_size[0])
-    next_state_batch = U.to_var(next_state_batchss, use_cuda=self._use_cuda_if_available).view(-1,
-                                                                                               self._input_size[
+    state_batch_var = U.to_var(state_batch, use_cuda=self._use_cuda_if_available).view(-1, self._input_size[0])
+    next_state_batch_var = U.to_var(next_state_batch, use_cuda=self._use_cuda_if_available).view(-1,
+                                                                                                 self._input_size[
                                                                                                  0])
-    action_batch = U.to_var(action_batchss, use_cuda=self._use_cuda_if_available).view(-1,
-                                                                                       self._output_size[0])
-    signal_batch = U.to_var(signal_batchss, use_cuda=self._use_cuda_if_available).unsqueeze(0)
-    non_terminal_mask = U.to_var(non_terminal_batchss, use_cuda=self._use_cuda_if_available).unsqueeze(0)
+    action_batch_var = U.to_var(action_batch, use_cuda=self._use_cuda_if_available).view(-1,
+                                                                                         self._output_size[0])
+    signal_batch_var = U.to_var(signal_batch, use_cuda=self._use_cuda_if_available).unsqueeze(0)
+    non_terminal_mask_var = U.to_var(non_terminal_batch, use_cuda=self._use_cuda_if_available).unsqueeze(0)
 
     ### Critic ###
     # Compute current Q value, critic takes state and action choosen
-    Q_current = self._critic(state_batch, action_batch)
+    Q_current = self._critic(state_batch_var, action_batch_var)
     # Compute next Q value based on which action target actor would choose
     # Detach variable from the current graph since we don't want gradients for next Q to propagated
-    target_actions = self._target_actor(state_batch)
-    next_max_q = self._target_critic(next_state_batch, target_actions).detach().max(1)[0]
+    target_actions = self._target_actor(state_batch_var)
+    next_max_q = self._target_critic(next_state_batch_var, target_actions).detach().max(1)[0]
 
-    next_Q_values = non_terminal_mask * next_max_q
-    Q_target = signal_batch + (
+    next_Q_values = non_terminal_mask_var * next_max_q
+    Q_target = signal_batch_var + (
           self._discount_factor * next_Q_values)  # Compute the target of the current Q values
     td_error = F.smooth_l1_loss(Q_current, Q_target)  # Compute Bellman error (using Huber loss)
 
-    return td_error, state_batch
+    return td_error, state_batch_var
 
   def update_models(self):
     """
@@ -232,9 +236,9 @@ class DDPGAgent(ACAgent):
 
     batch = self._memory.sample_transitions(self._batch_size)
 
-    td_error, state_batch = self.evaluate(batch)
+    td_error, state_batch_var = self.evaluate(*batch)
 
-    loss = self.optimise_wrt(td_error, state_batch)
+    loss = self.optimise_wrt(td_error, state_batch_var)
 
     return td_error.data[0], loss.data[0]
 
@@ -250,7 +254,7 @@ class DDPGAgent(ACAgent):
 
   def update_target(self, target_model, model):
     for target_param, param in zip(target_model.parameters(), model.parameters()):
-      target_param.data.copy_(self._update_tau * param.data + (1 - self._update_tau) * target_param.data)
+      target_param.data.copy_(self._target_update_tau * param.data + (1 - self._target_update_tau) * target_param.data)
 
   def rollout(self, initial_state, environment, render=False):
     self._rollout_i += 1
@@ -357,7 +361,7 @@ def test_ddpg_agent(config):
   from utilities.environment_wrappers.normalise_actions import NormaliseActionsWrapper
   import gym
 
-  env = NormaliseActionsWrapper(gym.make('Pendulum-v0'))
+  env = NormaliseActionsWrapper(gym.make(config.ENVIRONMENT_NAME))
   # env = neo.make('satellite',connect_to_running=False)
 
   agent = DDPGAgent(config)

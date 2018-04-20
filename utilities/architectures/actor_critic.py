@@ -38,7 +38,7 @@ class ActorCriticNetwork(Architecture):
 
     self.actor_output_activation = actor_output_activation
 
-    self.fc1 = nn.Linear(self.input_size, self.hidden_size[0])
+    self.fc1 = nn.Linear(self.input_size[0], self.hidden_size[0])
     self.fc2 = nn.Linear(self.hidden_size[0], self.hidden_size[1])
 
     self.actor_fc1 = nn.Linear(self.hidden_size[1], self.actor_hidden_size[0])

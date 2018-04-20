@@ -94,7 +94,7 @@ class PGAgent(PolicyAgent):
     log_prob = prob.log()
     return action, log_prob, entropy
 
-  def evaluate(self, not_used, **kwargs):
+  def evaluate(self, **kwargs):
     R = 0
     policy_loss = []
     signals = []
@@ -147,7 +147,7 @@ class PGAgent(PolicyAgent):
         episode_length = t
         break
 
-    error = self.evaluate(1)
+    error = self.evaluate()
     self._trajectory.forget()
     if error is not None:
       if self._use_batched_updates:

@@ -106,7 +106,7 @@ class DQNAgent(ValueAgent):
         params.grad.data.clamp_(-1, 1)
     self._optimiser.step()
 
-  def evaluate(self, batch, **kwargs):
+  def evaluate(self, batch, *args, **kwargs):
     """
 
     :param batch:
@@ -158,7 +158,7 @@ class DQNAgent(ValueAgent):
 
     return error
 
-  def rollout(self, initial_state, environment, render=False):
+  def rollout(self, initial_state, environment, render=False, **kwargs):
     self._rollout_i += 1
 
     state = initial_state
@@ -211,11 +211,11 @@ class DQNAgent(ValueAgent):
 
     return episode_signal, episode_length, episode_td_error
 
-  def infer(self, state, *args, **kwargs):
+  def infer(self, state, **kwargs):
     model_input = Variable(state, volatile=True).type(self._state_tensor_type)
     return self._value_model(model_input)
 
-  def sample_action(self, state,**kwargs):
+  def sample_action(self, state, **kwargs):
     """
 
     :param state:
@@ -225,7 +225,7 @@ class DQNAgent(ValueAgent):
       return self.sample_model(state)
     return self.sample_random_process()
 
-  def sample_model(self, state,**kwargs):
+  def sample_model(self, state, **kwargs):
     model_input = U.to_var([state], volatile=True, use_cuda=self._use_cuda_if_available)
     action_value_estimates = self._value_model(model_input)
     max_value_action_idx = action_value_estimates.max(1)[1].data[0]
@@ -341,76 +341,7 @@ def test_dqn_agent(config):
   environment.close()
 
 
-#
-# def main2():
-#   args = parser.parse_args()
-#   torch.manual_seed(args.seed)
-#
-#   if not os.path.exists(args.dump_location):
-#     os.makedirs(args.dump_location)
-#
-#   logging.basicConfig(
-#       filename=args.dump_location +
-#                'train.log',
-#       level=logging.INFO)
-#
-#   assert args.evaluate == 0 or args.num_processes == 0, \
-#     "Can't train while evaluating, either n=0 or e=0"
-#
-#   class Net(torch.nn.Module):
-#     def __init__(self, args):
-#       super(Net, self).__init__()
-#       self.conv1 = torch.nn.Conv2d(1, 10, kernel_size=5)
-#       self.conv2 = torch.nn.Conv2d(10, 20, kernel_size=5)
-#       self.conv2_drop = torch.nn.Dropout2d()
-#       self.fc1 = torch.nn.Linear(320, 50)
-#       self.fc2 = torch.nn.Linear(50, 10)
-#
-#     def forward(self, x):
-#       x = F.relu(F.max_pool2d(self.conv1(x), 2))
-#       x = F.relu(F.max_pool2d(self.conv2_drop(self.conv2(x)), 2))
-#       x = x.view(-1, 320)
-#       x = F.relu(self.fc1(x))
-#       x = F.dropout(x, training=self.training)
-#       x = self.fc2(x)
-#       return F.log_softmax(x, dim=1)
-#
-#   def train(rank, args, model):
-#     torch.manual_seed(args.seed + rank)
-#
-#     pass
-#
-#   def test(rank, args, model):
-#     torch.manual_seed(args.seed + rank)
-#
-#     pass
-#
-#   shared_model = Net(args)
-#
-#   if args.load != "0":
-#     shared_model.load_state_dict(torch.load(args.load))
-#   shared_model.share_memory()
-#
-#   signal.signal(signal.SIGINT, signal.signal(signal.SIGINT, signal.SIG_IGN))
-#   processes = []
-#
-#   p = TMP.Process(target=test, args=(args.num_processes, args, shared_model))
-#   p.start()
-#   processes.append(p)
-#
-#   for rank in range(0, args.num_processes):
-#     p = TMP.Process(target=train, args=(rank, args, shared_model))
-#     p.start()
-#     processes.append(p)
-#
-#   try:
-#     for p in processes:
-#       p.join()
-#   except KeyboardInterrupt:
-#     print("Stopping training. " +
-#           "Best model stored at {}model_best".format(args.dump_location))
-#     for p in processes:
-#       p.terminate()
+
 
 if __name__ == '__main__':
   import argparse

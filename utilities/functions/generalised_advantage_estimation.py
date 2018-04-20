@@ -35,11 +35,15 @@ def gae(signals, value_estimates, masks, gamma=0.99, glp=0.95):  # , cuda=True):
 
   advantages = np.zeros(T)
 
+
   advantage_t = 0
   for t in reversed(range(T - 1)):
+    v_f = value_estimates[t + 1].data.numpy()[0]
+    v_c = value_estimates[t].data.numpy()[0]
+
     delta = signals[t] + \
-            value_estimates[t + 1].data.numpy()[0] * gamma * masks[t] - \
-            value_estimates[t].data.numpy()[0]
+            v_f * gamma * masks[t] - \
+            v_c
     advantage_t = delta + advantage_t * gamma * glp * masks[t]
     advantages[t] = advantage_t
 
@@ -49,7 +53,18 @@ def gae(signals, value_estimates, masks, gamma=0.99, glp=0.95):  # , cuda=True):
   return advantages, discounted_returns
 
 
-def mean_std_groups(x, y, group_size):
+def mean_std_gxroups(x, y, group_size):
+  """
+
+  :param x:
+  :type x:
+  :param y:
+  :type y:
+  :param group_size:
+  :type group_size:
+  :return:
+  :rtype:
+  """
   num_groups = int(len(x) / group_size)
 
   x, x_tail = x[:group_size * num_groups], x[group_size * num_groups:]

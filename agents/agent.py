@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # coding=utf-8
 from itertools import count
+from warnings import warn
 
 from tqdm import tqdm
 
@@ -38,26 +39,26 @@ class Agent(ABC):
     self._end_training = True
 
   @abstractmethod
-  def sample_action(self, state, **kwargs):
+  def sample_action(self, state, *args ,**kwargs):
     raise NotImplementedError()
 
   @abstractmethod
-  def sample_model(self, state, **kwargs):
+  def sample_model(self, state, *args ,**kwargs):
     raise NotImplementedError()
 
   @abstractmethod
-  def optimise_wrt(self, error, **kwargs):
+  def optimise_wrt(self, error, *args ,**kwargs):
     raise NotImplementedError()
 
   @abstractmethod
-  def evaluate(self, batch, **kwargs):
+  def evaluate(self, batch, *args ,**kwargs):
     raise NotImplementedError()
 
   @abstractmethod
-  def rollout(self, init_obs, env, **kwargs):
+  def rollout(self, init_obs, env, *args ,**kwargs):
     raise NotImplementedError()
 
-  def infer_input_output_sizes(self, env, **kwargs):
+  def infer_input_output_sizes(self, env, *args ,**kwargs):
     """
     Tries to infer input and output size from env if either _input_size or _output_size, is None or -1 (int)
 
@@ -76,14 +77,46 @@ class Agent(ABC):
         self._output_size = [env.action_space.n]
     print('action dimensions: ', self._output_size)
 
-  def set_config_attributes(self, config, **kwargs):
+  def set_config_attributes(self, config, *args ,**kwargs):
     if config:
       config_vars = U.get_upper_vars_of(config)
-      for k, v in config_vars.items():
-        self.__setattr__(f'_{str.lower(k)}', v)
+      self._check_for_duplicates_in_args(**config_vars)
+      self._parse_set_attr(**config_vars)
+    self._parse_set_attr(**kwargs)
 
+  def _check_for_duplicates_in_args(self, *args ,**kwargs):
     for k, v in kwargs.items():
-      self.__setattr__(f'_{str.lower(k)}', v)
+
+      occur=0
+
+      if kwargs.get(k) is not None:
+        occur += 1
+      else:
+        pass
+
+      if k.isupper():
+        k_lowered = f'_{k.lower()}'
+        if kwargs.get(k_lowered) is not None:
+            occur += 1
+        else:
+          pass
+      else:
+        k_lowered = f'{k.lstrip("_").upper()}'
+        if kwargs.get(k_lowered) is not None:
+            occur += 1
+        else:
+          pass
+
+      if occur > 1:
+        warn(f'Config contains hiding duplicates of {k} and {k_lowered}, {occur} times')
+
+  def _parse_set_attr(self, *args , **kwargs):
+    for k, v in kwargs.items():
+      if k.isupper():
+        k_lowered = f'_{k.lower()}'
+        self.__setattr__(k_lowered, v)
+      else:
+        self.__setattr__(k,v)
 
   def run(self, environment, render=True):
     E = count(1)
@@ -103,3 +136,75 @@ class Agent(ABC):
 
         if terminated:
           break
+
+
+#
+# def parallel():
+#   args = parser.parse_args()
+#   torch.manual_seed(args.seed)
+#
+#   if not os.path.exists(args.dump_location):
+#     os.makedirs(args.dump_location)
+#
+#   logging.basicConfig(
+#       filename=args.dump_location +
+#                'train.log',
+#       level=logging.INFO)
+#
+#   assert args.evaluate == 0 or args.num_processes == 0, \
+#     "Can't train while evaluating, either n=0 or e=0"
+#
+#   class Net(torch.nn.Module):
+#     def __init__(self, args):
+#       super(Net, self).__init__()
+#       self.conv1 = torch.nn.Conv2d(1, 10, kernel_size=5)
+#       self.conv2 = torch.nn.Conv2d(10, 20, kernel_size=5)
+#       self.conv2_drop = torch.nn.Dropout2d()
+#       self.fc1 = torch.nn.Linear(320, 50)
+#       self.fc2 = torch.nn.Linear(50, 10)
+#
+#     def forward(self, x):
+#       x = F.relu(F.max_pool2d(self.conv1(x), 2))
+#       x = F.relu(F.max_pool2d(self.conv2_drop(self.conv2(x)), 2))
+#       x = x.view(-1, 320)
+#       x = F.relu(self.fc1(x))
+#       x = F.dropout(x, training=self.training)
+#       x = self.fc2(x)
+#       return F.log_softmax(x, dim=1)
+#
+#   def train(rank, args, model):
+#     torch.manual_seed(args.seed + rank)
+#
+#     pass
+#
+#   def test(rank, args, model):
+#     torch.manual_seed(args.seed + rank)
+#
+#     pass
+#
+#   shared_model = Net(args)
+#
+#   if args.load != "0":
+#     shared_model.load_state_dict(torch.load(args.load))
+#   shared_model.share_memory()
+#
+#   signal.signal(signal.SIGINT, signal.signal(signal.SIGINT, signal.SIG_IGN))
+#   processes = []
+#
+#   p = TMP.Process(target=test, args=(args.num_processes, args, shared_model))
+#   p.start()
+#   processes.append(p)
+#
+#   for rank in range(0, args.num_processes):
+#     p = TMP.Process(target=train, args=(rank, args, shared_model))
+#     p.start()
+#     processes.append(p)
+#
+#   try:
+#     for p in processes:
+#       p.join()
+#   except KeyboardInterrupt:
+#     print("Stopping training. " +
+#           "Best model stored at {}model_best".format(args.dump_location))
+#     for p in processes:
+#       p.terminate()

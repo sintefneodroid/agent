@@ -4,7 +4,7 @@ __author__ = 'cnheider'
 
 import cv2
 import torch
-import torch as th
+import torch.nn.functional as F
 from torch import nn
 from torch.distributions import Categorical
 from tqdm import tqdm
@@ -13,7 +13,6 @@ import utilities as U
 from agents.ac_agent import ACAgent
 
 cv2.setNumThreads(0)
-
 
 class PPOAgent(ACAgent):
   '''
@@ -25,41 +24,52 @@ class PPOAgent(ACAgent):
   - adam seems better than rmsprop for ppo
   '''
 
+  def sample_model(self, state, **kwargs):
+    pass
+
   def rollout(self, init_obs, env, **kwargs):
     pass
 
   def __defaults__(self):
-    self._steps = config.STEPS
+    self._steps = 10
 
-    self._gamma = config.GAMMA
-    self._glp = config.GAE_LAMBDA_PARAMETER
-    self._horizon_penalty = config.DONE_PENALTY
+    self._discount_factor = 0.99
+    self._gae_lambda = 0.95
+    self._reached_horizon_penalty = -10.
 
     self._experience_buffer = U.ExpandableBuffer()
-    self._critic_loss = config.CRITIC_LOSS
-    self._actor_critic_lr = config.ACTOR_LR
-    self._critic_lr = config.CRITIC_LR
-    self._entropy_reg_coef = config.ENTROPY_REG_COEF
-    self._value_reg_coef = config.VALUE_REG_COEF
-    self._batch_size = config.BATCH_SIZE
-    self._episodes_before_train = config.EPISODES_BEFORE_TRAIN
-    self._target_tau = config.TARGET_TAU
-    self._max_grad_norm = config.MAX_GRADIENT_NORM
+    self._critic_loss = nn.MSELoss
+    self._actor_critic_lr = 3e-4
+    self._entropy_reg_coef = 0.1
+    self._value_reg_coef = 1.
+    self._batch_size = 10
+    self._initial_observation_period = 0
+    self._target_update_tau = 1.0
+    self._update_target_interval = 1000
+    self._max_grad_norm = None
 
     # params for epsilon greedy
-    self._epsilon_start = config.EXPLORATION_EPSILON_START
-    self._epsilon_end = config.EXPLORATION_EPSILON_END
-    self._epsilon_decay = config.EXPLORATION_EPSILON_DECAY
+    self._epsilon_start = 0.99
+    self._epsilon_end = 0.05
+    self._epsilon_decay = 500
 
-    self._use_cuda_if_available = config.USE_CUDA and th.cuda.is_available()
+    self._use_cuda_if_available = False
 
-    self._update_target_interval = config.TARGET_UPDATE_STEPS
-    self._clip = config.CLIP
+    self._surrogate_clip = 0.2
 
-    self._optimiser_type = config.OPTIMISER_TYPE
+    self._optimiser_type = torch.optim.Adam
 
     self._actor_critic_arch = U.ActorCriticNetwork
-    self._actor_critic_params = config.ARCH_PARAMS
+    self._actor_critic_arch_params = {
+      'input_size':              None,
+      'hidden_size':[32,32],
+      'actor_hidden_size':       [32],
+      'critic_hidden_size':      [32],
+      'actor_output_size':             None,
+      'actor_output_activation': F.log_softmax,
+      'critic_output_size':      [1],
+      'continuous':              True
+      }
 
     self._actor_critic = None
     self._actor_critic_target = None
@@ -68,12 +78,17 @@ class PPOAgent(ACAgent):
   def build_model(self, env):
     self.infer_input_output_sizes(env)
 
+
+    self._actor_critic_arch_params['input_size'] = self._input_size
+    self._actor_critic_arch_params['actor_output_size'] = self._output_size
+
     self._actor_critic, self._actor_critic_target, self._optimiser = self.__build_model__()
 
   def __build_model__(self):
-    actor_critic = self._actor_critic_arch(**self._actor_critic_params)
-    actor_critic_target = self._actor_critic_arch(**self._actor_critic_params)
-    actor_critic_target.load_state_dict(self._actor_critic.state_dict())
+    actor_critic = self._actor_critic_arch(**self._actor_critic_arch_params)
+
+    actor_critic_target = self._actor_critic_arch(**self._actor_critic_arch_params)
+    actor_critic_target.load_state_dict(actor_critic.state_dict())
 
     if self._use_cuda_if_available:
       actor_critic.cuda()
@@ -83,7 +98,7 @@ class PPOAgent(ACAgent):
 
     return actor_critic, actor_critic_target, optimiser
 
-  def maybe_take_n_steps(self, initial_state, environment, n=100):
+  def maybe_take_n_steps(self, initial_state, environment, n=100, render=False):
     state = initial_state
     accumulated_signal = 0
 
@@ -93,9 +108,12 @@ class PPOAgent(ACAgent):
     T = tqdm(range(1, n + 1), f'Step #{self._step_i}', leave=False)
     for t in T:
       self._step_i += 1
-      action, value_estimates, action_prob, *_ = self.discrete_categorical_sample_model(state)
+      action, value_estimates, action_prob, *_ = self.continuous_sample_model(state)
 
-      next_state, signal, terminated, _ = environment.step(action)
+      next_state, signal, terminated, _ = environment.step(action.data[0])
+
+      if render:
+        environment.render()
 
       successor_state = None
       if not terminated:  # If environment terminated then there is no successor state
@@ -125,8 +143,8 @@ class PPOAgent(ACAgent):
     advantages, discounted_returns = U.gae(signals,
                                            value_estimates,
                                            n_step_summary.non_terminal,
-                                           self._gamma,
-                                           glp=self._glp)
+                                           self._discount_factor,
+                                           glp=self._gae_lambda)
 
     i = 0
     advantage_memories = []
@@ -147,7 +165,8 @@ class PPOAgent(ACAgent):
   def evaluate(self, batch, **kwargs):
 
     states_var = U.to_var(batch.state, use_cuda=self._use_cuda_if_available).view(-1, self._input_size[0])
-    action_var = U.to_var(batch.action, use_cuda=self._use_cuda_if_available, dtype='long')
+    action_var = U.to_var(batch.action, use_cuda=self._use_cuda_if_available, dtype='long').view(-1,
+                                                                                                 self._output_size[0])
     action_probs_var = U.to_var(batch.action_prob, use_cuda=self._use_cuda_if_available).view(-1,
                                                                                               self._output_size[
                                                                                                 0])
@@ -155,22 +174,37 @@ class PPOAgent(ACAgent):
     advantages_var = U.to_var(batch.advantage, use_cuda=self._use_cuda_if_available)
     returns_var = U.to_var(batch.discounted_return, use_cuda=self._use_cuda_if_available)
 
-    action_prob = action_probs_var.gather(1, action_var)
 
-    action_probs_t, _ = self._actor_critic_target(states_var)
-    action_prob_t = action_probs_t.gather(1, action_var)
 
-    ratio = action_prob / (action_prob_t + self._divide_by_zero_safety)
+    value_error = (.5 * (values_var - returns_var) ** 2.).mean()
 
-    advantage = (advantages_var - advantages_var.mean()) / (
-        advantages_var.std() + self._divide_by_zero_safety)
+
+
+    entropy_loss = U.entropy(action_probs_var).mean()
+
+
+
+
+    action_prob = action_probs_var#.gather(1, action_var)
+    _, _, action_probs_target, *_ = self._actor_critic_target(states_var)
+    action_prob_target = action_probs_target#.gather(1, action_var)
+    #ratio = action_prob / (action_prob_target + self._divide_by_zero_safety)
+    ratio = torch.exp(action_prob - action_prob_target)
+
+    advantage = (advantages_var - advantages_var.mean()) / (advantages_var.std() + self._divide_by_zero_safety)
+
+
+
+
+
+
 
     surrogate = ratio * advantage
-    surrogate_clipped = torch.clamp(ratio, min=1. - self._clip, max=1. + self._clip) * advantage  # (L^CLIP)
+    surrogate_clipped = torch.clamp(ratio, min=1. - self._surrogate_clip, max=1. + self._surrogate_clip) * advantage  # (L^CLIP)
 
     policy_loss = -torch.min(surrogate, surrogate_clipped).mean()
-    value_error = (.5 * (values_var - returns_var) ** 2.).mean()
-    entropy_loss = U.entropy(action_probs_var).mean()
+
+
 
     cost = policy_loss + value_error * self._value_reg_coef + entropy_loss * self._entropy_reg_coef
 
@@ -198,19 +232,17 @@ class PPOAgent(ACAgent):
 
   def continuous_sample_model(self, state):
     state_var = U.to_var([state])
-    a_mean, a_log_std, value_estimate = self._actor_critic(state_var)
+    action_mean, action_log_std, value_estimate = self._actor_critic(state_var)
 
     # randomly sample from normal distribution, whose mean and variance come from policy network.
     # [b, a_dim]
-    a = torch.normal(a_mean, torch.exp(a_log_std))
+    action = torch.normal(action_mean, torch.exp(action_log_std))
 
-    # value, x, states = self(inputs, states, masks)
-    # action = self.dist.sample(x, deterministic=deterministic)
-    # action_log_probs, dist_entropy = self.dist.logprobs_and_entropy(x, action)
+    #value, x, states = self(inputs, states, masks)
+    #action = self.dist.sample(x, deterministic=deterministic)
+    #action_log_probs, dist_entropy = self.dist.logprobs_and_entropy(x, action)
 
-    # return value, action, action_log_probs, states
-
-    return a
+    return action, value_estimate, action_log_std
 
   # choose an action based on state for execution
   def sample_action(self, state, **kwargs):
@@ -233,12 +265,13 @@ def test_ppo_agent(C):
   cs = tqdm(range(1, C.ROLLOUTS + 1), f'Rollout {0}, {0}', leave=True)
   for rollout_i in cs:
 
-    transitions, accum_signal, terminated, initial_state = ppo_agent.maybe_take_n_steps(initial_state, env)
+    transitions, accumulated_signal, terminated, initial_state = ppo_agent.maybe_take_n_steps(
+        initial_state, env, render=C.RENDER_ENVIRONMENT)
 
     if terminated:
       initial_state = env.reset()
 
-    if rollout_i >= C.EPISODES_BEFORE_TRAIN:
+    if rollout_i >= C.INITIAL_OBSERVATION_PERIOD:
       advantage_memories = ppo_agent.trace_back_steps(transitions)
       for m in advantage_memories:
         ppo_agent._experience_buffer.remember(m)
