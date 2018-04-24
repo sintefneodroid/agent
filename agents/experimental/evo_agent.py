@@ -8,7 +8,7 @@ class EVOAgent(Agent):
   def sample_action(self, state):
     pass
 
-  def optimise_wrt(self, error):
+  def __optimise_wrt__(self, error):
     pass
 
   def evaluate(self, batch):

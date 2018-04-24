@@ -29,7 +29,7 @@ class ACAgent(Agent):
     if evaluation:
       self._actor_critic = self._actor_critic.eval()
       self._actor_critic.train(False)
-    if self._use_cuda_if_available:
+    if self._use_cuda:
       self._actor_critic = self._actor_critic.cuda()
     else:
       self._actor_critic = self._actor_critic.cpu()

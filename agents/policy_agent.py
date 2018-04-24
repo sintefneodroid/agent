@@ -35,5 +35,5 @@ class PolicyAgent(Agent):
     if evaluation:
       self._policy = self._policy.eval()
       self._policy.train(False)
-    if self._use_cuda_if_available:
+    if self._use_cuda:
       self._policy = self._policy.cuda()

@@ -9,7 +9,7 @@ class GAAgent(EVOAgent):
   def evaluate(self, batch):
     pass
 
-  def optimise_wrt(self, error):
+  def __optimise_wrt__(self, error):
     pass
 
   def rollout(self, init_obs, env):

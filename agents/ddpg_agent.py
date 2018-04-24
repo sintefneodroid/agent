@@ -35,7 +35,7 @@ class DDPGAgent(ACAgent):
           The update rate that target networks slowly track the learned networks.
   '''
 
-  def optimise_wrt(self, td_error, state_batch, **kwargs):
+  def __optimise_wrt__(self, td_error, state_batch, **kwargs):
     """
 
     :type kwargs: object
@@ -55,7 +55,7 @@ class DDPGAgent(ACAgent):
 
     return loss
 
-  def __defaults__(self):
+  def __local_defaults__(self):
     self._optimiser_type = torch.optim.Adam
 
     self._actor_optimiser_spec = U.OSpec(
@@ -140,7 +140,7 @@ class DDPGAgent(ACAgent):
       self._actor = self._actor.eval()
       self._actor.train(False)
 
-    if self._use_cuda_if_available:
+    if self._use_cuda:
       self._actor = self._actor.cuda()
       self._target_actor = self._target_actor.cuda()
       self._critic = self._critic.cuda()
@@ -159,7 +159,7 @@ class DDPGAgent(ACAgent):
     critic = self._critic_arch(**self._critic_arch_parameters).type(torch.FloatTensor)
     target_critic = self._critic_arch(**self._critic_arch_parameters).type(torch.FloatTensor)
 
-    if self._use_cuda_if_available:
+    if self._use_cuda:
       actor = actor.cuda()
       target_actor = target_actor.cuda()
       critic = critic.cuda()
@@ -184,13 +184,13 @@ class DDPGAgent(ACAgent):
     self._actor, self._target_actor, self._critic, self._target_critic, self._actor_optimiser, \
     self._critic_optimiser = self.__build_models__()
 
-  def sample_model(self, state, **kwargs):
-    state = U.to_var(state, volatile=True, use_cuda=self._use_cuda_if_available).unsqueeze(0)
+  def __sample_model__(self, state, **kwargs):
+    state = U.to_var(state, volatile=True, use_cuda=self._use_cuda).unsqueeze(0)
     action = self._actor(state)
     return action.data.cpu()[0].numpy()
 
   def sample_action(self, state, **kwargs):
-    return self.sample_model(state)
+    return self.__sample_model__(state)
 
   def evaluate(self,
                state_batch,
@@ -199,15 +199,19 @@ class DDPGAgent(ACAgent):
                next_state_batch,
                non_terminal_batch,
                **kwargs):
+    """
 
-    state_batch_var = U.to_var(state_batch, use_cuda=self._use_cuda_if_available).view(-1, self._input_size[0])
-    next_state_batch_var = U.to_var(next_state_batch, use_cuda=self._use_cuda_if_available).view(-1,
-                                                                                                 self._input_size[
-                                                                                                 0])
-    action_batch_var = U.to_var(action_batch, use_cuda=self._use_cuda_if_available).view(-1,
-                                                                                         self._output_size[0])
-    signal_batch_var = U.to_var(signal_batch, use_cuda=self._use_cuda_if_available).unsqueeze(0)
-    non_terminal_mask_var = U.to_var(non_terminal_batch, use_cuda=self._use_cuda_if_available).unsqueeze(0)
+    :type kwargs: object
+    """
+    state_batch_var = U.to_var(state_batch, use_cuda=self._use_cuda).view(-1,
+                                                                          self._input_size[0])
+    next_state_batch_var = U.to_var(next_state_batch, use_cuda=self._use_cuda).view(-1,
+                                                                                    self._input_size[
+                                                                                                   0])
+    action_batch_var = U.to_var(action_batch, use_cuda=self._use_cuda).view(-1,
+                                                                            self._output_size[0])
+    signal_batch_var = U.to_var(signal_batch, use_cuda=self._use_cuda).unsqueeze(0)
+    non_terminal_mask_var = U.to_var(non_terminal_batch, use_cuda=self._use_cuda).unsqueeze(0)
 
     ### Critic ###
     # Compute current Q value, critic takes state and action choosen
@@ -219,7 +223,7 @@ class DDPGAgent(ACAgent):
 
     next_Q_values = non_terminal_mask_var * next_max_q
     Q_target = signal_batch_var + (
-          self._discount_factor * next_Q_values)  # Compute the target of the current Q values
+        self._discount_factor * next_Q_values)  # Compute the target of the current Q values
     td_error = F.smooth_l1_loss(Q_current, Q_target)  # Compute Bellman error (using Huber loss)
 
     return td_error, state_batch_var
@@ -238,7 +242,7 @@ class DDPGAgent(ACAgent):
 
     td_error, state_batch_var = self.evaluate(*batch)
 
-    loss = self.optimise_wrt(td_error, state_batch_var)
+    loss = self.__optimise_wrt__(td_error, state_batch_var)
 
     return td_error.data[0], loss.data[0]
 
@@ -254,9 +258,10 @@ class DDPGAgent(ACAgent):
 
   def update_target(self, target_model, model):
     for target_param, param in zip(target_model.parameters(), model.parameters()):
-      target_param.data.copy_(self._target_update_tau * param.data + (1 - self._target_update_tau) * target_param.data)
+      target_param.data.copy_(
+          self._target_update_tau * param.data + (1 - self._target_update_tau) * target_param.data)
 
-  def rollout(self, initial_state, environment, render=False):
+  def rollout(self, initial_state, environment, render=False, **kwargs):
     self._rollout_i += 1
 
     state = initial_state
@@ -319,10 +324,9 @@ class DDPGAgent(ACAgent):
     :param stat_frequency:
     :type stat_frequency:
     '''
-    stats = U.plotting.EpisodeStatistics(
-        episode_lengths=[],
-        episode_signals=[],
-        signal_mas=[])
+    stats = U.plotting.EpisodeStatistics()
+    running_signal=0
+    running_duration=0
 
     E = range(1, rollouts)
     E = tqdm(E, desc='', leave=True)
@@ -333,7 +337,13 @@ class DDPGAgent(ACAgent):
 
       if episode_i % stat_frequency == 0:
         t_episode = [i for i in range(1, episode_i + 1)]
-        term_plot(t_episode, stats.signal_mas, 'Moving signal', printer=E.write)
+        term_plot(t_episode, stats.signals, 'Running signal', printer=E.write, percent_size=(1,
+                                                 .24))
+        term_plot(t_episode,
+                  stats.durations,
+                  'Duration',
+                  printer=E.write, percent_size=(1,
+                                                 .24))
         E.set_description(f'Episode: {episode_i}, Last Moving signal: {stats.signal_mas[-1]}')
 
       signal, dur = 0, 0
@@ -342,10 +352,10 @@ class DDPGAgent(ACAgent):
       else:
         signal, dur, *rollout_stats = self.rollout(state, env)
 
-      stats.episode_lengths.append(dur)
-      stats.episode_signals.append(signal)
-      signal_ma = np.mean(stats.episode_signals[-100:])
-      stats.signal_mas.append(signal_ma)
+      running_duration = running_duration * 0.99 + dur * 0.01
+      stats.durations.append(running_duration)
+      running_signal = running_signal * 0.99 + signal * 0.01
+      stats.signals.append(running_signal)
 
       if self._end_training:
         break
@@ -413,3 +423,5 @@ if __name__ == '__main__':
     test_ddpg_agent(C)
   except KeyboardInterrupt:
     print('Stopping')
+
+  torch.cuda.empty_cache()

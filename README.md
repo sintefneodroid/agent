@@ -1,4 +1,4 @@
-![neodroid](RepoAssets/images/header.png)
+![neodroid](.github/images/header.png)
 
 # Agent
 This repository will host all initial machine learning efforts applying the [Neodroid](https://github.com/sintefneodroid/) platform.
@@ -41,24 +41,24 @@ This repository will host all initial machine learning efforts applying the [Neo
 
 <p align="center" width="100%">
   <a href="https://www.python.org/">
-    <img alt="python" src="RepoAssets/images/python.svg" height="40" align="left">
+    <img alt="python" src=".github/images/python.svg" height="40" align="left">
   </a>
   <a href="https://opencv.org/" style="float:center;">
-    <img alt="opencv" src="RepoAssets/images/opencv.svg" height="40" align="center">
+    <img alt="opencv" src=".github/images/opencv.svg" height="40" align="center">
   </a>
   <a href="http://pytorch.org/"style="float: right;">
-    <img alt="pytorch" src="RepoAssets/images/pytorch.svg" height="40" align="right" >
+    <img alt="pytorch" src=".github/images/pytorch.svg" height="40" align="right" >
   </a>
 </p>
 <p align="center" width="100%">
   <a href="http://www.numpy.org/">
-    <img alt="numpy" src="RepoAssets/images/numpy.svg" height="40" align="left">
+    <img alt="numpy" src=".github/images/numpy.svg" height="40" align="left">
   </a>
   <a href="https://github.com/tqdm/tqdm" style="float:center;">
-    <img alt="tqdm" src="RepoAssets/images/tqdm.gif" height="40" align="center">
+    <img alt="tqdm" src=".github/images/tqdm.gif" height="40" align="center">
   </a>
   <a href="https://matplotlib.org/" style="float: right;">
-    <img alt="matplotlib" src="RepoAssets/images/matplotlib.svg" height="40" align="right">
+    <img alt="matplotlib" src=".github/images/matplotlib.svg" height="40" align="right">
   </a>
 </p>
 

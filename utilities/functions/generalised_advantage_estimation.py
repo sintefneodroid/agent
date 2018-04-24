@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
 # coding=utf-8
+from mock.mock import self
+
+from utilities.torch_utilities import to_tensor, to_var
+
 __author__ = 'cnheider'
 
 import random
@@ -14,46 +18,95 @@ def set_seed(seed):
   torch.manual_seed(seed)
 
 
-def gae(signals, value_estimates, masks, gamma=0.99, glp=0.95):  # , cuda=True):
+def generalised_advantage_estimate(n_step_summary,
+                                   discount_factor=0.99,
+                                   gae_tau=0.95,
+                                   use_cuda=False):
   """
   compute GAE(lambda) advantages and discounted returns
 
+  :param use_cuda:
+  :type use_cuda:
   :param signals:
   :type signals:
   :param value_estimates:
   :type value_estimates:
-  :param masks:
-  :type masks:
-  :param gamma:
-  :type gamma:
-  :param glp:
-  :type glp:
+  :param non_terminals:
+  :type non_terminals:
+  :param discount_factor:
+  :type discount_factor:
+  :param gae_tau:
+  :type gae_tau:
   :return:
   :rtype:
   """
+
+  signals = to_var(n_step_summary.signal, use_cuda=use_cuda).view(-1,1)
+  non_terminals = to_var(n_step_summary.non_terminal, dtype='float', use_cuda=use_cuda).view(-1, 1)
+  value_estimates = to_var(n_step_summary.value_estimate, dtype='float', use_cuda=use_cuda).view(-1,1)
+
   T = len(signals)
+  advantage = torch.zeros(1, 1)
+  if use_cuda:
+    advantage.cuda()
+  discounted_return = signals[-1].data[0]
+  output = torch.zeros(T,1)
+  output2 = torch.zeros(T,1)
 
-  advantages = np.zeros(T)
-
-
-  advantage_t = 0
   for t in reversed(range(T - 1)):
-    v_f = value_estimates[t + 1].data.numpy()[0]
-    v_c = value_estimates[t].data.numpy()[0]
+    value_future = value_estimates[t + 1].data
+    value_now = value_estimates[t].data
+    signal = signals[t].data
+    non_terminal = non_terminals[t].data
 
-    delta = signals[t] + \
-            v_f * gamma * masks[t] - \
-            v_c
-    advantage_t = delta + advantage_t * gamma * glp * masks[t]
-    advantages[t] = advantage_t
+    discounted_return = signal + discount_factor * non_terminal * discounted_return
 
-  value_estimates = [value.data.numpy()[0][0] for value in value_estimates]
-  discounted_returns = value_estimates + advantages
+    td_error = signal + value_future * discount_factor * non_terminal - value_now
+    advantage = advantage * discount_factor * gae_tau * non_terminal + td_error
+
+    output[t]=advantage
+    output2[t]=discounted_return
+
+  advantages = torch.cat(output, dim=0)
+  discounted_returns = torch.cat(output, dim=0)
+  advantages = (advantages - advantages.mean()) / advantages.std()
+
+  advantages = to_var(advantages,use_cuda=use_cuda).view(-1, 1)
+  discounted_returns = to_var(discounted_returns,use_cuda=use_cuda).view(-1, 1)
 
   return advantages, discounted_returns
 
 
-def mean_std_gxroups(x, y, group_size):
+'''
+processed_rollout = [None] * (len(rollout) - 1)
+advantages = self.network.tensor(np.zeros((config.num_workers, 1)))
+returns = pending_value.data
+for i in reversed(range(len(rollout) - 1)):
+    states, value, actions, log_probs, rewards, terminals = rollout[i]
+    terminals = self.network.tensor(terminals).unsqueeze(1)
+    rewards = self.network.tensor(rewards).unsqueeze(1)
+    actions = self.network.variable(actions)
+    states = self.network.variable(states)
+    next_value = rollout[i + 1][1]
+    returns = rewards + config.discount * terminals * returns
+    if not config.use_gae:
+        advantages = returns - value.data
+    else:
+        td_error = rewards + config.discount * terminals * next_value.data - value.data
+        advantages = advantages * config.gae_tau * config.discount * terminals + td_error
+    processed_rollout[i] = [states, actions, log_probs, returns, advantages]
+
+states, actions, log_probs_old, returns, advantages = map(lambda x: torch.cat(x, dim=0), zip(*processed_rollout))
+advantages = (advantages - advantages.mean()) / advantages.std()
+advantages = Variable(advantages)
+returns = Variable(returns)
+'''
+
+
+
+
+
+def mean_std_groups(x, y, group_size):
   """
 
   :param x:

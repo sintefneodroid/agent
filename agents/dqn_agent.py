@@ -20,7 +20,7 @@ class DQNAgent(ValueAgent):
 
   """
 
-  def __defaults__(self):
+  def __local_defaults__(self):
     self._memory = U.ReplayBuffer(1000)
     # self._memory = U.PrioritisedReplayMemory(config.REPLAY_MEMORY_SIZE)  # Cuda trouble
 
@@ -30,12 +30,12 @@ class DQNAgent(ValueAgent):
 
     self._value_arch = U.MLP
     self._value_arch_parameters = {
-  'input_size':  None,  # Obtain from environment
-  'hidden_size': [64, 32, 16],
-  'output_size': None,  # Obtain from environment
-  'activation':  F.relu,
-  'use_bias':    True
-  }
+      'input_size':  None,  # Obtain from environment
+      'hidden_size': [64, 32, 16],
+      'output_size': None,  # Obtain from environment
+      'activation':  F.relu,
+      'use_bias':    True
+      }
 
     self._batch_size = 32
 
@@ -92,7 +92,7 @@ class DQNAgent(ValueAgent):
 
     return value_model, target_value_model, optimiser
 
-  def optimise_wrt(self, error, **kwargs):
+  def __optimise_wrt__(self, error, **kwargs):
     """
 
     :param error:
@@ -151,7 +151,7 @@ class DQNAgent(ValueAgent):
     transitions = self._memory.sample_transitions(self._batch_size)
 
     td_error = self.evaluate(transitions)
-    self.optimise_wrt(td_error)
+    self.__optimise_wrt__(td_error)
 
     error = td_error.data[0]
     # self._memory.batch_update(indices, errors.tolist())  # Cuda trouble
@@ -222,10 +222,10 @@ class DQNAgent(ValueAgent):
     :return:
     """
     if self.epsilon_random(self._step_i) and self._step_i > self._initial_observation_period:
-      return self.sample_model(state)
+      return self.__sample_model__(state)
     return self.sample_random_process()
 
-  def sample_model(self, state, **kwargs):
+  def __sample_model__(self, state, **kwargs):
     model_input = U.to_var([state], volatile=True, use_cuda=self._use_cuda_if_available)
     action_value_estimates = self._value_model(model_input)
     max_value_action_idx = action_value_estimates.max(1)[1].data[0]
@@ -341,8 +341,6 @@ def test_dqn_agent(config):
   environment.close()
 
 
-
-
 if __name__ == '__main__':
   import argparse
   import configs.dqn_config as C
@@ -378,3 +376,5 @@ if __name__ == '__main__':
     test_dqn_agent(C)
   except KeyboardInterrupt:
     print('Stopping')
+
+  torch.cuda.empty_cache()

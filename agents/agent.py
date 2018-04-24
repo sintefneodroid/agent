@@ -24,41 +24,41 @@ class Agent(ABC):
     self._input_size = None
     self._output_size = None
     self._divide_by_zero_safety = 1e-10
-    self._use_cuda_if_available = False
+    self._use_cuda = False
 
-    self.__defaults__()
+    self.__local_defaults__()
 
     if config:
       self.set_config_attributes(config)
 
   @abstractmethod
-  def __defaults__(self):
+  def __local_defaults__(self):
     raise NotImplementedError
 
   def stop_training(self):
     self._end_training = True
 
   @abstractmethod
-  def sample_action(self, state, *args ,**kwargs):
+  def sample_action(self, state, *args, **kwargs):
     raise NotImplementedError()
 
   @abstractmethod
-  def sample_model(self, state, *args ,**kwargs):
+  def __sample_model__(self, state, *args, **kwargs):
     raise NotImplementedError()
 
   @abstractmethod
-  def optimise_wrt(self, error, *args ,**kwargs):
+  def __optimise_wrt__(self, error, *args, **kwargs):
     raise NotImplementedError()
 
   @abstractmethod
-  def evaluate(self, batch, *args ,**kwargs):
+  def evaluate(self, batch, *args, **kwargs):
     raise NotImplementedError()
 
   @abstractmethod
-  def rollout(self, init_obs, env, *args ,**kwargs):
+  def rollout(self, init_obs, env, *args, **kwargs):
     raise NotImplementedError()
 
-  def infer_input_output_sizes(self, env, *args ,**kwargs):
+  def infer_input_output_sizes(self, env, *args, **kwargs):
     """
     Tries to infer input and output size from env if either _input_size or _output_size, is None or -1 (int)
 
@@ -77,17 +77,17 @@ class Agent(ABC):
         self._output_size = [env.action_space.n]
     print('action dimensions: ', self._output_size)
 
-  def set_config_attributes(self, config, *args ,**kwargs):
+  def set_config_attributes(self, config, *args, **kwargs):
     if config:
       config_vars = U.get_upper_vars_of(config)
       self._check_for_duplicates_in_args(**config_vars)
       self._parse_set_attr(**config_vars)
     self._parse_set_attr(**kwargs)
 
-  def _check_for_duplicates_in_args(self, *args ,**kwargs):
+  def _check_for_duplicates_in_args(self, *args, **kwargs):
     for k, v in kwargs.items():
 
-      occur=0
+      occur = 0
 
       if kwargs.get(k) is not None:
         occur += 1
@@ -97,28 +97,28 @@ class Agent(ABC):
       if k.isupper():
         k_lowered = f'_{k.lower()}'
         if kwargs.get(k_lowered) is not None:
-            occur += 1
+          occur += 1
         else:
           pass
       else:
         k_lowered = f'{k.lstrip("_").upper()}'
         if kwargs.get(k_lowered) is not None:
-            occur += 1
+          occur += 1
         else:
           pass
 
       if occur > 1:
         warn(f'Config contains hiding duplicates of {k} and {k_lowered}, {occur} times')
 
-  def _parse_set_attr(self, *args , **kwargs):
+  def _parse_set_attr(self, *args, **kwargs):
     for k, v in kwargs.items():
       if k.isupper():
         k_lowered = f'_{k.lower()}'
         self.__setattr__(k_lowered, v)
       else:
-        self.__setattr__(k,v)
+        self.__setattr__(k, v)
 
-  def run(self, environment, render=True):
+  def run(self, environment, render=True, *args, **kwargs):
     E = count(1)
     E = tqdm(E, leave=True)
     for episode_i in E:
@@ -129,14 +129,13 @@ class Agent(ABC):
       F = tqdm(F, leave=True)
       for frame_i in F:
 
-        action = self.sample_model(state)
+        action = self.__sample_model__(state)
         state, reward, terminated, info = environment.step(action)
         if render:
           environment.render()
 
         if terminated:
           break
-
 
 #
 # def parallel():

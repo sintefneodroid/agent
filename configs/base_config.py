@@ -15,14 +15,14 @@ CONFIG_FILE = __file__
 USE_LOGGING = True
 
 # CUDA
-USE_CUDA_IF_AVAILABLE = True
-if USE_CUDA_IF_AVAILABLE:
-  USE_CUDA_IF_AVAILABLE = torch.cuda.is_available()
+USE_CUDA = True
+if USE_CUDA: # If available
+  USE_CUDA = torch.cuda.is_available()
 
-DoubleTensor = torch.cuda.DoubleTensor if USE_CUDA_IF_AVAILABLE else torch.DoubleTensor
-FloatTensor = torch.cuda.FloatTensor if USE_CUDA_IF_AVAILABLE else torch.FloatTensor
-LongTensor = torch.cuda.LongTensor if USE_CUDA_IF_AVAILABLE else torch.LongTensor
-ByteTensor = torch.cuda.ByteTensor if USE_CUDA_IF_AVAILABLE else torch.ByteTensor
+DoubleTensor = torch.cuda.DoubleTensor if USE_CUDA else torch.DoubleTensor
+FloatTensor = torch.cuda.FloatTensor if USE_CUDA else torch.FloatTensor
+LongTensor = torch.cuda.LongTensor if USE_CUDA else torch.LongTensor
+ByteTensor = torch.cuda.ByteTensor if USE_CUDA else torch.ByteTensor
 
 # CONSTANTS
 MOVING_AVERAGE_WINDOW = 100

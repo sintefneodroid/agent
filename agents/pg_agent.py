@@ -22,10 +22,10 @@ tqdm.monitor_interval = 0
 
 class PGAgent(PolicyAgent):
 
-  def __defaults__(self):
+  def __local_defaults__(self):
 
     self._policy_arch = U.CategoricalMLP
-    self._accumulated_error = U.to_var([0.0], use_cuda=self._use_cuda_if_available)
+    self._accumulated_error = U.to_var([0.0], use_cuda=self._use_cuda)
     self._evaluation_function = torch.nn.CrossEntropyLoss()
     self._trajectory = U.Trajectory()
 
@@ -48,7 +48,7 @@ class PGAgent(PolicyAgent):
     self._optimiser_type = torch.optim.Adam
     self._optimiser_weight_decay = 1e-5
 
-  def sample_model(self, state, **kwargs):
+  def __sample_model__(self, state, **kwargs):
     state_var = U.to_var(state, use_cuda=self._use_cuda_if_available, unsqueeze=True)
     probs = self._policy(state_var)
     m = Categorical(probs)
@@ -116,7 +116,7 @@ class PGAgent(PolicyAgent):
     loss = torch.cat(policy_loss).sum()
     return loss
 
-  def rollout(self, initial_state, environment, render=False):
+  def rollout(self, initial_state, environment, render=False, **kwargs):
     self._rollout_i += 1
 
     episode_signal = 0
@@ -153,14 +153,14 @@ class PGAgent(PolicyAgent):
       if self._use_batched_updates:
         self._accumulated_error += error
         if self._rollout_i % self._batch_size == 0:
-          self.optimise_wrt(self._accumulated_error / self._batch_size)
+          self.__optimise_wrt__(self._accumulated_error / self._batch_size)
           self._accumulated_error = U.to_var([0.0], use_cuda=self._use_cuda_if_available)
       else:
-        self.optimise_wrt(error)
+        self.__optimise_wrt__(error)
 
     return episode_signal, episode_length, episode_entropy / episode_length
 
-  def optimise_wrt(self, loss, **kwargs):
+  def __optimise_wrt__(self, loss, **kwargs):
     self.optimiser.zero_grad()
     loss.backward()
     for params in self._policy.parameters():
@@ -190,13 +190,21 @@ class PGAgent(PolicyAgent):
     E = tqdm(E, f'Episode: {1}', leave=True)
 
     running_length = 0
+    running_signal = 0
     running_lengths = []
+    running_signals = []
     for episode_i in E:
       initial_state = _environment.reset()
 
       if episode_i % stat_frequency == 0:
-        x_t = [i for i in range(1, episode_i + 1)]
-        term_plot(x_t, running_lengths, 'Running Lengths', printer=E.write)
+        t_episode = [i for i in range(1, episode_i + 1)]
+        term_plot(t_episode,
+                  running_signals,
+                  'Running Signal',
+                  printer=E.write,
+                  percent_size=(1, .24))
+        term_plot(t_episode, running_lengths, 'Running Lengths', printer=E.write,percent_size=(1, .24))
+
         E.set_description(f'Episode: {episode_i}, Running length: {running_length}')
 
       if render and episode_i % render_frequency == 0:
@@ -206,6 +214,8 @@ class PGAgent(PolicyAgent):
 
       running_length = running_length * 0.99 + dur * 0.01
       running_lengths.append(running_length)
+      running_signal = running_signal * 0.99 + signal * 0.01
+      running_signals.append(running_signal)
 
     time_elapsed = time.time() - training_start_timestamp
     end_message = f'Training done, time elapsed: {time_elapsed // 60:.0f}m {time_elapsed %60:.0f}s'
@@ -215,7 +225,6 @@ class PGAgent(PolicyAgent):
 
 
 def test_pg_agent(config):
-
   env = gym.make(config.ENVIRONMENT_NAME)
   env.seed(config.SEED)
   torch.manual_seed(config.SEED)
@@ -265,3 +274,5 @@ if __name__ == '__main__':
     test_pg_agent(C)
   except KeyboardInterrupt:
     print('Stopping')
+
+  torch.cuda.empty_cache()

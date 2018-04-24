@@ -15,12 +15,12 @@ CONFIG_FILE = __file__
 # Optimiser
 OPTIMISER_TYPE = torch.optim.Adam
 ENVIRONMENT_NAME = 'Pendulum-v0'
-#ENVIRONMENT_NAME = 'InvertedDoublePendulum-v2'
-#ENVIRONMENT_NAME = 'Reacher-v2'
-#ENVIRONMENT_NAME = 'PongNoFrameskip-v4'
+# ENVIRONMENT_NAME = 'InvertedDoublePendulum-v2'
+# ENVIRONMENT_NAME = 'Reacher-v2'
+# ENVIRONMENT_NAME = 'PongNoFrameskip-v4'
 
 EPISODES = 10000
-INITIAL_OBSERVATION_PERIOD=0
+INITIAL_OBSERVATION_PERIOD = 0
 
 STEPS = 10
 
@@ -31,7 +31,7 @@ TARGET_UPDATE_INTERVAL = 1000
 TARGET_UPDATE_TAU = 1.0
 MAX_GRADIENT_NORM = None
 
-GAE_LAMBDA = 0.95
+GAE_TAU = 0.95
 DISCOUNT_FACTOR = 0.99
 
 REACHED_HORIZON_PENALTY = -10.
@@ -65,4 +65,4 @@ ACTOR_CRITIC_ARCH_PARAMS = {
   'actor_output_activation': F.log_softmax,
   'critic_output_size':      [1],
   'continuous':              True
-               }
+  }

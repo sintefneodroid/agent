@@ -30,7 +30,7 @@ class ValueAgent(Agent):
 
   def sample_action(self, state, **kwargs):
     if self.epsilon_random(self._step_i) and self._step_i > self._initial_observation_period:
-      return self.sample_model(state)
+      return self.__sample_model__(state)
     return self.sample_random_process()
 
   def sample_random_process(self):
@@ -56,7 +56,7 @@ class ValueAgent(Agent):
 
     return sample > eps_threshold
 
-  def sample_model(self, state, **kwargs):
+  def __sample_model__(self, state, **kwargs):
     raise NotImplementedError
 
   def save_model(self, C):
@@ -69,7 +69,7 @@ class ValueAgent(Agent):
     if evaluation:
       self._value_model = self._value_model.eval()
       self._value_model.train(False)
-    if self._use_cuda_if_available:
+    if self._use_cuda:
       self._value_model = self._value_model.cuda()
     else:
       self._value_model = self._value_model.cpu()

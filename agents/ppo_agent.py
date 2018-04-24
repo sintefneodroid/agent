@@ -14,6 +14,7 @@ from agents.ac_agent import ACAgent
 
 cv2.setNumThreads(0)
 
+
 class PPOAgent(ACAgent):
   '''
   An agent learned with PPO using Advantage Actor-Critic framework
@@ -24,17 +25,14 @@ class PPOAgent(ACAgent):
   - adam seems better than rmsprop for ppo
   '''
 
-  def sample_model(self, state, **kwargs):
-    pass
-
   def rollout(self, init_obs, env, **kwargs):
     pass
 
-  def __defaults__(self):
+  def __local_defaults__(self):
     self._steps = 10
 
     self._discount_factor = 0.99
-    self._gae_lambda = 0.95
+    self._gae_tau = 0.95
     self._reached_horizon_penalty = -10.
 
     self._experience_buffer = U.ExpandableBuffer()
@@ -53,7 +51,7 @@ class PPOAgent(ACAgent):
     self._epsilon_end = 0.05
     self._epsilon_decay = 500
 
-    self._use_cuda_if_available = False
+    self._use_cuda = False
 
     self._surrogate_clip = 0.2
 
@@ -62,10 +60,10 @@ class PPOAgent(ACAgent):
     self._actor_critic_arch = U.ActorCriticNetwork
     self._actor_critic_arch_params = {
       'input_size':              None,
-      'hidden_size':[32,32],
+      'hidden_size':             [32, 32],
       'actor_hidden_size':       [32],
       'critic_hidden_size':      [32],
-      'actor_output_size':             None,
+      'actor_output_size':       None,
       'actor_output_activation': F.log_softmax,
       'critic_output_size':      [1],
       'continuous':              True
@@ -78,7 +76,6 @@ class PPOAgent(ACAgent):
   def build_model(self, env):
     self.infer_input_output_sizes(env)
 
-
     self._actor_critic_arch_params['input_size'] = self._input_size
     self._actor_critic_arch_params['actor_output_size'] = self._output_size
 
@@ -90,7 +87,7 @@ class PPOAgent(ACAgent):
     actor_critic_target = self._actor_critic_arch(**self._actor_critic_arch_params)
     actor_critic_target.load_state_dict(actor_critic.state_dict())
 
-    if self._use_cuda_if_available:
+    if self._use_cuda:
       actor_critic.cuda()
       actor_critic_target.cuda()
 
@@ -108,7 +105,7 @@ class PPOAgent(ACAgent):
     T = tqdm(range(1, n + 1), f'Step #{self._step_i}', leave=False)
     for t in T:
       self._step_i += 1
-      action, value_estimates, action_prob, *_ = self.continuous_sample_model(state)
+      action, value_estimates, action_prob, *_ = self.sample_action(state)
 
       next_state, signal, terminated, _ = environment.step(action.data[0])
 
@@ -137,14 +134,10 @@ class PPOAgent(ACAgent):
 
   def trace_back_steps(self, transitions):
     n_step_summary = U.ValuedTransition(*zip(*transitions))
-    signals = n_step_summary.signal
-    value_estimates = n_step_summary.value_estimate
 
-    advantages, discounted_returns = U.gae(signals,
-                                           value_estimates,
-                                           n_step_summary.non_terminal,
-                                           self._discount_factor,
-                                           glp=self._gae_lambda)
+    advantages, discounted_returns = U.generalised_advantage_estimate(n_step_summary,
+                                                                      self._discount_factor,
+                                                                      gae_tau=self._gae_tau)
 
     i = 0
     advantage_memories = []
@@ -164,47 +157,35 @@ class PPOAgent(ACAgent):
 
   def evaluate(self, batch, **kwargs):
 
-    states_var = U.to_var(batch.state, use_cuda=self._use_cuda_if_available).view(-1, self._input_size[0])
-    action_var = U.to_var(batch.action, use_cuda=self._use_cuda_if_available, dtype='long').view(-1,
-                                                                                                 self._output_size[0])
-    action_probs_var = U.to_var(batch.action_prob, use_cuda=self._use_cuda_if_available).view(-1,
-                                                                                              self._output_size[
+    states_var = U.to_var(batch.state, use_cuda=self._use_cuda).view(-1, self._input_size[0])
+    action_var = U.to_var(batch.action, use_cuda=self._use_cuda, dtype='long').view(-1,
+                                                                                    self._output_size[
+                                                                                                   0])
+    action_probs_var = U.to_var(batch.action_prob, use_cuda=self._use_cuda).view(-1,
+                                                                                 self._output_size[
                                                                                                 0])
-    values_var = U.to_var(batch.value_estimate, use_cuda=self._use_cuda_if_available)
-    advantages_var = U.to_var(batch.advantage, use_cuda=self._use_cuda_if_available)
-    returns_var = U.to_var(batch.discounted_return, use_cuda=self._use_cuda_if_available)
-
-
+    values_var = U.to_var(batch.value_estimate, use_cuda=self._use_cuda)
+    advantages_var = U.to_var(batch.advantage, use_cuda=self._use_cuda)
+    returns_var = U.to_var(batch.discounted_return, use_cuda=self._use_cuda)
 
     value_error = (.5 * (values_var - returns_var) ** 2.).mean()
 
-
-
     entropy_loss = U.entropy(action_probs_var).mean()
 
-
-
-
-    action_prob = action_probs_var#.gather(1, action_var)
+    action_prob = action_probs_var  # .gather(1, action_var)
     _, _, action_probs_target, *_ = self._actor_critic_target(states_var)
-    action_prob_target = action_probs_target#.gather(1, action_var)
-    #ratio = action_prob / (action_prob_target + self._divide_by_zero_safety)
+    action_prob_target = action_probs_target  # .gather(1, action_var)
+    # ratio = action_prob / (action_prob_target + self._divide_by_zero_safety)
     ratio = torch.exp(action_prob - action_prob_target)
 
-    advantage = (advantages_var - advantages_var.mean()) / (advantages_var.std() + self._divide_by_zero_safety)
-
-
-
-
-
-
+    advantage = (advantages_var - advantages_var.mean()) / (
+        advantages_var.std() + self._divide_by_zero_safety)
 
     surrogate = ratio * advantage
-    surrogate_clipped = torch.clamp(ratio, min=1. - self._surrogate_clip, max=1. + self._surrogate_clip) * advantage  # (L^CLIP)
+    surrogate_clipped = torch.clamp(ratio, min=1. - self._surrogate_clip,
+                                    max=1. + self._surrogate_clip) * advantage  # (L^CLIP)
 
     policy_loss = -torch.min(surrogate, surrogate_clipped).mean()
-
-
 
     cost = policy_loss + value_error * self._value_reg_coef + entropy_loss * self._entropy_reg_coef
 
@@ -213,41 +194,56 @@ class PPOAgent(ACAgent):
   def train(self):
     batch = U.AdvantageMemory(*zip(*self._experience_buffer.memory))
     cost = self.evaluate(batch)
-    self.optimise_wrt(cost)
+    self.__optimise_wrt__(cost)
 
-  def optimise_wrt(self, cost, **kwargs):
+  def __optimise_wrt__(self, cost, **kwargs):
     self._optimiser.zero_grad()
     cost.backward()
     if self._max_grad_norm is not None:
       nn.utils.clip_grad_norm(self._actor_critic.parameters(), self._max_grad_norm)
     self._optimiser.step()
 
-  def discrete_categorical_sample_model(self, state):
-    state_var = U.to_var(state, use_cuda=self._use_cuda_if_available, unsqueeze=True)
-    softmax_probs, value_estimate = self._actor_critic(state_var)
-    m = Categorical(softmax_probs)
-    action = m.sample()
-    a = action.cpu().data.numpy()[0]
-    return a, value_estimate, m.log_prob(action), m.probs
+  def __sample_model__(self, state, continuous=True, **kwargs):
+    '''
 
-  def continuous_sample_model(self, state):
-    state_var = U.to_var([state])
-    action_mean, action_log_std, value_estimate = self._actor_critic(state_var)
+    continuous
+      randomly sample from normal distribution, whose mean and variance come from policy network.
+      [batch, action_size]
 
-    # randomly sample from normal distribution, whose mean and variance come from policy network.
-    # [b, a_dim]
-    action = torch.normal(action_mean, torch.exp(action_log_std))
+    :param state:
+    :type state:
+    :param continuous:
+    :type continuous:
+    :param kwargs:
+    :type kwargs:
+    :return:
+    :rtype:
+    '''
+    state_var = U.to_var(state, use_cuda=self._use_cuda, unsqueeze=True)
 
-    #value, x, states = self(inputs, states, masks)
-    #action = self.dist.sample(x, deterministic=deterministic)
-    #action_log_probs, dist_entropy = self.dist.logprobs_and_entropy(x, action)
+    if continuous:
 
-    return action, value_estimate, action_log_std
+      action_mean, action_log_std, value_estimate = self._actor_critic(state_var)
+
+      action = torch.normal(action_mean, torch.exp(action_log_std))
+
+      # value, x, states = self(inputs, states, masks)
+      # action = self.dist.sample(x, deterministic=deterministic)
+      # action_log_probs, dist_entropy = self.dist.logprobs_and_entropy(x, action)
+
+      return action, value_estimate, action_log_std
+    else:
+
+      softmax_probs, value_estimate = self._actor_critic(state_var)
+      m = Categorical(softmax_probs)
+      action = m.sample()
+      a = action.cpu().data.numpy()[0]
+      return a, value_estimate, m.log_prob(action), m.probs
 
   # choose an action based on state for execution
   def sample_action(self, state, **kwargs):
-    action, *_ = self.discrete_categorical_sample_model(state)
-    return action
+    action, value_estimate, action_log_std, *_ = self.__sample_model__(state)
+    return action, value_estimate, action_log_std
 
 
 def test_ppo_agent(C):
@@ -315,3 +311,5 @@ if __name__ == '__main__':
     test_ppo_agent(C)
   except KeyboardInterrupt:
     print('Stopping')
+
+  torch.cuda.empty_cache()
