@@ -4,26 +4,25 @@ from utilities.architectures.architecture import Architecture
 
 __author__ = 'cnheider'
 
-"""
+'''
 Description: Multi Layer Perceptron
 Author: Christian Heider Nielsen
-"""
+'''
 import torch
-from torch import nn
-from torch.autograd import Variable
+from torch import nn, Tensor
 from torch.nn import functional as F
 
 
 class MLP(Architecture):
-  """
-  OOOO input_size
-  |XX|                                        fc1
-  OOOO hidden_layer_size * (Weights,Biases)
-  |XX|                                        fc2
-  OOOO hidden_layer_size * (Weights,Biases)
-  |XX|                                        fc3
-  0000 output_size * (Weights,Biases)
-  """
+  '''
+OOOO input_size
+|XX|                                        fc1
+OOOO hidden_layer_size * (Weights,Biases)
+|XX|                                        fc2
+OOOO hidden_layer_size * (Weights,Biases)
+|XX|                                        fc3
+0000 output_size * (Weights,Biases)
+'''
 
   def __init__(self, input_size, hidden_size, output_size, activation, use_bias):
     super().__init__()
@@ -39,20 +38,24 @@ class MLP(Architecture):
     self.num_of_layer = len(self._hidden_size)
     if self.num_of_layer > 0:
       for i in range(self.num_of_layer):
-        layer = nn.Linear(previous_layer_size, self._hidden_size[i], bias=self._use_bias)
+        layer = nn.Linear(
+            previous_layer_size, self._hidden_size[i], bias=self._use_bias
+            )
         # fan_in_init(layer.weight)
         setattr(self, 'fc' + str(i + 1), layer)
         previous_layer_size = self._hidden_size[i]
 
-    self.head = nn.Linear(previous_layer_size, self._output_size[0], bias=self._use_bias)
+    self.head = nn.Linear(
+        previous_layer_size, self._output_size[0], bias=self._use_bias
+        )
 
   def forward(self, x, **kwargs):
-    """
+    '''
 
-    :param x:
-    :return output:
-    """
-    assert type(x) is Variable
+:param x:
+:return output:
+'''
+    assert type(x) is Tensor
 
     # if hasattr(self, 'num_of_layer'): # Safer but slower
     #  for i in range(1, self.num_of_layer + 1):

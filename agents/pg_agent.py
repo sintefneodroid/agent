@@ -25,7 +25,7 @@ class PGAgent(PolicyAgent):
   def __local_defaults__(self):
 
     self._policy_arch = U.CategoricalMLP
-    self._accumulated_error = U.to_var([0.0], use_cuda=self._use_cuda)
+    self._accumulated_error = torch.tensor(0.0, device=self._device)
     self._evaluation_function = torch.nn.CrossEntropyLoss()
     self._trajectory = U.Trajectory()
 
@@ -34,7 +34,7 @@ class PGAgent(PolicyAgent):
       'hidden_layers': [64, 32, 16],
       'output_size':   None,  # Obtain from environment
       'activation':    F.relu,
-      'use_bias':      True
+      'use_bias':      True,
       }
 
     self._use_cuda_if_available = False
@@ -48,32 +48,34 @@ class PGAgent(PolicyAgent):
     self._optimiser_type = torch.optim.Adam
     self._optimiser_weight_decay = 1e-5
 
+    self._state_tensor_type = torch.float
+    self._signals_tensor_type = torch.float
+
   def __sample_model__(self, state, **kwargs):
-    state_var = U.to_var(state, use_cuda=self._use_cuda_if_available, unsqueeze=True)
+    state_var = torch._tensor(
+        [state], device=self._device, dtype=self._state_tensor_type
+        )
     probs = self._policy(state_var)
     m = Categorical(probs)
     action = m.sample()
     return action.cpu().data.numpy()[0]
 
-  def build_model(self, env):
-    self.infer_input_output_sizes(env)
+  def __build_models__(self):
 
-    self._policy = self.__build_model__()
+    policy = self._policy_arch(**self._policy_arch_params).to(self._device)
 
-  def __build_model__(self):
+    self.optimiser = self._optimiser_type(
+        policy.parameters(),
+        lr=self._optimiser_learning_rate,
+        weight_decay=self._optimiser_weight_decay,
+        )
 
-    policy = self._policy_arch(**self._policy_arch_params)
-
-    if self._use_cuda_if_available:
-      policy = policy.cuda()
-
-    self.optimiser = self._optimiser_type(policy.parameters(), lr=self._optimiser_learning_rate,
-                                          weight_decay=self._optimiser_weight_decay)
-
-    return policy
+    self._policy = policy
 
   def sample_action(self, state, **kwargs):
-    state_var = U.to_var(state, use_cuda=self._use_cuda_if_available, unsqueeze=True)
+    state_var = torch.tensor(
+        [state], device=self._device, dtype=self._state_tensor_type
+        )
     probs = self._policy(state_var)
     m = Categorical(probs)
     action_sample = m.sample()
@@ -82,14 +84,23 @@ class PGAgent(PolicyAgent):
     return action, m.log_prob(action_sample), U.log_entropy(probs)
 
   def sample_cont_action(self, state):
-    state_var = U.to_var(state, use_cuda=self._use_cuda_if_available, unsqueeze=True)
+    state_var = torch.tensor(
+        [state], device=self._device, dtype=self._state_tensor_type
+        )
     mu, sigma_sq = self._policy(state_var)  # requires MultiheadedMLP
 
     eps = torch.randn(mu.size())
     # calculate the probability
     action = (mu + sigma_sq.sqrt() * Variable(eps).cuda()).data
     prob = U.normal(action, mu, sigma_sq)
-    entropy = -0.5 * ((sigma_sq + 2 * U.pi_torch(self._use_cuda_if_available).expand_as(sigma_sq)).log() + 1)
+    entropy = -0.5 * (
+        (
+            sigma_sq
+            + 2
+            * U.pi_torch(self._use_cuda_if_available).expand_as(sigma_sq)
+        ).log()
+        + 1
+    )
 
     log_prob = prob.log()
     return action, log_prob, entropy
@@ -102,7 +113,9 @@ class PGAgent(PolicyAgent):
       R = r + self._discount_factor * R
       signals.insert(0, R)
 
-    signals = U.to_tensor(signals, use_cuda=self._use_cuda_if_available)
+    signals = torch.tensor(
+        signals, device=self._device, dtype=self._signals_tensor_type
+        )
 
     stddev = signals.std()  # + np.finfo(np.float32).eps) for no zero division
     if signals.shape[0] > 1 and stddev > 0:
@@ -110,7 +123,9 @@ class PGAgent(PolicyAgent):
     else:
       return None
 
-    for log_prob, signal, entropy in zip(self._trajectory.log_probs, signals, self._trajectory.entropies):
+    for log_prob, signal, entropy in zip(
+        self._trajectory.log_probs, signals, self._trajectory.entropies
+        ):
       policy_loss.append(-log_prob * signal - self._pg_entropy_reg * entropy)
 
     loss = torch.cat(policy_loss).sum()
@@ -154,7 +169,7 @@ class PGAgent(PolicyAgent):
         self._accumulated_error += error
         if self._rollout_i % self._batch_size == 0:
           self.__optimise_wrt__(self._accumulated_error / self._batch_size)
-          self._accumulated_error = U.to_var([0.0], use_cuda=self._use_cuda_if_available)
+          self._accumulated_error = torch.tensor(0.0, device=self._device)
       else:
         self.__optimise_wrt__(error)
 
@@ -183,7 +198,14 @@ class PGAgent(PolicyAgent):
         if terminated:
           break
 
-  def train(self, _environment, rollouts=2000, render=False, render_frequency=100, stat_frequency=100):
+  def train(
+      self,
+      _environment,
+      rollouts=2000,
+      render=False,
+      render_frequency=100,
+      stat_frequency=100,
+      ):
 
     training_start_timestamp = time.time()
     E = range(1, rollouts)
@@ -198,17 +220,29 @@ class PGAgent(PolicyAgent):
 
       if episode_i % stat_frequency == 0:
         t_episode = [i for i in range(1, episode_i + 1)]
-        term_plot(t_episode,
-                  running_signals,
-                  'Running Signal',
-                  printer=E.write,
-                  percent_size=(1, .24))
-        term_plot(t_episode, running_lengths, 'Running Lengths', printer=E.write,percent_size=(1, .24))
+        term_plot(
+            t_episode,
+            running_signals,
+            'Running Signal',
+            printer=E.write,
+            percent_size=(1, .24),
+            )
+        term_plot(
+            t_episode,
+            running_lengths,
+            'Running Lengths',
+            printer=E.write,
+            percent_size=(1, .24),
+            )
 
-        E.set_description(f'Episode: {episode_i}, Running length: {running_length}')
+        E.set_description(
+            f'Episode: {episode_i}, Running length: {running_length}'
+            )
 
       if render and episode_i % render_frequency == 0:
-        signal, dur, *stats = self.rollout(initial_state, _environment, render=render)
+        signal, dur, *stats = self.rollout(
+            initial_state, _environment, render=render
+            )
       else:
         signal, dur, *stats = self.rollout(initial_state, _environment)
 
@@ -225,15 +259,18 @@ class PGAgent(PolicyAgent):
 
 
 def test_pg_agent(config):
+  device = torch.device('cuda' if config.USE_CUDA else 'cpu')
+
   env = gym.make(config.ENVIRONMENT_NAME)
   env.seed(config.SEED)
   torch.manual_seed(config.SEED)
 
   agent = PGAgent(config)
-  agent.build_model(env)
+  agent.build_agent(env, device)
 
-  _trained_model, training_statistics, *_ = agent.train(env, config.MAX_ROLLOUT_LENGTH,
-                                                        render=config.RENDER_ENVIRONMENT)
+  _trained_model, training_statistics, *_ = agent.train(
+      env, config.MAX_ROLLOUT_LENGTH, render=config.RENDER_ENVIRONMENT
+      )
   U.save_model(_trained_model, config)
 
   env.close()
@@ -244,21 +281,52 @@ if __name__ == '__main__':
   import configs.pg_config as C
 
   parser = argparse.ArgumentParser(description='PG Agent')
-  parser.add_argument('--ENVIRONMENT_NAME', '-E', type=str, default=C.ENVIRONMENT_NAME,
-                      metavar='ENVIRONMENT_NAME',
-                      help='name of the environment to run')
-  parser.add_argument('--PRETRAINED_PATH', '-T', metavar='PATH', type=str, default='',
-                      help='path of pre-trained model')
-  parser.add_argument('--RENDER_ENVIRONMENT', '-R', action='store_true',
-                      default=C.RENDER_ENVIRONMENT,
-                      help='render the environment')
-  parser.add_argument('--NUM_WORKERS', '-N', type=int, default=4, metavar='NUM_WORKERS',
-                      help='number of threads for agent (default: 4)')
-  parser.add_argument('--SEED', '-S', type=int, default=1, metavar='SEED',
-                      help='random seed (default: 1)')
-  parser.add_argument('--skip_confirmation', '-skip', action='store_true',
-                      default=False,
-                      help='Skip confirmation of config to be used')
+  parser.add_argument(
+      '--ENVIRONMENT_NAME',
+      '-E',
+      type=str,
+      default=C.ENVIRONMENT_NAME,
+      metavar='ENVIRONMENT_NAME',
+      help='name of the environment to run',
+      )
+  parser.add_argument(
+      '--PRETRAINED_PATH',
+      '-T',
+      metavar='PATH',
+      type=str,
+      default='',
+      help='path of pre-trained model',
+      )
+  parser.add_argument(
+      '--RENDER_ENVIRONMENT',
+      '-R',
+      action='store_true',
+      default=C.RENDER_ENVIRONMENT,
+      help='render the environment',
+      )
+  parser.add_argument(
+      '--NUM_WORKERS',
+      '-N',
+      type=int,
+      default=4,
+      metavar='NUM_WORKERS',
+      help='number of threads for agent (default: 4)',
+      )
+  parser.add_argument(
+      '--SEED',
+      '-S',
+      type=int,
+      default=1,
+      metavar='SEED',
+      help='random seed (default: 1)',
+      )
+  parser.add_argument(
+      '--skip_confirmation',
+      '-skip',
+      action='store_true',
+      default=False,
+      help='Skip confirmation of config to be used',
+      )
   args = parser.parse_args()
 
   for k, arg in args.__dict__.items():

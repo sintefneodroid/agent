@@ -19,9 +19,11 @@ def get_initial_configuration2(environment):
     # goal_pos_z = environment.description.configurable('GoalTransformZ').observation
     # return goal_pos_x,goal_pos_z
     goal_pos = environment.description.configurable('GoalPosition').observation
-    initial_configuration = [Configuration('ActorPositionX', goal_pos[0]),
-                             Configuration('ActorPositionY', goal_pos[1]),
-                             Configuration('ActorPositionZ', goal_pos[2])]
+    initial_configuration = [
+      Configuration('ActorPositionX', goal_pos[0]),
+      Configuration('ActorPositionY', goal_pos[1]),
+      Configuration('ActorPositionZ', goal_pos[2]),
+      ]
     return initial_configuration
 
 
@@ -29,8 +31,10 @@ def get_initial_configuration(environment):
   if environment:
     goal_pos_x = environment.description.configurable('GoalTransformX').observation
     goal_pos_z = environment.description.configurable('GoalTransformZ').observation
-    initial_configuration = [Configuration('ActorTransformX', goal_pos_x),
-                             Configuration('ActorTransformZ', goal_pos_z)]
+    initial_configuration = [
+      Configuration('ActorTransformX', goal_pos_x),
+      Configuration('ActorTransformZ', goal_pos_z),
+      ]
     return initial_configuration
 
 
@@ -40,7 +44,9 @@ def main():
 
   initial_configuration = get_initial_configuration(_environment)
 
-  initial_start_set = _environment.generate_initial_states_from_configuration(initial_configuration)
+  initial_start_set = _environment.generate_initial_states_from_configuration(
+      initial_configuration
+      )
 
   StateValuePair = namedtuple('StateValuePair', ('init_state', 'value_estimate'))
   frontier = []
@@ -59,7 +65,9 @@ def main():
       if len(good_starts):
         initial_start_set = []
         for start in good_starts:
-          initial_start_set.extend(_environment.generate_initial_states_from_state(start))
+          initial_start_set.extend(
+              _environment.generate_initial_states_from_state(start)
+              )
 
     init_state = sample_initial_state(initial_start_set)
 

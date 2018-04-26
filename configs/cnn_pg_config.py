@@ -31,4 +31,4 @@ POLICY_ARCH_PARAMS = {
   'output_size': None,  # Obtain from environment
   'use_bias':    True,
   }
-POLICY_ARCH = CategoricalMLP
+POLICY_ARCH = CategoricalCNN

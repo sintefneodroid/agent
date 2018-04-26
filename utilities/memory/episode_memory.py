@@ -1,4 +1,5 @@
 class Trajectory:
+
   def __init__(self):
     self.signals = []
     self.log_probs = []
@@ -19,6 +20,7 @@ class Trajectory:
 
 
 class ExpandableBuffer:
+
   def __init__(self):
     self.memory = []
 

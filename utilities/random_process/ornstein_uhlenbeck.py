@@ -9,19 +9,21 @@ from utilities.random_process.annealed_guassian import AnnealedGaussianProcess
 
 
 class OrnsteinUhlenbeckProcess(AnnealedGaussianProcess):
-  def __init__(self,
-               theta,
-               mu=0.,
-               sigma=1.,
-               dt=1e-2,
-               x_0=None,
-               size=1,
-               sigma_min=None,
-               n_steps_annealing=1000):
-    super().__init__(mu=mu,
-                     sigma=sigma,
-                     sigma_min=sigma_min,
-                     n_steps_annealing=n_steps_annealing)
+
+  def __init__(
+      self,
+      theta,
+      mu=0.,
+      sigma=1.,
+      dt=1e-2,
+      x_0=None,
+      size=1,
+      sigma_min=None,
+      n_steps_annealing=1000,
+      ):
+    super().__init__(
+        mu=mu, sigma=sigma, sigma_min=sigma_min, n_steps_annealing=n_steps_annealing
+        )
     self.theta = theta
     self.mu = mu
     self.dt = dt
@@ -30,11 +32,13 @@ class OrnsteinUhlenbeckProcess(AnnealedGaussianProcess):
     self.reset()
 
   def sample(self):
-    x = self.x_prev + self.theta * \
-        (self.mu - self.x_prev) * \
-        self.dt + self.current_sigma * \
-        np.sqrt(self.dt) * \
-        np.random.normal(size=self.size)
+    x = self.x_prev + self.theta * (
+        self.mu - self.x_prev
+    ) * self.dt + self.current_sigma * np.sqrt(
+        self.dt
+        ) * np.random.normal(
+        size=self.size
+        )
     self.x_prev = x
     self.n_steps += 1
     return x

@@ -16,30 +16,30 @@ from utilities.visualisation.term_plot import term_plot
 
 class DDPGAgent(ACAgent):
   '''
-  The Deep Deterministic Policy Gradient (DDPG) Agent
-  Parameters
-  ----------
-      actor_optimizer_spec: OptimizerSpec
-          Specifying the constructor and kwargs, as well as learning rate and other
-          parameters for the optimizer
-      critic_optimizer_spec: OptimizerSpec
-      num_feature: int
-          The number of features of the environmental state
-      num_action: int
-          The number of available actions that agent can choose from
-      replay_memory_size: int
-          How many memories to store in the replay memory.
-      batch_size: int
-          How many transitions to sample each time experience is replayed.
-      tau: float
-          The update rate that target networks slowly track the learned networks.
-  '''
+The Deep Deterministic Policy Gradient (DDPG) Agent
+Parameters
+----------
+    actor_optimizer_spec: OptimizerSpec
+        Specifying the constructor and kwargs, as well as learning rate and other
+        parameters for the optimizer
+    critic_optimizer_spec: OptimizerSpec
+    num_feature: int
+        The number of features of the environmental state
+    num_action: int
+        The number of available actions that agent can choose from
+    replay_memory_size: int
+        How many memories to store in the replay memory.
+    batch_size: int
+        How many transitions to sample each time experience is replayed.
+    tau: float
+        The update rate that target networks slowly track the learned networks.
+'''
 
   def __optimise_wrt__(self, td_error, state_batch, **kwargs):
-    """
+    '''
 
-    :type kwargs: object
-    """
+:type kwargs: object
+'''
     self.optimise_critic_wrt(td_error)
 
     ### Actor ###
@@ -59,12 +59,10 @@ class DDPGAgent(ACAgent):
     self._optimiser_type = torch.optim.Adam
 
     self._actor_optimiser_spec = U.OSpec(
-        constructor=self._optimiser_type,
-        kwargs=dict(lr=0.0001),
+        constructor=self._optimiser_type, kwargs=dict(lr=0.0001)
         )
     self._critic_optimiser_spec = U.OSpec(
-        constructor=self._optimiser_type,
-        kwargs=dict(lr=0.001, weight_decay=0.01),
+        constructor=self._optimiser_type, kwargs=dict(lr=0.001, weight_decay=0.01)
         )
 
     self._random_process = OrnsteinUhlenbeckProcess(theta=0.15, sigma=0.2)
@@ -79,7 +77,7 @@ class DDPGAgent(ACAgent):
       'input_size':        None,  # Obtain from environment
       'hidden_size':       [128, 64],
       'output_activation': None,
-      'output_size':       None  # Obtain from environment
+      'output_size':       None,  # Obtain from environment
       }
 
     self._critic_arch = U.CriticArchitecture
@@ -87,7 +85,7 @@ class DDPGAgent(ACAgent):
       'input_size':        None,  # Obtain from environment
       'hidden_size':       [128, 64],
       'output_activation': None,
-      'output_size':       None  # Obtain from environment
+      'output_size':       None,  # Obtain from environment
       }
 
     self._discount_factor = 0.99
@@ -97,8 +95,9 @@ class DDPGAgent(ACAgent):
     self._initial_observation_period = 10000
     self._learning_frequency = 4
     self._sync_target_model_frequency = 10000
-    self._state_tensor_type = torch.FloatTensor
-    self._value_tensor_type = torch.FloatTensor
+    self._state_tensor_type = torch.float
+    self._value_tensor_type = torch.float
+    self._action_tensor_type = torch.float
 
     self._epsilon_start = 0.9
     self._epsilon_end = 0.05
@@ -128,7 +127,7 @@ class DDPGAgent(ACAgent):
     print('loading latest model: ' + model_path)
 
     self._actor, self._target_actor, self._critic, self._target_critic, self._actor_optimiser, \
-    self._critic_optimiser = self.__build_models__()
+    self.__build_models__()
 
     self._actor.load_state_dict(torch.load(f'actor-{model_path}'))
     self._critic.load_state_dict(torch.load(f'critic-{model_path}'))
@@ -140,101 +139,115 @@ class DDPGAgent(ACAgent):
       self._actor = self._actor.eval()
       self._actor.train(False)
 
-    if self._use_cuda:
-      self._actor = self._actor.cuda()
-      self._target_actor = self._target_actor.cuda()
-      self._critic = self._critic.cuda()
-      self._target_critic = self._target_critic.cuda()
-    else:
-      self._actor = self._actor.cpu()
-      self._target_actor = self._target_actor.cpu()
-      self._critic = self._critic.cpu()
-      self._target_critic = self._target_critic.cpu()
+    self._actor = self._actor.to(self._device)
+    self._target_actor = self._target_actor.to(self._device)
+    self._critic = self._critic.to(self._device)
+    self._target_critic = self._target_critic.to(self._device)
 
   def __build_models__(self):
-
-    # Construct actor and critic
-    actor = self._actor_arch(**self._actor_arch_parameters).type(torch.FloatTensor)
-    target_actor = self._actor_arch(**self._actor_arch_parameters).type(torch.FloatTensor)
-    critic = self._critic_arch(**self._critic_arch_parameters).type(torch.FloatTensor)
-    target_critic = self._critic_arch(**self._critic_arch_parameters).type(torch.FloatTensor)
-
-    if self._use_cuda:
-      actor = actor.cuda()
-      target_actor = target_actor.cuda()
-      critic = critic.cuda()
-      target_critic = target_critic.cuda()
-
-    # Construct the optimizers for actor and critic
-    actor_optimizer = self._actor_optimiser_spec.constructor(actor.parameters(),
-                                                             **self._critic_optimiser_spec.kwargs)
-    critic_optimizer = self._critic_optimiser_spec.constructor(critic.parameters(),
-                                                               **self._critic_optimiser_spec.kwargs)
-
-    return actor, target_actor, critic, target_critic, actor_optimizer, critic_optimizer
-
-  def build_model(self, env):
-    self.infer_input_output_sizes(env)
 
     self._actor_arch_parameters['input_size'] = self._input_size
     self._actor_arch_parameters['output_size'] = self._output_size
     self._critic_arch_parameters['input_size'] = self._input_size
     self._critic_arch_parameters['output_size'] = self._output_size
 
+    # Construct actor and critic
+    actor = self._actor_arch(**self._actor_arch_parameters).to(self._device)
+    target_actor = self._actor_arch(**self._actor_arch_parameters).to(
+        self._device
+        ).eval()
+    critic = self._critic_arch(**self._critic_arch_parameters).to(self._device)
+    target_critic = self._critic_arch(**self._critic_arch_parameters).to(
+        self._device
+        ).eval()
+
+    # Construct the optimizers for actor and critic
+    actor_optimizer = self._actor_optimiser_spec.constructor(
+        actor.parameters(), **self._critic_optimiser_spec.kwargs
+        )
+    critic_optimizer = self._critic_optimiser_spec.constructor(
+        critic.parameters(), **self._critic_optimiser_spec.kwargs
+        )
+
     self._actor, self._target_actor, self._critic, self._target_critic, self._actor_optimiser, \
-    self._critic_optimiser = self.__build_models__()
+    self._critic_optimiser = actor, target_actor, critic, target_critic, actor_optimizer, critic_optimizer
 
   def __sample_model__(self, state, **kwargs):
-    state = U.to_var(state, volatile=True, use_cuda=self._use_cuda).unsqueeze(0)
-    action = self._actor(state)
-    return action.data.cpu()[0].numpy()
+    state = torch.tensor(
+        [state], device=self._device, dtype=self._state_tensor_type
+        )
+    action = self._actor(state).detach()
+    return action.item()
 
   def sample_action(self, state, **kwargs):
     return self.__sample_model__(state)
 
-  def evaluate(self,
-               state_batch,
-               action_batch,
-               signal_batch,
-               next_state_batch,
-               non_terminal_batch,
-               **kwargs):
-    """
+  def evaluate(
+      self,
+      state_batch,
+      action_batch,
+      signal_batch,
+      next_state_batch,
+      non_terminal_batch,
+      **kwargs,
+      ):
+    '''
 
-    :type kwargs: object
-    """
-    state_batch_var = U.to_var(state_batch, use_cuda=self._use_cuda).view(-1,
-                                                                          self._input_size[0])
-    next_state_batch_var = U.to_var(next_state_batch, use_cuda=self._use_cuda).view(-1,
-                                                                                    self._input_size[
-                                                                                                   0])
-    action_batch_var = U.to_var(action_batch, use_cuda=self._use_cuda).view(-1,
-                                                                            self._output_size[0])
-    signal_batch_var = U.to_var(signal_batch, use_cuda=self._use_cuda).unsqueeze(0)
-    non_terminal_mask_var = U.to_var(non_terminal_batch, use_cuda=self._use_cuda).unsqueeze(0)
+:type kwargs: object
+'''
+    state_batch_var = torch.tensor(
+        state_batch, device=self._device, dtype=self._state_tensor_type
+        ).view(
+        -1, self._input_size[0]
+        )
+    next_state_batch_var = torch.tensor(
+        next_state_batch, device=self._device, dtype=self._state_tensor_type
+        ).view(
+        -1, self._input_size[0]
+        )
+    action_batch_var = torch.tensor(
+        action_batch, device=self._device, dtype=self._action_tensor_type
+        ).view(
+        -1, self._output_size[0]
+        )
+    signal_batch_var = torch.tensor(
+        signal_batch, device=self._device, dtype=self._value_tensor_type
+        )
+    non_terminal_mask_var = torch.tensor(
+        non_terminal_batch, device=self._device, dtype=torch.float
+        )
 
     ### Critic ###
     # Compute current Q value, critic takes state and action choosen
     Q_current = self._critic(state_batch_var, action_batch_var)
     # Compute next Q value based on which action target actor would choose
     # Detach variable from the current graph since we don't want gradients for next Q to propagated
-    target_actions = self._target_actor(state_batch_var)
-    next_max_q = self._target_critic(next_state_batch_var, target_actions).detach().max(1)[0]
+    target_actions = self._target_actor(state_batch_var).detach()
+    next_max_q = self._target_critic(
+        next_state_batch_var, target_actions
+        ).detach().max(
+        1
+        )[
+      0
+    ]
 
     next_Q_values = non_terminal_mask_var * next_max_q
     Q_target = signal_batch_var + (
-        self._discount_factor * next_Q_values)  # Compute the target of the current Q values
-    td_error = F.smooth_l1_loss(Q_current, Q_target)  # Compute Bellman error (using Huber loss)
+        self._discount_factor * next_Q_values
+    )  # Compute the target of the current Q values
+    td_error = F.smooth_l1_loss(
+        Q_current, Q_target.view(-1, 1)
+        )  # Compute Bellman error (using Huber loss)
 
     return td_error, state_batch_var
 
   def update_models(self):
-    """
-    Update the target networks
+    '''
+Update the target networks
 
-    :return:
-    :rtype:
-    """
+:return:
+:rtype:
+'''
     if len(self._memory) < self._batch_size:
       return
 
@@ -244,7 +257,7 @@ class DDPGAgent(ACAgent):
 
     loss = self.__optimise_wrt__(td_error, state_batch_var)
 
-    return td_error.data[0], loss.data[0]
+    return td_error, loss
 
   def optimise_critic_wrt(self, error):
     self._critic_optimiser.zero_grad()
@@ -259,7 +272,11 @@ class DDPGAgent(ACAgent):
   def update_target(self, target_model, model):
     for target_param, param in zip(target_model.parameters(), model.parameters()):
       target_param.data.copy_(
-          self._target_update_tau * param.data + (1 - self._target_update_tau) * target_param.data)
+          self._target_update_tau
+          * param.data
+          + (1 - self._target_update_tau)
+          * target_param.data
+          )
 
   def rollout(self, initial_state, environment, render=False, **kwargs):
     self._rollout_i += 1
@@ -293,11 +310,9 @@ class DDPGAgent(ACAgent):
       # if not terminated:  # If environment terminated then there is no successor state
       successor_state = next_state
 
-      self._memory.add_transition(state,
-                                  action,
-                                  signal,
-                                  successor_state,
-                                  not terminated)
+      self._memory.add_transition(
+          state, action, signal, successor_state, not terminated
+          )
       state = next_state
 
       self.update_models()
@@ -309,24 +324,26 @@ class DDPGAgent(ACAgent):
 
     return episode_signal, episode_length
 
-  def train(self, env, rollouts=1000, render=False, render_frequency=10, stat_frequency=10):
+  def train(
+      self, env, rollouts=1000, render=False, render_frequency=10, stat_frequency=10
+      ):
     '''
-    The Deep Deterministic Policy Gradient algorithm.
+The Deep Deterministic Policy Gradient algorithm.
 
-    :param env: gym environment to train on.
-    :type env: gym.Env
-    :param rollouts: Number of episodes to run for.
-    :type rollouts: int
-    :param render:
-    :type render:
-    :param render_frequency:
-    :type render_frequency:
-    :param stat_frequency:
-    :type stat_frequency:
-    '''
+:param env: gym environment to train on.
+:type env: gym.Env
+:param rollouts: Number of episodes to run for.
+:type rollouts: int
+:param render:
+:type render:
+:param render_frequency:
+:type render_frequency:
+:param stat_frequency:
+:type stat_frequency:
+'''
     stats = U.plotting.EpisodeStatistics()
-    running_signal=0
-    running_duration=0
+    running_signal = 0
+    running_duration = 0
 
     E = range(1, rollouts)
     E = tqdm(E, desc='', leave=True)
@@ -337,14 +354,23 @@ class DDPGAgent(ACAgent):
 
       if episode_i % stat_frequency == 0:
         t_episode = [i for i in range(1, episode_i + 1)]
-        term_plot(t_episode, stats.signals, 'Running signal', printer=E.write, percent_size=(1,
-                                                 .24))
-        term_plot(t_episode,
-                  stats.durations,
-                  'Duration',
-                  printer=E.write, percent_size=(1,
-                                                 .24))
-        E.set_description(f'Episode: {episode_i}, Last Moving signal: {stats.signal_mas[-1]}')
+        term_plot(
+            t_episode,
+            stats.signals,
+            'Running signal',
+            printer=E.write,
+            percent_size=(1, .24),
+            )
+        term_plot(
+            t_episode,
+            stats.durations,
+            'Duration',
+            printer=E.write,
+            percent_size=(1, .24),
+            )
+        E.set_description(
+            f'Episode: {episode_i}, Last signal: {stats.signals[-1]}'
+            )
 
       signal, dur = 0, 0
       if render and episode_i % render_frequency == 0:
@@ -364,23 +390,27 @@ class DDPGAgent(ACAgent):
 
 
 def test_ddpg_agent(config):
-  """
+  '''
 
-  :rtype: object
-  """
+:rtype: object
+'''
   from utilities.environment_wrappers.normalise_actions import NormaliseActionsWrapper
   import gym
+
+  device = torch.device('cuda' if config.USE_CUDA else 'cpu')
 
   env = NormaliseActionsWrapper(gym.make(config.ENVIRONMENT_NAME))
   # env = neo.make('satellite',connect_to_running=False)
 
   agent = DDPGAgent(config)
-  agent.build_model(env)
+  agent.build_agent(env, device)
   listener = U.add_early_stopping_key_combination(agent.stop_training)
 
   listener.start()
   try:
-    actor_model, critic_model, stats = agent.train(env, config.EPISODES, render=config.RENDER_ENVIRONMENT)
+    actor_model, critic_model, stats = agent.train(
+        env, config.EPISODES, render=config.RENDER_ENVIRONMENT
+        )
   finally:
     listener.stop()
 
@@ -393,21 +423,52 @@ if __name__ == '__main__':
   import argparse
 
   parser = argparse.ArgumentParser(description='DDPG Agent')
-  parser.add_argument('--ENVIRONMENT_NAME', '-E', type=str, default=C.ENVIRONMENT_NAME,
-                      metavar='ENVIRONMENT_NAME',
-                      help='name of the environment to run')
-  parser.add_argument('--PRETRAINED_PATH', '-T', metavar='PATH', type=str, default='',
-                      help='path of pre-trained model')
-  parser.add_argument('--RENDER_ENVIRONMENT', '-R', action='store_true',
-                      default=C.RENDER_ENVIRONMENT,
-                      help='render the environment')
-  parser.add_argument('--NUM_WORKERS', '-N', type=int, default=4, metavar='NUM_WORKERS',
-                      help='number of threads for agent (default: 4)')
-  parser.add_argument('--SEED', '-S', type=int, default=1, metavar='SEED',
-                      help='random seed (default: 1)')
-  parser.add_argument('--skip_confirmation', '-skip', action='store_true',
-                      default=False,
-                      help='Skip confirmation of config to be used')
+  parser.add_argument(
+      '--ENVIRONMENT_NAME',
+      '-E',
+      type=str,
+      default=C.ENVIRONMENT_NAME,
+      metavar='ENVIRONMENT_NAME',
+      help='name of the environment to run',
+      )
+  parser.add_argument(
+      '--PRETRAINED_PATH',
+      '-T',
+      metavar='PATH',
+      type=str,
+      default='',
+      help='path of pre-trained model',
+      )
+  parser.add_argument(
+      '--RENDER_ENVIRONMENT',
+      '-R',
+      action='store_true',
+      default=C.RENDER_ENVIRONMENT,
+      help='render the environment',
+      )
+  parser.add_argument(
+      '--NUM_WORKERS',
+      '-N',
+      type=int,
+      default=4,
+      metavar='NUM_WORKERS',
+      help='number of threads for agent (default: 4)',
+      )
+  parser.add_argument(
+      '--SEED',
+      '-S',
+      type=int,
+      default=1,
+      metavar='SEED',
+      help='random seed (default: 1)',
+      )
+  parser.add_argument(
+      '--skip_confirmation',
+      '-skip',
+      action='store_true',
+      default=False,
+      help='Skip confirmation of config to be used',
+      )
   args = parser.parse_args()
 
   for k, arg in args.__dict__.items():

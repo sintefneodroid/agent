@@ -29,14 +29,15 @@ def train_agent1(config, agent):
   _keep_stats = True
   _plot_stats = False
 
-  _environment = BinaryActionEncodingWrapper(name=config.ENVIRONMENT_NAME,
-                                             connect_to_running=config.CONNECT_TO_RUNNING)
+  _environment = BinaryActionEncodingWrapper(
+      name=config.ENVIRONMENT_NAME, connect_to_running=config.CONNECT_TO_RUNNING
+      )
   _environment.seed(config.SEED)
 
   # early_stopping_condition = ma_stop
   early_stopping_condition = None
 
-  agent.build_model(_environment)
+  agent.build_agent(_environment)
 
   _episode_signals = U.Aggregator()
   _episode_durations = U.Aggregator()
@@ -50,9 +51,14 @@ def train_agent1(config, agent):
   for episode_i in episodes:
     if _plot_stats:
       episodes.write('-' * 30)
-      term_plot([i for i in range(1, episode_i + 1)], _signal_mas.values, printer=episodes.write)
+      term_plot(
+          [i for i in range(1, episode_i + 1)],
+          _signal_mas.values,
+          printer=episodes.write,
+          )
       episodes.set_description(
-          f'Steps: {episode_i:9.0f} | Sig_MA: {signal_ma:.2f}')
+          f'Steps: {episode_i:9.0f} | Sig_MA: {signal_ma:.2f}'
+          )
     if not _environment.is_connected:
       break
 
@@ -75,7 +81,7 @@ def train_agent1(config, agent):
 
   time_elapsed = time.time() - training_start_timestamp
   message = f'Training done, time elapsed: {time_elapsed // 60:.0f}m {time_elapsed % 60:.0f}s'
-  print(f'\n{"-" * 9} {message} {"-" * 9}\n')
+  print(f'\n{'-' * 9} {message} {'-' * 9}\n')
 
   save_snapshot(agent, _episode_signals, _episode_durations, _entropy)
 
@@ -84,17 +90,20 @@ def train_agent1(config, agent):
 
 
 def train_agent(config, agent):
+  device = torch.device('cuda' if config.USE_CUDA else 'cpu')
   neo.seed(config.SEED)
   torch.manual_seed(config.SEED)
 
-  env = BinaryActionEncodingWrapper(name=config.ENVIRONMENT_NAME,
-                                    connect_to_running=config.CONNECT_TO_RUNNING)
+  env = BinaryActionEncodingWrapper(
+      name=config.ENVIRONMENT_NAME, connect_to_running=config.CONNECT_TO_RUNNING
+      )
   env.seed(config.SEED)
 
-  agent.build_model(env)
+  agent.build_agent(env, device)
 
-  _trained_model, training_statistics, *_ = agent.train(env, config.MAX_ROLLOUT_LENGTH,
-                                                        render=config.RENDER_ENVIRONMENT)
+  _trained_model, training_statistics, *_ = agent.train(
+      env, config.MAX_ROLLOUT_LENGTH, render=config.RENDER_ENVIRONMENT
+      )
   U.save_model(_trained_model, config)
 
   env.close()
@@ -110,6 +119,7 @@ def save_snapshot(agent, _episode_signals, _episode_durations, _entropy):
 
 if __name__ == '__main__':
   import argparse
+
   # import configs.curriculum_config as C
   # import configs.ddpg_config as C
   # import configs.dqn_config as C
@@ -117,22 +127,55 @@ if __name__ == '__main__':
   import configs.pg_config as C
 
   parser = argparse.ArgumentParser(description='PG Agent')
-  parser.add_argument('--ENVIRONMENT_NAME', '-E', type=str, default=C.ENVIRONMENT_NAME,
-                      metavar='ENVIRONMENT_NAME',
-                      help='name of the environment to run')
-  parser.add_argument('--PRETRAINED_PATH', '-T', metavar='PATH', type=str, default='',
-                      help='path of pre-trained model')
-  parser.add_argument('--RENDER_ENVIRONMENT', '-R', action='store_true',
-                      default=C.RENDER_ENVIRONMENT,
-                      help='render the environment')
-  parser.add_argument('--NUM_WORKERS', '-N', type=int, default=4, metavar='NUM_WORKERS',
-                      help='number of threads for agent (default: 4)')
-  parser.add_argument('--SEED', '-S', type=int, default=1, metavar='SEED',
-                      help='random seed (default: 1)')
-  parser.add_argument('--skip_confirmation', '-skip', action='store_true',
-                      default=False,
-                      help='Skip confirmation of config to be used')
-  parser.add_argument('--CONNECT_TO_RUNNING', '-C', action='store_true', default=C.CONNECT_TO_RUNNING)
+  parser.add_argument(
+      '--ENVIRONMENT_NAME',
+      '-E',
+      type=str,
+      default=C.ENVIRONMENT_NAME,
+      metavar='ENVIRONMENT_NAME',
+      help='name of the environment to run',
+      )
+  parser.add_argument(
+      '--PRETRAINED_PATH',
+      '-T',
+      metavar='PATH',
+      type=str,
+      default='',
+      help='path of pre-trained model',
+      )
+  parser.add_argument(
+      '--RENDER_ENVIRONMENT',
+      '-R',
+      action='store_true',
+      default=C.RENDER_ENVIRONMENT,
+      help='render the environment',
+      )
+  parser.add_argument(
+      '--NUM_WORKERS',
+      '-N',
+      type=int,
+      default=4,
+      metavar='NUM_WORKERS',
+      help='number of threads for agent (default: 4)',
+      )
+  parser.add_argument(
+      '--SEED',
+      '-S',
+      type=int,
+      default=1,
+      metavar='SEED',
+      help='random seed (default: 1)',
+      )
+  parser.add_argument(
+      '--skip_confirmation',
+      '-skip',
+      action='store_true',
+      default=False,
+      help='Skip confirmation of config to be used',
+      )
+  parser.add_argument(
+      '--CONNECT_TO_RUNNING', '-C', action='store_true', default=C.CONNECT_TO_RUNNING
+      )
   args = parser.parse_args()
 
   for k, arg in args.__dict__.items():

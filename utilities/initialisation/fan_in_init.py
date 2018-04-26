@@ -7,6 +7,6 @@ from torch.nn import init
 
 
 def fan_in_init(tensor):
-  fanin = tensor.size(1)
-  v = 1.0 / np.sqrt(fanin)
-  init.uniform(tensor, -v, v)
+  fan_in = tensor.size(1)
+  v = 1.0 / np.sqrt(fan_in)
+  init.uniform_(tensor, -v, v)

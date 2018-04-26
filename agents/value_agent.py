@@ -12,9 +12,9 @@ from agents.agent import Agent
 
 
 class ValueAgent(Agent):
-  """
-  All value iteration agents should inherit from this class
-  """
+  '''
+All value iteration agents should inherit from this class
+'''
 
   def __init__(self, config=None, *args, **kwargs):
     self._eps_start = 0
@@ -29,7 +29,10 @@ class ValueAgent(Agent):
     super().__init__(config, *args, **kwargs)
 
   def sample_action(self, state, **kwargs):
-    if self.epsilon_random(self._step_i) and self._step_i > self._initial_observation_period:
+    if (
+        self.epsilon_random(self._step_i)
+        and self._step_i > self._initial_observation_period
+    ):
       return self.__sample_model__(state)
     return self.sample_random_process()
 
@@ -38,10 +41,10 @@ class ValueAgent(Agent):
     return sample
 
   def epsilon_random(self, steps_taken):
-    """
-    :param steps_taken:
-    :return:
-    """
+    '''
+:param steps_taken:
+:return:
+'''
     # assert type(steps_taken) is int
 
     if steps_taken == 0:
@@ -51,6 +54,7 @@ class ValueAgent(Agent):
 
     a = self._eps_start - self._eps_end
     import math
+
     b = math.exp(-1. * steps_taken / self._eps_decay + self._divide_by_zero_safety)
     eps_threshold = self._eps_end + a * b
 

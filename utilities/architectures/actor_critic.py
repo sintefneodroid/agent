@@ -9,20 +9,22 @@ from torch.nn import functional as F
 
 
 class ActorCriticNetwork(Architecture):
-  """
-  An actor-critic network that shared lower-layer representations but
-  have distinct output layers
-  """
+  '''
+An actor-critic network that shared lower-layer representations but
+have distinct output layers
+'''
 
-  def __init__(self,
-               input_size,
-               hidden_size,
-               actor_hidden_size,
-               actor_output_size,
-               critic_hidden_size,
-               critic_output_size,
-               actor_output_activation,
-               continuous):
+  def __init__(
+      self,
+      input_size,
+      hidden_size,
+      actor_hidden_size,
+      actor_output_size,
+      critic_hidden_size,
+      critic_output_size,
+      actor_output_activation,
+      continuous,
+      ):
     super().__init__()
 
     self.input_size = input_size
@@ -42,10 +44,14 @@ class ActorCriticNetwork(Architecture):
     self.fc2 = nn.Linear(self.hidden_size[0], self.hidden_size[1])
 
     self.actor_fc1 = nn.Linear(self.hidden_size[1], self.actor_hidden_size[0])
-    self.actor_head = nn.Linear(self.actor_hidden_size[0], self.actor_output_size[0])
+    self.actor_head = nn.Linear(
+        self.actor_hidden_size[0], self.actor_output_size[0]
+        )
 
     self.critic_fc1 = nn.Linear(self.hidden_size[1], self.critic_hidden_size[0])
-    self.critic_output = nn.Linear(self.critic_hidden_size[0], self.critic_output_size[0])
+    self.critic_output = nn.Linear(
+        self.critic_hidden_size[0], self.critic_output_size[0]
+        )
 
   def forward(self, state):
     x = F.relu(self.fc1(state))

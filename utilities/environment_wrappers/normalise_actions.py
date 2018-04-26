@@ -7,7 +7,7 @@ import gym
 
 # https://github.com/openai/gym/blob/master/gym/core.py
 class NormaliseActionsWrapper(gym.ActionWrapper):
-  """ Wrap action """
+  ''' Wrap action '''
 
   def _action(self, action):
     act_k = (self.action_space.high - self.action_space.low) / 2.

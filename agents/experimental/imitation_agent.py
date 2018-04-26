@@ -5,6 +5,7 @@ from agents.agent import Agent
 
 
 class ImitationAgent(Agent):
+
   def evaluate(self, batch):
     pass
 

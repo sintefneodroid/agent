@@ -6,6 +6,7 @@ import numpy as np
 
 
 class contextual_bandit():
+
   def __init__(self):
     self.state = 0
     # List out our bandits. Currently arms 4, 2, and 1 (respectively) are the most optimal.
@@ -14,7 +15,9 @@ class contextual_bandit():
     self.num_actions = self.bandits.shape[1]
 
   def getBandit(self):
-    self.state = np.random.randint(0, len(self.bandits))  # Returns a random state for each episode.
+    self.state = np.random.randint(
+        0, len(self.bandits)
+        )  # Returns a random state for each episode.
     return self.state
 
   def pullArm(self, action):

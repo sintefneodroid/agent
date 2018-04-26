@@ -14,7 +14,7 @@ import scipy.misc
 def main():
   # lena = scipy.misc.ascent()
 
-  # downscaling has a "smoothing" effect
+  # downscaling has a 'smoothing' effect
   # lena = scipy.misc.imresize(lena, 0.15, interp='cubic')
 
   data_set_directory = '/home/heider/Datasets/neodroid/depth/'
@@ -46,8 +46,7 @@ def main():
   # create the figure
   fig = plt.figure()
   ax = fig.gca(projection='3d')
-  ax.plot_surface(xx, yy, img, rstride=1, cstride=1, cmap=plt.cm.gray,
-                  linewidth=0)
+  ax.plot_surface(xx, yy, img, rstride=1, cstride=1, cmap=plt.cm.gray, linewidth=0)
 
   # show it
   plt.show()

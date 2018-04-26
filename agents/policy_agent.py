@@ -9,9 +9,9 @@ from agents.agent import Agent
 
 
 class PolicyAgent(Agent):
-  """
-  All policy iteration agents should inherit from this class
-  """
+  '''
+All policy iteration agents should inherit from this class
+'''
 
   def __init__(self, *args, **kwargs):
     self._policy_arch = None
@@ -19,8 +19,8 @@ class PolicyAgent(Agent):
     self._policy = None
     super().__init__(*args, **kwargs)
 
-  def infer_input_output_sizes(self, env, **kwargs):
-    super().infer_input_output_sizes(env)
+  def _infer_input_output_sizes(self, env, **kwargs):
+    super()._infer_input_output_sizes(env)
 
     self._policy_arch_params['input_size'] = self._input_size
     self._policy_arch_params['output_size'] = self._output_size

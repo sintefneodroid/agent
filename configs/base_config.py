@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 # coding=utf-8
 __author__ = 'cnheider'
-"""
+'''
 Description: Config for training
 Author: Christian Heider Nielsen
-"""
+'''
 
 from pathlib import Path
 
@@ -16,13 +16,8 @@ USE_LOGGING = True
 
 # CUDA
 USE_CUDA = True
-if USE_CUDA: # If available
+if USE_CUDA:  # If available
   USE_CUDA = torch.cuda.is_available()
-
-DoubleTensor = torch.cuda.DoubleTensor if USE_CUDA else torch.DoubleTensor
-FloatTensor = torch.cuda.FloatTensor if USE_CUDA else torch.FloatTensor
-LongTensor = torch.cuda.LongTensor if USE_CUDA else torch.LongTensor
-ByteTensor = torch.cuda.ByteTensor if USE_CUDA else torch.ByteTensor
 
 # CONSTANTS
 MOVING_AVERAGE_WINDOW = 100
@@ -58,9 +53,9 @@ SOLVED_REWARD = 0.9
 EPISODES = 4000
 MAX_ROLLOUT_LENGTH = 1000
 ACTION_MAGNITUDES = 10000
-STATE_TENSOR_TYPE = FloatTensor
-VALUE_TENSOR_TYPE = FloatTensor
-ACTION_TENSOR_TYPE = LongTensor
+STATE_TENSOR_TYPE = torch.float
+VALUE_TENSOR_TYPE = torch.float
+ACTION_TENSOR_TYPE = torch.long
 
 # Exploration epsilon random action parameters
 EXPLORATION_EPSILON_START = 0.9
@@ -96,6 +91,6 @@ ARCH_PARAMS = {
   'input_size':  None,  # Obtain from environment
   'hidden_size': [32, 16],
   'output_size': None,  # Obtain from environment
-  'use_bias':    False
+  'use_bias':    False,
   }
 ARCH = CategoricalMLP

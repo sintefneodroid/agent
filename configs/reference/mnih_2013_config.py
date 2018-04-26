@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 # coding=utf-8
 __author__ = 'cnheider'
-"""
+'''
 Description: Config for training
 Author: Christian Heider Nielsen
-"""
+'''
 
 import os
 
@@ -71,7 +71,5 @@ EPSILON = 0.01
 
 # Architecture
 ARCHITECTURE_CONFIGURATION = {
-  'input_size':    -1,
-  'hidden_layers': [64, 32, 16],
-  'output_size':   -1
+  'input_size': -1, 'hidden_layers': [64, 32, 16], 'output_size': -1
   }

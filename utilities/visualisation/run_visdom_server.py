@@ -6,10 +6,11 @@ __author__ = 'cnheider'
 # http://localhost:8097
 # python -m visdom.server
 
-def run_visdom_server():
-  """
 
-  """
+def run_visdom_server():
+  '''
+
+'''
   server.main()
 
 

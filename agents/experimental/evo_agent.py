@@ -5,6 +5,7 @@ from agents.agent import Agent
 
 
 class EVOAgent(Agent):
+
   def sample_action(self, state):
     pass
 

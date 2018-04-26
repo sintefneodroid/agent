@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 # coding=utf-8
 __author__ = 'cnheider'
-"""
+'''
 Description: Config for training
 Author: Christian Heider Nielsen
-"""
+'''
 
 # General
 from configs.base_config import *
@@ -52,7 +52,9 @@ ENTROPY_REG_COEF = 0.1
 LR_FUNC = lambda a: OPTIMISER_LEARNING_RATE * (1. - a)
 
 SURROGATE_CLIP = 0.2  # initial probability ratio clipping range
-SURROGATE_CLIP_FUNC = lambda a: SURROGATE_CLIP * (1. - a)  # clip range schedule function
+SURROGATE_CLIP_FUNC = lambda a: SURROGATE_CLIP * (
+    1. - a
+)  # clip range schedule function
 
 ACTOR_CRITIC_LR = 3e-4
 
@@ -64,5 +66,5 @@ ACTOR_CRITIC_ARCH_PARAMS = {
   'actor_output_size':       None,
   'actor_output_activation': F.log_softmax,
   'critic_output_size':      [1],
-  'continuous':              True
+  'continuous':              True,
   }

@@ -11,12 +11,13 @@ from utilities.initialisation.fan_in_init import fan_in_init
 
 
 class ActorArchitecture(Architecture):
+
   def __init__(self, input_size, hidden_size, output_size, output_activation):
-    """
-    Initialize a Actor for low dimensional environment.
-        num_feature: number of features of input.
-        num_action: number of available actions in the environment.
-    """
+    '''
+Initialize a Actor for low dimensional environment.
+    num_feature: number of features of input.
+    num_action: number of available actions in the environment.
+'''
     super().__init__()
 
     self._input_size = input_size
@@ -31,8 +32,8 @@ class ActorArchitecture(Architecture):
     fan_in_init(self.fc2.weight)
 
     self.head = nn.Linear(self._hidden_size[1], self._output_size[0])
-    init.uniform(self.head.weight, -3e-3, 3e-3)
-    init.uniform(self.head.bias, -3e-3, 3e-3)
+    init.uniform_(self.head.weight, -3e-3, 3e-3)
+    init.uniform_(self.head.bias, -3e-3, 3e-3)
 
   def forward(self, x):
     x = F.relu(self.fc1(x))

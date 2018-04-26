@@ -7,7 +7,7 @@ import numpy as np
 
 def signed_one_hot_encoding(size: int, index):
   a = np.zeros(size)
-  if (index < size):
+  if index < size:
     a[index] = 1
   else:
     a[index - size] = -1

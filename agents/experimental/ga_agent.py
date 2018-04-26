@@ -6,6 +6,7 @@ from agents.experimental.evo_agent import EVOAgent
 
 
 class GAAgent(EVOAgent):
+
   def evaluate(self, batch):
     pass
 

@@ -9,6 +9,7 @@ import torch
 
 
 class Variable(torch.autograd.Variable):
+
   def __init__(self, data, *args, use_cuda=True, **kwargs):
     if use_cuda:
       data = data.cuda()
@@ -31,23 +32,26 @@ def kl_log_probs(log_p1, log_p2):
   return -torch.sum(torch.exp(log_p1) * (log_p2 - log_p1), 1)
 
 
-def to_var(x, dtype="float", volatile=False, use_cuda=False, unsqueeze=False):
+def to_var(x, dtype='float', volatile=False, use_cuda=False, unsqueeze=False):
   if unsqueeze:
-    var = torch.autograd.Variable(to_tensor(x, dtype=dtype, use_cuda=use_cuda).unsqueeze(0),
-                                  volatile=volatile)
+    var = torch.autograd.Variable(
+        to_tensor(x, dtype=dtype, use_cuda=use_cuda).unsqueeze(0), volatile=volatile
+        )
   else:
-    var = torch.autograd.Variable(to_tensor(x, dtype=dtype, use_cuda=use_cuda), volatile=volatile)
+    var = torch.autograd.Variable(
+        to_tensor(x, dtype=dtype, use_cuda=use_cuda), volatile=volatile
+        )
   return var
 
 
-def to_tensor(x, dtype="float", use_cuda=True):
+def to_tensor(x, dtype='float', use_cuda=True):
   FloatTensor = torch.cuda.FloatTensor if use_cuda else torch.FloatTensor
   LongTensor = torch.cuda.LongTensor if use_cuda else torch.LongTensor
   ByteTensor = torch.cuda.ByteTensor if use_cuda else torch.ByteTensor
-  if dtype == "long":
+  if dtype == 'long':
     x = np.array(x, dtype=np.long).tolist()
     return LongTensor(x)
-  elif dtype == "byte":
+  elif dtype == 'byte':
     x = np.array(x, dtype=np.byte).tolist()
     return ByteTensor(x)
   x = np.array(x, dtype=np.float64).tolist()
@@ -64,4 +68,4 @@ def normal(x, mu, sigma_sq, use_cuda=False):
   return a * b
 
 
-OSpec = namedtuple("OptimiserSpecification", ["constructor", "kwargs"])
+OSpec = namedtuple('OptimiserSpecification', ['constructor', 'kwargs'])

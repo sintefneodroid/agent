@@ -11,14 +11,14 @@ from utilities.initialisation.ortho_weight_init import ortho_weights
 
 
 class CNN(Architecture):
+
   def __init__(self, input_channels, output_size):
     super().__init__()
 
     self._input_channels = input_channels
     self._output_size = output_size
 
-    self.conv1 = nn.Conv2d(self._input_channels[0], 32, kernel_size=8,
-                           stride=4)
+    self.conv1 = nn.Conv2d(self._input_channels[0], 32, kernel_size=8, stride=4)
     self.conv2 = nn.Conv2d(32, 64, kernel_size=4, stride=2)
     self.conv3 = nn.Conv2d(64, 64, kernel_size=3, stride=1)
     self.fc1 = nn.Linear(7 * 7 * 64, 512)
@@ -41,25 +41,27 @@ class CategoricalCNN(CNN):
 
 
 class AtariCNN(nn.Module):
+
   def __init__(self, num_actions):
-    """ Basic convolutional actor-critic network for Atari 2600 games
+    ''' Basic convolutional actor-critic network for Atari 2600 games
 
-    Equivalent to the network in the original DQN paper.
+Equivalent to the network in the original DQN paper.
 
-    Args:
-        num_actions (int): the number of available discrete actions
-    """
+Args:
+    num_actions (int): the number of available discrete actions
+'''
     super().__init__()
 
-    self.conv = nn.Sequential(nn.Conv2d(4, 32, 8, stride=4),
-                              nn.ReLU(inplace=True),
-                              nn.Conv2d(32, 64, 4, stride=2),
-                              nn.ReLU(inplace=True),
-                              nn.Conv2d(64, 64, 3, stride=1),
-                              nn.ReLU(inplace=True))
+    self.conv = nn.Sequential(
+        nn.Conv2d(4, 32, 8, stride=4),
+        nn.ReLU(inplace=True),
+        nn.Conv2d(32, 64, 4, stride=2),
+        nn.ReLU(inplace=True),
+        nn.Conv2d(64, 64, 3, stride=1),
+        nn.ReLU(inplace=True),
+        )
 
-    self.fc = nn.Sequential(nn.Linear(64 * 7 * 7, 512),
-                            nn.ReLU(inplace=True))
+    self.fc = nn.Sequential(nn.Linear(64 * 7 * 7, 512), nn.ReLU(inplace=True))
 
     self.pi = nn.Linear(512, num_actions)
     self.v = nn.Linear(512, 1)
@@ -72,15 +74,15 @@ class AtariCNN(nn.Module):
     self.v.weight.data = ortho_weights(self.v.weight.size())
 
   def forward(self, conv_in):
-    """ Module forward pass
+    ''' Module forward pass
 
-    Args:
-        conv_in (Variable): convolutional input, shaped [N x 4 x 84 x 84]
+Args:
+    conv_in (Variable): convolutional input, shaped [N x 4 x 84 x 84]
 
-    Returns:
-        pi (Variable): action probability logits, shaped [N x self.num_actions]
-        v (Variable): value predictions, shaped [N x 1]
-    """
+Returns:
+    pi (Variable): action probability logits, shaped [N x self.num_actions]
+    v (Variable): value predictions, shaped [N x 1]
+'''
     N = conv_in.size()[0]
 
     conv_out = self.conv(conv_in).view(N, 64 * 7 * 7)

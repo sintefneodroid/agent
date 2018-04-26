@@ -23,19 +23,23 @@ def save_model(model, configuration, name=''):
   prepend = ''
   if len(name) > 0:
     prepend = f'{name}-'
-  _model_name = prepend + f'{configuration.PROJECT}-' \
-                          f'{configuration.CONFIG_NAME.replace(".","_")}-' \
-                          f'{_model_date.strftime("%y%m%d%H%M")}.model'
+  _model_name = prepend + \
+                f'{configuration.PROJECT}-' \
+                f'{configuration.CONFIG_NAME.replace('.','_')}-' \
+                f'{_model_date.strftime('%y%m%d%H%M')}.model'
 
   _model_path = os.path.join(configuration.MODEL_DIRECTORY, _model_name)
-  torch.save(model.state_dict(), _model_path)  # TODO possible to .cpu() copy would be great
+  torch.save(
+      model.state_dict(), _model_path
+      )  # TODO possible to .cpu() copy would be great
   save_config(_model_path, configuration)
   print('Saved model at {}'.format(_model_path))
 
 
 def save_config(model_path, configuration):
-  config_path = os.path.join(configuration.CONFIG_DIRECTORY,
-                             configuration.CONFIG_FILE)
+  config_path = os.path.join(
+      configuration.CONFIG_DIRECTORY, configuration.CONFIG_FILE
+      )
   shutil.copyfile(config_path, model_path + '.py')
 
 

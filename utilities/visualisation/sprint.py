@@ -14,15 +14,15 @@ color2num = dict(
     magenta=35,
     cyan=36,
     white=37,
-    crimson=38
+    crimson=38,
     )
 
 
 def sprint(obj, color='white', bold=False, highlight=False):
-  """
-  Stylised print.
-  Valid colors: gray, red, green, yellow, blue, magenta, cyan, white, crimson
-  """
+  '''
+Stylised print.
+Valid colors: gray, red, green, yellow, blue, magenta, cyan, white, crimson
+'''
 
   attr = []
   if color in color2num:

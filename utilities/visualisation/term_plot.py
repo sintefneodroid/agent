@@ -8,20 +8,22 @@ import struct
 import termios
 
 
-def term_plot(x,
-              y,
-              title='',
-              rows=None,
-              columns=None,
-              percent_size=(.80, .80),
-              x_offsets=(1, 1),
-              y_offsets=(1, 1),
-              printer=print,
-              summary=True):
-  """
-  x, y list of values on x- and y-axis
-  plot those values within canvas size (rows and columns)
-  """
+def term_plot(
+    x,
+    y,
+    title='',
+    rows=None,
+    columns=None,
+    percent_size=(.80, .80),
+    x_offsets=(1, 1),
+    y_offsets=(1, 1),
+    printer=print,
+    summary=True,
+    ):
+  '''
+x, y list of values on x- and y-axis
+plot those values within canvas size (rows and columns)
+'''
   actual_columns = columns
   actual_rows = rows
   border_size = (1, 1)
@@ -63,20 +65,22 @@ def term_plot(x,
     printer(row)
 
   # Print scale
-  if (summary):
-    printer(f'{title} - '
-            f'Min x: {str(min(x))}, '
-            f'Max x: {str(max(x))}, '
-            f'Min y: {str(min(y))}, '
-            f'Max y: {str(max(y))}\n')
+  if summary:
+    printer(
+        f'{title} - '
+        f'Min x: {str(min(x))}, '
+        f'Max x: {str(max(x))}, '
+        f'Min y: {str(min(y))}, '
+        f'Max y: {str(max(y))}\n'
+        )
 
 
 def scale(x, length):
-  """
-  Scale points in 'x', such that distance between
-  max(x) and min(x) equals to 'length'. min(x)
-  will be moved to 0.
-  """
+  '''
+Scale points in 'x', such that distance between
+max(x) and min(x) equals to 'length'. min(x)
+will be moved to 0.
+'''
   s = float(length) / (max(x) - min(x)) if x and max(x) - min(x) != 0 else length
   return [int((i - min(x)) * s) for i in x]
 

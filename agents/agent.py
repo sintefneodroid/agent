@@ -3,6 +3,7 @@
 from itertools import count
 from warnings import warn
 
+import torch
 from tqdm import tqdm
 
 __author__ = 'cnheider'
@@ -13,9 +14,9 @@ import utilities as U
 
 
 class Agent(ABC):
-  """
-  All agent should inherit from this class
-  """
+  '''
+All agent should inherit from this class
+'''
 
   def __init__(self, config=None, *args, **kwargs):
     self._step_i = 0
@@ -25,11 +26,24 @@ class Agent(ABC):
     self._output_size = None
     self._divide_by_zero_safety = 1e-10
     self._use_cuda = False
+    self._device = torch.device(
+        'cuda:0' if torch.cuda.is_available() and self._use_cuda else 'cpu'
+        )
 
     self.__local_defaults__()
 
     if config:
       self.set_config_attributes(config)
+
+  def build_agent(self, env, device, **kwargs):
+    self._infer_input_output_sizes(env)
+    self._device = device
+
+    self.__build_models__()
+
+  @abstractmethod
+  def __build_models__(self):
+    raise NotImplementedError
 
   @abstractmethod
   def __local_defaults__(self):
@@ -58,12 +72,12 @@ class Agent(ABC):
   def rollout(self, init_obs, env, *args, **kwargs):
     raise NotImplementedError()
 
-  def infer_input_output_sizes(self, env, *args, **kwargs):
-    """
-    Tries to infer input and output size from env if either _input_size or _output_size, is None or -1 (int)
+  def _infer_input_output_sizes(self, env, *args, **kwargs):
+    '''
+Tries to infer input and output size from env if either _input_size or _output_size, is None or -1 (int)
 
-    :rtype: object
-    """
+:rtype: object
+'''
     if self._input_size is None or self._input_size == -1:
       self._input_size = env.observation_space.shape
     print('observation dimensions: ', self._input_size)
@@ -101,14 +115,16 @@ class Agent(ABC):
         else:
           pass
       else:
-        k_lowered = f'{k.lstrip("_").upper()}'
+        k_lowered = f'{k.lstrip('_').upper()}'
         if kwargs.get(k_lowered) is not None:
           occur += 1
         else:
           pass
 
       if occur > 1:
-        warn(f'Config contains hiding duplicates of {k} and {k_lowered}, {occur} times')
+        warn(
+            f'Config contains hiding duplicates of {k} and {k_lowered}, {occur} times'
+            )
 
   def _parse_set_attr(self, *args, **kwargs):
     for k, v in kwargs.items():
@@ -151,7 +167,7 @@ class Agent(ABC):
 #       level=logging.INFO)
 #
 #   assert args.evaluate == 0 or args.num_processes == 0, \
-#     "Can't train while evaluating, either n=0 or e=0"
+#     'Can't train while evaluating, either n=0 or e=0'
 #
 #   class Net(torch.nn.Module):
 #     def __init__(self, args):
@@ -183,7 +199,7 @@ class Agent(ABC):
 #
 #   shared_model = Net(args)
 #
-#   if args.load != "0":
+#   if args.load != '0':
 #     shared_model.load_state_dict(torch.load(args.load))
 #   shared_model.share_memory()
 #
@@ -203,7 +219,7 @@ class Agent(ABC):
 #     for p in processes:
 #       p.join()
 #   except KeyboardInterrupt:
-#     print("Stopping training. " +
-#           "Best model stored at {}model_best".format(args.dump_location))
+#     print('Stopping training. ' +
+#           'Best model stored at {}model_best'.format(args.dump_location))
 #     for p in processes:
 #       p.terminate()

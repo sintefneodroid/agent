@@ -8,26 +8,28 @@ from torch.autograd import Variable
 
 
 def make_dot(var, params):
-  """ Produces Graphviz representation of PyTorch autograd graph
+  ''' Produces Graphviz representation of PyTorch autograd graph
 
-  Blue nodes are the Variables that require grad,
-  Orange are Tensors saved for backward in torch.autograd.Function
+Blue nodes are the Variables that require grad,
+Orange are Tensors saved for backward in torch.autograd.Function
 
-  Args:
-      var: output Variable
-      params: dict of (name, Variable) to add names to node that
-          require grad
-  """
+Args:
+    var: output Variable
+    params: dict of (name, Variable) to add names to node that
+        require grad
+'''
   param_map = {id(v): k for k, v in params.items()}
   print(param_map)
 
-  node_attr = dict(style='filled',
-                   shape='box',
-                   align='left',
-                   fontsize='12',
-                   ranksep='0.1',
-                   height='0.2')
-  dot = Digraph(node_attr=node_attr, graph_attr=dict(size="12,12"))
+  node_attr = dict(
+      style='filled',
+      shape='box',
+      align='left',
+      fontsize='12',
+      ranksep='0.1',
+      height='0.2',
+      )
+  dot = Digraph(node_attr=node_attr, graph_attr=dict(size='12,12'))
   seen = set()
 
   def size_to_str(size):

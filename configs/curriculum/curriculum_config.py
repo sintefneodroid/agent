@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 # coding=utf-8
 __author__ = 'cnheider'
-"""
+'''
 Description: Config for training
 Author: Christian Heider Nielsen
-"""
+'''
 
 from pathlib import Path
 
@@ -15,14 +15,14 @@ CONFIG_FILE = __file__
 USE_LOGGING = True
 
 # CUDA
-USE_CUDA_IF_AVAILABLE = True
-if USE_CUDA_IF_AVAILABLE:
-  USE_CUDA_IF_AVAILABLE = torch.cuda.is_available()
+USE_CUDA = True
+if USE_CUDA:
+  USE_CUDA = torch.cuda.is_available()
 
-DoubleTensor = torch.cuda.DoubleTensor if USE_CUDA_IF_AVAILABLE else torch.DoubleTensor
-FloatTensor = torch.cuda.FloatTensor if USE_CUDA_IF_AVAILABLE else torch.FloatTensor
-LongTensor = torch.cuda.LongTensor if USE_CUDA_IF_AVAILABLE else torch.LongTensor
-ByteTensor = torch.cuda.ByteTensor if USE_CUDA_IF_AVAILABLE else torch.ByteTensor
+DoubleTensor = torch.cuda.DoubleTensor if USE_CUDA else torch.DoubleTensor
+FloatTensor = torch.cuda.FloatTensor if USE_CUDA else torch.FloatTensor
+LongTensor = torch.cuda.LongTensor if USE_CUDA else torch.LongTensor
+ByteTensor = torch.cuda.ByteTensor if USE_CUDA else torch.ByteTensor
 
 # CONSTANTS
 MOVING_AVERAGE_WINDOW = 100
@@ -96,48 +96,30 @@ low = 0.1
 high = 0.9
 
 CURRICULUM = {
-  'level1': {
-    'when_reward':   0.95,
-    'configurables': {
-      'Difficulty': 1,
-      }
-    },
-  'level2': {
-    'when_reward':   0.95,
-    'configurables': {
-      'Difficulty': 2,
-      }
-    },
-  'level3': {
-    'when_reward':   0.95,
-    'configurables': {
-      'Difficulty': 3,
-      }
-    }
+  'level1': {'when_reward': 0.95, 'configurables': {'Difficulty': 1}},
+  'level2': {'when_reward': 0.95, 'configurables': {'Difficulty': 2}},
+  'level3': {'when_reward': 0.95, 'configurables': {'Difficulty': 3}},
   }
 
 CURRICULUM2 = {
   'level1': {
     'when_reward':   0.5,
     'configurables': {
-      'WallColorVariation':  [0.0, 0.0, 0.0],
-      'StartBoundaryRadius': 1,
-      }
+      'WallColorVariation': [0.0, 0.0, 0.0], 'StartBoundaryRadius': 1
+      },
     },
   'level2': {
     'when_reward':   0.7,
     'configurables': {
-      'WallColorVariation':  [0.1, 0.1, 0.1],
-      'StartBoundaryRadius': 2,
-      }
+      'WallColorVariation': [0.1, 0.1, 0.1], 'StartBoundaryRadius': 2
+      },
     },
   'level3': {
     'when_reward':   0.8,
     'configurables': {
-      'WallColorVariation':  [0.5, 0.5, 0.5],
-      'StartBoundaryRadius': 3,
-      }
-    }
+      'WallColorVariation': [0.5, 0.5, 0.5], 'StartBoundaryRadius': 3
+      },
+    },
   }
 
 # Architecture
@@ -146,7 +128,7 @@ POLICY_ARCH_PARAMS = {
   'activation':    F.leaky_relu,
   'hidden_layers': [128, 64, 32, 16],
   'output_size':   None,  # Obtain from environment,
-  'use_bias':      False
+  'use_bias':      False,
   }
 POLICY_ARCH = CategoricalMLP
 
@@ -155,6 +137,6 @@ VALUE_ARCH_PARAMS = {
   'activation':    F.relu,
   'hidden_layers': [128, 64, 32, 16],
   'output_size':   None,  # Obtain from environment
-  'use_bias':      False
+  'use_bias':      False,
   }
 VALUE_ARCH = MLP

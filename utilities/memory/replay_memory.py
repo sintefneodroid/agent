@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 # coding=utf-8
 __author__ = 'cnheider'
-"""
+'''
 Description: ReplayMemory for storing transition tuples
 Author: Christian Heider Nielsen
-"""
+'''
 
 import random
 
@@ -13,7 +13,7 @@ from utilities.memory.transition import Transition
 
 
 class CircularBuffer(object):
-  """For storing transitions explored in the environment."""
+  '''For storing transitions explored in the environment.'''
 
   def __init__(self, capacity):
     self._capacity = capacity
@@ -21,25 +21,26 @@ class CircularBuffer(object):
     self._position = 0
 
   def add(self, value):
-    """Saves a transition."""
+    '''Saves a transition.'''
     if len(self._memory) < self._capacity:
       self._memory.append(None)
     self._memory[self._position] = value
     self._position = (self._position + 1) % self._capacity
 
   def sample(self, num):
-    """Randomly sample transitions from memory."""
+    '''Randomly sample transitions from memory.'''
     if num > len(self._memory):
       num = len(self._memory)
     batch = random.sample(self._memory, num)
     return batch
 
   def __len__(self):
-    """Return the length of the memory list."""
+    '''Return the length of the memory list.'''
     return len(self._memory)
 
 
 class ReplayMemory(CircularBuffer):
+
   def add_transition(self, *args):
     super().add(Transition(*args))
 

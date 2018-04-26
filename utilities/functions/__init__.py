@@ -29,8 +29,9 @@ def _discount_reward(self, signals, value):
 # choose an action based on state with random noise added for exploration in training
 def exploration_action(self, state):
   softmax_action = self.__sample_model__(state)
-  epsilon = self.epsilon_end + (self.epsilon_start - self.epsilon_end) * \
-            np.exp(-1. * self._step_i / self.epsilon_decay)
+  epsilon = self.epsilon_end + (self.epsilon_start - self.epsilon_end) * np.exp(
+      -1. * self._step_i / self.epsilon_decay
+      )
   if np.random.rand() < epsilon:
     action = np.random.choice(self.action_dim)
   else:

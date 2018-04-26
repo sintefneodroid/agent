@@ -7,7 +7,7 @@ import torch
 
 
 def ortho_weights(shape, scale=1.):
-  """ PyTorch port of ortho_init from baselines.a2c.utils """
+  ''' PyTorch port of ortho_init from baselines.a2c.utils '''
   shape = tuple(shape)
 
   if len(shape) == 2:

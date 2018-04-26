@@ -8,7 +8,7 @@ from pynput import keyboard
 
 COMBINATIONS = [
   {keyboard.Key.shift, keyboard.Key.alt, keyboard.KeyCode(char='s')},
-  {keyboard.Key.shift, keyboard.Key.alt, keyboard.KeyCode(char='S')}
+  {keyboard.Key.shift, keyboard.Key.alt, keyboard.KeyCode(char='S')},
   ]
 
 CALLBACKS = []

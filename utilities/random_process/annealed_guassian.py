@@ -6,6 +6,7 @@ from neodroid.utilities.random_process import RandomProcess
 
 
 class AnnealedGaussianProcess(RandomProcess):
+
   def __init__(self, mu, sigma, sigma_min, n_steps_annealing):
     self.mu = mu
     self.sigma = sigma

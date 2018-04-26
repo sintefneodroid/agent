@@ -8,10 +8,10 @@ from utilities.initialisation.ortho_weight_init import ortho_weights
 
 
 def atari_initializer(module):
-  """ Parameter initializer for Atari models
+  ''' Parameter initializer for Atari models
 
-  Initializes Linear, Conv2d, and LSTM weights.
-  """
+Initializes Linear, Conv2d, and LSTM weights.
+'''
   classname = module.__class__.__name__
 
   if classname == 'Linear':

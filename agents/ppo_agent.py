@@ -17,13 +17,13 @@ cv2.setNumThreads(0)
 
 class PPOAgent(ACAgent):
   '''
-  An agent learned with PPO using Advantage Actor-Critic framework
-  - Actor takes state as input
-  - Critic takes both state and action as input
-  - agent interact with environment to collect experience
-  - agent training with experience to update policy
-  - adam seems better than rmsprop for ppo
-  '''
+An agent learned with PPO using Advantage Actor-Critic framework
+- Actor takes state as input
+- Critic takes both state and action as input
+- agent interact with environment to collect experience
+- agent training with experience to update policy
+- adam seems better than rmsprop for ppo
+'''
 
   def rollout(self, init_obs, env, **kwargs):
     pass
@@ -66,22 +66,17 @@ class PPOAgent(ACAgent):
       'actor_output_size':       None,
       'actor_output_activation': F.log_softmax,
       'critic_output_size':      [1],
-      'continuous':              True
+      'continuous':              True,
       }
 
     self._actor_critic = None
     self._actor_critic_target = None
     self._optimiser = None
 
-  def build_model(self, env):
-    self.infer_input_output_sizes(env)
-
+  def __build_models__(self):
     self._actor_critic_arch_params['input_size'] = self._input_size
     self._actor_critic_arch_params['actor_output_size'] = self._output_size
 
-    self._actor_critic, self._actor_critic_target, self._optimiser = self.__build_model__()
-
-  def __build_model__(self):
     actor_critic = self._actor_critic_arch(**self._actor_critic_arch_params)
 
     actor_critic_target = self._actor_critic_arch(**self._actor_critic_arch_params)
@@ -91,9 +86,12 @@ class PPOAgent(ACAgent):
       actor_critic.cuda()
       actor_critic_target.cuda()
 
-    optimiser = self._optimiser_type(actor_critic.parameters(), lr=self._actor_critic_lr)
+    optimiser = self._optimiser_type(
+        actor_critic.parameters(), lr=self._actor_critic_lr
+        )
 
-    return actor_critic, actor_critic_target, optimiser
+    self._actor_critic, self._actor_critic_target, self._optimiser = actor_critic, actor_critic_target, \
+                                                                     optimiser
 
   def maybe_take_n_steps(self, initial_state, environment, n=100, render=False):
     state = initial_state
@@ -117,15 +115,25 @@ class PPOAgent(ACAgent):
         successor_state = next_state
 
       transitions.append(
-          U.ValuedTransition(state, action, action_prob, value_estimates, signal, successor_state,
-                             not terminated))
+          U.ValuedTransition(
+              state,
+              action,
+              action_prob,
+              value_estimates,
+              signal,
+              successor_state,
+              not terminated,
+              )
+          )
 
       state = next_state
 
       accumulated_signal += signal
 
       if self._step_i % self._update_target_interval == 0:
-        self._actor_critic_target.load_state_dict(self._actor_critic.state_dict())
+        self._actor_critic_target.load_state_dict(
+            self._actor_critic.state_dict()
+            )
 
       if terminated:
         break
@@ -135,21 +143,23 @@ class PPOAgent(ACAgent):
   def trace_back_steps(self, transitions):
     n_step_summary = U.ValuedTransition(*zip(*transitions))
 
-    advantages, discounted_returns = U.generalised_advantage_estimate(n_step_summary,
-                                                                      self._discount_factor,
-                                                                      gae_tau=self._gae_tau)
+    advantages, discounted_returns = U.generalised_advantage_estimate(
+        n_step_summary, self._discount_factor, gae_tau=self._gae_tau
+        )
 
     i = 0
     advantage_memories = []
     for step in zip(*n_step_summary):
       step = U.ValuedTransition(*step)
       advantage_memories.append(
-          U.AdvantageMemory(step.state,
-                            step.action,
-                            step.action_prob,
-                            step.value_estimate,
-                            advantages[i],
-                            discounted_returns[i])
+          U.AdvantageMemory(
+              step.state,
+              step.action,
+              step.action_prob,
+              step.value_estimate,
+              advantages[i],
+              discounted_returns[i],
+              )
           )
       i += 1
 
@@ -157,13 +167,15 @@ class PPOAgent(ACAgent):
 
   def evaluate(self, batch, **kwargs):
 
-    states_var = U.to_var(batch.state, use_cuda=self._use_cuda).view(-1, self._input_size[0])
-    action_var = U.to_var(batch.action, use_cuda=self._use_cuda, dtype='long').view(-1,
-                                                                                    self._output_size[
-                                                                                                   0])
-    action_probs_var = U.to_var(batch.action_prob, use_cuda=self._use_cuda).view(-1,
-                                                                                 self._output_size[
-                                                                                                0])
+    states_var = U.to_var(batch.state, use_cuda=self._use_cuda).view(
+        -1, self._input_size[0]
+        )
+    action_var = U.to_var(batch.action, use_cuda=self._use_cuda, dtype='long').view(
+        -1, self._output_size[0]
+        )
+    action_probs_var = U.to_var(batch.action_prob, use_cuda=self._use_cuda).view(
+        -1, self._output_size[0]
+        )
     values_var = U.to_var(batch.value_estimate, use_cuda=self._use_cuda)
     advantages_var = U.to_var(batch.advantage, use_cuda=self._use_cuda)
     returns_var = U.to_var(batch.discounted_return, use_cuda=self._use_cuda)
@@ -179,11 +191,13 @@ class PPOAgent(ACAgent):
     ratio = torch.exp(action_prob - action_prob_target)
 
     advantage = (advantages_var - advantages_var.mean()) / (
-        advantages_var.std() + self._divide_by_zero_safety)
+        advantages_var.std() + self._divide_by_zero_safety
+    )
 
     surrogate = ratio * advantage
-    surrogate_clipped = torch.clamp(ratio, min=1. - self._surrogate_clip,
-                                    max=1. + self._surrogate_clip) * advantage  # (L^CLIP)
+    surrogate_clipped = torch.clamp(
+        ratio, min=1. - self._surrogate_clip, max=1. + self._surrogate_clip
+        ) * advantage  # (L^CLIP)
 
     policy_loss = -torch.min(surrogate, surrogate_clipped).mean()
 
@@ -200,25 +214,27 @@ class PPOAgent(ACAgent):
     self._optimiser.zero_grad()
     cost.backward()
     if self._max_grad_norm is not None:
-      nn.utils.clip_grad_norm(self._actor_critic.parameters(), self._max_grad_norm)
+      nn.utils.clip_grad_norm(
+          self._actor_critic.parameters(), self._max_grad_norm
+          )
     self._optimiser.step()
 
   def __sample_model__(self, state, continuous=True, **kwargs):
     '''
 
-    continuous
-      randomly sample from normal distribution, whose mean and variance come from policy network.
-      [batch, action_size]
+continuous
+  randomly sample from normal distribution, whose mean and variance come from policy network.
+  [batch, action_size]
 
-    :param state:
-    :type state:
-    :param continuous:
-    :type continuous:
-    :param kwargs:
-    :type kwargs:
-    :return:
-    :rtype:
-    '''
+:param state:
+:type state:
+:param continuous:
+:type continuous:
+:param kwargs:
+:type kwargs:
+:return:
+:rtype:
+'''
     state_var = U.to_var(state, use_cuda=self._use_cuda, unsqueeze=True)
 
     if continuous:
@@ -246,28 +262,30 @@ class PPOAgent(ACAgent):
     return action, value_estimate, action_log_std
 
 
-def test_ppo_agent(C):
+def test_ppo_agent(config):
   import gym
 
-  U.set_seed(C.SEED)
+  device = torch.device('cuda' if config.USE_CUDA else 'cpu')
+  U.set_seed(config.SEED)
 
-  env = gym.make(C.ENVIRONMENT_NAME)
-  env.seed(C.SEED)
+  env = gym.make(config.ENVIRONMENT_NAME)
+  env.seed(config.SEED)
 
-  ppo_agent = PPOAgent(C)
-  ppo_agent.build_model(env)
+  ppo_agent = PPOAgent(config)
+  ppo_agent.build_model(env, device)
 
   initial_state = env.reset()
-  cs = tqdm(range(1, C.ROLLOUTS + 1), f'Rollout {0}, {0}', leave=True)
+  cs = tqdm(range(1, config.ROLLOUTS + 1), f'Rollout {0}, {0}', leave=True)
   for rollout_i in cs:
 
     transitions, accumulated_signal, terminated, initial_state = ppo_agent.maybe_take_n_steps(
-        initial_state, env, render=C.RENDER_ENVIRONMENT)
+        initial_state, env, render=config.RENDER_ENVIRONMENT
+        )
 
     if terminated:
       initial_state = env.reset()
 
-    if rollout_i >= C.INITIAL_OBSERVATION_PERIOD:
+    if rollout_i >= config.INITIAL_OBSERVATION_PERIOD:
       advantage_memories = ppo_agent.trace_back_steps(transitions)
       for m in advantage_memories:
         ppo_agent._experience_buffer.remember(m)
@@ -281,21 +299,52 @@ if __name__ == '__main__':
   import configs.ppo_config as C
 
   parser = argparse.ArgumentParser(description='PG Agent')
-  parser.add_argument('--ENVIRONMENT_NAME', '-E', type=str, default=C.ENVIRONMENT_NAME,
-                      metavar='ENVIRONMENT_NAME',
-                      help='name of the environment to run')
-  parser.add_argument('--PRETRAINED_PATH', '-T', metavar='PATH', type=str, default='',
-                      help='path of pre-trained model')
-  parser.add_argument('--RENDER_ENVIRONMENT', '-R', action='store_true',
-                      default=C.RENDER_ENVIRONMENT,
-                      help='render the environment')
-  parser.add_argument('--NUM_WORKERS', '-N', type=int, default=4, metavar='NUM_WORKERS',
-                      help='number of threads for agent (default: 4)')
-  parser.add_argument('--SEED', '-S', type=int, default=1, metavar='SEED',
-                      help='random seed (default: 1)')
-  parser.add_argument('--skip_confirmation', '-skip', action='store_true',
-                      default=False,
-                      help='Skip confirmation of config to be used')
+  parser.add_argument(
+      '--ENVIRONMENT_NAME',
+      '-E',
+      type=str,
+      default=C.ENVIRONMENT_NAME,
+      metavar='ENVIRONMENT_NAME',
+      help='name of the environment to run',
+      )
+  parser.add_argument(
+      '--PRETRAINED_PATH',
+      '-T',
+      metavar='PATH',
+      type=str,
+      default='',
+      help='path of pre-trained model',
+      )
+  parser.add_argument(
+      '--RENDER_ENVIRONMENT',
+      '-R',
+      action='store_true',
+      default=C.RENDER_ENVIRONMENT,
+      help='render the environment',
+      )
+  parser.add_argument(
+      '--NUM_WORKERS',
+      '-N',
+      type=int,
+      default=4,
+      metavar='NUM_WORKERS',
+      help='number of threads for agent (default: 4)',
+      )
+  parser.add_argument(
+      '--SEED',
+      '-S',
+      type=int,
+      default=1,
+      metavar='SEED',
+      help='random seed (default: 1)',
+      )
+  parser.add_argument(
+      '--skip_confirmation',
+      '-skip',
+      action='store_true',
+      default=False,
+      help='Skip confirmation of config to be used',
+      )
   args = parser.parse_args()
 
   for k, arg in args.__dict__.items():

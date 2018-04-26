@@ -8,6 +8,7 @@ from neodroid.utilities.random_process import RandomProcess
 
 
 class RandomWalk(RandomProcess):
+
   def __init__(self, options=[-1, +1]):
     self.options = options
 
