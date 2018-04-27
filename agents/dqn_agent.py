@@ -462,8 +462,8 @@ def test_cnn_dqn_agent(config):
 
 
 if __name__ == '__main__':
-  # import configs.dqn_config as C
-  import configs.cnn_dqn_config as C
+  import configs.dqn_config as C
+  #import configs.cnn_dqn_config as C
 
   from configs.arguments import parse_arguments
 
@@ -479,8 +479,8 @@ if __name__ == '__main__':
     input('\nPress any key to begin... ')
 
   try:
-    # test_dqn_agent(C)
-    test_cnn_dqn_agent(C)
+    test_dqn_agent(C)
+    #test_cnn_dqn_agent(C)
   except KeyboardInterrupt:
     print('Stopping')
 
