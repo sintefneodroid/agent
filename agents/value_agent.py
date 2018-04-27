@@ -6,7 +6,7 @@ import random
 
 import numpy as np
 import torch
-
+import math
 import utilities as U
 from agents.agent import Agent
 
@@ -33,7 +33,11 @@ All value iteration agents should inherit from this class
         self.epsilon_random(self._step_i)
         and self._step_i > self._initial_observation_period
     ):
+      if self._verbose:
+        print('Sampling from model')
       return self.__sample_model__(state)
+    if self._verbose:
+      print('Sampling from random process')
     return self.sample_random_process()
 
   def sample_random_process(self):
@@ -53,9 +57,8 @@ All value iteration agents should inherit from this class
     sample = random.random()
 
     a = self._eps_start - self._eps_end
-    import math
 
-    b = math.exp(-1. * steps_taken / self._eps_decay + self._divide_by_zero_safety)
+    b = math.exp(-1. * steps_taken / (self._eps_decay + self._divide_by_zero_safety))
     eps_threshold = self._eps_end + a * b
 
     return sample > eps_threshold

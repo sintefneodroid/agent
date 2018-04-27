@@ -30,6 +30,8 @@ All agent should inherit from this class
         'cuda:0' if torch.cuda.is_available() and self._use_cuda else 'cpu'
         )
 
+    self._verbose = False
+
     self.__local_defaults__()
 
     if config:
@@ -115,7 +117,7 @@ Tries to infer input and output size from env if either _input_size or _output_s
         else:
           pass
       else:
-        k_lowered = f'{k.lstrip('_').upper()}'
+        k_lowered = f'{k.lstrip("_").upper()}'
         if kwargs.get(k_lowered) is not None:
           occur += 1
         else:

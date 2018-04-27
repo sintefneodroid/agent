@@ -38,6 +38,7 @@ PROJECT = 'Neodroid'
 # TARGET_FILE_NAME = 'target_position_rotation.csv'
 # DEPTH_IMAGES_DIRECTORY = 'depth'
 
+VERBOSE = False
 
 PROJECT_DIRECTORY = Path('/home/heider/Github/Neodroid/agent')
 

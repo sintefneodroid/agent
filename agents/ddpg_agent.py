@@ -176,7 +176,8 @@ Parameters
     state = torch.tensor(
         [state], device=self._device, dtype=self._state_tensor_type
         )
-    action = self._actor(state).detach()
+    with torch.no_grad():
+      action = self._actor(state)
     return action.item()
 
   def sample_action(self, state, **kwargs):
@@ -222,14 +223,15 @@ Parameters
     Q_current = self._critic(state_batch_var, action_batch_var)
     # Compute next Q value based on which action target actor would choose
     # Detach variable from the current graph since we don't want gradients for next Q to propagated
-    target_actions = self._target_actor(state_batch_var).detach()
-    next_max_q = self._target_critic(
-        next_state_batch_var, target_actions
-        ).detach().max(
-        1
-        )[
-      0
-    ]
+    with torch.no_grad():
+      target_actions = self._target_actor(state_batch_var)
+      next_max_q = self._target_critic(
+          next_state_batch_var, target_actions
+          ).max(
+          1
+          )[
+        0
+      ]
 
     next_Q_values = non_terminal_mask_var * next_max_q
     Q_target = signal_batch_var + (
@@ -420,56 +422,9 @@ def test_ddpg_agent(config):
 
 if __name__ == '__main__':
   import configs.ddpg_config as C
-  import argparse
+  from configs.arguments import parse_arguments
 
-  parser = argparse.ArgumentParser(description='DDPG Agent')
-  parser.add_argument(
-      '--ENVIRONMENT_NAME',
-      '-E',
-      type=str,
-      default=C.ENVIRONMENT_NAME,
-      metavar='ENVIRONMENT_NAME',
-      help='name of the environment to run',
-      )
-  parser.add_argument(
-      '--PRETRAINED_PATH',
-      '-T',
-      metavar='PATH',
-      type=str,
-      default='',
-      help='path of pre-trained model',
-      )
-  parser.add_argument(
-      '--RENDER_ENVIRONMENT',
-      '-R',
-      action='store_true',
-      default=C.RENDER_ENVIRONMENT,
-      help='render the environment',
-      )
-  parser.add_argument(
-      '--NUM_WORKERS',
-      '-N',
-      type=int,
-      default=4,
-      metavar='NUM_WORKERS',
-      help='number of threads for agent (default: 4)',
-      )
-  parser.add_argument(
-      '--SEED',
-      '-S',
-      type=int,
-      default=1,
-      metavar='SEED',
-      help='random seed (default: 1)',
-      )
-  parser.add_argument(
-      '--skip_confirmation',
-      '-skip',
-      action='store_true',
-      default=False,
-      help='Skip confirmation of config to be used',
-      )
-  args = parser.parse_args()
+  args = parse_arguments('DDPG Agent',C)
 
   for k, arg in args.__dict__.items():
     setattr(C, k, arg)

@@ -1,5 +1,10 @@
 #!/usr/bin/env python3
 # coding=utf-8
+import matplotlib
+
+from utilities.transformation.extraction import get_screen
+from utilities.visualisation.statistics_plot import plot_durations
+
 __author__ = 'cnheider'
 import time
 from itertools import count
@@ -8,6 +13,7 @@ import numpy as np
 import torch
 import torch.nn.functional as F
 from tqdm import tqdm
+import pylab as plt
 
 import utilities as U
 from agents.value_agent import ValueAgent
@@ -52,8 +58,8 @@ class DQNAgent(ValueAgent):
     self._signal_clipping = True
 
     self._eps_start = 1.0
-    self._eps_end = 0.01
-    self._eps_decay = 500
+    self._eps_end = 0.02
+    self._eps_decay = 400
 
     self._early_stopping_condition = None
     self._target_value_model = None
@@ -111,48 +117,59 @@ class DQNAgent(ValueAgent):
 '''
 
     # Torchify batch
-    states = torch.tensor(
-        batch.state, device=self._device, dtype=self._state_tensor_type
-        ).view(
-        -1, self._input_size[0]
-        )
+    # states = torch.tensor(
+    #    batch.state, device=self._device, dtype=self._state_tensor_type
+    #    ).view(
+    #    -1, *self._input_size
+    #    )
+    if type(batch.state[0]) is not torch.Tensor:
+      states = torch.tensor(batch.state, dtype=self._state_tensor_type, device=self._device).view(
+          -1, *self._input_size
+          )
+    else:
+      states = torch.cat(batch.state).to(self._device)
+
     action_indices = torch.tensor(
         batch.action, dtype=self._action_tensor_type, device=self._device
         ).view(
         -1, 1
         )
-    true_signals = torch.tensor(batch.signal, device=self._device).view(-1, 1)
+    true_signals = torch.tensor(batch.signal, dtype=self._value_tensor_type, device=self._device).view(-1, 1)
     non_terminal_mask = torch.tensor(
         batch.non_terminal, dtype=torch.uint8, device=self._device
         )
-    non_terminal_successors = torch.tensor(
-        [
-          states
-          for (states, non_terminal_mask) in zip(
-            batch.successor_state, batch.non_terminal
-            )
-          if non_terminal_mask
-          ],
-        dtype=self._state_tensor_type,
-        device=self._device,
-        )
+
+    nts = [
+      states
+      for (states, non_terminal_mask) in zip(
+          batch.successor_state, batch.non_terminal
+          )
+      if non_terminal_mask
+      ]
+    if type(nts[0]) is not torch.Tensor:
+      non_terminal_successors = torch.tensor(nts, dtype=self._state_tensor_type, device=self._device).view(
+          -1, *self._input_size
+          )
+
+    else:
+      non_terminal_successors = torch.cat(nts).to(self._device)
+
     if not len(non_terminal_successors) > 0:
       return 0  # Nothing to be learned, all states are terminal
-    non_terminal_successors_var = torch.tensor(
-        non_terminal_successors, device=self._device, dtype=self._state_tensor_type
-        )
 
     # Calculate Q of successors
-    Q_successors = self._value_model(non_terminal_successors_var)
+    with torch.no_grad():
+      Q_successors = self._value_model(non_terminal_successors)
     Q_successors_max_action_indices = Q_successors.max(1)[1].view(-1, 1)
     if self._use_double_dqn:
-      Q_successors = self._target_value_model(non_terminal_successors_var)
+      with torch.no_grad():
+        Q_successors = self._target_value_model(non_terminal_successors)
     Q_max_successor = torch.zeros(
         self._batch_size, dtype=self._value_tensor_type, device=self._device
         )
     Q_max_successor[non_terminal_mask] = Q_successors.gather(
         1, Q_successors_max_action_indices
-        ).squeeze().detach()
+        ).squeeze()
 
     # Integrate with the true signal
     Q_expected = true_signals + (self._discount_factor * Q_max_successor).view(
@@ -165,14 +182,16 @@ class DQNAgent(ValueAgent):
     return self._evaluation_function(Q_state, Q_expected)
 
   def update_models(self):
-    # indices, transitions = self._memory.sample_transitions(self.C.BATCH_SIZE)
-    transitions = self._memory.sample_transitions(self._batch_size)
+    error = 0
+    if self._batch_size < len(self._memory):
+      # indices, transitions = self._memory.sample_transitions(self.C.BATCH_SIZE)
+      transitions = self._memory.sample_transitions(self._batch_size)
 
-    td_error = self.evaluate(transitions)
-    self.__optimise_wrt__(td_error)
+      td_error = self.evaluate(transitions)
+      self.__optimise_wrt__(td_error)
 
-    error = td_error.item()
-    # self._memory.batch_update(indices, errors.tolist())  # Cuda trouble
+      error = td_error.item()
+      # self._memory.batch_update(indices, errors.tolist())  # Cuda trouble
 
     return error
 
@@ -206,9 +225,8 @@ class DQNAgent(ValueAgent):
       self._memory.add_transition(
           state, action, signal, successor_state, not terminated
           )
-      state = next_state
 
-      error = 0
+      td_error = 0
 
       if (
           len(self._memory) >= self._batch_size
@@ -216,9 +234,9 @@ class DQNAgent(ValueAgent):
           and self._step_i % self._learning_frequency == 0
       ):
 
-        error = self.update_models()
+        td_error = self.update_models()
 
-        T.set_description(f'TD error: {error}')
+        T.set_description(f'TD error: {td_error}')
 
       if (
           self._use_double_dqn
@@ -228,46 +246,44 @@ class DQNAgent(ValueAgent):
         T.write('Target Model Synced')
 
       episode_signal += signal
-      episode_td_error += error
+      episode_td_error += td_error
 
       if terminated:
         episode_length = t
         break
 
+      state = next_state
+
     return episode_signal, episode_length, episode_td_error
 
   def infer(self, state, **kwargs):
-    model_input = torch.tensor(
+    if type(state) is not torch.Tensor:
+      model_input = torch.tensor(
         [state], device=self._device, dtype=self._state_tensor_type
         )
-    return self._value_model(model_input).detach()
-
-  def sample_action(self, state, **kwargs):
-    '''
-
-:param state:
-:return:
-'''
-    if (
-        self.epsilon_random(self._step_i)
-        and self._step_i > self._initial_observation_period
-    ):
-      return self.__sample_model__(state)
-    return self.sample_random_process()
+    else:
+      model_input = state
+    with torch.no_grad():
+      value = self._value_model(model_input)
+    return value
 
   def __sample_model__(self, state, **kwargs):
-    model_input = torch.tensor(
-        [state], device=self._device, dtype=self._state_tensor_type
-        )
-    action_value_estimates = self._value_model(model_input).detach()
+    if type(state) is not torch.Tensor:
+      model_input = torch.tensor(
+          [state], device=self._device, dtype=self._state_tensor_type
+          )
+    else:
+      model_input = state
+
+    with torch.no_grad():
+      action_value_estimates = self._value_model(model_input)
     max_value_action_idx = action_value_estimates.max(1)[1].item()
-    # max_value_action_idx = np.argmax(action_value_estimates.data.cpu().numpy()[0])
     return max_value_action_idx
 
   def step(self, state, env):
     self._step_i += 1
     action = self.sample_action(state)
-    return env.step(action)
+    return action, env.step(action)
 
   def train_episodic(
       self,
@@ -368,78 +384,90 @@ def test_dqn_agent(config):
   environment = gym.make(config.ENVIRONMENT_NAME)
   environment.seed(config.SEED)
 
-  agent = DQNAgent(C)
+  agent = DQNAgent(config)
   agent.build_agent(environment, device)
 
   listener = U.add_early_stopping_key_combination(agent.stop_training)
 
-  _trained_model = None
   listener.start()
   try:
 
-    _trained_model, training_statistics, *_ = agent.train_episodic(
+    trained_model, training_statistics, *_ = agent.train_episodic(
         environment, config.EPISODES, render=config.RENDER_ENVIRONMENT
         )
   finally:
     listener.stop()
 
-  U.save_model(_trained_model, C)
+  U.save_model(trained_model, config)
 
   environment.close()
 
 
-if __name__ == '__main__':
-  import argparse
-  import configs.dqn_config as C
+def test_cnn_dqn_agent(config):
+  import gym
 
-  parser = argparse.ArgumentParser(description='DQN Agent')
-  parser.add_argument(
-      '--ENVIRONMENT_NAME',
-      '-E',
-      type=str,
-      default=C.ENVIRONMENT_NAME,
-      metavar='ENVIRONMENT_NAME',
-      help='Name of the environment to run',
-      )
-  parser.add_argument(
-      '--PRETRAINED_PATH',
-      '-T',
-      metavar='PATH',
-      type=str,
-      default='',
-      help='Path of pre-trained model',
-      )
-  parser.add_argument(
-      '--RENDER_ENVIRONMENT',
-      '-R',
-      action='store_true',
-      default=C.RENDER_ENVIRONMENT,
-      help='Render the environment',
-      )
-  parser.add_argument(
-      '--NUM_WORKERS',
-      '-N',
-      type=int,
-      default=4,
-      metavar='NUM_WORKERS',
-      help='Number of threads for agent (default: 4)',
-      )
-  parser.add_argument(
-      '--SEED',
-      '-S',
-      type=int,
-      default=1,
-      metavar='SEED',
-      help='Random seed (default: 1)',
-      )
-  parser.add_argument(
-      '--skip_confirmation',
-      '-skip',
-      action='store_true',
-      default=False,
-      help='Skip confirmation of config to be used',
-      )
-  args = parser.parse_args()
+  device = torch.device('cuda' if config.USE_CUDA else 'cpu')
+
+  env = gym.make(config.ENVIRONMENT_NAME).unwrapped
+  env.seed(config.SEED)
+
+  is_ipython = 'inline' in matplotlib.get_backend()
+  if is_ipython:
+    pass
+
+  plt.ion()
+
+  episode_durations = []
+
+  agent = DQNAgent(C)
+  agent.build_agent(env, device)
+
+  episodes = tqdm(range(C.EPISODES), leave=False)
+  for episode_i in episodes:
+    episodes.set_description(f'Episode:{episode_i}')
+    env.reset()
+    last_screen = U.transform_screen(get_screen(env), device)
+    current_screen = U.transform_screen(get_screen(env), device)
+    state = current_screen - last_screen
+
+    rollout = tqdm(count(), leave=False)
+    for t in rollout:
+
+      action, (_, signal, terminated, *_) = agent.step(state, env)
+
+      last_screen = current_screen
+      current_screen = U.transform_screen(get_screen(env), device)
+
+      successor_state = None
+      if not terminated:
+        successor_state = current_screen - last_screen
+
+      if agent._signal_clipping:
+        signal = np.clip(signal, -1.0, 1.0)
+
+      agent._memory.add_transition(state, action, signal, successor_state, not terminated)
+
+      agent.update_models()
+      if terminated:
+        episode_durations.append(t + 1)
+        plot_durations(episode_durations=episode_durations)
+        break
+
+      state = successor_state
+
+  env.render()
+  env.close()
+  plt.ioff()
+  plt.show()
+
+
+if __name__ == '__main__':
+  # import configs.dqn_config as C
+  import configs.cnn_dqn_config as C
+
+  from configs.arguments import parse_arguments
+
+  args = parse_arguments('DQN agent', C)
 
   for k, arg in args.__dict__.items():
     setattr(C, k, arg)
@@ -451,7 +479,8 @@ if __name__ == '__main__':
     input('\nPress any key to begin... ')
 
   try:
-    test_dqn_agent(C)
+    # test_dqn_agent(C)
+    test_cnn_dqn_agent(C)
   except KeyboardInterrupt:
     print('Stopping')
 

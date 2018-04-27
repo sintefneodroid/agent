@@ -22,14 +22,14 @@ def get_cart_location(env):
   return int(env.state[0] * scale + screen_width / 2.0)  # MIDDLE OF CART
 
 
-def get_screen(env, device):
+def get_screen(env):
   screen = env.render(mode='rgb_array').transpose(
       (2, 0, 1)
       )  # transpose into torch order (CHW)
   # Strip off the top and bottom of the screen
   screen = screen[:, 160:320]
   view_width = 320
-  cart_location = get_cart_location()
+  cart_location = get_cart_location(env)
   if cart_location < view_width // 2:
     slice_range = slice(view_width)
   elif cart_location > (screen_width - view_width // 2):
@@ -43,16 +43,22 @@ def get_screen(env, device):
   # Convert to float, rescare, convert to torch tensor
   # (this doesn't require a copy)
   screen = np.ascontiguousarray(screen, dtype=np.float32) / 255
+  return screen
+
+def transform_screen(screen, device):
   screen = torch.from_numpy(screen)
   # Resize, and add a batch dimension (BCHW)
   return resize(screen).unsqueeze(0).to(device)
 
 
 if __name__ == '__main__':
+  import gym
+  env = gym.make('CartPole-v0').unwrapped
+
   env.reset()
   plt.figure()
   plt.imshow(
-      get_screen().cpu().squeeze(0).permute(1, 2, 0).numpy(), interpolation='none'
+      get_screen(env), interpolation='none'
       )
   plt.title('Example extracted screen')
   plt.show()
