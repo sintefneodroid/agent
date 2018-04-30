@@ -28,10 +28,10 @@ All policy iteration agents should inherit from this class
   def save_model(self, C):
     U.save_model(self._policy, C)
 
-  def load_model(self, model_path, evaluation=False):
-    print('loading latest model: ' + model_path)
+  def load_model(self, model_file, evaluation=False):
+    print(f'Loading model: { model_file}')
     self._policy = self._policy_arch(**self._policy_arch_params)
-    self._policy.load_state_dict(torch.load(model_path))
+    self._policy.load_state_dict(torch.load(model_file))
     if evaluation:
       self._policy = self._policy.eval()
       self._policy.train(False)

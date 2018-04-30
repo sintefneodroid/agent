@@ -18,7 +18,7 @@ SAVE_MODEL_INTERVAL = 1000
 # General
 CONFIG_NAME = __name__
 CONFIG_FILE = __file__
-USE_CUDA_IF_AVAILABLE = True
+USE_CUDA = True
 
 # Visualisation
 USE_VISDOM = True
@@ -71,5 +71,7 @@ EPSILON = 0.01
 
 # Architecture
 ARCHITECTURE_CONFIGURATION = {
-  'input_size': -1, 'hidden_layers': [64, 32, 16], 'output_size': -1
-  }
+  'input_size': -1,
+  'hidden_layers': [64, 32, 16],
+  'output_size': -1
+}

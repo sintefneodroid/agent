@@ -7,6 +7,7 @@ import numpy as np
 import torch
 import torch.nn.functional as F
 from tqdm import tqdm
+tqdm.monitor_interval = 0
 
 import utilities as U
 from agents.ac_agent import ACAgent
@@ -348,7 +349,7 @@ The Deep Deterministic Policy Gradient algorithm.
     running_duration = 0
 
     E = range(1, rollouts)
-    E = tqdm(E, desc='', leave=True)
+    E = tqdm(E, desc='', leave=False)
 
     for episode_i in E:
       state = env.reset()

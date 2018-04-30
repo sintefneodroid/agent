@@ -29,7 +29,7 @@ class DQNAgent(ValueAgent):
     self._memory = U.ReplayBuffer(10000)
     # self._memory = U.PrioritisedReplayMemory(config.REPLAY_MEMORY_SIZE)  # Cuda trouble
 
-    self._use_cuda_if_available = False
+    self._use_cuda = False
 
     self._evaluation_function = F.smooth_l1_loss
 
@@ -243,7 +243,8 @@ class DQNAgent(ValueAgent):
           and self._step_i % self._sync_target_model_frequency == 0
       ):
         self._target_value_model.load_state_dict(self._value_model.state_dict())
-        T.write('Target Model Synced')
+        if self._verbose:
+          T.write('Target Model Synced')
 
       episode_signal += signal
       episode_td_error += td_error
@@ -281,7 +282,6 @@ class DQNAgent(ValueAgent):
     return max_value_action_idx
 
   def step(self, state, env):
-    self._step_i += 1
     action = self.sample_action(state)
     return action, env.step(action)
 
@@ -316,7 +316,7 @@ class DQNAgent(ValueAgent):
     td_errors = []
 
     E = range(1, rollouts)
-    E = tqdm(E, leave=True)
+    E = tqdm(E, leave=False)
 
     training_start_timestamp = time.time()
 

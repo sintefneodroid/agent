@@ -1,21 +1,27 @@
 #!/usr/bin/env python3
 # coding=utf-8
+import torch
+
 __author__ = 'cnheider'
 import glob
 import os
 
-import configs.curriculum.curriculum_config as C
-from agents.pg_agent import PGAgent
-from utilities.environment_wrappers.action_encoding import BinaryActionEncodingWrapper
+
+
 
 
 def main():
   '''
 
 '''
-  # _environment = neo.make(C.ENVIRONMENT, connect_to_running=C.CONNECT_TO_RUNNING)
+
+  # _environment = neo.make(C.ENVIRONMENT_NAME, connect_to_running=C.CONNECT_TO_RUNNING)
+  import configs.pg_config1 as C
+  from agents.pg_agent import PGAgent
+  from utilities.environment_wrappers.action_encoding import BinaryActionEncodingWrapper
+
   _environment = BinaryActionEncodingWrapper(
-      name=C.ENVIRONMENT, connect_to_running=C.CONNECT_TO_RUNNING
+      name=C.ENVIRONMENT_NAME, connect_to_running=C.CONNECT_TO_RUNNING
       )
   _environment.seed(C.SEED)
 
@@ -31,7 +37,7 @@ def main():
   # _agent = DQNAgent(C)
   _agent = PGAgent(C)
   _agent.build_agent(_environment, device)
-  _agent.load_model(C, _latest_model)
+  _agent.load_model(_latest_model, evaluation=True)
 
   _agent.infer(_environment)
 

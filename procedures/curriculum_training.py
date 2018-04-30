@@ -112,7 +112,7 @@ def estimate_value(candidate):
 
   rollout_signals = 0
   rollout_seesion = range(1, C.CANDIDATE_ROLLOUTS + 1)
-  rollout_seesion = tqdm(rollout_seesion, leave=True)
+  rollout_seesion = tqdm(rollout_seesion, leave=False)
   for j in rollout_seesion:
     rollout_seesion.set_description(
         f'Candidate rollout #{j} of {C.CANDIDATE_ROLLOUTS} | '
@@ -141,7 +141,8 @@ def estimate_value(candidate):
   return rollout_signals / C.CANDIDATE_ROLLOUTS
 
 
-def main():
+def main(config, agent):
+
   l_star = C.random_motion_horizon
   training_start_timestamp = time.time()
 
@@ -150,7 +151,7 @@ def main():
       initial_configuration, l_star, random_process=_random_process
       )
   train_iters = range(1, C.NUM_EPISODES + 1)
-  train_iters = tqdm(train_iters)
+  train_iters = tqdm(train_iters, leave=False)
   for iters in train_iters:
     if not _environment.is_connected:
       break
@@ -160,21 +161,19 @@ def main():
 
     fixed_point = True
 
-    cs = tqdm(range(1, C.CANDIDATES_SIZE + 1), leave=True)
+    cs = tqdm(range(1, C.CANDIDATES_SIZE + 1), leave=False)
     for c in cs:
       if _plot_stats:
         term_plot(
             [i for i in range(1, _episode_i + 1)],
             _signal_mas.values,
-            train_iters.write,
-            offset=0,
+            printer=train_iters.write
             )
         train_iters.write('-' * 30)
         term_plot(
             [i for i in range(1, _episode_i + 1)],
             _entropy.values,
-            train_iters.write,
-            offset=0,
+            printer=train_iters.write
             )
         train_iters.set_description(
             f'Steps: {_step_i:9.0f} | Sig_MA: {_signal_ma:.2f} | Ent: {_entropy.moving_average():.2f}'
@@ -218,4 +217,26 @@ def main():
 
 
 if __name__ == '__main__':
-  main()
+  import configs.pg_config as C
+
+  from configs.arguments import parse_arguments
+
+  args = parse_arguments('PG Agent',C)
+
+  for k, arg in args.__dict__.items():
+    setattr(C, k, arg)
+
+  print(f'Using config: {C}')
+  if not args.skip_confirmation:
+    for k, arg in U.get_upper_vars_of(C).items():
+      print(f'{k} = {arg}')
+    input('\nPress any key to begin... ')
+
+  _agent = PGAgent(C)
+
+  try:
+    main(C, _agent)
+  except KeyboardInterrupt:
+    print('Stopping')
+
+  torch.cuda.empty_cache()

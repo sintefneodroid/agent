@@ -138,13 +138,13 @@ Tries to infer input and output size from env if either _input_size or _output_s
 
   def run(self, environment, render=True, *args, **kwargs):
     E = count(1)
-    E = tqdm(E, leave=True)
+    E = tqdm(E, leave=False)
     for episode_i in E:
       print('Episode {}'.format(episode_i))
 
       state = environment.reset()
       F = count(1)
-      F = tqdm(F, leave=True)
+      F = tqdm(F, leave=False)
       for frame_i in F:
 
         action = self.__sample_model__(state)

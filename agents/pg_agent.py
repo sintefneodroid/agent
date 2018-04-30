@@ -37,7 +37,7 @@ class PGAgent(PolicyAgent):
       'use_bias':      True,
       }
 
-    self._use_cuda_if_available = False
+    self._use_cuda = False
     self._discount_factor = 0.99
     self._use_batched_updates = False
     self._batch_size = 5
@@ -52,13 +52,17 @@ class PGAgent(PolicyAgent):
     self._signals_tensor_type = torch.float
 
   def __sample_model__(self, state, **kwargs):
-    state_var = torch._tensor(
-        [state], device=self._device, dtype=self._state_tensor_type
-        )
-    probs = self._policy(state_var)
+    if type(state) is not torch.Tensor:
+      state_var = torch._tensor(
+          [state], device=self._device, dtype=self._state_tensor_type
+          )
+    else:
+      state_var = state
+    with torch.no_grad():
+      probs = self._policy(state_var)
     m = Categorical(probs)
     action = m.sample()
-    return action.cpu().data.numpy()[0]
+    return action.item()
 
   def __build_models__(self):
 
@@ -73,21 +77,29 @@ class PGAgent(PolicyAgent):
     self._policy = policy
 
   def sample_action(self, state, **kwargs):
-    state_var = torch.tensor(
+    if type(state) is not torch.Tensor:
+      state_var = torch.tensor(
         [state], device=self._device, dtype=self._state_tensor_type
         )
+    else:
+      state_var = state
+
     probs = self._policy(state_var)
     m = Categorical(probs)
     action_sample = m.sample()
-    action = action_sample.cpu().data.numpy()[0]
+    action = action_sample.item()
     # action = np.argmax(action)
     return action, m.log_prob(action_sample), U.log_entropy(probs)
 
   def sample_cont_action(self, state):
-    state_var = torch.tensor(
+    if type(state) is not torch.Tensor:
+      model_input = torch.tensor(
         [state], device=self._device, dtype=self._state_tensor_type
         )
-    mu, sigma_sq = self._policy(state_var)  # requires MultiheadedMLP
+    else:
+      model_input = state
+    with torch.no_grad():
+      mu, sigma_sq = self._policy(model_input)  # requires MultiheadedMLP
 
     eps = torch.randn(mu.size())
     # calculate the probability
@@ -97,7 +109,7 @@ class PGAgent(PolicyAgent):
         (
             sigma_sq
             + 2
-            * U.pi_torch(self._use_cuda_if_available).expand_as(sigma_sq)
+            * U.pi_torch(self._use_cuda).expand_as(sigma_sq)
         ).log()
         + 1
     )
@@ -209,7 +221,7 @@ class PGAgent(PolicyAgent):
 
     training_start_timestamp = time.time()
     E = range(1, rollouts)
-    E = tqdm(E, f'Episode: {1}', leave=True)
+    E = tqdm(E, f'Episode: {1}', leave=False)
 
     running_length = 0
     running_signal = 0

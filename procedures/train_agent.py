@@ -47,7 +47,7 @@ def train_agent1(config, agent):
   training_start_timestamp = time.time()
   step_i = 0
   signal_ma = 0
-  episodes = tqdm(range(1, config.EPISODES + 1), leave=True)
+  episodes = tqdm(range(1, config.EPISODES + 1), leave=False)
   for episode_i in episodes:
     if _plot_stats:
       episodes.write('-' * 30)
@@ -81,7 +81,7 @@ def train_agent1(config, agent):
 
   time_elapsed = time.time() - training_start_timestamp
   message = f'Training done, time elapsed: {time_elapsed // 60:.0f}m {time_elapsed % 60:.0f}s'
-  print(f'\n{'-' * 9} {message} {'-' * 9}\n')
+  print(f'\n{"-" * 9} {message} {"-" * 9}\n')
 
   save_snapshot(agent, _episode_signals, _episode_durations, _entropy)
 
@@ -124,59 +124,11 @@ if __name__ == '__main__':
   # import configs.ddpg_config as C
   # import configs.dqn_config as C
   # import configs.curriculum.curriculum_config as C
-  import configs.pg_config as C
+  import configs.pg_config1 as C
 
-  parser = argparse.ArgumentParser(description='PG Agent')
-  parser.add_argument(
-      '--ENVIRONMENT_NAME',
-      '-E',
-      type=str,
-      default=C.ENVIRONMENT_NAME,
-      metavar='ENVIRONMENT_NAME',
-      help='name of the environment to run',
-      )
-  parser.add_argument(
-      '--PRETRAINED_PATH',
-      '-T',
-      metavar='PATH',
-      type=str,
-      default='',
-      help='path of pre-trained model',
-      )
-  parser.add_argument(
-      '--RENDER_ENVIRONMENT',
-      '-R',
-      action='store_true',
-      default=C.RENDER_ENVIRONMENT,
-      help='render the environment',
-      )
-  parser.add_argument(
-      '--NUM_WORKERS',
-      '-N',
-      type=int,
-      default=4,
-      metavar='NUM_WORKERS',
-      help='number of threads for agent (default: 4)',
-      )
-  parser.add_argument(
-      '--SEED',
-      '-S',
-      type=int,
-      default=1,
-      metavar='SEED',
-      help='random seed (default: 1)',
-      )
-  parser.add_argument(
-      '--skip_confirmation',
-      '-skip',
-      action='store_true',
-      default=False,
-      help='Skip confirmation of config to be used',
-      )
-  parser.add_argument(
-      '--CONNECT_TO_RUNNING', '-C', action='store_true', default=C.CONNECT_TO_RUNNING
-      )
-  args = parser.parse_args()
+  from configs.arguments import parse_arguments
+
+  args = parse_arguments('PG Agent',C)
 
   for k, arg in args.__dict__.items():
     setattr(C, k, arg)

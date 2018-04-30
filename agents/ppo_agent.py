@@ -272,10 +272,10 @@ def test_ppo_agent(config):
   env.seed(config.SEED)
 
   ppo_agent = PPOAgent(config)
-  ppo_agent.build_model(env, device)
+  ppo_agent.build_agent(env, device)
 
   initial_state = env.reset()
-  cs = tqdm(range(1, config.ROLLOUTS + 1), f'Rollout {0}, {0}', leave=True)
+  cs = tqdm(range(1, config.ROLLOUTS + 1), f'Rollout {0}, {0}', leave=False)
   for rollout_i in cs:
 
     transitions, accumulated_signal, terminated, initial_state = ppo_agent.maybe_take_n_steps(

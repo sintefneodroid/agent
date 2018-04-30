@@ -29,6 +29,7 @@ All value iteration agents should inherit from this class
     super().__init__(config, *args, **kwargs)
 
   def sample_action(self, state, **kwargs):
+    self._step_i += 1
     if (
         self.epsilon_random(self._step_i)
         and self._step_i > self._initial_observation_period
