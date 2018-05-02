@@ -7,7 +7,7 @@ Author: Christian Heider Nielsen
 '''
 
 from pathlib import Path
-
+from configs.base_config import *
 from utilities import *
 
 CONFIG_NAME = __name__
@@ -18,11 +18,6 @@ USE_LOGGING = True
 USE_CUDA = True
 if USE_CUDA:
   USE_CUDA = torch.cuda.is_available()
-
-DoubleTensor = torch.cuda.DoubleTensor if USE_CUDA else torch.DoubleTensor
-FloatTensor = torch.cuda.FloatTensor if USE_CUDA else torch.FloatTensor
-LongTensor = torch.cuda.LongTensor if USE_CUDA else torch.LongTensor
-ByteTensor = torch.cuda.ByteTensor if USE_CUDA else torch.ByteTensor
 
 # CONSTANTS
 MOVING_AVERAGE_WINDOW = 100
@@ -52,14 +47,14 @@ LOG_DIRECTORY = PROJECT_DIRECTORY / 'logs'
 # Environment parameters
 CONNECT_TO_RUNNING = True
 RENDER_ENVIRONMENT = False
-ENVIRONMENT = 'grid_world'
+ENVIRONMENT_NAME = 'small_grid_world'
 SOLVED_REWARD = 0.9
 ROLLOUTS = 1000
 MAX_ROLLOUT_LENGTH = 1000
 ACTION_MAGNITUDES = 10000
-STATE_TENSOR_TYPE = FloatTensor
-VALUE_TENSOR_TYPE = FloatTensor
-ACTION_TENSOR_TYPE = LongTensor
+STATE_TENSOR_TYPE = torch.float
+VALUE_TENSOR_TYPE = torch.float
+ACTION_TENSOR_TYPE = torch.long
 
 # Epsilon random action parameters
 EPS_START = 0.9
@@ -126,7 +121,7 @@ CURRICULUM2 = {
 POLICY_ARCH_PARAMS = {
   'input_size':    None,  # Obtain from environment
   'activation':    F.leaky_relu,
-  'hidden_layers': [128, 64, 32, 16],
+  'hidden_size': [128, 64, 32, 16],
   'output_size':   None,  # Obtain from environment,
   'use_bias':      False,
   }
@@ -135,7 +130,7 @@ POLICY_ARCH = CategoricalMLP
 VALUE_ARCH_PARAMS = {
   'input_size':    None,  # Obtain from environment
   'activation':    F.relu,
-  'hidden_layers': [128, 64, 32, 16],
+  'hidden_size': [128, 64, 32, 16],
   'output_size':   None,  # Obtain from environment
   'use_bias':      False,
   }

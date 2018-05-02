@@ -98,6 +98,7 @@ class PGAgent(PolicyAgent):
         )
     else:
       model_input = state
+
     with torch.no_grad():
       mu, sigma_sq = self._policy(model_input)  # requires MultiheadedMLP
 

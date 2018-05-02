@@ -14,9 +14,6 @@ from neodroid.models import Configuration
 from utilities.environment_wrappers.action_encoding import BinaryActionEnvironment
 from utilities.visualisation.term_plot import term_plot
 
-# !/usr/bin/env python3
-# coding=utf-8
-
 tqdm.monitor_interval = 0
 
 import configs.curriculum.curriculum_config as C
@@ -33,21 +30,10 @@ _value_estimates = U.Aggregator()
 _entropy = U.Aggregator()
 _sample_trajectory_lengths = U.Aggregator()
 
-_environment = BinaryActionEnvironment(
-    name=C.ENVIRONMENT, connect_to_running=C.CONNECT_TO_RUNNING
-    )
-
 _keep_stats = False
 _plot_stats = False
 _keep_seed_if_not_replaced = False
 
-_agent = PGAgent(C)
-# _agent = DDPGAgent(C)
-# _agent = DQNAgent(C)
-
-device = torch.device('cuda' if C.USE_CUDA else 'cpu')
-
-_agent.build_agent(_environment, device)
 _episode_i = 0
 _step_i = 0
 _signal_ma = 0
@@ -87,11 +73,11 @@ def get_default_configuration(environment):
 
 def get_initial_configuration(environment):
   if environment:
-    goal_pos_x = environment.description.configurable('GoalTransformX').observation
-    goal_pos_z = environment.description.configurable('GoalTransformZ').observation
+    goal_pos_x = environment.description.configurable('GoalTransformX_').observation
+    goal_pos_z = environment.description.configurable('GoalTransformZ_').observation
     initial_configuration = [
-      Configuration('ActorTransformX', goal_pos_x),
-      Configuration('ActorTransformZ', goal_pos_z),
+      Configuration('ActorTransformX_', goal_pos_x),
+      Configuration('ActorTransformZ_', goal_pos_z),
       ]
     return initial_configuration
 
@@ -107,26 +93,26 @@ def save_snapshot(**kwargs):
   U.save_statistic(_sample_trajectory_lengths.values, 'sample_trajectory_lengths', C)
 
 
-def estimate_value(candidate):
+def estimate_value(candidate, env, agent):
   global _step_i, _episode_i, _signal_ma
 
   rollout_signals = 0
-  rollout_seesion = range(1, C.CANDIDATE_ROLLOUTS + 1)
-  rollout_seesion = tqdm(rollout_seesion, leave=False)
-  for j in rollout_seesion:
-    rollout_seesion.set_description(
+  rollout_session = range(1, C.CANDIDATE_ROLLOUTS + 1)
+  rollout_session = tqdm(rollout_session, leave=False)
+  for j in rollout_session:
+    rollout_session.set_description(
         f'Candidate rollout #{j} of {C.CANDIDATE_ROLLOUTS} | '
         f'Est: {rollout_signals / C.CANDIDATE_ROLLOUTS}'
         )
-    state_ob, _ = _environment.configure(state=candidate)
+    state_ob, _ = env.configure(state=candidate)
 
-    signals, steps, *stats = _agent.rollout(state_ob, _environment)
+    signals, steps, *stats = agent.rollout(state_ob, env)
     rollout_signals += signals
 
     _step_i += steps
     _episode_i += 1
 
-    if _keep_stats:  ######### STATISTICS #########
+    if _keep_stats:
       _episode_signals.append(signals)
       _episode_durations.append(steps)
       # _signal_ma = _episode_signals.moving_average()
@@ -136,24 +122,29 @@ def estimate_value(candidate):
     if _episode_i % C.SAVE_MODEL_INTERVAL == 0:
       if _keep_stats:
         save_snapshot()
-    ##############################
 
   return rollout_signals / C.CANDIDATE_ROLLOUTS
 
 
 def main(config, agent):
+  env = BinaryActionEnvironment(
+      name=C.ENVIRONMENT_NAME, connect_to_running=C.CONNECT_TO_RUNNING
+      )
+  device = torch.device('cuda' if C.USE_CUDA else 'cpu')
+
+  _agent.build_agent(env, device)
 
   l_star = C.random_motion_horizon
   training_start_timestamp = time.time()
 
-  initial_configuration = get_initial_configuration(_environment)
-  S_prev = _environment.generate_trajectory_from_configuration(
+  initial_configuration = get_initial_configuration(env)
+  S_prev = env.generate_trajectory_from_configuration(
       initial_configuration, l_star, random_process=_random_process
       )
-  train_iters = range(1, C.NUM_ROLLOUTS + 1)
-  train_iters = tqdm(train_iters, leave=False)
-  for iters in train_iters:
-    if not _environment.is_connected:
+  train_session = range(1, C.ROLLOUTS + 1)
+  train_session = tqdm(train_session, leave=False)
+  for _ in train_session:
+    if not env.is_connected:
       break
 
     S_i = []
@@ -167,15 +158,15 @@ def main(config, agent):
         term_plot(
             [i for i in range(1, _episode_i + 1)],
             _signal_mas.values,
-            printer=train_iters.write
+            printer=train_session.write
             )
-        train_iters.write('-' * 30)
+        train_session.write('-' * 30)
         term_plot(
             [i for i in range(1, _episode_i + 1)],
             _entropy.values,
-            printer=train_iters.write
+            printer=train_session.write
             )
-        train_iters.set_description(
+        train_session.set_description(
             f'Steps: {_step_i:9.0f} | Sig_MA: {_signal_ma:.2f} | Ent: {_entropy.moving_average():.2f}'
             )
         cs.set_description(
@@ -185,14 +176,14 @@ def main(config, agent):
 
       seed = U.sample(S_prev)
       S_c.extend(
-          _environment.generate_trajectory_from_state(
+          env.generate_trajectory_from_state(
               seed, l_star, random_process=_random_process
               )
           )
 
       candidate = U.sample(S_c)
 
-      est = estimate_value(candidate)
+      est = estimate_value(candidate, env, agent)
 
       if C.low <= est <= C.high:
         S_i.append(candidate)
@@ -201,7 +192,7 @@ def main(config, agent):
       elif _keep_seed_if_not_replaced:
         S_i.append(seed)
     if fixed_point:
-      S_i = _environment.generate_trajectory_from_configuration(
+      S_i = env.generate_trajectory_from_configuration(
           initial_configuration, l_star, random_process=_random_process
           )
       l_star += 1
@@ -212,16 +203,16 @@ def main(config, agent):
   message = f'Training done, time elapsed: {time_elapsed // 60:.0f}m {time_elapsed % 60:.0f}s'
   print('\n{} {} {}\n'.format('-' * 9, message, '-' * 9))
 
-  _agent.save_model(C)
+  agent.save_model(C)
   save_snapshot()
 
 
 if __name__ == '__main__':
-  import configs.pg_config as C
+  import configs.curriculum.curriculum_config as C
 
   from configs.arguments import parse_arguments
 
-  args = parse_arguments('PG Agent',C)
+  args = parse_arguments('PG Agent', C)
 
   for k, arg in args.__dict__.items():
     setattr(C, k, arg)
@@ -233,6 +224,8 @@ if __name__ == '__main__':
     input('\nPress any key to begin... ')
 
   _agent = PGAgent(C)
+  # _agent = DDPGAgent(C)
+  # _agent = DQNAgent(C)
 
   try:
     main(C, _agent)
