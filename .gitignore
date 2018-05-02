@@ -95,7 +95,7 @@ ENV/
 
 # mypy
 .mypy_cache/
-*log*
+*.log
 
 *.model
 *.model.py
