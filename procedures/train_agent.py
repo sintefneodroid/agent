@@ -47,7 +47,7 @@ def train_agent1(config, agent):
   training_start_timestamp = time.time()
   step_i = 0
   signal_ma = 0
-  episodes = tqdm(range(1, config.EPISODES + 1), leave=False)
+  episodes = tqdm(range(1, config.ROLLOUTS + 1), leave=False)
   for episode_i in episodes:
     if _plot_stats:
       episodes.write('-' * 30)
@@ -101,9 +101,16 @@ def train_agent(config, agent):
 
   agent.build_agent(env, device)
 
-  _trained_model, training_statistics, *_ = agent.train(
-      env, config.MAX_ROLLOUT_LENGTH, render=config.RENDER_ENVIRONMENT
-      )
+  listener = U.add_early_stopping_key_combination(agent.stop_training)
+
+  listener.start()
+  try:
+    _trained_model, training_statistics, *_ = agent.train(
+        env, config.ROLLOUTS, render=config.RENDER_ENVIRONMENT
+        )
+  finally:
+    listener.stop()
+
   U.save_model(_trained_model, config)
 
   env.close()

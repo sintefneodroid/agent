@@ -29,12 +29,28 @@ def save_model(model, configuration, name=''):
                 f'{_model_date.strftime("%y%m%d%H%M")}.model'
 
   _model_path = os.path.join(configuration.MODEL_DIRECTORY, _model_name)
+  try:
+    _save(model,_model_path, configuration)
+  except FileNotFoundError as e:
+    print(e)
+    saved=False
+    while not saved:
+      file_path = input('Enter another file path: ')
+      _model_path = os.path.join(file_path, _model_name)
+      try:
+        saved = _save(model, _model_path, configuration)
+      except FileNotFoundError as e:
+        print(e)
+        saved = False
+
+  print(f'Saved model at {_model_path}')
+
+def _save(model,_model_path, configuration):
   torch.save(
       model.state_dict(), _model_path
       )  # TODO possible to .cpu() copy would be great
   save_config(_model_path, configuration)
-  print('Saved model at {}'.format(_model_path))
-
+  return True
 
 def save_config(model_path, configuration):
   config_path = os.path.join(
@@ -44,7 +60,7 @@ def save_config(model_path, configuration):
 
 
 def convert_to_cpu(path=''):
-  model = torch.load(path, map_location=lambda storage, loc: storage)
+  model = torch.load(path, map_location=lambda storage, loc:storage)
   torch.save(model, path + '.cpu')
 
 

@@ -44,7 +44,7 @@ GYM_ENVIRONMENT = 'LunarLander-v2'
 # GYM_ENVIRONMENT = 'Pong-ram-v0'
 # GYM_ENVIRONMENT = 'Taxi-v2'
 SOLVED_REWARD = 200
-NUM_EPISODES = 4000
+ROLLOUTS = 4000
 
 # Epsilon random action parameters
 EPS_START = 1

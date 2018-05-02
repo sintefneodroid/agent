@@ -412,7 +412,7 @@ def test_ddpg_agent(config):
   listener.start()
   try:
     actor_model, critic_model, stats = agent.train(
-        env, config.EPISODES, render=config.RENDER_ENVIRONMENT
+        env, config.ROLLOUTS, render=config.RENDER_ENVIRONMENT
         )
   finally:
     listener.stop()

@@ -263,6 +263,9 @@ class PGAgent(PolicyAgent):
       running_signal = running_signal * 0.99 + signal * 0.01
       running_signals.append(running_signal)
 
+      if self._end_training:
+        break
+
     time_elapsed = time.time() - training_start_timestamp
     end_message = f'Training done, time elapsed: {time_elapsed // 60:.0f}m {time_elapsed %60:.0f}s'
     print('\n{} {} {}\n'.format('-' * 9, end_message, '-' * 9))
@@ -280,9 +283,17 @@ def test_pg_agent(config):
   agent = PGAgent(config)
   agent.build_agent(env, device)
 
-  _trained_model, training_statistics, *_ = agent.train(
-      env, config.MAX_ROLLOUT_LENGTH, render=config.RENDER_ENVIRONMENT
-      )
+  listener = U.add_early_stopping_key_combination(agent.stop_training)
+
+  listener.start()
+  try:
+    _trained_model, training_statistics, *_ = agent.train(
+        env, config.MAX_ROLLOUT_LENGTH, render=config.RENDER_ENVIRONMENT
+        )
+  finally:
+    listener.stop()
+
+
   U.save_model(_trained_model, config)
 
   env.close()

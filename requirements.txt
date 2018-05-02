@@ -7,3 +7,4 @@ torchvision
 torch
 neodroid
 visdom
+pynput

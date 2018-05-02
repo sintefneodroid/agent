@@ -393,7 +393,7 @@ def test_dqn_agent(config):
   try:
 
     trained_model, training_statistics, *_ = agent.train_episodic(
-        environment, config.EPISODES, render=config.RENDER_ENVIRONMENT
+        environment, config.ROLLOUTS, render=config.RENDER_ENVIRONMENT
         )
   finally:
     listener.stop()
@@ -422,7 +422,7 @@ def test_cnn_dqn_agent(config):
   agent = DQNAgent(C)
   agent.build_agent(env, device)
 
-  episodes = tqdm(range(C.EPISODES), leave=False)
+  episodes = tqdm(range(C.ROLLOUTS), leave=False)
   for episode_i in episodes:
     episodes.set_description(f'Episode:{episode_i}')
     env.reset()

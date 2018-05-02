@@ -44,9 +44,9 @@ def parse_arguments(desc, C):
       '--SEED',
       '-S',
       type=int,
-      default=1,
+      default=C.SEED,
       metavar='SEED',
-      help='Sandom seed (default: 1)')
+      help=f'Random seed (default: {C.SEED})')
   parser.add_argument(
       '--VERBOSE',
       '-V',
@@ -59,6 +59,13 @@ def parse_arguments(desc, C):
       action='store_true',
       default=False,
       help='Skip confirmation of config to be used')
+  parser.add_argument(
+      '--ROLLOUTS',
+      '-rollouts',
+      type=int,
+      default=C.ROLLOUTS,
+      metavar='ROLLOUTS',
+      help='Number of rollouts')
   args = parser.parse_args()
 
   return args

@@ -293,6 +293,9 @@ def test_ppo_agent(config):
       ppo_agent.train()
       ppo_agent._experience_buffer.forget()
 
+    if ppo_agent._end_training:
+      break
+
 
 if __name__ == '__main__':
   import configs.ppo_config as C

@@ -93,13 +93,17 @@ pip3 install -r requirements.txt
 ````
 
 # Usage
-For training a model use:
+Export python path to the repo root so we can use the utilities module
 ````bash
-python3 train_model.py
+export PYTHONPATH=/path-to-repo/
 ````
-For testing a trained model use:
+For training a agent use:
 ````bash
-python3 test_model.py
+python3 procedures/train_agent.py
+````
+For testing a trained agent use:
+````bash
+python3 procedures/test_agent.py
 ````
 
 # To Do's

@@ -150,7 +150,7 @@ def main(config, agent):
   S_prev = _environment.generate_trajectory_from_configuration(
       initial_configuration, l_star, random_process=_random_process
       )
-  train_iters = range(1, C.NUM_EPISODES + 1)
+  train_iters = range(1, C.NUM_ROLLOUTS + 1)
   train_iters = tqdm(train_iters, leave=False)
   for iters in train_iters:
     if not _environment.is_connected:
