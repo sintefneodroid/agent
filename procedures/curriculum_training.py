@@ -1,8 +1,12 @@
 #!/usr/bin/env python3
 # coding=utf-8
+import math
+import random
+
 __author__ = 'cnheider'
 import time
 from collections import namedtuple
+from types import coroutine
 
 import numpy as np
 import torch
@@ -10,7 +14,7 @@ from tqdm import tqdm
 
 import neodroid.wrappers.curriculum_wrapper as neo
 from agents.pg_agent import PGAgent
-from neodroid.models import Configuration
+from neodroid.models import Configuration, ReactionParameters, Reaction, Displayable
 from utilities.environment_wrappers.action_encoding import BinaryActionEnvironment
 from utilities.visualisation.term_plot import term_plot
 
@@ -60,21 +64,28 @@ def ma_stop(ma, solved_threshold=10):
   return ma >= solved_threshold
 
 
-def get_default_configuration(environment):
+@coroutine
+def grid_world_sample_entire_configuration_space(environment):
   if environment:
-    goal_pos_x = environment.description.configurable('ActorTransformX').observation
-    goal_pos_z = environment.description.configurable('ActorTransformZ').observation
-    initial_configuration = [
-      Configuration('ActorTransformX', goal_pos_x),
-      Configuration('ActorTransformZ', goal_pos_z),
-      ]
-    return initial_configuration
+    actor_x_conf=environment.description.configurable('ActorTransformX_')
+    actor_z_conf=environment.description.configurable('ActorTransformZ_')
+    x_space= actor_x_conf.configurable_space
+    z_space= actor_z_conf.configurable_space
+    for x in np.linspace(x_space.min_value,x_space.max_value,x_space.discrete_steps):
+      for z in np.linspace(z_space.min_value,z_space.max_value,z_space.discrete_steps):
+        initial_configuration = [
+          Configuration('ActorTransformX_', x),
+          Configuration('ActorTransformZ_', z),
+          ]
+
+        yield initial_configuration
+  return
 
 
 def get_initial_configuration(environment):
   if environment:
-    goal_pos_x = environment.description.configurable('GoalTransformX_').observation
-    goal_pos_z = environment.description.configurable('GoalTransformZ_').observation
+    goal_pos_x = environment.description.configurable('GoalTransformX_').configurable_value
+    goal_pos_z = environment.description.configurable('GoalTransformZ_').configurable_value
     initial_configuration = [
       Configuration('ActorTransformX_', goal_pos_x),
       Configuration('ActorTransformZ_', goal_pos_z),
@@ -125,6 +136,29 @@ def estimate_value(candidate, env, agent):
 
   return rollout_signals / C.CANDIDATE_ROLLOUTS
 
+def estimate_entire_state_space(env):
+  d=[]
+  vals=[]
+  for configuration in grid_world_sample_entire_configuration_space(env):
+    configure_params = ReactionParameters(
+        terminable=False,
+        episode_count=False,
+        reset=True,
+        configure=True
+        )
+    vec3 = (configuration[0].configurable_value,
+            0,
+            configuration[1].configurable_value)
+    d.append(vec3)
+    vals.append(random.random())
+    displays= [Displayable('ScatterPlotDisplayer', (vals, d))]
+    conf_reaction = Reaction(
+        parameters=configure_params,
+        configurations=configuration,
+        displayables=displays
+        )
+
+    state_ob, _ = env.configure(conf_reaction)
 
 def main(config, agent):
   env = BinaryActionEnvironment(
@@ -134,8 +168,11 @@ def main(config, agent):
 
   _agent.build_agent(env, device)
 
-  l_star = C.random_motion_horizon
+  l_star = C.RANDOM_MOTION_HORIZON
   training_start_timestamp = time.time()
+
+  while True:
+    estimate_entire_state_space(env)
 
   initial_configuration = get_initial_configuration(env)
   S_prev = env.generate_trajectory_from_configuration(
@@ -160,7 +197,6 @@ def main(config, agent):
             _signal_mas.values,
             printer=train_session.write
             )
-        train_session.write('-' * 30)
         term_plot(
             [i for i in range(1, _episode_i + 1)],
             _entropy.values,
@@ -171,7 +207,7 @@ def main(config, agent):
             )
         cs.set_description(
             f'Candidate #{c} of {C.CANDIDATES_SIZE} | '
-            f'FP: {fixed_point}|L:{l_star},S_i:{len(S_i)}'
+            f'FP: {fixed_point}|L:{l_star}|S_i:{len(S_i)}'
             )
 
       seed = U.sample(S_prev)
@@ -185,9 +221,9 @@ def main(config, agent):
 
       est = estimate_value(candidate, env, agent)
 
-      if C.low <= est <= C.high:
+      if C.LOW <= est <= C.HIGH:
         S_i.append(candidate)
-        l_star = C.random_motion_horizon
+        l_star = C.RANDOM_MOTION_HORIZON
         fixed_point = False
       elif _keep_seed_if_not_replaced:
         S_i.append(seed)
@@ -201,7 +237,7 @@ def main(config, agent):
 
   time_elapsed = time.time() - training_start_timestamp
   message = f'Training done, time elapsed: {time_elapsed // 60:.0f}m {time_elapsed % 60:.0f}s'
-  print('\n{} {} {}\n'.format('-' * 9, message, '-' * 9))
+  print(f'\n{"-" * 9} {message} {"-" * 9}\n')
 
   agent.save_model(C)
   save_snapshot()

@@ -7,58 +7,32 @@ Author: Christian Heider Nielsen
 '''
 
 from pathlib import Path
-
+import os
 from utilities import *
 
+PROJECT = 'Neodroid'
 CONFIG_NAME = __name__
 CONFIG_FILE = __file__
+VERBOSE = False
 USE_LOGGING = True
 
-# CUDA
-USE_CUDA = True
-if USE_CUDA:  # If available
-  USE_CUDA = torch.cuda.is_available()
+# Architecture
+POLICY_ARCH_PARAMS = {
+  'input_size':  None,  # Obtain from environment
+  'hidden_size': [32, 16],
+  'output_size': None,  # Obtain from environment
+  'use_bias':    False,
+  }
+POLICY_ARCH = CategoricalMLP
 
-# CONSTANTS
-MOVING_AVERAGE_WINDOW = 100
-SPACER_SIZE = 60
-SEED = 6
-SAVE_MODEL_INTERVAL = 100
-
-# Visualisation
-USE_VISDOM = False
-START_VISDOM_SERVER = False
-VISDOM_SERVER = 'http://localhost'
-# if not START_VISDOM_SERVER:
-#  VISDOM_SERVER = 'http://visdom.ml'
-
-# Paths
-PROJECT = 'Neodroid'
-# DATA_SET_DIRECTORY = os.path.join('/home/heider/Datasets', PROJECT)
-# TARGET_FILE_NAME = 'target_position_rotation.csv'
-# DEPTH_IMAGES_DIRECTORY = 'depth'
-
-VERBOSE = False
-
-PROJECT_DIRECTORY = Path('/home/heider/Github/Neodroid/agent')
-
-MODEL_DIRECTORY = PROJECT_DIRECTORY / 'models'
-CONFIG_DIRECTORY = PROJECT_DIRECTORY / 'configs'
-LOG_DIRECTORY = PROJECT_DIRECTORY / 'logs'
-
-# Environment parameters
+# Environment Related Parameters
 CONNECT_TO_RUNNING = True
 RENDER_ENVIRONMENT = False
-ENVIRONMENT_NAME = 'grid_world'
+ENVIRONMENT_NAME = 'small_grid_world'
 SOLVED_REWARD = 0.9
-ROLLOUTS = 4000
-MAX_ROLLOUT_LENGTH = 1000
 ACTION_MAGNITUDES = 10000
-STATE_TENSOR_TYPE = torch.float
-VALUE_TENSOR_TYPE = torch.float
-ACTION_TENSOR_TYPE = torch.long
 
-# Exploration epsilon random action parameters
+# Epsilon Exploration
 EXPLORATION_EPSILON_START = 0.9
 EXPLORATION_EPSILON_END = 0.05
 EXPLORATION_EPSILON_DECAY = 35000
@@ -75,23 +49,41 @@ REPLAY_MEMORY_SIZE = 1000000
 INITIAL_OBSERVATION_PERIOD = 10000
 DISCOUNT_FACTOR = 0.99
 UPDATE_DIFFICULTY_INTERVAL = 1000
-
+ROLLOUTS = 4000
+STATE_TENSOR_TYPE = torch.float
+VALUE_TENSOR_TYPE = torch.float
+ACTION_TENSOR_TYPE = torch.long
 EVALUATION_FUNCTION = F.smooth_l1_loss
 
 # Optimiser
 OPTIMISER_TYPE = torch.optim.Adam
-# OPTIMISER_TYPE = torch.optim.RMSprop
 OPTIMISER_LEARNING_RATE = 0.0025
 OPTIMISER_WEIGHT_DECAY = 1e-5
 OPTIMISER_ALPHA = 0.9
 OPTIMISER_EPSILON = 1e-02
 OPTIMISER_MOMENTUM = 0.0
 
-# Architecture
-ARCH_PARAMS = {
-  'input_size':  None,  # Obtain from environment
-  'hidden_size': [32, 16],
-  'output_size': None,  # Obtain from environment
-  'use_bias':    False,
-  }
-ARCH = CategoricalMLP
+# Paths
+PROJECT_DIRECTORY = Path(os.getcwd())
+MODEL_DIRECTORY = PROJECT_DIRECTORY / 'models'
+CONFIG_DIRECTORY = PROJECT_DIRECTORY / 'configs'
+LOG_DIRECTORY = PROJECT_DIRECTORY / 'logs'
+
+# CUDA
+USE_CUDA = True
+if USE_CUDA:  # If available
+  USE_CUDA = torch.cuda.is_available()
+
+# Visualisation
+USE_VISDOM = False
+START_VISDOM_SERVER = False
+VISDOM_SERVER = 'http://localhost'
+if not START_VISDOM_SERVER:
+  # noinspection PyRedeclaration
+  VISDOM_SERVER = 'http://visdom.ml'
+
+# CONSTANTS
+MOVING_AVERAGE_WINDOW = 100
+SPACER_SIZE = 60
+SEED = 6
+SAVE_MODEL_INTERVAL = 100

@@ -18,7 +18,7 @@ def get_initial_configuration2(environment):
     # goal_pos_x = environment.description.configurable('GoalTransformX').observation
     # goal_pos_z = environment.description.configurable('GoalTransformZ').observation
     # return goal_pos_x,goal_pos_z
-    goal_pos = environment.description.configurable('GoalPosition').observation
+    goal_pos = environment.description.configurable('GoalPosition').configurable_value
     initial_configuration = [
       Configuration('ActorPositionX', goal_pos[0]),
       Configuration('ActorPositionY', goal_pos[1]),
@@ -29,8 +29,8 @@ def get_initial_configuration2(environment):
 
 def get_initial_configuration(environment):
   if environment:
-    goal_pos_x = environment.description.configurable('GoalTransformX').observation
-    goal_pos_z = environment.description.configurable('GoalTransformZ').observation
+    goal_pos_x = environment.description.configurable('GoalTransformX').configurable_value
+    goal_pos_z = environment.description.configurable('GoalTransformZ').configurable_value
     initial_configuration = [
       Configuration('ActorTransformX', goal_pos_x),
       Configuration('ActorTransformZ', goal_pos_z),

@@ -12,67 +12,25 @@ from utilities import *
 
 CONFIG_NAME = __name__
 CONFIG_FILE = __file__
-USE_LOGGING = True
 
-# CUDA
-USE_CUDA = True
-if USE_CUDA:
-  USE_CUDA = torch.cuda.is_available()
+# Architecture
+POLICY_ARCH_PARAMS = {
+  'input_size':    None,  # Obtain from environment
+  'activation':    F.leaky_relu,
+  'hidden_size': [128, 64, 32, 16],
+  'output_size':   None,  # Obtain from environment,
+  'use_bias':      False,
+  }
+POLICY_ARCH = CategoricalMLP
 
-# CONSTANTS
-MOVING_AVERAGE_WINDOW = 100
-SPACER_SIZE = 60
-SEED = 8
-SAVE_MODEL_INTERVAL = 100
-
-# Visualisation
-USE_VISDOM = False
-START_VISDOM_SERVER = False
-VISDOM_SERVER = 'http://localhost'
-# if not START_VISDOM_SERVER:
-#  VISDOM_SERVER = 'http://visdom.ml'
-
-# Paths
-PROJECT = 'Neodroid'
-# DATA_SET_DIRECTORY = os.path.join('/home/heider/Datasets', PROJECT)
-# TARGET_FILE_NAME = 'target_position_rotation.csv'
-# DEPTH_IMAGES_DIRECTORY = 'depth'
-
-PROJECT_DIRECTORY = Path('/home/heider/Github/Neodroid/agent')
-
-MODEL_DIRECTORY = PROJECT_DIRECTORY / 'models'
-CONFIG_DIRECTORY = PROJECT_DIRECTORY / 'configs'
-LOG_DIRECTORY = PROJECT_DIRECTORY / 'logs'
-
-# Environment parameters
-CONNECT_TO_RUNNING = True
-RENDER_ENVIRONMENT = False
-ENVIRONMENT_NAME = 'small_grid_world'
-SOLVED_REWARD = 0.9
-ROLLOUTS = 1000
-MAX_ROLLOUT_LENGTH = 1000
-ACTION_MAGNITUDES = 10000
-STATE_TENSOR_TYPE = torch.float
-VALUE_TENSOR_TYPE = torch.float
-ACTION_TENSOR_TYPE = torch.long
-
-# Epsilon random action parameters
-EPS_START = 0.9
-EPS_END = 0.05
-EPS_DECAY = 35000
-
-# Training parameters
-LOAD_PREVIOUS_MODEL_IF_AVAILABLE = False
-DOUBLE_DQN = True
-SIGNAL_CLIPPING = False
-CLAMP_GRADIENT = True
-BATCH_SIZE = 32
-LEARNING_FREQUENCY = 4
-SYNC_TARGET_MODEL_FREQUENCY = 10000
-REPLAY_MEMORY_SIZE = 1000000
-INITIAL_OBSERVATION_PERIOD = 50000
-DISCOUNT_FACTOR = 0.99
-UPDATE_DIFFICULTY_INTERVAL = 1000
+VALUE_ARCH_PARAMS = {
+  'input_size':    None,  # Obtain from environment
+  'activation':    F.relu,
+  'hidden_size': [128, 64, 32, 16],
+  'output_size':   None,  # Obtain from environment
+  'use_bias':      False,
+  }
+VALUE_ARCH = MLP
 
 # Optimiser
 OPTIMISER = torch.optim.Adam
@@ -83,12 +41,12 @@ ALPHA = 0.95
 EPSILON = 0.01
 
 # Curriculum
-random_motion_horizon = 40
+RANDOM_MOTION_HORIZON = 40
 CANDIDATES_SIZE = 3
 CANDIDATE_ROLLOUTS = 3
 
-low = 0.1
-high = 0.9
+LOW = 0.1
+HIGH = 0.9
 
 CURRICULUM = {
   'level1': {'when_reward': 0.95, 'configurables': {'Difficulty': 1}},
@@ -117,21 +75,3 @@ CURRICULUM2 = {
     },
   }
 
-# Architecture
-POLICY_ARCH_PARAMS = {
-  'input_size':    None,  # Obtain from environment
-  'activation':    F.leaky_relu,
-  'hidden_size': [128, 64, 32, 16],
-  'output_size':   None,  # Obtain from environment,
-  'use_bias':      False,
-  }
-POLICY_ARCH = CategoricalMLP
-
-VALUE_ARCH_PARAMS = {
-  'input_size':    None,  # Obtain from environment
-  'activation':    F.relu,
-  'hidden_size': [128, 64, 32, 16],
-  'output_size':   None,  # Obtain from environment
-  'use_bias':      False,
-  }
-VALUE_ARCH = MLP
