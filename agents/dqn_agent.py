@@ -87,8 +87,8 @@ class DQNAgent(ValueAgent):
         value_model.parameters(),
         lr=self._optimiser_learning_rate,
         eps=self._optimiser_epsilon,
-        alpha=self._optimiser_alpha,
-        momentum=self._optimiser_momentum,
+        #alpha=self._optimiser_alpha,
+        #momentum=self._optimiser_momentum,
         )
 
     self._value_model, self._target_value_model, self._optimiser = value_model, target_value_model, optimiser

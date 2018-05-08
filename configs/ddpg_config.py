@@ -53,7 +53,8 @@ MEMORY = U.ReplayMemory(REPLAY_MEMORY_SIZE)
 ACTION_CLIPPING = False
 SIGNAL_CLIPPING = False
 
-ENVIRONMENT_NAME = 'Pendulum-v0'
+#ENVIRONMENT_NAME = 'Pendulum-v0'
+ENVIRONMENT_NAME = 'MountainCarContinuous-v0'
 
 # Architecture
 ACTOR_ARCH_PARAMS = {
