@@ -7,6 +7,7 @@ import numpy as np
 import torch
 import torch.nn.functional as F
 from tqdm import tqdm
+
 tqdm.monitor_interval = 0
 
 import utilities as U
@@ -75,18 +76,18 @@ Parameters
 
     self._actor_arch = U.ActorArchitecture
     self._actor_arch_parameters = {
-      'input_size':        None,  # Obtain from environment
-      'hidden_size':       [128, 64],
-      'output_activation': None,
-      'output_size':       None,  # Obtain from environment
+      'input_size':       None,  # Obtain from environment
+      'hidden_size':      [128, 64],
+      'output_activation':None,
+      'output_size':      None,  # Obtain from environment
       }
 
     self._critic_arch = U.CriticArchitecture
     self._critic_arch_parameters = {
-      'input_size':        None,  # Obtain from environment
-      'hidden_size':       [128, 64],
-      'output_activation': None,
-      'output_size':       None,  # Obtain from environment
+      'input_size':       None,  # Obtain from environment
+      'hidden_size':      [128, 64],
+      'output_activation':None,
+      'output_size':      None,  # Obtain from environment
       }
 
     self._discount_factor = 0.99
@@ -425,7 +426,7 @@ if __name__ == '__main__':
   import configs.ddpg_config as C
   from configs.arguments import parse_arguments
 
-  args = parse_arguments('DDPG Agent',C)
+  args = parse_arguments('DDPG Agent', C)
 
   for k, arg in args.__dict__.items():
     setattr(C, k, arg)

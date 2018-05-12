@@ -59,14 +59,14 @@ An agent learned with PPO using Advantage Actor-Critic framework
 
     self._actor_critic_arch = U.ActorCriticNetwork
     self._actor_critic_arch_params = {
-      'input_size':              None,
-      'hidden_size':             [32, 32],
-      'actor_hidden_size':       [32],
-      'critic_hidden_size':      [32],
-      'actor_output_size':       None,
-      'actor_output_activation': F.log_softmax,
-      'critic_output_size':      [1],
-      'continuous':              True,
+      'input_size':             None,
+      'hidden_size':            [32, 32],
+      'actor_hidden_size':      [32],
+      'critic_hidden_size':     [32],
+      'actor_output_size':      None,
+      'actor_output_activation':F.log_softmax,
+      'critic_output_size':     [1],
+      'continuous':             True,
       }
 
     self._actor_critic = None
@@ -302,7 +302,7 @@ if __name__ == '__main__':
 
   from configs.arguments import parse_arguments
 
-  args = parse_arguments('PPO Agent',C)
+  args = parse_arguments('PPO Agent', C)
 
   for k, arg in args.__dict__.items():
     setattr(C, k, arg)

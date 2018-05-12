@@ -3,3 +3,4 @@
 __author__ = 'cnheider'
 
 from .difficulty import *
+from utilities.curriculum.grid_world import *

@@ -7,15 +7,10 @@ import datetime
 import os
 
 
-def save_statistic(statistic, name, configuration):
+def save_statistic(statistic, name, LOG_DIRECTORY='logs', PROJECT='', CONFIG_NAME='', **kwargs):
   _file_date = datetime.datetime.now()
-  _file_name = '{}-{}-{}.{}.csv'.format(
-      configuration.PROJECT,
-      configuration.CONFIG_NAME.replace('.', '_'),
-      _file_date.strftime('%y%m%d%H%M'),
-      name,
-      )
-  _file_path = os.path.join(configuration.LOG_DIRECTORY, _file_name)
+  _file_name = f'{PROJECT}-{CONFIG_NAME.replace(".", "_")}-{_file_date.strftime("%y%m%d%H%M")}.{name}.csv'
+  _file_path = os.path.join(LOG_DIRECTORY, _file_name)
 
   stat = [[s] for s in statistic]
   with open(_file_path, 'w') as f:

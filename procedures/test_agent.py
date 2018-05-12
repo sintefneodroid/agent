@@ -7,9 +7,6 @@ import glob
 import os
 
 
-
-
-
 def main():
   '''
 

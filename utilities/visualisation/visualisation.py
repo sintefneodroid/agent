@@ -50,7 +50,7 @@ def update_visualiser(
         X=np.array([episode]),
         Y=np.array([moving_loss]),
         env=configuration.CONFIG_NAME,
-        opts={'title': 'Average Episode Q Value Loss'},
+        opts={'title':'Average Episode Q Value Loss'},
         )
 
   if 'reward' in windows:
@@ -67,7 +67,7 @@ def update_visualiser(
         X=np.array([episode]),
         Y=np.array([moving_reward]),
         env=configuration.CONFIG_NAME,
-        opts={'title': 'Average Episode Reward'},
+        opts={'title':'Average Episode Reward'},
         )
 
   if 'episode_length' in windows:
@@ -84,7 +84,7 @@ def update_visualiser(
         X=np.array([episode]),
         Y=np.array([moving_length]),
         env=configuration.CONFIG_NAME,
-        opts={'title': 'Episode Length'},
+        opts={'title':'Episode Length'},
         )
 
   # if 'rgb_array' in windows:

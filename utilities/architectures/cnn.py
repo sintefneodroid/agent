@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 # coding=utf-8
 from utilities.architectures import Architecture
-from utilities.transformation.extraction import transform_screen
 
 __author__ = 'cnheider'
 from torch import nn

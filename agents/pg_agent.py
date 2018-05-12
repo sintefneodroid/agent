@@ -30,11 +30,11 @@ class PGAgent(PolicyAgent):
     self._trajectory = U.Trajectory()
 
     self._policy_arch_params = {
-      'input_size':    None,  # Obtain from environment
-      'hidden_layers': [64, 32, 16],
-      'output_size':   None,  # Obtain from environment
-      'activation':    F.relu,
-      'use_bias':      True,
+      'input_size':   None,  # Obtain from environment
+      'hidden_layers':[64, 32, 16],
+      'output_size':  None,  # Obtain from environment
+      'activation':   F.relu,
+      'use_bias':     True,
       }
 
     self._use_cuda = False
@@ -79,8 +79,8 @@ class PGAgent(PolicyAgent):
   def sample_action(self, state, **kwargs):
     if type(state) is not torch.Tensor:
       state_var = torch.tensor(
-        [state], device=self._device, dtype=self._state_tensor_type
-        )
+          [state], device=self._device, dtype=self._state_tensor_type
+          )
     else:
       state_var = state
 
@@ -94,8 +94,8 @@ class PGAgent(PolicyAgent):
   def sample_cont_action(self, state):
     if type(state) is not torch.Tensor:
       model_input = torch.tensor(
-        [state], device=self._device, dtype=self._state_tensor_type
-        )
+          [state], device=self._device, dtype=self._state_tensor_type
+          )
     else:
       model_input = state
 
@@ -271,7 +271,7 @@ class PGAgent(PolicyAgent):
     end_message = f'Training done, time elapsed: {time_elapsed // 60:.0f}m {time_elapsed %60:.0f}s'
     print('\n{} {} {}\n'.format('-' * 9, end_message, '-' * 9))
 
-    return self._policy, []
+    return self._policy, running_signals, running_lengths
 
 
 def test_pg_agent(config):
@@ -294,7 +294,6 @@ def test_pg_agent(config):
   finally:
     listener.stop()
 
-
   U.save_model(_trained_model, config)
 
   env.close()
@@ -305,7 +304,7 @@ if __name__ == '__main__':
 
   from configs.arguments import parse_arguments
 
-  args = parse_arguments('PG Agent',C)
+  args = parse_arguments('PG Agent', C)
 
   for k, arg in args.__dict__.items():
     setattr(C, k, arg)

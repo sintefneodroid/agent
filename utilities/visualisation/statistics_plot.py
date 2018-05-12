@@ -1,7 +1,11 @@
 #!/usr/bin/env python3
 # coding=utf-8
+import os
+
 import matplotlib
 import torch
+import numpy as np
+from scipy.io import savemat
 
 __author__ = 'cnheider'
 
@@ -18,15 +22,6 @@ if is_ipython:
 
 plt.ion()
 
-_file_name_1 = '/home/heider/Downloads/CurriculumTraining/without/Neodroid' \
-               '-configs_curriculum_curriculum_config-1803061120.entropys.csv'
-_file_name_2 = '/home/heider/Downloads/CurriculumTraining/with/Neodroid' \
-               '-configs_curriculum_curriculum_config-1803060209.entropys.csv'
-
-
-# _file_name = '/home/heider/Github/Neodroid/agent/logs/Neodroid-configs_curriculum_config-1801231302
-# .episode_durations.csv'
-
 
 def ma_plot(file_name, name):
   with open(file_name, 'r') as f:
@@ -40,10 +35,11 @@ def ma_plot(file_name, name):
         ma = agg.moving_average()
         agg_ma.append(ma)
 
-    plt.plot(agg_ma.values, name)
+    plt.plot(agg_ma.values)
+    plt.title(name)
 
 
-def simple_plot(file_name):
+def simple_plot(file_name, name='Statistic Name'):
   with open(file_name, 'r') as f:
     agg = U.Aggregator()
 
@@ -51,9 +47,25 @@ def simple_plot(file_name):
     for line in reader:
       agg.append(float(line[0]))
 
-    plt.plot(agg.values)
-    plt.show()
+    # plt.annotate('local max', xy=(2, 1), xytext=(3, 1.5),            arrowprops=dict(facecolor='black',
+    # shrink=0.05),)
 
+    plt.plot(agg.values)
+    plt.title(name)
+
+def error_plot(results, interval=1, file_name=''):
+  #if results is not np.ndarray:
+   # results = np.ndarray(results)
+
+  y = np.mean(results, axis=0)
+  error = np.std(results, axis=0)
+
+  x = range(0, results.shape[1] * interval, interval)
+  fig, ax = plt.subplots(1, 1, figsize=(6, 5))
+  plt.xlabel('Timestep')
+  plt.ylabel('Average Reward')
+  ax.errorbar(x, y, yerr=error, fmt='-o')
+  #plt.savefig(file_name + '.png')
 
 def plot_durations(episode_durations):
   plt.figure(2)
@@ -76,8 +88,19 @@ def plot_durations(episode_durations):
 
 
 if __name__ == '__main__':
-  ma_plot(_file_name_1, 'NoCur')
-  ma_plot(_file_name_2, 'Cur')
-  # simple_plot(_file_name_1)
-  # simple_plot(_file_name_2)
+
+  import configs.base_config as C
+
+  _list_of_files = list(C.LOG_DIRECTORY.glob('*.csv'))
+  _latest_model = max(_list_of_files, key=os.path.getctime)
+
+  # ma_plot(_file_name_1, 'NoCur')
+  # ma_plot(_file_name_2, 'Cur')
+  #simple_plot(_latest_model)
+  a=[0, 92, 3, 2, 5, 644, 34, 36, 423, 421]
+  b=[215, 92, 6, 1, 5, 644, 328, 32, 413, 221]
+  c=[62, 68, 8, 25, 7, 611, 29, 38, 421, 425]
+  d = np.array(zip([a,b,c]))
+  error_plot(d)
+
   plt.show()

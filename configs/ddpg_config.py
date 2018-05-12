@@ -53,22 +53,22 @@ MEMORY = U.ReplayMemory(REPLAY_MEMORY_SIZE)
 ACTION_CLIPPING = False
 SIGNAL_CLIPPING = False
 
-#ENVIRONMENT_NAME = 'Pendulum-v0'
+# ENVIRONMENT_NAME = 'Pendulum-v0'
 ENVIRONMENT_NAME = 'MountainCarContinuous-v0'
 
 # Architecture
 ACTOR_ARCH_PARAMS = {
-  'input_size':        None,  # Obtain from environment
-  'hidden_size':       [128, 64],
-  'output_activation': None,
-  'output_size':       None,  # Obtain from environment
+  'input_size':       None,  # Obtain from environment
+  'hidden_size':      [128, 64],
+  'output_activation':None,
+  'output_size':      None,  # Obtain from environment
   }
 ACTOR_ARCH = U.ActorArchitecture
 
 CRITIC_ARCH_PARAMS = {
-  'input_size':        None,  # Obtain from environment
-  'hidden_size':       [128, 64],
-  'output_activation': None,
-  'output_size':       None,  # Obtain from environment
+  'input_size':       None,  # Obtain from environment
+  'hidden_size':      [128, 64],
+  'output_activation':None,
+  'output_size':      None,  # Obtain from environment
   }
 CRITIC_ARCH = U.CriticArchitecture

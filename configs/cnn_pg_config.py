@@ -25,10 +25,10 @@ PG_ENTROPY_REG = 1e-4
 
 # Architecture
 POLICY_ARCH_PARAMS = {
-  'input_size':  None,  # Obtain from environment
-  'activation':  F.leaky_relu,
-  'hidden_size': [128, 64, 32, 16],
-  'output_size': None,  # Obtain from environment
-  'use_bias':    True,
+  'input_size': None,  # Obtain from environment
+  'activation': F.leaky_relu,
+  'hidden_size':[128, 64, 32, 16],
+  'output_size':None,  # Obtain from environment
+  'use_bias':   True,
   }
 POLICY_ARCH = CategoricalCNN

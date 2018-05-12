@@ -18,7 +18,7 @@ Args:
     params: dict of (name, Variable) to add names to node that
         require grad
 '''
-  param_map = {id(v): k for k, v in params.items()}
+  param_map = {id(v):k for k, v in params.items()}
   print(param_map)
 
   node_attr = dict(

@@ -45,6 +45,7 @@ def get_screen(env):
   screen = np.ascontiguousarray(screen, dtype=np.float32) / 255
   return screen
 
+
 def transform_screen(screen, device):
   screen = torch.from_numpy(screen)
   # Resize, and add a batch dimension (BCHW)
@@ -53,6 +54,7 @@ def transform_screen(screen, device):
 
 if __name__ == '__main__':
   import gym
+
   env = gym.make('CartPole-v0').unwrapped
 
   env.reset()

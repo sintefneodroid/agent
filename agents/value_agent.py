@@ -2,11 +2,12 @@
 # coding=utf-8
 __author__ = 'cnheider'
 
+import math
 import random
 
 import numpy as np
 import torch
-import math
+
 import utilities as U
 from agents.agent import Agent
 

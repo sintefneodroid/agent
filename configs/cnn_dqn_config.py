@@ -40,11 +40,11 @@ ENVIRONMENT_NAME = 'CartPole-v0'
 
 # Architecture
 VALUE_ARCH_PARAMETERS = {
-  'input_size':  None,  # Obtain from environment
+  'input_size':     None,  # Obtain from environment
   'input_channels': None,
-  'hidden_size': [64, 32, 16],
-  'output_size': None,  # Obtain from environment
-  'output_channels': None,
-  'activation':  F.relu,
-  'use_bias':    True,
+  'hidden_size':    [64, 32, 16],
+  'output_size':    None,  # Obtain from environment
+  'output_channels':None,
+  'activation':     F.relu,
+  'use_bias':       True,
   }

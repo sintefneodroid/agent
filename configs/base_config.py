@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 # coding=utf-8
+from agents.pg_agent import PGAgent
+
 __author__ = 'cnheider'
 '''
 Description: Config for training
@@ -7,7 +9,7 @@ Author: Christian Heider Nielsen
 '''
 
 from pathlib import Path
-import os
+
 from utilities import *
 
 PROJECT = 'Neodroid'
@@ -18,12 +20,14 @@ USE_LOGGING = True
 
 # Architecture
 POLICY_ARCH_PARAMS = {
-  'input_size':  None,  # Obtain from environment
-  'hidden_size': [32, 16],
-  'output_size': None,  # Obtain from environment
-  'use_bias':    False,
+  'input_size': None,  # Obtain from environment
+  'hidden_size':[32, 16],
+  'output_size':None,  # Obtain from environment
+  'use_bias':   False,
   }
 POLICY_ARCH = CategoricalMLP
+
+AGENT_TYPE= PGAgent
 
 # Environment Related Parameters
 CONNECT_TO_RUNNING = True

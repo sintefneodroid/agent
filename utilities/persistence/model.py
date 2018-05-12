@@ -2,7 +2,6 @@
 # coding=utf-8
 __author__ = 'cnheider'
 import datetime
-import glob
 import os
 import shutil
 import sys
@@ -11,7 +10,7 @@ import torch
 
 
 def load_model(configuration, latest=True):
-  _list_of_files = glob.glob(configuration.MODEL_DIRECTORY + '/*')
+  _list_of_files = configuration.MODEL_DIRECTORY.glob('*')
   _latest_model = max(_list_of_files, key=os.path.getctime)
   print('loading previous model: ' + _latest_model)
 
@@ -30,10 +29,10 @@ def save_model(model, configuration, name=''):
 
   _model_path = os.path.join(configuration.MODEL_DIRECTORY, _model_name)
   try:
-    _save(model,_model_path, configuration)
+    _save(model, _model_path, configuration)
   except FileNotFoundError as e:
     print(e)
-    saved=False
+    saved = False
     while not saved:
       file_path = input('Enter another file path: ')
       _model_path = os.path.join(file_path, _model_name)
@@ -45,12 +44,14 @@ def save_model(model, configuration, name=''):
 
   print(f'Saved model at {_model_path}')
 
-def _save(model,_model_path, configuration):
+
+def _save(model, _model_path, configuration):
   torch.save(
       model.state_dict(), _model_path
       )  # TODO possible to .cpu() copy would be great
   save_config(_model_path, configuration)
   return True
+
 
 def save_config(model_path, configuration):
   config_path = os.path.join(

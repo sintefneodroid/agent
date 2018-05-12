@@ -35,11 +35,11 @@ class DQNAgent(ValueAgent):
 
     self._value_arch = U.MLP
     self._value_arch_parameters = {
-      'input_size':  None,  # Obtain from environment
-      'hidden_size': [64, 32, 16],
-      'output_size': None,  # Obtain from environment
-      'activation':  F.relu,
-      'use_bias':    True,
+      'input_size': None,  # Obtain from environment
+      'hidden_size':[64, 32, 16],
+      'output_size':None,  # Obtain from environment
+      'activation': F.relu,
+      'use_bias':   True,
       }
 
     self._batch_size = 128
@@ -87,8 +87,8 @@ class DQNAgent(ValueAgent):
         value_model.parameters(),
         lr=self._optimiser_learning_rate,
         eps=self._optimiser_epsilon,
-        #alpha=self._optimiser_alpha,
-        #momentum=self._optimiser_momentum,
+        # alpha=self._optimiser_alpha,
+        # momentum=self._optimiser_momentum,
         )
 
     self._value_model, self._target_value_model, self._optimiser = value_model, target_value_model, optimiser
@@ -260,8 +260,8 @@ class DQNAgent(ValueAgent):
   def infer(self, state, **kwargs):
     if type(state) is not torch.Tensor:
       model_input = torch.tensor(
-        [state], device=self._device, dtype=self._state_tensor_type
-        )
+          [state], device=self._device, dtype=self._state_tensor_type
+          )
     else:
       model_input = state
     with torch.no_grad():
@@ -463,7 +463,7 @@ def test_cnn_dqn_agent(config):
 
 if __name__ == '__main__':
   import configs.dqn_config as C
-  #import configs.cnn_dqn_config as C
+  # import configs.cnn_dqn_config as C
 
   from configs.arguments import parse_arguments
 
@@ -480,7 +480,7 @@ if __name__ == '__main__':
 
   try:
     test_dqn_agent(C)
-    #test_cnn_dqn_agent(C)
+    # test_cnn_dqn_agent(C)
   except KeyboardInterrupt:
     print('Stopping')
 
