@@ -20,7 +20,7 @@ def snake_space_filling_generator():
   state = expand_x
   yield x, y
 
-  while 1:
+  while True:
     if state is expand_x:
       x += 1
       state = inc_y
@@ -49,8 +49,8 @@ def snake_space_filling_generator():
 
 
 if __name__ == '__main__':
-  num = 300000
-  annotate = False
+  num = 100
+  annotate = True
   scaling_factor = 0.1
 
   generator = snake_space_filling_generator()

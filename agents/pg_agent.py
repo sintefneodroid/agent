@@ -159,7 +159,7 @@ class PGAgent(PolicyAgent):
     for t in T:
       action, action_log_probs, entropy, *_ = self.sample_action(state)
 
-      state, signal, terminated, info = environment.step(action)
+      state, signal, terminated, info = environment.step(action=action)
 
       if self._signal_clipping:
         signal = np.clip(signal, -1.0, 1.0)
@@ -289,7 +289,7 @@ def test_pg_agent(config):
   listener.start()
   try:
     _trained_model, training_statistics, *_ = agent.train(
-        env, config.MAX_ROLLOUT_LENGTH, render=config.RENDER_ENVIRONMENT
+        env, config.ROLLOUTS, render=config.RENDER_ENVIRONMENT
         )
   finally:
     listener.stop()
