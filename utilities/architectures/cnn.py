@@ -36,7 +36,7 @@ class CNN(Architecture):
 class CategoricalCNN(CNN):
 
   def forward(self, x):
-    x = super(CategoricalCNN, self).forward(x)
+    x = super().forward(x)
     return F.softmax(x, dim=0)
 
 

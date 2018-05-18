@@ -20,6 +20,7 @@ from utilities.visualisation.term_plot import term_plot
 tqdm.monitor_interval = 0
 
 
+# noinspection PyCallingNonCallable
 class PGAgent(PolicyAgent):
 
   def __local_defaults__(self):

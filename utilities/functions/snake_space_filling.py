@@ -49,13 +49,13 @@ def snake_space_filling_generator():
 
 
 if __name__ == '__main__':
-  num = 100
-  annotate = True
+  num = 10000
+  annotate = False
   scaling_factor = 0.1
 
   generator = snake_space_filling_generator()
-  points = [(x, y) for ((x, y), i) in zip(generator, range(num)) if i < num]
-
+  points = [(x, y) for (i, (x, y)) in zip(range(num), generator)]
+  outsider_point=generator.__next__()
   # ------ Plotting ------
   xs, ys = zip(*points)
 

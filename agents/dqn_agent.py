@@ -20,6 +20,7 @@ from agents.value_agent import ValueAgent
 from utilities.visualisation.term_plot import term_plot
 
 
+# noinspection PyCallingNonCallable
 class DQNAgent(ValueAgent):
   '''
 
@@ -135,17 +136,12 @@ class DQNAgent(ValueAgent):
         -1, 1
         )
     true_signals = torch.tensor(batch.signal, dtype=self._value_tensor_type, device=self._device).view(-1, 1)
+
+
     non_terminal_mask = torch.tensor(
         batch.non_terminal, dtype=torch.uint8, device=self._device
         )
-
-    nts = [
-      states
-      for (states, non_terminal_mask) in zip(
-          batch.successor_state, batch.non_terminal
-          )
-      if non_terminal_mask
-      ]
+    nts = [ state for (state, non_terminal_mask) in zip( batch.successor_state, batch.non_terminal ) if non_terminal_mask ]
     if type(nts[0]) is not torch.Tensor:
       non_terminal_successors = torch.tensor(nts, dtype=self._state_tensor_type, device=self._device).view(
           -1, *self._input_size

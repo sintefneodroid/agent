@@ -13,7 +13,7 @@ class Variable(torch.autograd.Variable):
   def __init__(self, data, *args, use_cuda=True, **kwargs):
     if use_cuda:
       data = data.cuda()
-    super(Variable, self).__init__(data, *args, **kwargs)
+    super().__init__(data, *args, **kwargs)
 
 
 def cuda_if(torch_object, cuda):

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # coding=utf-8
-
+from agents.ddpg_agent import DDPGAgent
 
 __author__ = 'cnheider'
 '''
@@ -16,6 +16,8 @@ from utilities.random_process.ornstein_uhlenbeck import OrnsteinUhlenbeckProcess
 
 CONFIG_NAME = __name__
 CONFIG_FILE = __file__
+
+AGENT_TYPE = DDPGAgent
 
 # Optimiser
 OPTIMISER_TYPE = torch.optim.Adam

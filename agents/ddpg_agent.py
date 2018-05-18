@@ -16,6 +16,7 @@ from utilities.random_process.ornstein_uhlenbeck import OrnsteinUhlenbeckProcess
 from utilities.visualisation.term_plot import term_plot
 
 
+# noinspection PyCallingNonCallable
 class DDPGAgent(ACAgent):
   '''
 The Deep Deterministic Policy Gradient (DDPG) Agent
@@ -37,7 +38,7 @@ Parameters
         The update rate that target networks slowly track the learned networks.
 '''
 
-  def __optimise_wrt__(self, td_error, state_batch, **kwargs):
+  def __optimise_wrt__(self, td_error, state_batch, *args, **kwargs):
     '''
 
 :type kwargs: object
@@ -180,7 +181,8 @@ Parameters
         )
     with torch.no_grad():
       action = self._actor(state)
-    return action.item()
+    a = action.to('cpu').numpy()
+    return a[0]
 
   def sample_action(self, state, **kwargs):
     return self.__sample_model__(state)
@@ -192,6 +194,7 @@ Parameters
       signal_batch,
       next_state_batch,
       non_terminal_batch,
+      *args,
       **kwargs,
       ):
     '''
