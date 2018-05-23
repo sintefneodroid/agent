@@ -1,4 +1,4 @@
-#!/usr/bin/env python3 
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 from utilities.visualisation.sprint import PrintStyle
 
@@ -21,7 +21,7 @@ def term_plot(
     y_offsets=(1, 1),
     printer=print,
     summary=True,
-    style: PrintStyle =None
+    style: PrintStyle = None
     ):
   '''
 x, y list of values on x- and y-axis
