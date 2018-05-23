@@ -1,5 +1,7 @@
-from utilities.statistics import StatisticAggregator
 import statistics as S
+
+from utilities.statistics import StatisticAggregator
+
 
 class StatisticCollection(object):
 
@@ -42,8 +44,9 @@ class StatisticCollection(object):
     return self.__repr__()
 
   def save(self, **kwargs):
-    for key,value in self._statistics.items():
+    for key, value in self._statistics.items():
       value.save(key, **kwargs)
+
 
 if __name__ == '__main__':
   stats = StatisticCollection(keep_measure_history=False)

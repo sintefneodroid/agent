@@ -63,6 +63,10 @@ All agent should inherit from this class
     raise NotImplementedError()
 
   @abstractmethod
+  def update_models(self, *args, **kwargs):
+    raise NotImplementedError()
+
+  @abstractmethod
   def __optimise_wrt__(self, error, *args, **kwargs):
     raise NotImplementedError()
 
@@ -74,6 +78,13 @@ All agent should inherit from this class
   def rollout(self, init_obs, env, *args, **kwargs):
     raise NotImplementedError()
 
+  @abstractmethod
+  def __next__(self):
+    raise NotImplementedError()
+
+  def __iter__(self):
+    return self
+
   def _infer_input_output_sizes(self, env, *args, **kwargs):
     '''
 Tries to infer input and output size from env if either _input_size or _output_size, is None or -1 (int)
@@ -82,7 +93,7 @@ Tries to infer input and output size from env if either _input_size or _output_s
 '''
     if self._input_size is None or self._input_size == -1:
       self._input_size = env.observation_space.shape
-    print('observation dimensions: ', self._input_size)
+    U.sprint(f'\nobservation dimensions: {self._input_size}\n',color='green',bold=True,highlight=True)
 
     if self._output_size is None or self._output_size == -1:
       if hasattr(env.action_space, 'num_binary_actions'):
@@ -91,7 +102,7 @@ Tries to infer input and output size from env if either _input_size or _output_s
         self._output_size = env.action_space.shape
       else:
         self._output_size = [env.action_space.n]
-    print('action dimensions: ', self._output_size)
+    U.sprint(f'\naction dimensions: {self._output_size}\n',color='green',bold=True,highlight=True)
 
   def set_config_attributes(self, config, *args, **kwargs):
     if config:

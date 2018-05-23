@@ -3,7 +3,7 @@
 __author__ = 'cnheider'
 
 # import keyboard
-
+import utilities as U
 from pynput import keyboard
 
 COMBINATIONS = [
@@ -19,7 +19,8 @@ current = set()
 def add_early_stopping_key_combination(callback, key='ctrl+shift+s'):
   # keyboard.add_hotkey(key, callback)
   CALLBACKS.append(callback)
-  print(f'Press for any of: {COMBINATIONS}\n for early stopping')
+  U.sprint(f'\n\nPress any of:\n{COMBINATIONS}\n for early stopping\n',color='red',bold=True,highlight=True)
+  print('')
   return keyboard.Listener(on_press=on_press, on_release=on_release)
 
 

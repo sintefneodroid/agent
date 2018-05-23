@@ -38,6 +38,9 @@ Parameters
         The update rate that target networks slowly track the learned networks.
 '''
 
+  def __next__(self):
+    raise NotImplementedError()
+
   def __optimise_wrt__(self, td_error, state_batch, *args, **kwargs):
     '''
 
@@ -61,10 +64,10 @@ Parameters
   def __local_defaults__(self):
     self._optimiser_type = torch.optim.Adam
 
-    self._actor_optimiser_spec = U.OSpec(
+    self._actor_optimiser_spec = U.OptimiserSpecification(
         constructor=self._optimiser_type, kwargs=dict(lr=0.0001)
         )
-    self._critic_optimiser_spec = U.OSpec(
+    self._critic_optimiser_spec = U.OptimiserSpecification(
         constructor=self._optimiser_type, kwargs=dict(lr=0.001, weight_decay=0.01)
         )
 
@@ -72,7 +75,7 @@ Parameters
     # Adds noise for exploration
 
     # self._memory = U.PrioritisedReplayMemory(config.REPLAY_MEMORY_SIZE)  # Cuda trouble
-    self._memory = U.ReplayMemory(1000000)
+    self._memory = U.TransitionBuffer(1000000)
     self._evaluation_function = F.smooth_l1_loss
 
     self._actor_arch = U.ActorArchitecture
@@ -129,7 +132,6 @@ Parameters
   def load_model(self, model_path, evaluation=False):
     print('loading latest model: ' + model_path)
 
-    self._actor, self._target_actor, self._critic, self._target_critic, self._actor_optimiser, \
     self.__build_models__()
 
     self._actor.load_state_dict(torch.load(f'actor-{model_path}'))
@@ -141,6 +143,8 @@ Parameters
     if evaluation:
       self._actor = self._actor.eval()
       self._actor.train(False)
+      self._critic = self._actor.eval()
+      self._critic.train(False)
 
     self._actor = self._actor.to(self._device)
     self._target_actor = self._target_actor.to(self._device)
@@ -176,7 +180,7 @@ Parameters
     self._critic_optimiser = actor, target_actor, critic, target_critic, actor_optimizer, critic_optimizer
 
   def __sample_model__(self, state, **kwargs):
-    state = torch.tensor(
+    state = U.to_tensor_device(
         [state], device=self._device, dtype=self._state_tensor_type
         )
     with torch.no_grad():
@@ -201,52 +205,43 @@ Parameters
 
 :type kwargs: object
 '''
-    state_batch_var = torch.tensor(
+    states = U.to_tensor_device(
         state_batch, device=self._device, dtype=self._state_tensor_type
         ).view(
         -1, self._input_size[0]
         )
-    next_state_batch_var = torch.tensor(
+    next_states = U.to_tensor_device(
         next_state_batch, device=self._device, dtype=self._state_tensor_type
         ).view(
         -1, self._input_size[0]
         )
-    action_batch_var = torch.tensor(
+    actions = U.to_tensor_device(
         action_batch, device=self._device, dtype=self._action_tensor_type
         ).view(
         -1, self._output_size[0]
         )
-    signal_batch_var = torch.tensor(
+    signals = U.to_tensor_device(
         signal_batch, device=self._device, dtype=self._value_tensor_type
         )
-    non_terminal_mask_var = torch.tensor(
-        non_terminal_batch, device=self._device, dtype=torch.float
-        )
+
+    non_terminal_mask = U.to_tensor_device(non_terminal_batch, device=self._device, dtype=torch.float)
 
     ### Critic ###
     # Compute current Q value, critic takes state and action choosen
-    Q_current = self._critic(state_batch_var, action_batch_var)
+    Q_current = self._critic(states, actions)
     # Compute next Q value based on which action target actor would choose
     # Detach variable from the current graph since we don't want gradients for next Q to propagated
     with torch.no_grad():
-      target_actions = self._target_actor(state_batch_var)
-      next_max_q = self._target_critic(
-          next_state_batch_var, target_actions
-          ).max(
-          1
-          )[
-        0
-      ]
+      target_actions = self._target_actor(states)
+      next_max_q = self._target_critic(next_states, target_actions).max(1)[0]
 
-    next_Q_values = non_terminal_mask_var * next_max_q
-    Q_target = signal_batch_var + (
-        self._discount_factor * next_Q_values
-    )  # Compute the target of the current Q values
-    td_error = F.smooth_l1_loss(
-        Q_current, Q_target.view(-1, 1)
-        )  # Compute Bellman error (using Huber loss)
+    next_Q_values = non_terminal_mask * next_max_q
 
-    return td_error, state_batch_var
+    Q_target = signals + (self._discount_factor * next_Q_values)  # Compute the target of the current Q values
+
+    td_error = self._evaluation_function(Q_current, Q_target.view(-1, 1))  # Compute Bellman error (using Huber loss)
+
+    return td_error, states
 
   def update_models(self):
     '''
@@ -259,9 +254,7 @@ Update the target networks
       return
 
     batch = self._memory.sample_transitions(self._batch_size)
-
     td_error, state_batch_var = self.evaluate(*batch)
-
     loss = self.__optimise_wrt__(td_error, state_batch_var)
 
     return td_error, loss
@@ -367,6 +360,7 @@ The Deep Deterministic Policy Gradient algorithm.
             'Running signal',
             printer=E.write,
             percent_size=(1, .24),
+            style=U.style(color='magenta', highlight=True)
             )
         term_plot(
             t_episode,
@@ -374,12 +368,12 @@ The Deep Deterministic Policy Gradient algorithm.
             'Duration',
             printer=E.write,
             percent_size=(1, .24),
+            style=U.style(color='cyan', highlight=True)
             )
         E.set_description(
-            f'Episode: {episode_i}, Last signal: {stats.signals[-1]}'
+f'Episode: {episode_i}, Last signal: {stats.signals[-1]}'
             )
 
-      signal, dur = 0, 0
       if render and episode_i % render_frequency == 0:
         signal, dur, *rollout_stats = self.rollout(state, env, render=render)
       else:
@@ -401,12 +395,12 @@ def test_ddpg_agent(config):
 
 :rtype: object
 '''
-  from utilities.environment_wrappers.normalise_actions import NormaliseActionsWrapper
   import gym
 
   device = torch.device('cuda' if config.USE_CUDA else 'cpu')
 
-  env = NormaliseActionsWrapper(gym.make(config.ENVIRONMENT_NAME))
+  env = gym.make(config.ENVIRONMENT_NAME)
+  # env = NormaliseActionsWrapper(env)
   # env = neo.make('satellite',connect_to_running=False)
 
   agent = DDPGAgent(config)
@@ -434,11 +428,11 @@ if __name__ == '__main__':
   for k, arg in args.__dict__.items():
     setattr(C, k, arg)
 
-  print(f'Using config: {C}')
+  U.sprint(f'\nUsing config: {C}\n', highlight=True, color='yellow' )
   if not args.skip_confirmation:
     for k, arg in U.get_upper_vars_of(C).items():
       print(f'{k} = {arg}')
-    input('\nPress any key to begin... ')
+    input('\nPress Enter to begin... ')
 
   try:
     test_ddpg_agent(C)

@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 # coding=utf-8
 
-from utilities.torch_utilities import to_var
-
 __author__ = 'cnheider'
 
 import random
 
 import numpy as np
 import torch
+
+import utilities as U
 
 
 def set_seed(seed):
@@ -17,8 +17,9 @@ def set_seed(seed):
   torch.manual_seed(seed)
 
 
+# noinspection PyCallingNonCallable
 def generalised_advantage_estimate(
-    n_step_summary, discount_factor=0.99, gae_tau=0.95, use_cuda=False
+    n_step_summary, discount_factor=0.99, gae_tau=0.95, device='cpu'
     ):
   '''
 compute GAE(lambda) advantages and discounted returns
@@ -39,48 +40,41 @@ compute GAE(lambda) advantages and discounted returns
 :rtype:
 '''
 
-  signals = to_var(n_step_summary.signal, use_cuda=use_cuda).view(-1, 1)
-  non_terminals = to_var(
-      n_step_summary.non_terminal, dtype='float', use_cuda=use_cuda
-      ).view(
-      -1, 1
-      )
-  value_estimates = to_var(
-      n_step_summary.value_estimate, dtype='float', use_cuda=use_cuda
-      ).view(
-      -1, 1
+  signals = U.to_tensor_device(
+      n_step_summary.signal, device=device, dtype=torch.float
       )
 
-  T = len(signals)
-  advantage = torch.zeros(1, 1)
-  if use_cuda:
-    advantage.cuda()
-  discounted_return = signals[-1].data[0]
-  output = torch.zeros(T, 1)
-  output2 = torch.zeros(T, 1)
+  non_terminals = U.to_tensor_device(
+      n_step_summary.non_terminal, device=device, dtype=torch.float
+      )
+
+  value_estimates = U.to_tensor_device(
+      n_step_summary.value_estimate, device=device, dtype=torch.float
+      )
+
+  T = signals.size()
+  T = T[0]
+  num_workers = 1
+  # T,num_workers,_  = signals.size()
+
+  advs = torch.zeros(T, num_workers, 1).to(device)
+  advantage_now = torch.zeros(num_workers, 1).to(device)
 
   for t in reversed(range(T - 1)):
-    value_future = value_estimates[t + 1].data
-    value_now = value_estimates[t].data
-    signal = signals[t].data
-    non_terminal = non_terminals[t].data
+    signal_now = signals[t]
+    value_future = value_estimates[t + 1]
+    value_now = value_estimates[t]
+    non_terminal_now = non_terminals[t]
 
-    discounted_return = signal + discount_factor * non_terminal * discounted_return
+    td_error = signal_now + value_future * discount_factor * non_terminal_now - value_now
 
-    td_error = signal + value_future * discount_factor * non_terminal - value_now
-    advantage = advantage * discount_factor * gae_tau * non_terminal + td_error
+    advantage_now = advantage_now * discount_factor * gae_tau * non_terminal_now + td_error
 
-    output[t] = advantage
-    output2[t] = discounted_return
+    advs[t] = advantage_now
 
-  advantages = torch.cat(output, dim=0)
-  discounted_returns = torch.cat(output, dim=0)
-  advantages = (advantages - advantages.mean()) / advantages.std()
+  advantages = advs.squeeze()
 
-  advantages = to_var(advantages, use_cuda=use_cuda).view(-1, 1)
-  discounted_returns = to_var(discounted_returns, use_cuda=use_cuda).view(-1, 1)
-
-  return advantages, discounted_returns
+  return advantages
 
 
 '''

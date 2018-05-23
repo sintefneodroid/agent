@@ -1,5 +1,4 @@
 import argparse
-import logging
 import os
 import signal
 
@@ -15,7 +14,7 @@ def train(rank, args, model):
   torch.manual_seed(args.seed + rank)
 
   magic_mean = 0.1307
-  magic_std  =0.3081
+  magic_std = 0.3081
 
   train_loader = torch.utils.data.DataLoader(
       datasets.MNIST('../data', train=True, download=True,
@@ -65,11 +64,13 @@ def test_epoch(model, data_loader):
 
   test_loss /= len(data_loader.dataset)
   print(
-    f'\nTest set: Average loss: {test_loss:.4f}, Accuracy: {correct}/{len(data_loader.dataset)} '
-    f'({100. * correct / len(data_loader.dataset):.0f}%)\n')
+      f'\nTest set: Average loss: {test_loss:.4f}, Accuracy: {correct}/{len(data_loader.dataset)} '
+      f'({100. * correct / len(data_loader.dataset):.0f}%)\n')
+
 
 def test(rank, args, model):
   pass
+
 
 # Training settings
 parser = argparse.ArgumentParser(description='PyTorch MNIST Example')

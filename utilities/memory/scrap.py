@@ -1,14 +1,72 @@
 #!/usr/bin/env python3
 # coding=utf-8
 __author__ = 'cnheider'
+'''
+Description: ReplayMemory for storing transition tuples
+Author: Christian Heider Nielsen
+'''
 
 import random
 from collections import deque
 
 import numpy as np
 
-from utilities.memory.segment_tree import MinSegmentTree, SumSegmentTree
+from utilities.memory.data_structures.segment_tree import MinSegmentTree, SumSegmentTree
+from utilities.memory.data_structures.sum_tree import SumTree
 from utilities.memory.transition import Transition
+
+
+class PrioritisedReplayMemory(object):  # Has cuda issues
+  e = 0.01
+  a = 0.6
+  max_error = 0
+
+  def __init__(self, capacity):
+    self.tree = SumTree(capacity)
+
+  def __getPriority__(self, error):
+    if error > self.max_error:
+      self.max_error = error
+    return (error + self.e) ** self.a
+
+  def add_transition(self, *args):
+
+    p = self.__getPriority__(self.max_error)
+    self.tree.add(p, Transition(*args))
+
+  def sample_transitions(self, n):
+    indices = []
+    transitions = []
+    segment = self.tree.total() / n
+
+    for i in range(n):
+      a = segment * i
+      b = segment * (i + 1)
+
+      s = random.uniform(a, b)
+      (idx, p, transition) = self.tree.get(s)
+      indices.append(idx)
+      transitions.append(transition)
+
+    batch = Transition(*zip(*transitions))
+    # the * operator unpacks
+    # a collection to arguments, see below
+    # (S,A,R,S',T)^n -> (S^n,A^n,R^n,S'^n,T^n)
+    return indices, batch
+
+  def batch_update(self, indices, errors):
+    for (idx, error) in zip(indices, errors):
+      self.update(idx, error)
+
+  def update(self, idx, error):
+    p = self.__getPriority__(error)
+    self.tree.update(idx, p)
+
+  # def max_priority(self):
+  #   return self.tree.max_priority()
+
+  def __len__(self):
+    return len(self.tree)
 
 
 class ReplayBuffer2(object):
@@ -80,7 +138,7 @@ done_mask: np.array
     return self._encode_sample(idxes)
 
 
-class ReplayBuffer(object):
+class ReplayBuffer3(object):
 
   def __init__(self, capacity):
     self._buffer = deque(maxlen=capacity)
@@ -104,7 +162,7 @@ class ReplayBuffer(object):
     return batch
 
 
-class PrioritizedReplayBuffer(ReplayBuffer):
+class PrioritizedReplayBuffer(ReplayBuffer3):
 
   def __init__(self, size, alpha):
     '''Create Prioritized Replay buffer.

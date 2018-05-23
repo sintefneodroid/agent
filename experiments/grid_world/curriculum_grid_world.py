@@ -42,11 +42,11 @@ def train_agent(config, agent):
 
 
 if __name__ == '__main__':
-  import configs.ddpg_config as C
+  import experiments.grid_world.grid_world_config as C
 
   from configs.arguments import parse_arguments
 
-  args = parse_arguments('Manipulator experiment', C)
+  args = parse_arguments('Regular grid world experiment', C)
 
   for k, arg in args.__dict__.items():
     setattr(C, k, arg)

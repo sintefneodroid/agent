@@ -23,6 +23,9 @@ tqdm.monitor_interval = 0
 # noinspection PyCallingNonCallable
 class PGAgent(PolicyAgent):
 
+  def __next__(self):
+    raise NotImplementedError()
+
   def __local_defaults__(self):
 
     self._policy_arch = U.CategoricalMLP
@@ -167,7 +170,7 @@ class PGAgent(PolicyAgent):
 
       episode_signal += signal
       episode_entropy += entropy.data.cpu().numpy()
-      self._trajectory.remember(signal, action_log_probs, entropy)
+      self._trajectory.add(signal, action_log_probs, entropy)
 
       if render:
         environment.render()
@@ -177,7 +180,7 @@ class PGAgent(PolicyAgent):
         break
 
     error = self.evaluate()
-    self._trajectory.forget()
+    self._trajectory.clear()
     if error is not None:
       if self._use_batched_updates:
         self._accumulated_error += error
@@ -310,11 +313,11 @@ if __name__ == '__main__':
   for k, arg in args.__dict__.items():
     setattr(C, k, arg)
 
-  print(f'Using config: {C}')
+  U.sprint(f'\nUsing config: {C}\n', highlight=True, color='yellow' )
   if not args.skip_confirmation:
     for k, arg in U.get_upper_vars_of(C).items():
       print(f'{k} = {arg}')
-    input('\nPress any key to begin... ')
+    input('\nPress Enter to begin... ')
 
   try:
     test_pg_agent(C)

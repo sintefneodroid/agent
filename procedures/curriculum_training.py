@@ -5,15 +5,11 @@ from agents.pg_agent import PGAgent
 
 __author__ = 'cnheider'
 import time
-from collections import namedtuple
-from types import coroutine
 
-import numpy as np
 import torch
 from tqdm import tqdm
 
 import neodroid.wrappers.curriculum_wrapper as neo
-from neodroid.models import Configuration, ReactionParameters, Reaction, Displayable
 from utilities.environment_wrappers.action_encoding import BinaryActionEnvironment
 from utilities.visualisation.term_plot import term_plot
 
@@ -48,8 +44,6 @@ _random_process = None
 def save_snapshot():
   _agent.save_model(C)
   stats.save(**configs.to_dict(C))
-
-
 
 
 def main(config, agent, full_state_evaluation_frequency=2):
@@ -153,11 +147,11 @@ if __name__ == '__main__':
   for k, arg in args.__dict__.items():
     setattr(C, k, arg)
 
-  print(f'Using config: {C}')
+  U.sprint(f'\nUsing config: {C}\n', highlight=True, color='yellow' )
   if not args.skip_confirmation:
     for k, arg in U.get_upper_vars_of(C).items():
       print(f'{k} = {arg}')
-    input('\nPress any key to begin... ')
+    input('\nPress Enter to begin... ')
 
   _agent = PGAgent(C)
   # _agent = DDPGAgent(C)

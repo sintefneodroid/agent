@@ -2,7 +2,6 @@
 # coding: utf-8
 __author__ = 'cnheider'
 
-import cv2
 import torch
 import torch.nn.functional as F
 from torch import nn
@@ -12,18 +11,14 @@ from tqdm import tqdm
 import utilities as U
 from agents.ac_agent import ACAgent
 
-cv2.setNumThreads(0)
 
-
+# noinspection PyCallingNonCallable
 class PPOAgent(ACAgent):
   '''
-An agent learned with PPO using Advantage Actor-Critic framework
-- Actor takes state as input
-- Critic takes both state and action as input
-- agent interact with environment to collect experience
-- agent training with experience to update policy
-- adam seems better than rmsprop for ppo
 '''
+
+  def __next__(self):
+    raise NotImplementedError()
 
   def rollout(self, init_obs, env, **kwargs):
     pass
@@ -35,16 +30,20 @@ An agent learned with PPO using Advantage Actor-Critic framework
     self._gae_tau = 0.95
     self._reached_horizon_penalty = -10.
 
-    self._experience_buffer = U.ExpandableBuffer()
+    self._experience_buffer = U.ExpandableCircularBuffer()
     self._critic_loss = nn.MSELoss
     self._actor_critic_lr = 3e-4
     self._entropy_reg_coef = 0.1
     self._value_reg_coef = 1.
-    self._batch_size = 10
+    self._batch_size = 2048
     self._initial_observation_period = 0
     self._target_update_tau = 1.0
     self._update_target_interval = 1000
     self._max_grad_norm = None
+
+    self._state_tensor_type = torch.float
+    self._value_tensor_type = torch.float
+    self._action_tensor_type = torch.long
 
     # params for epsilon greedy
     self._epsilon_start = 0.99
@@ -80,34 +79,32 @@ An agent learned with PPO using Advantage Actor-Critic framework
     actor_critic = self._actor_critic_arch(**self._actor_critic_arch_params)
 
     actor_critic_target = self._actor_critic_arch(**self._actor_critic_arch_params)
-    actor_critic_target.load_state_dict(actor_critic.state_dict())
+    actor_critic_target = U.copy_state(actor_critic_target, actor_critic)
 
-    if self._use_cuda:
-      actor_critic.cuda()
-      actor_critic_target.cuda()
+    actor_critic.to(self._device)
+    actor_critic_target.to(self._device)
 
-    optimiser = self._optimiser_type(
-        actor_critic.parameters(), lr=self._actor_critic_lr
-        )
+    optimiser = self._optimiser_type(actor_critic.parameters(), lr=self._actor_critic_lr)
 
-    self._actor_critic, self._actor_critic_target, self._optimiser = actor_critic, actor_critic_target, \
-                                                                     optimiser
+    self._actor_critic, self._actor_critic_target, self._optimiser = (
+      actor_critic, actor_critic_target, optimiser)
 
-  def maybe_take_n_steps(self, initial_state, environment, n=100, render=False):
+  def take_n_steps(self, initial_state, environment, n=100, render=False, render_frequency=100):
     state = initial_state
+
     accumulated_signal = 0
 
     transitions = []
     terminated = False
-
-    T = tqdm(range(1, n + 1), f'Step #{self._step_i}', leave=False)
+    T = tqdm(range(1, n + 1), f'Step #{self._step_i} - {0}/{n}', leave=False)
     for t in T:
+      T.set_description(f'Step #{self._step_i} - {t}/{n}')
       self._step_i += 1
       action, value_estimates, action_prob, *_ = self.sample_action(state)
 
-      next_state, signal, terminated, _ = environment.step(action.data[0])
+      next_state, signal, terminated, _ = environment.step(action)
 
-      if render:
+      if render and self._episode_i % render_frequency == 0:
         environment.render()
 
       successor_state = None
@@ -136,16 +133,27 @@ An agent learned with PPO using Advantage Actor-Critic framework
             )
 
       if terminated:
-        break
+        state = environment.reset()
+        self._episode_i += 1
 
     return transitions, accumulated_signal, terminated, state
 
   def trace_back_steps(self, transitions):
     n_step_summary = U.ValuedTransition(*zip(*transitions))
 
-    advantages, discounted_returns = U.generalised_advantage_estimate(
-        n_step_summary, self._discount_factor, gae_tau=self._gae_tau
+    advantages = U.generalised_advantage_estimate(
+        n_step_summary,
+        self._discount_factor,
+        gae_tau=self._gae_tau
         )
+
+    value_estimates = U.to_tensor_device(
+        n_step_summary.value_estimate,
+        device=self._device,
+        dtype=torch.float
+        )
+
+    discounted_returns = value_estimates + advantages
 
     i = 0
     advantage_memories = []
@@ -165,50 +173,89 @@ An agent learned with PPO using Advantage Actor-Critic framework
 
     return advantage_memories
 
-  def evaluate(self, batch, **kwargs):
+  def evaluate(self, batch, discrete=False, **kwargs):
 
-    states_var = U.to_var(batch.state, use_cuda=self._use_cuda).view(
-        -1, self._input_size[0]
+    states = U.to_tensor_device(
+        batch.state, device=self._device, dtype=torch.float
+        ).view(-1, self._input_size[0])
+
+    value_estimates = U.to_tensor_device(
+        batch.value_estimate, device=self._device, dtype=torch.float
         )
-    action_var = U.to_var(batch.action, use_cuda=self._use_cuda, dtype='long').view(
-        -1, self._output_size[0]
+
+    advantages = U.to_tensor_device(
+        batch.advantage, device=self._device, dtype=torch.float
         )
-    action_probs_var = U.to_var(batch.action_prob, use_cuda=self._use_cuda).view(
-        -1, self._output_size[0]
+
+    discounted_returns = U.to_tensor_device(
+        batch.discounted_return, device=self._device, dtype=torch.float
         )
-    values_var = U.to_var(batch.value_estimate, use_cuda=self._use_cuda)
-    advantages_var = U.to_var(batch.advantage, use_cuda=self._use_cuda)
-    returns_var = U.to_var(batch.discounted_return, use_cuda=self._use_cuda)
 
-    value_error = (.5 * (values_var - returns_var) ** 2.).mean()
+    value_error = (value_estimates - discounted_returns).pow(2).mean()
 
-    entropy_loss = U.entropy(action_probs_var).mean()
-
-    action_prob = action_probs_var  # .gather(1, action_var)
-    _, _, action_probs_target, *_ = self._actor_critic_target(states_var)
-    action_prob_target = action_probs_target  # .gather(1, action_var)
-    # ratio = action_prob / (action_prob_target + self._divide_by_zero_safety)
-    ratio = torch.exp(action_prob - action_prob_target)
-
-    advantage = (advantages_var - advantages_var.mean()) / (
-        advantages_var.std() + self._divide_by_zero_safety
+    advantage = (advantages - advantages.mean()) / (
+        advantages.std() + self._divide_by_zero_safety
     )
 
+    action_probs = U.to_tensor_device(
+        batch.action_prob, device=self._device, dtype=torch.float
+        ).view(
+        -1, self._output_size[0]
+        )
+    _, _, action_probs_target, *_ = self._actor_critic_target(states)
+
+    if discrete:
+      actions = U.to_tensor_device(
+          batch.action, device=self._device, dtype=torch.float
+          ).view(
+          -1, self._output_size[0]
+          )
+      action_probs = action_probs.gather(1, actions)
+      action_probs_target = action_probs_target.gather(1, actions)
+
+    ratio = torch.exp(action_probs - action_probs_target)
+
     surrogate = ratio * advantage
-    surrogate_clipped = torch.clamp(
+
+    clamped_ratio = torch.clamp(
         ratio, min=1. - self._surrogate_clip, max=1. + self._surrogate_clip
-        ) * advantage  # (L^CLIP)
+        )
+    surrogate_clipped = clamped_ratio * advantage  # (L^CLIP)
 
     policy_loss = -torch.min(surrogate, surrogate_clipped).mean()
 
-    cost = policy_loss + value_error * self._value_reg_coef + entropy_loss * self._entropy_reg_coef
+    entropy_loss = U.entropy(action_probs).mean()
 
-    return cost
+    collective_cost = policy_loss + value_error * self._value_reg_coef + entropy_loss * self._entropy_reg_coef
 
-  def train(self):
-    batch = U.AdvantageMemory(*zip(*self._experience_buffer.memory))
-    cost = self.evaluate(batch)
-    self.__optimise_wrt__(cost)
+    return collective_cost, policy_loss, value_error
+
+  def update_models(self):
+    batch = U.AdvantageMemory(*zip(*self._experience_buffer.sample()))
+    collective_cost, actor_loss, critic_loss = self.evaluate(batch)
+    self.__optimise_wrt__(collective_cost)
+    # self.__optimise_wrt_split__((actor_loss, critic_loss))
+
+  '''
+  def __optimise_wrt_split__(self, cost, **kwargs):
+    (actor_loss, critic_loss) = cost
+
+    self._critic_optimiser.zero_grad()
+    critic_loss.backward()
+    if self._max_grad_norm is not None:
+      nn.utils.clip_grad_norm(
+          self._critic.parameters(), self._max_grad_norm
+          )
+    self._critic_optimiser.step()
+
+    self._actor_optimiser.zero_grad()
+    actor_loss.backward()
+    if self._max_grad_norm is not None:
+      nn.utils.clip_grad_norm(
+          self._actor.parameters(), self._max_grad_norm
+          )
+    self._actor_optimiser.step()
+'''
 
   def __optimise_wrt__(self, cost, **kwargs):
     self._optimiser.zero_grad()
@@ -235,31 +282,63 @@ continuous
 :return:
 :rtype:
 '''
-    state_var = U.to_var(state, use_cuda=self._use_cuda, unsqueeze=True)
+    if type(state) is not torch.Tensor:
+      model_input = torch.tensor(
+          [state], device=self._device, dtype=self._state_tensor_type
+          )
+    else:
+      model_input = state
 
     if continuous:
+      with torch.no_grad():
+        action_mean, action_log_std, value_estimate = self._actor_critic(model_input)
 
-      action_mean, action_log_std, value_estimate = self._actor_critic(state_var)
+        action_log_std = action_log_std.expand_as(action_mean)
+        action_std = torch.exp(action_log_std)
+        action = torch.normal(action_mean, action_std)
 
-      action = torch.normal(action_mean, torch.exp(action_log_std))
-
-      # value, x, states = self(inputs, states, masks)
-      # action = self.dist.sample(x, deterministic=deterministic)
-      # action_log_probs, dist_entropy = self.dist.logprobs_and_entropy(x, action)
-
-      return action, value_estimate, action_log_std
+        a = action.to('cpu').numpy()[0]
+      return a, value_estimate, action_log_std
     else:
 
-      softmax_probs, value_estimate = self._actor_critic(state_var)
+      softmax_probs, value_estimate = self._actor_critic(model_input)
+      # action = torch.multinomial(softmax_probs)
       m = Categorical(softmax_probs)
       action = m.sample()
-      a = action.cpu().data.numpy()[0]
-      return a, value_estimate, m.log_prob(action), m.probs
+      a = action.to('cpu').data.numpy()[0]
+      return a, value_estimate, m.log_prob(action)
 
   # choose an action based on state for execution
   def sample_action(self, state, **kwargs):
     action, value_estimate, action_log_std, *_ = self.__sample_model__(state)
     return action, value_estimate, action_log_std
+
+  def train(self, env, num_batches=10000, render=False, render_frequency=10, batch_length=100):
+
+    self._episode_i = 1
+
+    initial_state = env.reset()
+
+    cs = tqdm(range(1, num_batches + 1), f'Batch {1}, {num_batches} - Episode {self._episode_i}', leave=False)
+    for batch_i in cs:
+      cs.set_description(f'Batch {batch_i}, {num_batches} - Episode {self._episode_i}')
+
+      transitions, accumulated_signal, terminated, initial_state = self.take_n_steps(
+          initial_state, env, render=render, n=batch_length
+          )
+
+      if batch_i >= self._initial_observation_period:
+        advantage_memories = self.trace_back_steps(transitions)
+        for m in advantage_memories:
+          self._experience_buffer.add(m)
+
+        self.update_models()
+        self._experience_buffer.clear()
+
+      if self._end_training:
+        break
+
+    return self._actor_critic, []
 
 
 def test_ppo_agent(config):
@@ -271,30 +350,20 @@ def test_ppo_agent(config):
   env = gym.make(config.ENVIRONMENT_NAME)
   env.seed(config.SEED)
 
-  ppo_agent = PPOAgent(config)
-  ppo_agent.build_agent(env, device)
+  agent = PPOAgent(config)
+  agent.build_agent(env, device)
 
-  initial_state = env.reset()
-  cs = tqdm(range(1, config.ROLLOUTS + 1), f'Rollout {0}, {0}', leave=False)
-  for rollout_i in cs:
+  listener = U.add_early_stopping_key_combination(agent.stop_training)
 
-    transitions, accumulated_signal, terminated, initial_state = ppo_agent.maybe_take_n_steps(
-        initial_state, env, render=config.RENDER_ENVIRONMENT
+  listener.start()
+  try:
+    actor_critic_model, stats = agent.train(
+        env, config.ROLLOUTS, render=config.RENDER_ENVIRONMENT
         )
+  finally:
+    listener.stop()
 
-    if terminated:
-      initial_state = env.reset()
-
-    if rollout_i >= config.INITIAL_OBSERVATION_PERIOD:
-      advantage_memories = ppo_agent.trace_back_steps(transitions)
-      for m in advantage_memories:
-        ppo_agent._experience_buffer.remember(m)
-
-      ppo_agent.train()
-      ppo_agent._experience_buffer.forget()
-
-    if ppo_agent._end_training:
-      break
+  U.save_model(actor_critic_model, config, name='actor_critic')
 
 
 if __name__ == '__main__':
@@ -307,11 +376,11 @@ if __name__ == '__main__':
   for k, arg in args.__dict__.items():
     setattr(C, k, arg)
 
-  print(f'Using config: {C}')
+  U.sprint(f'\nUsing config: {C}\n', highlight=True, color='yellow' )
   if not args.skip_confirmation:
     for k, arg in U.get_upper_vars_of(C).items():
       print(f'{k} = {arg}')
-    input('\nPress any key to begin... ')
+    input('\nPress Enter to begin... ')
 
   try:
     test_ppo_agent(C)

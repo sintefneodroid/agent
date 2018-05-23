@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 # coding=utf-8
+from utilities.visualisation.sprint import PrintStyle
+
 __author__ = 'cnheider'
 
 import fcntl
@@ -19,6 +21,7 @@ def term_plot(
     y_offsets=(1, 1),
     printer=print,
     summary=True,
+    style: PrintStyle =None
     ):
   '''
 x, y list of values on x- and y-axis
@@ -62,17 +65,22 @@ plot those values within canvas size (rows and columns)
   print('\n')
   # Print rows of canvas
   for row in [''.join(row) for row in canvas]:
-    printer(row)
+    if style:
+      printer(style(row))
+    else:
+      printer(row)
 
   # Print scale
   if summary:
-    printer(
-        f'{title} - '
+    summry =(f'{title} - '
         f'Min x: {str(min(x))}, '
         f'Max x: {str(max(x))}, '
         f'Min y: {str(min(y))}, '
-        f'Max y: {str(max(y))}\n'
-        )
+        f'Max y: {str(max(y))}\n')
+    if style:
+      printer(style(summry))
+    else:
+      printer(summry)
 
 
 def scale(x, length):

@@ -26,8 +26,11 @@ class DQNAgent(ValueAgent):
 
 '''
 
+  def __next__(self):
+    raise NotImplementedError()
+
   def __local_defaults__(self):
-    self._memory = U.ReplayBuffer(10000)
+    self._memory = U.ReplayBuffer3(10000)
     # self._memory = U.PrioritisedReplayMemory(config.REPLAY_MEMORY_SIZE)  # Cuda trouble
 
     self._use_cuda = False
@@ -78,10 +81,8 @@ class DQNAgent(ValueAgent):
 
     value_model = self._value_arch(**self._value_arch_parameters).to(self._device)
 
-    target_value_model = self._value_arch(**self._value_arch_parameters).to(
-        self._device
-        )
-    target_value_model.load_state_dict(value_model.state_dict())
+    target_value_model = self._value_arch(**self._value_arch_parameters).to(self._device)
+    target_value_model = U.copy_state(target_value_model, value_model)
     target_value_model.eval()
 
     optimiser = self._optimiser_type(
@@ -137,11 +138,11 @@ class DQNAgent(ValueAgent):
         )
     true_signals = torch.tensor(batch.signal, dtype=self._value_tensor_type, device=self._device).view(-1, 1)
 
-
     non_terminal_mask = torch.tensor(
         batch.non_terminal, dtype=torch.uint8, device=self._device
         )
-    nts = [ state for (state, non_terminal_mask) in zip( batch.successor_state, batch.non_terminal ) if non_terminal_mask ]
+    nts = [state for (state, non_terminal_mask) in zip(batch.successor_state, batch.non_terminal) if
+           non_terminal_mask]
     if type(nts[0]) is not torch.Tensor:
       non_terminal_successors = torch.tensor(nts, dtype=self._state_tensor_type, device=self._device).view(
           -1, *self._input_size
@@ -238,7 +239,7 @@ class DQNAgent(ValueAgent):
           self._use_double_dqn
           and self._step_i % self._sync_target_model_frequency == 0
       ):
-        self._target_value_model.load_state_dict(self._value_model.state_dict())
+        self._target_value_model = U.copy_state(self._target_value_model, self._value_model)
         if self._verbose:
           T.write('Target Model Synced')
 
@@ -281,6 +282,9 @@ class DQNAgent(ValueAgent):
     action = self.sample_action(state)
     return action, env.step(action)
 
+  def train(self, *args, **kwargs):
+    return self.train_episodic(*args, **kwargs)
+
   def train_episodic(
       self,
       _environment,
@@ -288,6 +292,7 @@ class DQNAgent(ValueAgent):
       render=False,
       render_frequency=400,
       stat_frequency=400,
+      **kwargs
       ):
     '''
 
@@ -468,11 +473,11 @@ if __name__ == '__main__':
   for k, arg in args.__dict__.items():
     setattr(C, k, arg)
 
-  print(f'Using config: {C}')
+  U.sprint(f'\nUsing config: {C}\n', highlight=True, color='yellow' )
   if not args.skip_confirmation:
     for k, arg in U.get_upper_vars_of(C).items():
       print(f'{k} = {arg}')
-    input('\nPress any key to begin... ')
+    input('\nPress Enter to begin... ')
 
   try:
     test_dqn_agent(C)

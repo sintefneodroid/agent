@@ -37,13 +37,13 @@ OOOO hidden_layer_size * (Weights,Biases)
 
     self.num_of_layer = len(self._hidden_size)
     if self.num_of_layer > 0:
-      for i in range(self.num_of_layer):
+      for i in range(1, self.num_of_layer + 1):
         layer = nn.Linear(
-            previous_layer_size, self._hidden_size[i], bias=self._use_bias
+            previous_layer_size, self._hidden_size[i - 1], bias=self._use_bias
             )
         # fan_in_init(layer.weight)
-        setattr(self, 'fc' + str(i + 1), layer)
-        previous_layer_size = self._hidden_size[i]
+        setattr(self, f'fc{i}', layer)
+        previous_layer_size = self._hidden_size[i - 1]
 
     self.head = nn.Linear(
         previous_layer_size, self._output_size[0], bias=self._use_bias
@@ -64,7 +64,7 @@ OOOO hidden_layer_size * (Weights,Biases)
     #      x = F.relu(layer(x))
 
     for i in range(1, self.num_of_layer + 1):
-      layer = getattr(self, 'fc' + str(i))
+      layer = getattr(self, f'fc{i}')
       x = layer(x)
       x = self._activation(x)
 
@@ -90,7 +90,7 @@ class MultiHeadedMLP(MLP):
       for i in range(self.num_of_heads):
         layer = nn.Linear(self._output_size[0], self._heads[i])
         # fan_in_init(layer.weight)
-        setattr(self, 'subhead' + str(i + 1), layer)
+        setattr(self, f'subhead{str(i + 1)}', layer)
     else:
       raise ValueError('Number of head must be >0')
 

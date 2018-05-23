@@ -1,12 +1,15 @@
 #!/usr/bin/env python3
 # coding=utf-8
 import argparse
+
 import utilities as U
 
 __author__ = 'cnheider'
 
+
 def to_dict(C):
   return U.get_upper_vars_of(C)
+
 
 def parse_arguments(desc, C):
   parser = argparse.ArgumentParser(description=desc)

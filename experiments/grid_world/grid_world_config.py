@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 # coding=utf-8
+from agents.dqn_agent import DQNAgent
+
 __author__ = 'cnheider'
 '''
 Description: Config for training
@@ -9,6 +11,8 @@ from configs.base_config import *
 
 CONFIG_NAME = __name__
 CONFIG_FILE = __file__
+
+AGENT_TYPE = DQNAgent
 
 # Exploration
 EXPLORATION_EPSILON_START = 1.0
@@ -30,20 +34,19 @@ SYNC_TARGET_MODEL_FREQUENCY = 1000
 
 # EVALUATION_FUNCTION = lambda Q_state, Q_true_state: (Q_state - Q_true_state).pow(2).mean()
 
-VALUE_ARCH = CNN
+VALUE_ARCH = MLP
 OPTIMISER_TYPE = torch.optim.RMSprop  # torch.optim.Adam
-ENVIRONMENT_NAME = 'CartPole-v0'
+# ENVIRONMENT_NAME = 'CartPole-v0'
+ENVIRONMENT_NAME = 'small_grid_world'
 # 'LunarLander-v2' #(coord_x, coord_y, vel_x, vel_y, angle,
 # angular_vel, l_leg_on_ground, r_leg_on_ground)
 
 
 # Architecture
 VALUE_ARCH_PARAMETERS = {
-  'input_size':     None,  # Obtain from environment
-  'input_channels': None,
-  'hidden_size':    [64, 32, 16],
-  'output_size':    None,  # Obtain from environment
-  'output_channels':None,
-  'activation':     F.relu,
-  'use_bias':       True,
+  'input_size': None,  # Obtain from environment
+  'hidden_size':[64, 32, 16],
+  'output_size':None,  # Obtain from environment
+  'activation': F.relu,
+  'use_bias':   True,
   }

@@ -5,7 +5,7 @@ __author__ = 'cnheider'
 import numpy
 import six
 
-color2num = dict(
+colors = dict(
     gray=30,
     red=31,
     green=32,
@@ -17,26 +17,67 @@ color2num = dict(
     crimson=38,
     )
 
+decorations = dict(
+    end=0,
+    bold=1,
+    underlined=4
+    )
 
-def sprint(obj, color='white', bold=False, highlight=False):
+
+def sprint(obj, **kwargs):
   '''
 Stylised print.
 Valid colors: gray, red, green, yellow, blue, magenta, cyan, white, crimson
 '''
 
-  attr = []
-  if color in color2num:
-    num = color2num[color]
+  string = style(obj,**kwargs)
+
+  print(string)
+
+def style(obj=None, *,
+           color='white',
+           bold=False,
+           highlight=False,
+           underlined=False):
+  attributes = []
+
+  if color in colors:
+    num = colors[color]
   else:
-    num = color2num['white']
+    num = colors['white']
+
   if highlight:
     num += 10
-  attr.append(six.u(str(num)))
+
+  attributes.append(six.u(str(num)))
+
   if bold:
-    attr.append(six.u('1'))
-  attrs = six.u(';').join(attr)
-  print(six.u(f'\x1b[{attrs}m{obj}\x1b[0m'))
+    attributes.append(six.u(str(decorations['bold'])))
+
+  if underlined:
+    attributes.append(six.u(str(decorations['underlined'])))
+
+  end = decorations["end"]
+
+  attributes_joined = six.u(';').join(attributes)
+
+  if obj:
+    intermediate_repr = f'\x1b[{attributes_joined}m{obj}\x1b[{end}m'
+    string = six.u(intermediate_repr)
+
+    return string
+  else:
+    return PrintStyle(attributes_joined,end)
+
+class PrintStyle(object):
+  def __init__(self, attributes_joined, end):
+    self._attributes_joined = attributes_joined
+    self._end = end
+
+  def __call__(self, obj, *args, **kwargs):
+    return '\x1b[{0}m{1}\x1b[{2}m'.format(self._attributes_joined, obj, self._end)
+
 
 
 if __name__ == '__main__':
-  sprint(f'{numpy.zeros(4)}, it works!', 'green')
+  sprint(f'{numpy.zeros(4)}, it works!', color='green')

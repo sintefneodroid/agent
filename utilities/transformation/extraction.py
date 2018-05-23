@@ -5,6 +5,8 @@ import numpy as np
 import torch
 import torchvision.transforms as T
 from PIL import Image
+import cv2
+cv2.setNumThreads(0)
 
 __author__ = 'cnheider'
 

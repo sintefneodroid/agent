@@ -5,7 +5,6 @@ __author__ = 'cnheider'
 import gym
 
 
-# https://github.com/openai/gym/blob/master/gym/core.py
 class NormaliseActionsWrapper(gym.ActionWrapper):
   ''' Wrap action '''
 

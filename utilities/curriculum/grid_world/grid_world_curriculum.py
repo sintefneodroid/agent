@@ -1,8 +1,9 @@
 from types import coroutine
+
 import numpy as np
 from tqdm import tqdm
 
-from neodroid.models import ReactionParameters, Configuration, Reaction, Displayable
+from neodroid.models import Configuration, Displayable, Reaction, ReactionParameters
 
 
 @coroutine
@@ -21,6 +22,7 @@ def grid_world_sample_entire_configuration_space(environment):
 
         yield initial_configuration
   return
+
 
 def estimate_entire_state_space(env, agent, C, statistics, save_snapshot,
                                 displayer_name='FullEvaluationPlotDisplayer'):
@@ -46,7 +48,7 @@ def estimate_entire_state_space(env, agent, C, statistics, save_snapshot,
     env.reset()
     state_ob, info = env.configure(conf_reaction)
     if not info.terminated:
-      est,_,_ = estimate_value(info, env, agent, C, statistics, save_snapshot=save_snapshot)
+      est, _, _ = estimate_value(info, env, agent, C, statistics, save_snapshot=save_snapshot)
 
       vec3 = (configuration[0].configurable_value, 0,
               configuration[1].configurable_value)
@@ -59,10 +61,12 @@ def estimate_entire_state_space(env, agent, C, statistics, save_snapshot,
       )
   _ = env.configure(conf_reaction)
 
+
 _episode_i = 0
 _step_i = 0
 
-def estimate_value(candidate, env, agent, C, statistics, save_snapshot, keep_stats = True):
+
+def estimate_value(candidate, env, agent, C, statistics, save_snapshot, keep_stats=True):
   global _step_i, _episode_i
 
   rollout_signals = 0
@@ -75,7 +79,7 @@ def estimate_value(candidate, env, agent, C, statistics, save_snapshot, keep_sta
         )
     state_ob, _ = env.configure(state=candidate)
 
-    signals, steps, *stats = agent.rollout(state_ob, env)
+    signals, steps, *stats = agent.rollout(state_ob, env, )
     rollout_signals += signals
 
     _step_i += steps
@@ -92,8 +96,10 @@ def estimate_value(candidate, env, agent, C, statistics, save_snapshot, keep_sta
 
   return rollout_signals / C.CANDIDATE_ROLLOUTS, _episode_i, _step_i
 
+
 actor_configurations = []
 success_estimates = []
+
 
 def display_actor_configuration(env, candidate, frontier_displayer_name='FrontierPlotDisplayer'):
   actor_configuration = get_actor_configuration(env, candidate)

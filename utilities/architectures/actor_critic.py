@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 # coding=utf-8
+import torch
+
 from utilities.architectures.architecture import Architecture
 
 __author__ = 'cnheider'
@@ -48,6 +50,9 @@ have distinct output layers
         self.actor_hidden_size[0], self.actor_output_size[0]
         )
 
+    if self.continuous:
+      self.log_std = nn.Parameter(torch.zeros(1, self.actor_output_size[0]))
+
     self.critic_fc1 = nn.Linear(self.hidden_size[1], self.critic_hidden_size[0])
     self.critic_output = nn.Linear(
         self.critic_hidden_size[0], self.critic_output_size[0]
@@ -57,16 +62,15 @@ have distinct output layers
     x = F.relu(self.fc1(state))
     x = F.relu(self.fc2(x))
 
-    prob = self.actor_fc1(x)
-    # act = self.actor_output_activation(act)
-    prob = self.actor_head(prob)
-    prob_out = F.softmax(prob, dim=1)
+    mu = self.actor_fc1(x)
+    mu = self.actor_head(mu)
+    if self.actor_output_activation:
+      mu = self.actor_output_activation(mu, dim=1)
 
     value = self.critic_fc1(x)
-    value_out = self.critic_output(value)
+    value = self.critic_output(value)
 
-    if not self.continuous:
-      return prob_out, value_out
+    if self.continuous:
+      return mu, self.log_std, value
     else:
-      log_prob = F.log_softmax(prob, dim=1)
-      return prob_out, log_prob, value_out
+      return mu, value

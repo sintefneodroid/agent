@@ -6,6 +6,6 @@ from .display_depth_image import *
 from .plot_figure import *
 from .plotting import *
 from .run_visdom_server import *
-from .sprint import color2num, sprint
+from .sprint import *
 from .visdom_manager import *
 from .visualisation import *

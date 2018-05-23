@@ -1,49 +1,52 @@
 import math
+from enum import Enum, auto
 
 import pylab as plt
 
 plt.ion()
 
-expand_x = 0
-expand_y = 1
 
-inc_x = 2
-dec_x = 3
+class States(Enum):
+  expand_x = auto()
+  expand_y = auto()
 
-inc_y = 4
-dec_y = 5
+  inc_x = auto()
+  dec_x = auto()
+
+  inc_y = auto()
+  dec_y = auto()
 
 
 def snake_space_filling_generator():
   x = 0
   y = 0
-  state = expand_x
+  state = States.expand_x
   yield x, y
 
   while True:
-    if state is expand_x:
+    if state is States.expand_x:
       x += 1
-      state = inc_y
-    elif state is inc_x:
+      state = States.inc_y
+    elif state is States.inc_x:
       x += 1
       if y is x:
-        state = dec_y
-    elif state is dec_x:
+        state = States.dec_y
+    elif state is States.dec_x:
       x -= 1
       if x is 0:
-        state = expand_y
+        state = States.expand_y
 
-    elif state is expand_y:
+    elif state is States.expand_y:
       y += 1
-      state = inc_x
-    elif state is inc_y:
+      state = States.inc_x
+    elif state is States.inc_y:
       y += 1
       if y is x:
-        state = dec_x
-    elif state is dec_y:
+        state = States.dec_x
+    elif state is States.dec_y:
       y -= 1
       if y is 0:
-        state = expand_x
+        state = States.expand_x
 
     yield x, y
 
@@ -55,7 +58,7 @@ if __name__ == '__main__':
 
   generator = snake_space_filling_generator()
   points = [(x, y) for (i, (x, y)) in zip(range(num), generator)]
-  outsider_point=generator.__next__()
+  outsider_point = generator.__next__()
   # ------ Plotting ------
   xs, ys = zip(*points)
 

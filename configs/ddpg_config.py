@@ -8,8 +8,6 @@ Description: Config for training
 Author: Christian Heider Nielsen
 '''
 
-import utilities as U
-
 # General
 from configs.base_config import *
 from utilities.random_process.ornstein_uhlenbeck import OrnsteinUhlenbeckProcess
@@ -31,15 +29,17 @@ STATE_TENSOR_TYPE = torch.float
 VALUE_TENSOR_TYPE = torch.float
 ACTION_TENSOR_TYPE = torch.float
 
+EVALUATION_FUNCTION = F.smooth_l1_loss
+
 ACTOR_LEARNING_RATE = 0.0001
 CRITIC_LEARNING_RATE = 0.001
 Q_WEIGHT_DECAY = 0.01
 
-ACTOR_OPTIMISER_SPEC = U.OSpec(
+ACTOR_OPTIMISER_SPEC = U.OptimiserSpecification(
     constructor=OPTIMISER_TYPE, kwargs=dict(lr=ACTOR_LEARNING_RATE)
     )
 
-CRITIC_OPTIMISER_SPEC = U.OSpec(
+CRITIC_OPTIMISER_SPEC = U.OptimiserSpecification(
     constructor=OPTIMISER_TYPE,
     kwargs=dict(lr=CRITIC_LEARNING_RATE, weight_decay=Q_WEIGHT_DECAY),
     )
@@ -50,13 +50,19 @@ RANDOM_PROCESS = OrnsteinUhlenbeckProcess(
     theta=RANDOM_PROCESS_THETA, sigma=RANDOM_PROCESS_SIGMA
     )
 
-MEMORY = U.ReplayMemory(REPLAY_MEMORY_SIZE)
+MEMORY = U.TransitionBuffer(REPLAY_MEMORY_SIZE)
 
 ACTION_CLIPPING = False
 SIGNAL_CLIPPING = False
 
-# ENVIRONMENT_NAME = 'Pendulum-v0'
-ENVIRONMENT_NAME = 'MountainCarContinuous-v0'
+ENVIRONMENT_NAME = 'Pendulum-v0'
+# ENVIRONMENT_NAME = 'MountainCarContinuous-v0'
+# ENVIRONMENT_NAME = 'InvertedPendulum-v2'
+# ENVIRONMENT_NAME = 'Reacher-v1'
+# ENVIRONMENT_NAME = 'Hopper-v1'
+# ENVIRONMENT_NAME = 'Ant-v1'
+# ENVIRONMENT_NAME = 'Humanoid-v1'
+# ENVIRONMENT_NAME = 'HalfCheetah-v1'
 
 # Architecture
 ACTOR_ARCH_PARAMS = {

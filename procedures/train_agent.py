@@ -1,21 +1,17 @@
 #!/usr/bin/env python3
 # coding=utf-8
 __author__ = 'cnheider'
-import time
 
 import torch
 # import configs.base_config as C
 from tqdm import tqdm
 
-from utilities.visualisation.term_plot import term_plot
-
 tqdm.monitor_interval = 0
-
-from agents.pg_agent import PGAgent
 
 import neodroid.wrappers.gym_wrapper as neo
 from utilities.environment_wrappers.action_encoding import BinaryActionEncodingWrapper
 import utilities as U
+
 
 def train_agent(config, agent):
   device = torch.device('cuda' if config.USE_CUDA else 'cpu')
@@ -48,10 +44,6 @@ def train_agent(config, agent):
 
 if __name__ == '__main__':
 
-  # import configs.curriculum_config as C
-  # import configs.ddpg_config as C
-  # import configs.dqn_config as C
-  # import configs.curriculum.curriculum_config as C
   import configs.pg_config1 as C
 
   from configs.arguments import parse_arguments
@@ -61,11 +53,11 @@ if __name__ == '__main__':
   for k, arg in args.__dict__.items():
     setattr(C, k, arg)
 
-  print(f'Using config: {C}')
+  U.sprint(f'\nUsing config: {C}\n', highlight=True, color='yellow' )
   if not args.skip_confirmation:
     for k, arg in U.get_upper_vars_of(C).items():
       print(f'{k} = {arg}')
-    input('\nPress any key to begin... ')
+    input('\nPress Enter to begin... ')
 
   _agent = C.AGENT_TYPE(C)
 

@@ -3,9 +3,8 @@
 import os
 
 import matplotlib
-import torch
 import numpy as np
-from scipy.io import savemat
+import torch
 
 __author__ = 'cnheider'
 
@@ -53,9 +52,10 @@ def simple_plot(file_name, name='Statistic Name'):
     plt.plot(agg.values)
     plt.title(name)
 
+
 def error_plot(results, interval=1, file_name=''):
-  #if results is not np.ndarray:
-   # results = np.ndarray(results)
+  # if results is not np.ndarray:
+  # results = np.ndarray(results)
 
   y = np.mean(results, axis=0)
   error = np.std(results, axis=0)
@@ -65,7 +65,8 @@ def error_plot(results, interval=1, file_name=''):
   plt.xlabel('Timestep')
   plt.ylabel('Average Reward')
   ax.errorbar(x, y, yerr=error, fmt='-o')
-  #plt.savefig(file_name + '.png')
+  # plt.savefig(file_name + '.png')
+
 
 def plot_durations(episode_durations):
   plt.figure(2)
@@ -96,11 +97,11 @@ if __name__ == '__main__':
 
   # ma_plot(_file_name_1, 'NoCur')
   # ma_plot(_file_name_2, 'Cur')
-  #simple_plot(_latest_model)
-  a=[0, 92, 3, 2, 5, 644, 34, 36, 423, 421]
-  b=[215, 92, 6, 1, 5, 644, 328, 32, 413, 221]
-  c=[62, 68, 8, 25, 7, 611, 29, 38, 421, 425]
-  d = np.array(zip([a,b,c]))
+  # simple_plot(_latest_model)
+  a = [0, 92, 3, 2, 5, 644, 34, 36, 423, 421]
+  b = [215, 92, 6, 1, 5, 644, 328, 32, 413, 221]
+  c = [62, 68, 8, 25, 7, 611, 29, 38, 421, 425]
+  d = np.array(zip([a, b, c]))
   error_plot(d)
 
   plt.show()

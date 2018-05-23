@@ -5,7 +5,6 @@ __author__ = 'cnheider'
 Description: Config for training
 Author: Christian Heider Nielsen
 '''
-import utilities as U
 from configs.base_config import *
 
 CONFIG_NAME = __name__
@@ -20,7 +19,7 @@ ROLLOUTS = 10000
 INITIAL_OBSERVATION_PERIOD = 0
 LEARNING_FREQUENCY = 1
 REPLAY_MEMORY_SIZE = 10000
-MEMORY = U.ReplayBuffer(REPLAY_MEMORY_SIZE)
+MEMORY = U.ReplayBuffer3(REPLAY_MEMORY_SIZE)
 
 BATCH_SIZE = 128
 DISCOUNT_FACTOR = 0.999

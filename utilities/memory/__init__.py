@@ -2,11 +2,10 @@
 # coding=utf-8
 __author__ = 'cnheider'
 
-from .episode_memory import *
+from utilities.memory.data_structures.segment_tree import *
+from utilities.memory.data_structures.sum_tree import *
+from utilities.memory.transition import *
+from .expandable_circular_buffer import *
 from .experience_memory import *
 from .frontier import *
-from .replay_buffer import *
-from .replay_memory import *
-from .segment_tree import *
-from .sum_tree import *
-from .transition import *
+from .scrap import *

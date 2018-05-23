@@ -5,12 +5,17 @@ __author__ = 'cnheider'
 from collections import namedtuple
 
 Transition = namedtuple(
-    'Transition', ('state', 'action', 'signal', 'successor_state', 'non_terminal')
+    'Transition', (
+      'state',
+      'action',
+      'signal',
+      'successor_state',
+      'non_terminal'
+      )
     )
 
 ValuedTransition = namedtuple(
-    'ValuedTransition',
-    (
+    'ValuedTransition', (
       'state',
       'action',
       'action_prob',
@@ -22,8 +27,7 @@ ValuedTransition = namedtuple(
     )
 
 AdvantageMemory = namedtuple(
-    'AdvantageMemory',
-    (
+    'AdvantageMemory', (
       'state',
       'action',
       'action_prob',

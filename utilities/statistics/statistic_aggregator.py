@@ -6,13 +6,14 @@ __author__ = 'cnheider'
 import statistics as S
 import utilities as U
 
+
 class StatisticAggregator(object):
 
   def __init__(self, measures=S.__all__[1:], keep_measure_history=False):
     self._values = []
     self._length = 0
 
-    #for key in self._measure_keys:
+    # for key in self._measure_keys:
     #  setattr(self,key,None)
 
     self._measure_keys = measures
@@ -70,7 +71,7 @@ class StatisticAggregator(object):
         else:
           warn(f'Length of statistical values are <=1, measure "{key}" maybe ill-defined')
           try:
-            val= getattr(S, key)(self._values)
+            val = getattr(S, key)(self._values)
           except S.StatisticsError as e:
             warn(f'{e}')
             val = None
@@ -114,15 +115,15 @@ class StatisticAggregator(object):
     else:
       return 0
 
-  def save(self, file_name,**kwargs):
-    U.save_statistic(self._values, file_name,**kwargs)
+  def save(self, file_name, **kwargs):
+    U.save_statistic(self._values, file_name, **kwargs)
+
 
 if __name__ == '__main__':
   signals = StatisticAggregator(keep_measure_history=False)
 
   for i in range(10):
     signals.append(i)
-
 
   print(signals)
   print(signals.measures)
