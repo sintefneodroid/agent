@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# coding=utf-8
+# -*- coding: utf-8 -*-
 from utilities.memory.data_structures.sum_tree import SumTree2
 
 __author__ = 'cnheider'

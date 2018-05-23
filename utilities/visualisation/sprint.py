@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# coding=utf-8
+# -*- coding: utf-8 -*-
 __author__ = 'cnheider'
 
 import numpy
@@ -61,13 +61,12 @@ def style(obj=None, *,
 
   attributes_joined = six.u(';').join(attributes)
 
-  if obj:
-    intermediate_repr = f'\x1b[{attributes_joined}m{obj}\x1b[{end}m'
-    string = six.u(intermediate_repr)
+  print_style = PrintStyle(attributes_joined, end)
 
-    return string
+  if obj:
+    return print_style(obj)
   else:
-    return PrintStyle(attributes_joined,end)
+    return print_style
 
 class PrintStyle(object):
   def __init__(self, attributes_joined, end):

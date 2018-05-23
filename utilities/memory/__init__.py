@@ -1,5 +1,5 @@
-#!/usr/bin/env python3
-# coding=utf-8
+#!/usr/bin/env python3 
+# -*- coding: utf-8 -*-
 __author__ = 'cnheider'
 
 from utilities.memory.data_structures.segment_tree import *

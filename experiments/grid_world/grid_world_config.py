@@ -1,5 +1,5 @@
-#!/usr/bin/env python3
-# coding=utf-8
+#!/usr/bin/env python3 
+# -*- coding: utf-8 -*-
 from agents.dqn_agent import DQNAgent
 
 __author__ = 'cnheider'

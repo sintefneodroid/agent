@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# coding=utf-8
+# -*- coding: utf-8 -*-
 import matplotlib
 
 from utilities.transformation.extraction import get_screen

@@ -1,5 +1,5 @@
-#!/usr/bin/env python3
-# coding=utf-8
+#!/usr/bin/env python3 
+# -*- coding: utf-8 -*-
 from agents.ddpg_agent import DDPGAgent
 
 __author__ = 'cnheider'
