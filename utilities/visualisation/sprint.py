@@ -75,7 +75,8 @@ class PrintStyle(object):
     self._end = end
 
   def __call__(self, obj, *args, **kwargs):
-    return '\x1b[{0}m{1}\x1b[{2}m'.format(self._attributes_joined, obj, self._end)
+    intermediate_repr = f'\x1b[{self._attributes_joined}m{obj}\x1b[{self._end}m'
+    string = six.u(intermediate_repr)
 
 
 
