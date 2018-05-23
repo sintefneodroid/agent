@@ -1,28 +1,40 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+
 __author__ = 'cnheider'
 
 import numpy
 import six
 
-colors = dict(
-    gray=30,
-    red=31,
-    green=32,
-    yellow=33,
-    blue=34,
-    magenta=35,
-    cyan=36,
-    white=37,
-    crimson=38,
-    )
+Colors = dict(
+  gray='30',
+  red='31',
+  green='32',
+  yellow='33',
+  blue='34',
+  magenta='35',
+  cyan='36',
+  white='37',
+  crimson='38'
+)
 
-decorations = dict(
-    end=0,
-    bold=1,
-    underlined=4
+Decorations = dict(
+  end='0',
+  bold='1',
+  dim='2',
+  italic='3',
+  underline='4',
+  underline_end='24',#'4:0',
+  double_underline='21', #'4:2'
+  #double_underline_end='24',  # '4:0'
+  curly_underline='4:3',
+  blink='5',
+  reverse_colors='7',
+  invisible='8', # still copyable
+  strikethrough='9',
+  overline='53',
+  hyperlink='8;;'
     )
-
 
 def sprint(obj, **kwargs):
   '''
@@ -35,29 +47,33 @@ Valid colors: gray, red, green, yellow, blue, magenta, cyan, white, crimson
   print(string)
 
 def style(obj=None, *,
-           color='white',
-           bold=False,
-           highlight=False,
-           underlined=False):
+          color='white',
+          bold=False,
+          highlight=False,
+          underline=False,
+          italic=False):
   attributes = []
 
-  if color in colors:
-    num = colors[color]
+  if color in Colors:
+    num = Colors[color]
   else:
-    num = colors['white']
+    num = Colors['white']
 
   if highlight:
     num += 10
 
-  attributes.append(six.u(str(num)))
+  attributes.append(six.u(f'{num}'))
 
   if bold:
-    attributes.append(six.u(str(decorations['bold'])))
+    attributes.append(six.u(f'{Decorations["bold"]}'))
 
-  if underlined:
-    attributes.append(six.u(str(decorations['underlined'])))
+  if underline:
+    attributes.append(six.u(f'{Decorations["underline"]}'))
 
-  end = decorations["end"]
+  if italic:
+    attributes.append(six.u(f'{Decorations["italic"]}'))
+
+  end = Decorations['end']
 
   attributes_joined = six.u(';').join(attributes)
 
@@ -78,7 +94,5 @@ class PrintStyle(object):
     string = six.u(intermediate_repr)
     return string
 
-
-
 if __name__ == '__main__':
-  sprint(f'{numpy.zeros(4)}, it works!', color='green')
+  sprint(f'\n{numpy.zeros(4)},\n it works!\n',color="green", underline=True, bold=True,italic=True)
