@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-from utilities.visualisation.sprint import PrintStyle
+from utilities.visualisation.sprint import *
+import sys
+sys.stdout.write(style(u'Term Plot Ûnicöde Probe',underlined=True))
 
 __author__ = 'cnheider'
 
