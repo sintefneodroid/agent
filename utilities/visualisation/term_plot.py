@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-from utilities.visualisation.sprint import *
 import sys
-sys.stdout.write(style(u'Term Plot Ûnicöde Probe',underlined=True))
+
+from utilities.visualisation.sprint import *
+
+sys.stdout.write(style(u'Term Plot Ûnicöde Probe', underline=True))
 
 __author__ = 'cnheider'
 
@@ -74,11 +76,11 @@ plot those values within canvas size (rows and columns)
 
   # Print scale
   if summary:
-    summry =(f'{title} - '
-        f'Min x: {str(min(x))}, '
-        f'Max x: {str(max(x))}, '
-        f'Min y: {str(min(y))}, '
-        f'Max y: {str(max(y))}\n')
+    summry = (f'{title} - '
+              f'Min x: {str(min(x))}, '
+              f'Max x: {str(max(x))}, '
+              f'Min y: {str(min(y))}, '
+              f'Max y: {str(max(y))}\n')
     if style:
       printer(style(summry))
     else:

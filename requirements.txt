@@ -5,6 +5,6 @@ numpy
 matplotlib
 torchvision
 torch
-neodroid
+Neodroid >= 20180530091122
 visdom
 pynput

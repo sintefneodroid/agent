@@ -25,10 +25,10 @@ All policy iteration agents should inherit from this class
     self._policy_arch_params['input_size'] = self._input_size
     self._policy_arch_params['output_size'] = self._output_size
 
-  def save_model(self, C):
+  def save(self, C):
     U.save_model(self._policy, C)
 
-  def load_model(self, model_file, evaluation=False):
+  def load(self, model_file, evaluation=False):
     print(f'Loading model: { model_file}')
     self._policy = self._policy_arch(**self._policy_arch_params)
     self._policy.load_state_dict(torch.load(model_file))

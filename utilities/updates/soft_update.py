@@ -1,8 +1,7 @@
 import torch
-from typing import Callable
 
 
-def soft_update(target: torch.nn.Module, source: torch.nn.Module, tau:float) -> torch.nn.Module:
+def soft_update(target: torch.nn.Module, source: torch.nn.Module, tau: float) -> torch.nn.Module:
   assert 0 <= tau <= 1
   for target_param, param in zip(target.parameters(), source.parameters()):
     target_param.data.copy_(

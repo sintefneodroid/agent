@@ -1,4 +1,4 @@
-#!/usr/bin/env python3 
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 from utilities.architectures.architecture import Architecture
 
@@ -12,7 +12,7 @@ from utilities.initialisation.fan_in_init import fan_in_init
 
 class ActorArchitecture(Architecture):
 
-  def __init__(self, input_size, hidden_size, output_size, output_activation):
+  def __init__(self, input_size, hidden_layers, output_size, output_activation):
     '''
 Initialize a Actor for low dimensional environment.
     num_feature: number of features of input.
@@ -21,17 +21,17 @@ Initialize a Actor for low dimensional environment.
     super().__init__()
 
     self._input_size = input_size
-    self._hidden_size = hidden_size
+    self._hidden_layers = hidden_layers
     self._output_size = output_size
     self.activation = output_activation
 
-    self.fc1 = nn.Linear(self._input_size[0], self._hidden_size[0])
+    self.fc1 = nn.Linear(self._input_size[0], self._hidden_layers[0])
     fan_in_init(self.fc1.weight)
 
-    self.fc2 = nn.Linear(self._hidden_size[0], self._hidden_size[1])
+    self.fc2 = nn.Linear(self._hidden_layers[0], self._hidden_layers[1])
     fan_in_init(self.fc2.weight)
 
-    self.head = nn.Linear(self._hidden_size[1], self._output_size[0])
+    self.head = nn.Linear(self._hidden_layers[1], self._output_size[0])
     init.uniform_(self.head.weight, -3e-3, 3e-3)
     init.uniform_(self.head.bias, -3e-3, 3e-3)
 

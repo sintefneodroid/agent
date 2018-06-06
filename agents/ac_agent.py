@@ -1,4 +1,4 @@
-#!/usr/bin/env python3 
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 __author__ = 'cnheider'
 import torch
@@ -19,10 +19,10 @@ All value iteration agents should inherit from this class
 
     super().__init__(*args, **kwargs)
 
-  def save_model(self, C):
+  def save(self, C):
     U.save_model(self._actor_critic, C)
 
-  def load_model(
+  def load(
       self, model_path, evaluation=False
       ):  # TODO: do not use _model as model
     print('Loading latest model: ' + model_path)

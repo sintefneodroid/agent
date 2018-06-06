@@ -20,16 +20,13 @@ from agents.value_agent import ValueAgent
 from utilities.visualisation.term_plot import term_plot
 
 
-# noinspection PyCallingNonCallable
+
 class DQNAgent(ValueAgent):
   '''
 
 '''
 
-  def __next__(self):
-    raise NotImplementedError()
-
-  def __local_defaults__(self):
+  def _defaults(self):
     self._memory = U.ReplayBuffer3(10000)
     # self._memory = U.PrioritisedReplayMemory(config.REPLAY_MEMORY_SIZE)  # Cuda trouble
 
@@ -38,13 +35,13 @@ class DQNAgent(ValueAgent):
     self._evaluation_function = F.smooth_l1_loss
 
     self._value_arch = U.MLP
-    self._value_arch_parameters = {
+    self._value_arch_parameters = U.ConciseArchSpecification(**{
       'input_size': None,  # Obtain from environment
-      'hidden_size':[64, 32, 16],
+      'hidden_layers':[64, 32, 16],
       'output_size':None,  # Obtain from environment
       'activation': F.relu,
       'use_bias':   True,
-      }
+      })
 
     self._batch_size = 128
 
@@ -53,9 +50,9 @@ class DQNAgent(ValueAgent):
     self._initial_observation_period = 0
     self._sync_target_model_frequency = 1000
 
-    self._state_tensor_type = torch.float
-    self._value_tensor_type = torch.float
-    self._action_tensor_type = torch.long
+    self._state_type = torch.float
+    self._value_type = torch.float
+    self._action_type = torch.long
 
     self._use_double_dqn = True
     self._clamp_gradient = False
@@ -75,7 +72,7 @@ class DQNAgent(ValueAgent):
     self._optimiser_epsilon = 1e-02
     self._optimiser_momentum = 0.0
 
-  def __build_models__(self):
+  def _build(self):
     self._value_arch_parameters['input_size'] = self._input_size
     self._value_arch_parameters['output_size'] = self._output_size
 
@@ -95,7 +92,7 @@ class DQNAgent(ValueAgent):
 
     self._value_model, self._target_value_model, self._optimiser = value_model, target_value_model, optimiser
 
-  def __optimise_wrt__(self, error, **kwargs):
+  def _optimise_wrt(self, error, **kwargs):
     '''
 
 :param error:
@@ -117,39 +114,18 @@ class DQNAgent(ValueAgent):
 :return:
 :rtype:
 '''
+    states = U.to_tensor(batch.state, dtype=self._state_type, device=self._device) \
+      .view(-1, *self._input_size)
 
-    # Torchify batch
-    # states = torch.tensor(
-    #    batch.state, device=self._device, dtype=self._state_tensor_type
-    #    ).view(
-    #    -1, *self._input_size
-    #    )
-    if type(batch.state[0]) is not torch.Tensor:
-      states = torch.tensor(batch.state, dtype=self._state_tensor_type, device=self._device).view(
-          -1, *self._input_size
-          )
-    else:
-      states = torch.cat(batch.state).to(self._device)
+    action_indices = U.to_tensor(batch.action, dtype=self._action_type, device=self._device) \
+      .view(-1, 1)
+    true_signals = U.to_tensor(batch.signal, dtype=self._value_type, device=self._device).view(-1, 1)
 
-    action_indices = torch.tensor(
-        batch.action, dtype=self._action_tensor_type, device=self._device
-        ).view(
-        -1, 1
-        )
-    true_signals = torch.tensor(batch.signal, dtype=self._value_tensor_type, device=self._device).view(-1, 1)
-
-    non_terminal_mask = torch.tensor(
-        batch.non_terminal, dtype=torch.uint8, device=self._device
-        )
+    non_terminal_mask = U.to_tensor(batch.non_terminal, dtype=torch.uint8, device=self._device)
     nts = [state for (state, non_terminal_mask) in zip(batch.successor_state, batch.non_terminal) if
            non_terminal_mask]
-    if type(nts[0]) is not torch.Tensor:
-      non_terminal_successors = torch.tensor(nts, dtype=self._state_tensor_type, device=self._device).view(
-          -1, *self._input_size
-          )
-
-    else:
-      non_terminal_successors = torch.cat(nts).to(self._device)
+    non_terminal_successors = U.to_tensor(nts, dtype=self._state_type, device=self._device) \
+      .view(-1, *self._input_size)
 
     if not len(non_terminal_successors) > 0:
       return 0  # Nothing to be learned, all states are terminal
@@ -162,7 +138,7 @@ class DQNAgent(ValueAgent):
       with torch.no_grad():
         Q_successors = self._target_value_model(non_terminal_successors)
     Q_max_successor = torch.zeros(
-        self._batch_size, dtype=self._value_tensor_type, device=self._device
+        self._batch_size, dtype=self._value_type, device=self._device
         )
     Q_max_successor[non_terminal_mask] = Q_successors.gather(
         1, Q_successors_max_action_indices
@@ -178,21 +154,21 @@ class DQNAgent(ValueAgent):
 
     return self._evaluation_function(Q_state, Q_expected)
 
-  def update_models(self):
+  def update(self):
     error = 0
     if self._batch_size < len(self._memory):
       # indices, transitions = self._memory.sample_transitions(self.C.BATCH_SIZE)
       transitions = self._memory.sample_transitions(self._batch_size)
 
       td_error = self.evaluate(transitions)
-      self.__optimise_wrt__(td_error)
+      self._optimise_wrt(td_error)
 
       error = td_error.item()
       # self._memory.batch_update(indices, errors.tolist())  # Cuda trouble
 
     return error
 
-  def rollout(self, initial_state, environment, render=False, **kwargs):
+  def rollout(self, initial_state, environment, render=False, train=True, **kwargs):
     self._rollout_i += 1
 
     state = initial_state
@@ -231,9 +207,9 @@ class DQNAgent(ValueAgent):
           and self._step_i % self._learning_frequency == 0
       ):
 
-        td_error = self.update_models()
+        td_error = self.update()
 
-        T.set_description(f'TD error: {td_error}')
+        # T.set_description(f'TD error: {td_error}')
 
       if (
           self._use_double_dqn
@@ -255,23 +231,13 @@ class DQNAgent(ValueAgent):
     return episode_signal, episode_length, episode_td_error
 
   def infer(self, state, **kwargs):
-    if type(state) is not torch.Tensor:
-      model_input = torch.tensor(
-          [state], device=self._device, dtype=self._state_tensor_type
-          )
-    else:
-      model_input = state
+    model_input = U.to_tensor([state], device=self._device, dtype=self._state_type)
     with torch.no_grad():
       value = self._value_model(model_input)
     return value
 
-  def __sample_model__(self, state, **kwargs):
-    if type(state) is not torch.Tensor:
-      model_input = torch.tensor(
-          [state], device=self._device, dtype=self._state_tensor_type
-          )
-    else:
-      model_input = state
+  def _sample_model(self, state, **kwargs):
+    model_input = U.to_tensor([state], device=self._device, dtype=self._state_type)
 
     with torch.no_grad():
       action_value_estimates = self._value_model(model_input)
@@ -290,8 +256,8 @@ class DQNAgent(ValueAgent):
       _environment,
       rollouts=1000,
       render=False,
-      render_frequency=400,
-      stat_frequency=400,
+      render_frequency=100,
+      stat_frequency=100,
       **kwargs
       ):
     '''
@@ -309,12 +275,8 @@ class DQNAgent(ValueAgent):
 :return:
 :rtype:
 '''
-    running_signal = 0
-    dur = 0
-    td_error = 0
-    running_signals = []
-    durations = []
-    td_errors = []
+
+    stats = U.StatisticCollection(stats=('signal', 'duration', 'td_error'), keep_measure_history=True)
 
     E = range(1, rollouts)
     E = tqdm(E, leave=False)
@@ -328,44 +290,40 @@ class DQNAgent(ValueAgent):
         t_episode = [i for i in range(1, episode_i + 1)]
         term_plot(
             t_episode,
-            running_signals,
+            stats.signal.running_value,
             'Running Signal',
             printer=E.write,
             percent_size=(1, .24),
             )
         term_plot(
             t_episode,
-            durations,
+            stats.duration.running_value,
             'Duration',
             printer=E.write,
             percent_size=(1, .24),
             )
         term_plot(
             t_episode,
-            td_errors,
+            stats.td_error.running_value,
             'TD Error',
             printer=E.write,
             percent_size=(1, .24),
             )
         E.set_description(
             f'Episode: {episode_i}, '
-            f'Running Signal: {running_signal}, '
-            f'Duration: {dur}, '
-            f'TD Error: {td_error}'
+            f'Running Signal: {stats.signal.running_value[-1]}, '
+            f'Duration: {stats.duration.running_value[-1]}, '
+            f'TD Error: {stats.td_error.running_value[-1]}'
             )
 
       if render and episode_i % render_frequency == 0:
-        signal, dur, *stats = self.rollout(
+        signal, dur, td_error, *extras = self.rollout(
             initial_state, _environment, render=render
             )
       else:
-        signal, dur, *stats = self.rollout(initial_state, _environment)
+        signal, dur, td_error, *extras = self.rollout(initial_state, _environment)
 
-      running_signal = running_signal * 0.99 + signal * 0.01
-      running_signals.append(running_signal)
-      durations.append(dur)
-      td_error = stats[0]
-      td_errors.append(td_error)
+      stats.append(signal, dur, td_error)
 
       if self._end_training:
         break
@@ -386,7 +344,7 @@ def test_dqn_agent(config):
   environment.seed(config.SEED)
 
   agent = DQNAgent(config)
-  agent.build_agent(environment, device)
+  agent.build(environment, device)
 
   listener = U.add_early_stopping_key_combination(agent.stop_training)
 
@@ -421,7 +379,7 @@ def test_cnn_dqn_agent(config):
   episode_durations = []
 
   agent = DQNAgent(C)
-  agent.build_agent(env, device)
+  agent.build(env, device)
 
   episodes = tqdm(range(C.ROLLOUTS), leave=False)
   for episode_i in episodes:
@@ -448,7 +406,7 @@ def test_cnn_dqn_agent(config):
 
       agent._memory.add_transition(state, action, signal, successor_state, not terminated)
 
-      agent.update_models()
+      agent.update()
       if terminated:
         episode_durations.append(t + 1)
         plot_durations(episode_durations=episode_durations)
@@ -473,7 +431,7 @@ if __name__ == '__main__':
   for k, arg in args.__dict__.items():
     setattr(C, k, arg)
 
-  U.sprint(f'\nUsing config: {C}\n', highlight=True, color='yellow' )
+  U.sprint(f'\nUsing config: {C}\n', highlight=True, color='yellow')
   if not args.skip_confirmation:
     for k, arg in U.get_upper_vars_of(C).items():
       print(f'{k} = {arg}')

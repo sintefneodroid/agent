@@ -1,12 +1,9 @@
-import math
 import multiprocessing
 import time
 
-import torch
-from torch.autograd import Variable
-
 from utilities.memory.expandable_circular_buffer import TransitionBuffer
-from utilities.torch_utilities import *
+from utilities.torch.torch_utilities import *
+import utilities as U
 
 use_gpu = False
 
@@ -33,7 +30,7 @@ def collect_samples(pid, queue, env, policy, custom_reward, mean_action,
 
     step_i = 0
     for t in range(10000):
-      state_var = Variable(tensor(state).unsqueeze(0), volatile=True)
+      state_var = U.to_tensor(state, device='cpu').unsqueeze(0)
       if mean_action:
         action = policy(state_var)[0].data[0].numpy()
       else:

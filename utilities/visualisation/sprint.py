@@ -7,34 +7,35 @@ import numpy
 import six
 
 Colors = dict(
-  gray='30',
-  red='31',
-  green='32',
-  yellow='33',
-  blue='34',
-  magenta='35',
-  cyan='36',
-  white='37',
-  crimson='38'
-)
+    gray='30',
+    red='31',
+    green='32',
+    yellow='33',
+    blue='34',
+    magenta='35',
+    cyan='36',
+    white='37',
+    crimson='38'
+    )
 
 Decorations = dict(
-  end='0',
-  bold='1',
-  dim='2',
-  italic='3',
-  underline='4',
-  underline_end='24',#'4:0',
-  double_underline='21', #'4:2'
-  #double_underline_end='24',  # '4:0'
-  curly_underline='4:3',
-  blink='5',
-  reverse_colors='7',
-  invisible='8', # still copyable
-  strikethrough='9',
-  overline='53',
-  hyperlink='8;;'
+    end='0',
+    bold='1',
+    dim='2',
+    italic='3',
+    underline='4',
+    underline_end='24',  # '4:0',
+    double_underline='21',  # '4:2'
+    # double_underline_end='24',  # '4:0'
+    curly_underline='4:3',
+    blink='5',
+    reverse_colors='7',
+    invisible='8',  # still copyable
+    strikethrough='9',
+    overline='53',
+    hyperlink='8;;'
     )
+
 
 def sprint(obj, **kwargs):
   '''
@@ -42,9 +43,10 @@ Stylised print.
 Valid colors: gray, red, green, yellow, blue, magenta, cyan, white, crimson
 '''
 
-  string = style(obj,**kwargs)
+  string = style(obj, **kwargs)
 
   print(string)
+
 
 def style(obj=None, *,
           color='white',
@@ -55,9 +57,9 @@ def style(obj=None, *,
   attributes = []
 
   if color in Colors:
-    num = Colors[color]
+    num = int(Colors[color])
   else:
-    num = Colors['white']
+    num = int(Colors['white'])
 
   if highlight:
     num += 10
@@ -84,6 +86,7 @@ def style(obj=None, *,
   else:
     return print_style
 
+
 class PrintStyle(object):
   def __init__(self, attributes_joined, end):
     self._attributes_joined = attributes_joined
@@ -94,5 +97,6 @@ class PrintStyle(object):
     string = six.u(intermediate_repr)
     return string
 
+
 if __name__ == '__main__':
-  sprint(f'\n{numpy.zeros(4)},\n it works!\n',color="green", underline=True, bold=True,italic=True)
+  sprint(f'\n{numpy.zeros(4)},\n it works!\n', color="green", underline=True, bold=True, italic=True)

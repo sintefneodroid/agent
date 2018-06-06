@@ -1,4 +1,4 @@
-#!/usr/bin/env python3 
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 __author__ = 'cnheider'
 
@@ -37,7 +37,7 @@ All value iteration agents should inherit from this class
     ):
       if self._verbose:
         print('Sampling from model')
-      return self.__sample_model__(state)
+      return self._sample_model(state)
     if self._verbose:
       print('Sampling from random process')
     return self.sample_random_process()
@@ -65,13 +65,13 @@ All value iteration agents should inherit from this class
 
     return sample > eps_threshold
 
-  def __sample_model__(self, state, **kwargs):
+  def _sample_model(self, state, **kwargs):
     raise NotImplementedError
 
-  def save_model(self, C):
+  def save(self, C):
     U.save_model(self._value_model, C)
 
-  def load_model(self, model_path, evaluation):
+  def load(self, model_path, evaluation):
     print('Loading latest model: ' + model_path)
     self._value_model = self._value_arch(**self._value_arch_parameters)
     self._value_model.load_state_dict(torch.load(model_path))

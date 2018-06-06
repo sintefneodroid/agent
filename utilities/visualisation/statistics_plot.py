@@ -1,4 +1,4 @@
-#!/usr/bin/env python3 
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 import os
 
@@ -31,7 +31,7 @@ def ma_plot(file_name, name):
     for line in reader:
       if line and line[0] != '':
         agg.append(float(line[0][1:-2]))
-        ma = agg.moving_average()
+        ma = agg.calc_moving_average()
         agg_ma.append(ma)
 
     plt.plot(agg_ma.values)
@@ -71,7 +71,7 @@ def error_plot(results, interval=1, file_name=''):
 def plot_durations(episode_durations):
   plt.figure(2)
   plt.clf()
-  durations_t = torch.tensor(episode_durations, dtype=torch.float)
+  durations_t = U.to_tensor(episode_durations, dtype=torch.float)
   plt.title('Training...')
   plt.xlabel('Episode')
   plt.ylabel('Duration')

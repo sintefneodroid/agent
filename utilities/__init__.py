@@ -14,7 +14,10 @@ from .random_process import *
 from .sampling import *
 from .statistics import *
 from .stopping import *
-from .torch_utilities import *
+from utilities.torch.torch_utilities import *
 from .transformation import *
-from .visualisation import *
 from .updates import *
+from .visualisation import *
+from .torch import *
+from .exceptions import *
+from .specifications import *

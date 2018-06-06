@@ -19,12 +19,13 @@ VERBOSE = False
 USE_LOGGING = True
 
 # Architecture
-POLICY_ARCH_PARAMS = {
+POLICY_ARCH_PARAMS = U.ConciseArchSpecification(**{
   'input_size': None,  # Obtain from environment
-  'hidden_size':[32, 16],
+  'hidden_layers':[32, 16],
   'output_size':None,  # Obtain from environment
-  'use_bias':   False,
-  }
+  'activation':F.relu,
+  'use_bias':   True,
+  })
 POLICY_ARCH = CategoricalMLP
 
 AGENT_TYPE = PGAgent
@@ -54,9 +55,9 @@ INITIAL_OBSERVATION_PERIOD = 10000
 DISCOUNT_FACTOR = 0.99
 UPDATE_DIFFICULTY_INTERVAL = 1000
 ROLLOUTS = 4000
-STATE_TENSOR_TYPE = torch.float
-VALUE_TENSOR_TYPE = torch.float
-ACTION_TENSOR_TYPE = torch.long
+STATE_TYPE = torch.float
+VALUE_TYPE = torch.float
+ACTION_TYPE = torch.long
 EVALUATION_FUNCTION = F.smooth_l1_loss
 
 # Optimiser

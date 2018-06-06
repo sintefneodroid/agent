@@ -16,7 +16,7 @@ def compute_state(observations, configuration):
 :param configuration:
 :return StateTensor:
 '''
-  StateTensorType = configuration.STATE_TENSOR_TYPE
+  StateTensorType = configuration.STATE_TYPE
   return StateTensorType([observations])
 
 
@@ -43,7 +43,7 @@ def extract_and_compute_state(info, configuration):
   upper_arm_data = info.get_observer(b'UpperArmRigidbody').get_data()
   observations += process_rigidbody_data(upper_arm_data)
 
-  StateTensorType = configuration.STATE_TENSOR_TYPE
+  StateTensorType = configuration.STATE_TYPE
   return StateTensorType([observations])
 
 

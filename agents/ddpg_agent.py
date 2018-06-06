@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+
 __author__ = 'cnheider'
 from itertools import count
 
@@ -16,7 +17,7 @@ from utilities.random_process.ornstein_uhlenbeck import OrnsteinUhlenbeckProcess
 from utilities.visualisation.term_plot import term_plot
 
 
-# noinspection PyCallingNonCallable
+
 class DDPGAgent(ACAgent):
   '''
 The Deep Deterministic Policy Gradient (DDPG) Agent
@@ -38,10 +39,7 @@ Parameters
         The update rate that target networks slowly track the learned networks.
 '''
 
-  def __next__(self):
-    raise NotImplementedError()
-
-  def __optimise_wrt__(self, td_error, state_batch, *args, **kwargs):
+  def _optimise_wrt(self, td_error, state_batch, *args, **kwargs):
     '''
 
 :type kwargs: object
@@ -61,7 +59,7 @@ Parameters
 
     return loss
 
-  def __local_defaults__(self):
+  def _defaults(self):
     self._optimiser_type = torch.optim.Adam
 
     self._actor_optimiser_spec = U.OptimiserSpecification(
@@ -81,7 +79,7 @@ Parameters
     self._actor_arch = U.ActorArchitecture
     self._actor_arch_parameters = {
       'input_size':       None,  # Obtain from environment
-      'hidden_size':      [128, 64],
+      'hidden_layers':      [128, 64],
       'output_activation':None,
       'output_size':      None,  # Obtain from environment
       }
@@ -89,7 +87,7 @@ Parameters
     self._critic_arch = U.CriticArchitecture
     self._critic_arch_parameters = {
       'input_size':       None,  # Obtain from environment
-      'hidden_size':      [128, 64],
+      'hidden_layers':      [128, 64],
       'output_activation':None,
       'output_size':      None,  # Obtain from environment
       }
@@ -101,9 +99,9 @@ Parameters
     self._initial_observation_period = 10000
     self._learning_frequency = 4
     self._sync_target_model_frequency = 10000
-    self._state_tensor_type = torch.float
-    self._value_tensor_type = torch.float
-    self._action_tensor_type = torch.float
+    self._state_type = torch.float
+    self._value_type = torch.float
+    self._action_type = torch.float
 
     self._epsilon_start = 0.9
     self._epsilon_end = 0.05
@@ -125,14 +123,14 @@ Parameters
     self._input_size = None
     self._output_size = None
 
-  def save_model(self, C):
+  def save(self, C):
     U.save_model(self._actor, C, 'actor')
     U.save_model(self._critic, C, 'policy')
 
-  def load_model(self, model_path, evaluation=False):
+  def load(self, model_path, evaluation=False):
     print('loading latest model: ' + model_path)
 
-    self.__build_models__()
+    self._build()
 
     self._actor.load_state_dict(torch.load(f'actor-{model_path}'))
     self._critic.load_state_dict(torch.load(f'critic-{model_path}'))
@@ -151,7 +149,7 @@ Parameters
     self._critic = self._critic.to(self._device)
     self._target_critic = self._target_critic.to(self._device)
 
-  def __build_models__(self):
+  def _build(self):
 
     self._actor_arch_parameters['input_size'] = self._input_size
     self._actor_arch_parameters['output_size'] = self._output_size
@@ -179,17 +177,15 @@ Parameters
     self._actor, self._target_actor, self._critic, self._target_critic, self._actor_optimiser, \
     self._critic_optimiser = actor, target_actor, critic, target_critic, actor_optimizer, critic_optimizer
 
-  def __sample_model__(self, state, **kwargs):
-    state = U.to_tensor_device(
-        [state], device=self._device, dtype=self._state_tensor_type
-        )
+  def _sample_model(self, state, **kwargs):
+    state = U.to_tensor([state], device=self._device, dtype=self._state_type)
     with torch.no_grad():
       action = self._actor(state)
     a = action.to('cpu').numpy()
     return a[0]
 
   def sample_action(self, state, **kwargs):
-    return self.__sample_model__(state)
+    return self._sample_model(state)
 
   def evaluate(
       self,
@@ -205,29 +201,18 @@ Parameters
 
 :type kwargs: object
 '''
-    states = U.to_tensor_device(
-        state_batch, device=self._device, dtype=self._state_tensor_type
-        ).view(
-        -1, self._input_size[0]
-        )
-    next_states = U.to_tensor_device(
-        next_state_batch, device=self._device, dtype=self._state_tensor_type
-        ).view(
-        -1, self._input_size[0]
-        )
-    actions = U.to_tensor_device(
-        action_batch, device=self._device, dtype=self._action_tensor_type
-        ).view(
-        -1, self._output_size[0]
-        )
-    signals = U.to_tensor_device(
-        signal_batch, device=self._device, dtype=self._value_tensor_type
-        )
+    states = U.to_tensor(state_batch, device=self._device, dtype=self._state_type) \
+      .view(-1, self._input_size[0])
+    next_states = U.to_tensor(next_state_batch, device=self._device, dtype=self._state_type) \
+      .view(-1, self._input_size[0])
+    actions = U.to_tensor(action_batch, device=self._device, dtype=self._action_type) \
+      .view(-1, self._output_size[0])
+    signals = U.to_tensor(signal_batch, device=self._device, dtype=self._value_type)
 
-    non_terminal_mask = U.to_tensor_device(non_terminal_batch, device=self._device, dtype=torch.float)
+    non_terminal_mask = U.to_tensor(non_terminal_batch, device=self._device, dtype=torch.float)
 
     ### Critic ###
-    # Compute current Q value, critic takes state and action choosen
+    # Compute current Q value, critic takes state and action chosen
     Q_current = self._critic(states, actions)
     # Compute next Q value based on which action target actor would choose
     # Detach variable from the current graph since we don't want gradients for next Q to propagated
@@ -239,11 +224,12 @@ Parameters
 
     Q_target = signals + (self._discount_factor * next_Q_values)  # Compute the target of the current Q values
 
-    td_error = self._evaluation_function(Q_current, Q_target.view(-1, 1))  # Compute Bellman error (using Huber loss)
+    td_error = self._evaluation_function(Q_current,
+                                         Q_target.view(-1, 1))  # Compute Bellman error (using Huber loss)
 
     return td_error, states
 
-  def update_models(self):
+  def update(self):
     '''
 Update the target networks
 
@@ -255,7 +241,7 @@ Update the target networks
 
     batch = self._memory.sample_transitions(self._batch_size)
     td_error, state_batch_var = self.evaluate(*batch)
-    loss = self.__optimise_wrt__(td_error, state_batch_var)
+    loss = self._optimise_wrt(td_error, state_batch_var)
 
     return td_error, loss
 
@@ -278,7 +264,7 @@ Update the target networks
           * target_param.data
           )
 
-  def rollout(self, initial_state, environment, render=False, **kwargs):
+  def rollout(self, initial_state, environment, render=False,train=True, **kwargs):
     self._rollout_i += 1
 
     state = initial_state
@@ -315,7 +301,7 @@ Update the target networks
           )
       state = next_state
 
-      self.update_models()
+      self.update()
       episode_signal += signal
 
       if terminated:
@@ -341,9 +327,7 @@ The Deep Deterministic Policy Gradient algorithm.
 :param stat_frequency:
 :type stat_frequency:
 '''
-    stats = U.plotting.EpisodeStatistics()
-    running_signal = 0
-    running_duration = 0
+    stats = U.StatisticCollection(stats=('signal', 'duration'), keep_measure_history=True)
 
     E = range(1, rollouts)
     E = tqdm(E, desc='', leave=False)
@@ -356,7 +340,7 @@ The Deep Deterministic Policy Gradient algorithm.
         t_episode = [i for i in range(1, episode_i + 1)]
         term_plot(
             t_episode,
-            stats.signals,
+            stats.signal.running_value,
             'Running signal',
             printer=E.write,
             percent_size=(1, .24),
@@ -364,14 +348,14 @@ The Deep Deterministic Policy Gradient algorithm.
             )
         term_plot(
             t_episode,
-            stats.durations,
+            stats.duration.running_value,
             'Duration',
             printer=E.write,
             percent_size=(1, .24),
             style=U.style(color='cyan', highlight=True)
             )
         E.set_description(
-f'Episode: {episode_i}, Last signal: {stats.signals[-1]}'
+            f'Episode: {episode_i}, Last signal: {stats.signal[-1]}'
             )
 
       if render and episode_i % render_frequency == 0:
@@ -379,10 +363,7 @@ f'Episode: {episode_i}, Last signal: {stats.signals[-1]}'
       else:
         signal, dur, *rollout_stats = self.rollout(state, env)
 
-      running_duration = running_duration * 0.99 + dur * 0.01
-      stats.durations.append(running_duration)
-      running_signal = running_signal * 0.99 + signal * 0.01
-      stats.signals.append(running_signal)
+      stats.append(signal, dur)
 
       if self._end_training:
         break
@@ -404,7 +385,7 @@ def test_ddpg_agent(config):
   # env = neo.make('satellite',connect_to_running=False)
 
   agent = DDPGAgent(config)
-  agent.build_agent(env, device)
+  agent.build(env, device)
   listener = U.add_early_stopping_key_combination(agent.stop_training)
 
   listener.start()
@@ -428,7 +409,7 @@ if __name__ == '__main__':
   for k, arg in args.__dict__.items():
     setattr(C, k, arg)
 
-  U.sprint(f'\nUsing config: {C}\n', highlight=True, color='yellow' )
+  U.sprint(f'\nUsing config: {C}\n', highlight=True, color='yellow')
   if not args.skip_confirmation:
     for k, arg in U.get_upper_vars_of(C).items():
       print(f'{k} = {arg}')

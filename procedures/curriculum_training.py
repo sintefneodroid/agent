@@ -1,4 +1,4 @@
-#!/usr/bin/env python3 
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 import configs
 from agents.pg_agent import PGAgent
@@ -42,7 +42,7 @@ _random_process = None
 
 
 def save_snapshot():
-  _agent.save_model(C)
+  _agent.save(C)
   stats.save(**configs.to_dict(C))
 
 
@@ -55,7 +55,7 @@ def main(config, agent, full_state_evaluation_frequency=2):
       )
   device = torch.device('cuda' if C.USE_CUDA else 'cpu')
 
-  _agent.build_agent(env, device)
+  _agent.build(env, device)
 
   l_star = C.RANDOM_MOTION_HORIZON
   training_start_timestamp = time.time()
@@ -94,7 +94,7 @@ def main(config, agent, full_state_evaluation_frequency=2):
             printer=train_session.write
             )
         train_session.set_description(
-            f'Steps: {_step_i:9.0f} | Ent: {stats.entropies.moving_average():.2f}'
+            f'Steps: {_step_i:9.0f} | Ent: {stats.entropies.calc_moving_average():.2f}'
             )
         num_candidates.set_description(
             f'Candidate #{c} of {C.CANDIDATE_SET_SIZE} | '
@@ -113,7 +113,7 @@ def main(config, agent, full_state_evaluation_frequency=2):
       U.display_actor_configuration(env, candidate)
 
       est, _episode_i, _step_i = U.estimate_value(candidate, env, agent, C, stats,
-                                                  save_snapshot=save_snapshot)
+                                                  save_snapshot=save_snapshot, train=True)
 
       if C.LOW <= est <= C.HIGH:
         S_i.append(candidate)
@@ -133,7 +133,7 @@ def main(config, agent, full_state_evaluation_frequency=2):
   message = f'Training done, time elapsed: {time_elapsed // 60:.0f}m {time_elapsed % 60:.0f}s'
   print(f'\n{"-" * 9} {message} {"-" * 9}\n')
 
-  agent.save_model(C)
+  agent.save(C)
   save_snapshot()
 
 
@@ -147,7 +147,7 @@ if __name__ == '__main__':
   for k, arg in args.__dict__.items():
     setattr(C, k, arg)
 
-  U.sprint(f'\nUsing config: {C}\n', highlight=True, color='yellow' )
+  U.sprint(f'\nUsing config: {C}\n', highlight=True, color='yellow')
   if not args.skip_confirmation:
     for k, arg in U.get_upper_vars_of(C).items():
       print(f'{k} = {arg}')

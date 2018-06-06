@@ -1,4 +1,4 @@
-#!/usr/bin/env python3 
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 import torch
 
@@ -19,10 +19,10 @@ have distinct output layers
   def __init__(
       self,
       input_size,
-      hidden_size,
-      actor_hidden_size,
+      hidden_layers,
+      actor_hidden_layers,
       actor_output_size,
-      critic_hidden_size,
+      critic_hidden_layers,
       critic_output_size,
       actor_output_activation,
       continuous,
@@ -30,32 +30,32 @@ have distinct output layers
     super().__init__()
 
     self.input_size = input_size
-    self.hidden_size = hidden_size
+    self.hidden_layers = hidden_layers
 
-    self.actor_hidden_size = actor_hidden_size
+    self.actor_hidden_layers = actor_hidden_layers
     self.actor_output_size = actor_output_size
 
-    self.critic_hidden_size = critic_hidden_size
+    self.critic_hidden_layers = critic_hidden_layers
     self.critic_output_size = critic_output_size
 
     self.continuous = continuous
 
     self.actor_output_activation = actor_output_activation
 
-    self.fc1 = nn.Linear(self.input_size[0], self.hidden_size[0])
-    self.fc2 = nn.Linear(self.hidden_size[0], self.hidden_size[1])
+    self.fc1 = nn.Linear(self.input_size[0], self.hidden_layers[0])
+    self.fc2 = nn.Linear(self.hidden_layers[0], self.hidden_layers[1])
 
-    self.actor_fc1 = nn.Linear(self.hidden_size[1], self.actor_hidden_size[0])
+    self.actor_fc1 = nn.Linear(self.hidden_layers[1], self.actor_hidden_layers[0])
     self.actor_head = nn.Linear(
-        self.actor_hidden_size[0], self.actor_output_size[0]
+        self.actor_hidden_layers[0], self.actor_output_size[0]
         )
 
     if self.continuous:
       self.log_std = nn.Parameter(torch.zeros(1, self.actor_output_size[0]))
 
-    self.critic_fc1 = nn.Linear(self.hidden_size[1], self.critic_hidden_size[0])
+    self.critic_fc1 = nn.Linear(self.hidden_layers[1], self.critic_hidden_layers[0])
     self.critic_output = nn.Linear(
-        self.critic_hidden_size[0], self.critic_output_size[0]
+        self.critic_hidden_layers[0], self.critic_output_size[0]
         )
 
   def forward(self, state):

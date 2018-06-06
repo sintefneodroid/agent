@@ -23,21 +23,21 @@ def train_agent(config, agent):
       )
   env.seed(config.SEED)
 
-  agent.build_agent(env, device)
+  agent.build(env, device)
 
   listener = U.add_early_stopping_key_combination(agent.stop_training)
 
   listener.start()
   try:
-    _trained_model, running_signals, running_lengths, *training_statistics = agent.train(
-        env, config.ROLLOUTS, render=config.RENDER_ENVIRONMENT
-        )
+    model, signal, duration, *extras = agent.train(env,
+                                                   config.ROLLOUTS,
+                                                   render=config.RENDER_ENVIRONMENT)
   finally:
     listener.stop()
 
-  U.save_statistic(running_signals, 'running_signals', C)
-  U.save_statistic(running_lengths, 'running_lengths', C)
-  U.save_model(_trained_model, config)
+  U.save_statistic(signal, 'running_signals', LOG_DIRECTORY=C.LOG_DIRECTORY)
+  U.save_statistic(duration, 'running_lengths', LOG_DIRECTORY=C.LOG_DIRECTORY)
+  U.save_model(model, config)
 
   env.close()
 
@@ -53,7 +53,7 @@ if __name__ == '__main__':
   for k, arg in args.__dict__.items():
     setattr(C, k, arg)
 
-  U.sprint(f'\nUsing config: {C}\n', highlight=True, color='yellow' )
+  U.sprint(f'\nUsing config: {C}\n', highlight=True, color='yellow')
   if not args.skip_confirmation:
     for k, arg in U.get_upper_vars_of(C).items():
       print(f'{k} = {arg}')

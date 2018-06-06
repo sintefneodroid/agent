@@ -1,4 +1,4 @@
-#!/usr/bin/env python3 
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 from agents.ddpg_agent import DDPGAgent
 
@@ -25,9 +25,9 @@ OPTIMISER_ALPHA = 0.95
 DISCOUNT_FACTOR = 0.99
 TARGET_UPDATE_TAU = 0.001
 
-STATE_TENSOR_TYPE = torch.float
-VALUE_TENSOR_TYPE = torch.float
-ACTION_TENSOR_TYPE = torch.float
+STATE_TYPE = torch.float
+VALUE_TYPE = torch.float
+ACTION_TYPE = torch.float
 
 EVALUATION_FUNCTION = F.smooth_l1_loss
 
@@ -67,7 +67,7 @@ ENVIRONMENT_NAME = 'Pendulum-v0'
 # Architecture
 ACTOR_ARCH_PARAMS = {
   'input_size':       None,  # Obtain from environment
-  'hidden_size':      [128, 64],
+  'hidden_layers':      [128, 64],
   'output_activation':None,
   'output_size':      None,  # Obtain from environment
   }
@@ -75,7 +75,7 @@ ACTOR_ARCH = U.ActorArchitecture
 
 CRITIC_ARCH_PARAMS = {
   'input_size':       None,  # Obtain from environment
-  'hidden_size':      [128, 64],
+  'hidden_layers':      [128, 64],
   'output_activation':None,
   'output_size':      None,  # Obtain from environment
   }

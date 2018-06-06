@@ -95,8 +95,6 @@ ENV/
 
 # mypy
 .mypy_cache/
-*.log
-
 *.model
 *.model.py
 .vscode
@@ -108,4 +106,5 @@ parts
 *.egg-info
 .idea
 .ropeproject
-
+.pyre
+logs/

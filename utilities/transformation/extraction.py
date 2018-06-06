@@ -1,11 +1,12 @@
-#!/usr/bin/env python3 
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+import cv2
 import matplotlib.pyplot as plt
 import numpy as np
 import torch
 import torchvision.transforms as T
 from PIL import Image
-import cv2
+
 cv2.setNumThreads(0)
 
 __author__ = 'cnheider'
@@ -25,11 +26,10 @@ def get_cart_location(env):
 
 
 def get_screen(env):
-  screen = env.render(mode='rgb_array').transpose(
-      (2, 0, 1)
-      )  # transpose into torch order (CHW)
+  tp = (2, 0, 1)
+  screen = env.render(mode='rgb_array').transpose(tp)  # transpose into torch order (CHW)
   # Strip off the top and bottom of the screen
-  screen = screen[:, 160:320]
+  screen = screen[:, 160:320]  # center slice
   view_width = 320
   cart_location = get_cart_location(env)
   if cart_location < view_width // 2:
@@ -42,9 +42,9 @@ def get_screen(env):
         )
   # Strip off the edges, so that we have a square image centered on a cart
   screen = screen[:, :, slice_range]
-  # Convert to float, rescare, convert to torch tensor
+  # Convert to float, rescale, convert to torch tensor
   # (this doesn't require a copy)
-  screen = np.ascontiguousarray(screen, dtype=np.float32) / 255
+  screen = np.ascontiguousarray(screen, dtype=np.float32) / 255  # RGB normalise
   return screen
 
 

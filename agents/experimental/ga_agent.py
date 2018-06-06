@@ -1,4 +1,4 @@
-#!/usr/bin/env python3 
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 __author__ = 'cnheider'
 
@@ -10,10 +10,10 @@ class GAAgent(EVOAgent):
   def evaluate(self, batch, **kwargs):
     pass
 
-  def __optimise_wrt__(self, error, **kwargs):
+  def _optimise_wrt(self, error, **kwargs):
     pass
 
-  def rollout(self, init_obs, env, **kwargs):
+  def rollout(self, init_obs, env,train=True, **kwargs):
     pass
 
   def sample_action(self, state, **kwargs):

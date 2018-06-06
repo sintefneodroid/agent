@@ -16,6 +16,6 @@ class BinaryActionEncodingWrapper(NeodroidGymWrapper):
 
 class BinaryActionEnvironment(NeodroidCurriculumWrapper):
 
-  def step(self, a, *args, **kwargs):
-    a = U.signed_one_hot_encoding(self.action_space.num_actions, a)
+  def step(self, action, *args, **kwargs):
+    a = U.signed_one_hot_encoding(self.action_space.num_actions, action)
     return super().act(a)

@@ -5,7 +5,7 @@ from utilities.statistics import StatisticAggregator
 
 class StatisticCollection(object):
 
-  def __init__(self, stats=('signals', 'lengths'), measures=S.__all__[1:],
+  def __init__(self, stats=('signal', 'length'), measures=S.__all__[1:],
                keep_measure_history=False):
     self._statistics = {}
     self._measures = measures
@@ -20,6 +20,13 @@ class StatisticCollection(object):
     self._statistics[stat_name] = StatisticAggregator(
         measures=self._measures,
         keep_measure_history=self._keep_measure_history)
+
+  def append(self, *args, **kwargs):
+    for (arg, (k, v)) in zip(args, self._statistics.items()):
+      self._statistics[k].append(arg)
+
+    for (k, v) in kwargs:
+      self._statistics[k].append(v)
 
   def remove_statistic(self, stat_name):
     del self._statistics[stat_name]
@@ -53,18 +60,18 @@ if __name__ == '__main__':
   stats2 = StatisticCollection(keep_measure_history=True)
 
   for i in range(10):
-    stats.signals.append(i)
-    stats2.signals.append(i)
+    stats.signal.append(i)
+    stats2.signal.append(i)
 
   print(stats)
-  print(stats.signals)
-  print(stats.lengths)
-  print(stats.lengths.measures)
-  print(stats.signals.measures)
-  print(stats.signals.variance)
-  print(stats.signals.moving_average())
-  print(stats.signals.max)
-  print(stats.signals.min)
+  print(stats.signal)
+  print(stats.length)
+  print(stats.length.measures)
+  print(stats.signal.measures)
+  print(stats.signal.variance)
+  print(stats.signal.calc_moving_average())
+  print(stats.signal.max)
+  print(stats.signal.min)
   print('\n')
   print(stats2)
-  print(stats2.signals.min)
+  print(stats2.signal.min)

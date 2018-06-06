@@ -1,10 +1,11 @@
-#!/usr/bin/env python3 
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 __author__ = 'cnheider'
 
+from pynput import keyboard
+
 # import keyboard
 import utilities as U
-from pynput import keyboard
 
 COMBINATIONS = [
   {keyboard.Key.shift, keyboard.Key.alt, keyboard.KeyCode(char='s')},
@@ -19,7 +20,8 @@ current = set()
 def add_early_stopping_key_combination(callback, key='ctrl+shift+s'):
   # keyboard.add_hotkey(key, callback)
   CALLBACKS.append(callback)
-  U.sprint(f'\n\nPress any of:\n{COMBINATIONS}\n for early stopping\n',color='red',bold=True,highlight=True)
+  U.sprint(f'\n\nPress any of:\n{COMBINATIONS}\n for early stopping\n', color='red', bold=True,
+           highlight=True)
   print('')
   return keyboard.Listener(on_press=on_press, on_release=on_release)
 

@@ -1,10 +1,10 @@
-#!/usr/bin/env python3 
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 __author__ = 'cnheider'
 
 import random
 
-from utilities.memory.transition import Transition
+from utilities.memory.transition import TrajectoryTrace, Transition
 
 
 class ExpandableCircularBuffer(object):
@@ -61,4 +61,15 @@ class TransitionBuffer(ExpandableCircularBuffer):
   def sample_transitions(self, num):
     values = super().sample(num)
     batch = Transition(*zip(*values))
+    return batch
+
+
+class TrajectoryTraceBuffer(ExpandableCircularBuffer):
+
+  def add_trace(self, *args):
+    super().add(TrajectoryTrace(*args))
+
+  def retrieve_trajectory(self):
+    values = super().sample()
+    batch = TrajectoryTrace(*zip(*values))
     return batch

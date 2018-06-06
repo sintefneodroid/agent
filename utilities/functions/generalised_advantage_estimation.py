@@ -17,9 +17,9 @@ def set_seed(seed):
   torch.manual_seed(seed)
 
 
-# noinspection PyCallingNonCallable
+
 def generalised_advantage_estimate(
-    n_step_summary, discount_factor=0.99, gae_tau=0.95, device='cpu'
+    n_step_summary, discount_factor=0.99, tau=0.95, device='cpu'
     ):
   '''
 compute GAE(lambda) advantages and discounted returns
@@ -34,23 +34,17 @@ compute GAE(lambda) advantages and discounted returns
 :type non_terminals:
 :param discount_factor:
 :type discount_factor:
-:param gae_tau:
-:type gae_tau:
+:param tau:
+:type tau:
 :return:
 :rtype:
 '''
 
-  signals = U.to_tensor_device(
-      n_step_summary.signal, device=device, dtype=torch.float
-      )
+  signals = U.to_tensor(n_step_summary.signal, device=device, dtype=torch.float)
 
-  non_terminals = U.to_tensor_device(
-      n_step_summary.non_terminal, device=device, dtype=torch.float
-      )
+  non_terminals = U.to_tensor(n_step_summary.non_terminal, device=device, dtype=torch.float)
 
-  value_estimates = U.to_tensor_device(
-      n_step_summary.value_estimate, device=device, dtype=torch.float
-      )
+  value_estimates = U.to_tensor(n_step_summary.value_estimate, device=device, dtype=torch.float)
 
   T = signals.size()
   T = T[0]
@@ -68,7 +62,7 @@ compute GAE(lambda) advantages and discounted returns
 
     td_error = signal_now + value_future * discount_factor * non_terminal_now - value_now
 
-    advantage_now = advantage_now * discount_factor * gae_tau * non_terminal_now + td_error
+    advantage_now = advantage_now * discount_factor * tau * non_terminal_now + td_error
 
     advs[t] = advantage_now
 
@@ -144,3 +138,12 @@ def mean_std_groups(x, y, group_size):
 def set_lr(optimizer, lr):
   for param_group in optimizer.param_groups:
     param_group['lr'] = lr
+
+
+def compute_returns(next_value, rewards, masks, discount_factor=0.99):
+  R = next_value
+  returns = []
+  for step in reversed(range(len(rewards))):
+    R = rewards[step] + discount_factor * R * masks[step]
+    returns.insert(0, R)
+  return returns

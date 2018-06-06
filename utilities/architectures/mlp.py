@@ -24,26 +24,26 @@ OOOO hidden_layer_size * (Weights,Biases)
 0000 output_size * (Weights,Biases)
 '''
 
-  def __init__(self, input_size, hidden_size, output_size, activation, use_bias):
+  def __init__(self, input_size, hidden_layers, output_size, activation, use_bias):
     super().__init__()
 
     self._input_size = input_size
-    self._hidden_size = hidden_size
+    self._hidden_layers = hidden_layers
     self._activation = activation
     self._output_size = output_size
     self._use_bias = use_bias
 
     previous_layer_size = self._input_size[0]
 
-    self.num_of_layer = len(self._hidden_size)
+    self.num_of_layer = len(self._hidden_layers)
     if self.num_of_layer > 0:
       for i in range(1, self.num_of_layer + 1):
         layer = nn.Linear(
-            previous_layer_size, self._hidden_size[i - 1], bias=self._use_bias
+            previous_layer_size, self._hidden_layers[i - 1], bias=self._use_bias
             )
         # fan_in_init(layer.weight)
         setattr(self, f'fc{i}', layer)
-        previous_layer_size = self._hidden_size[i - 1]
+        previous_layer_size = self._hidden_layers[i - 1]
 
     self.head = nn.Linear(
         previous_layer_size, self._output_size[0], bias=self._use_bias
@@ -107,15 +107,15 @@ class MultiHeadedMLP(MLP):
 
 class RecurrentCategoricalMLP(MLP):
 
-  def __init__(self, r_hidden_size=10, **kwargs):
+  def __init__(self, r_hidden_layers=10, **kwargs):
     super().__init__(**kwargs)
-    self._r_hidden_size = r_hidden_size
-    self._r_input_size = self._output_size[0] + r_hidden_size
+    self._r_hidden_layers = r_hidden_layers
+    self._r_input_size = self._output_size[0] + r_hidden_layers
 
-    self.hidden = nn.Linear(self._r_input_size, r_hidden_size)
-    self.out = nn.Linear(self._r_input_size, r_hidden_size)
+    self.hidden = nn.Linear(self._r_input_size, r_hidden_layers)
+    self.out = nn.Linear(self._r_input_size, r_hidden_layers)
 
-    self._prev_hidden_x = torch.zeros(r_hidden_size)
+    self._prev_hidden_x = torch.zeros(r_hidden_layers)
 
   def forward(self, x, **kwargs):
     x = super().forward(x, **kwargs)

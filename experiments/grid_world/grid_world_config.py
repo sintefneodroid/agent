@@ -1,4 +1,4 @@
-#!/usr/bin/env python3 
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 from agents.dqn_agent import DQNAgent
 
@@ -45,7 +45,7 @@ ENVIRONMENT_NAME = 'small_grid_world'
 # Architecture
 VALUE_ARCH_PARAMETERS = {
   'input_size': None,  # Obtain from environment
-  'hidden_size':[64, 32, 16],
+  'hidden_layers':[64, 32, 16],
   'output_size':None,  # Obtain from environment
   'activation': F.relu,
   'use_bias':   True,
