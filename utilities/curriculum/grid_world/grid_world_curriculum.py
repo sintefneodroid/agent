@@ -11,17 +11,21 @@ from neodroid.models import Configuration, Displayable, Reaction, ReactionParame
 def grid_world_sample_entire_configuration_space(environment):
   if environment:
     actor_x_conf = environment.description.configurable('ActorTransformX_')
+    #actor_y_conf = environment.description.configurable('ActorTransformY_')
     actor_z_conf = environment.description.configurable('ActorTransformZ_')
     x_space = actor_x_conf.configurable_space
+    #y_space = actor_y_conf.configurable_space
     z_space = actor_z_conf.configurable_space
     for x in np.linspace(x_space.min_value, x_space.max_value, x_space.discrete_steps):
       for z in np.linspace(z_space.min_value, z_space.max_value, z_space.discrete_steps):
-        initial_configuration = [
-          Configuration('ActorTransformX_', x),
-          Configuration('ActorTransformZ_', z),
-          ]
+        #for y in np.linspace(y_space.min_value, y_space.max_value, y_space.discrete_steps):
+          initial_configuration = [
+            Configuration('ActorTransformX_', x),
+            # Configuration('ActorTransformY_', y),
+            Configuration('ActorTransformZ_', z),
+            ]
 
-        yield initial_configuration
+          yield initial_configuration
   return
 
 @coroutine
@@ -30,16 +34,20 @@ def grid_world_random_sample_uniformly_entire_configuration_space(environment):
   if environment:
     initial_configurations = []
     actor_x_conf = environment.description.configurable('ActorTransformX_')
+    #actor_y_conf = environment.description.configurable('ActorTransformY_')
     actor_z_conf = environment.description.configurable('ActorTransformZ_')
     x_space = actor_x_conf.configurable_space
+    #y_space = actor_y_conf.configurable_space
     z_space = actor_z_conf.configurable_space
     for x in np.linspace(x_space.min_value, x_space.max_value, x_space.discrete_steps):
       for z in np.linspace(z_space.min_value, z_space.max_value, z_space.discrete_steps):
-        initial_configuration = [
-          Configuration('ActorTransformX_', x),
-          Configuration('ActorTransformZ_', z),
-          ]
-        initial_configurations.append(initial_configuration)
+        #for y in np.linspace(y_space.min_value, y_space.max_value, y_space.discrete_steps):
+          initial_configuration = [
+            Configuration('ActorTransformX_', x),
+            #Configuration('ActorTransformY_', y),
+            Configuration('ActorTransformZ_', z),
+            ]
+          initial_configurations.append(initial_configuration)
 
     while 1:
       yield random.sample(initial_configurations)
@@ -73,8 +81,10 @@ def estimate_entire_state_space(env, agent, C, statistics, save_snapshot,
       est, _, _ = estimate_value(info, env, agent, C, statistics, save_snapshot=save_snapshot,train=False)
       #TODO: Use a rollout of only policy sampled actions with no random sampling (effects like epsilon exploration)
 
-      vec3 = (configuration[0].configurable_value, 0,
-              configuration[1].configurable_value)
+      vec3 = (configuration[0].configurable_value,
+              0,#configuration[1].configurable_value,
+              configuration[1].configurable_value#configuration[2].configurable_value
+              )
       actor_configurations.append(vec3)
       success_estimates.append(est)
 
@@ -141,9 +151,11 @@ def get_initial_configuration(environment):
   state = environment.describe()
   if environment:
     goal_pos_x = environment.description.configurable('GoalTransformX_').configurable_value
+    #goal_pos_y = environment.description.configurable('GoalTransformY_').configurable_value
     goal_pos_z = environment.description.configurable('GoalTransformZ_').configurable_value
     initial_configuration = [
       Configuration('ActorTransformX_', goal_pos_x),
+      #Configuration('ActorTransformY_', goal_pos_y),
       Configuration('ActorTransformZ_', goal_pos_z),
       ]
     return initial_configuration
@@ -154,5 +166,6 @@ def get_actor_configuration(environment, candidate):
   # state = environment.describe()
   if environment:
     goal_pos_x = environment.description.configurable('ActorTransformX_').configurable_value
+    #goal_pos_y = environment.description.configurable('ActorTransformY_').configurable_value
     goal_pos_z = environment.description.configurable('ActorTransformZ_').configurable_value
     return goal_pos_x, goal_pos_z
