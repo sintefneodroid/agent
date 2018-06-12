@@ -1,4 +1,4 @@
-#!/usr/bin/env python3 
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 __author__ = 'cnheider'
 
@@ -16,4 +16,4 @@ def save_statistic(statistic, name, LOG_DIRECTORY='logs', PROJECT='', CONFIG_NAM
   with open(_file_path, 'w') as f:
     w = csv.writer(f)
     w.writerows(stat)
-  print('Saved statistics at {}'.format(_file_path))
+  print('Saved statistics_utilities at {}'.format(_file_path))

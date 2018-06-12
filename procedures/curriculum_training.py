@@ -144,12 +144,12 @@ if __name__ == '__main__':
 
   args = parse_arguments('PG Agent', C)
 
-  for k, arg in args.__dict__.items():
-    setattr(C, k, arg)
+  for key, arg in args.__dict__.items():
+    setattr(C, key, arg)
 
   U.sprint(f'\nUsing config: {C}\n', highlight=True, color='yellow')
   if not args.skip_confirmation:
-    for k, arg in U.get_upper_vars_of(C).items():
+    for key, arg in U.get_upper_vars_of(C).items():
       print(f'{k} = {arg}')
     input('\nPress Enter to begin... ')
 

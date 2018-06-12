@@ -368,7 +368,7 @@ The Deep Deterministic Policy Gradient algorithm.
       if self._end_training:
         break
 
-    return self._actor, self._critic, stats
+    return (self._actor, self._critic), stats
 
 
 def test_ddpg_agent(config):
@@ -390,7 +390,7 @@ def test_ddpg_agent(config):
 
   listener.start()
   try:
-    actor_model, critic_model, stats = agent.train(
+    (actor_model, critic_model), stats = agent.train(
         env, config.ROLLOUTS, render=config.RENDER_ENVIRONMENT
         )
   finally:
@@ -402,22 +402,5 @@ def test_ddpg_agent(config):
 
 if __name__ == '__main__':
   import configs.ddpg_config as C
-  from configs.arguments import parse_arguments
 
-  args = parse_arguments('DDPG Agent', C)
-
-  for k, arg in args.__dict__.items():
-    setattr(C, k, arg)
-
-  U.sprint(f'\nUsing config: {C}\n', highlight=True, color='yellow')
-  if not args.skip_confirmation:
-    for k, arg in U.get_upper_vars_of(C).items():
-      print(f'{k} = {arg}')
-    input('\nPress Enter to begin... ')
-
-  try:
-    test_ddpg_agent(C)
-  except KeyboardInterrupt:
-    print('Stopping')
-
-  torch.cuda.empty_cache()
+  U.test_agent_main(DDPGAgent, C)

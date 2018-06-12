@@ -10,7 +10,7 @@ import torch.optim as optim
 from torchvision import datasets, transforms
 
 
-def train(rank, args, model):
+def train(rankey, args, model):
   torch.manual_seed(args.seed + rank)
 
   magic_mean = 0.1307
@@ -68,7 +68,7 @@ def test_epoch(model, data_loader):
       f'({100. * correct / len(data_loader.dataset):.0f}%)\n')
 
 
-def test(rank, args, model):
+def test(rankey, args, model):
   pass
 
 

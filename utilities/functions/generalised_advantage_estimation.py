@@ -3,7 +3,7 @@
 
 __author__ = 'cnheider'
 
-import random
+
 
 import numpy as np
 import torch
@@ -11,10 +11,6 @@ import torch
 import utilities as U
 
 
-def set_seed(seed):
-  random.seed(seed)
-  np.random.seed(seed)
-  torch.manual_seed(seed)
 
 
 
@@ -135,9 +131,7 @@ def mean_std_groups(x, y, group_size):
   return x_means, x_stds, y_means, y_stds
 
 
-def set_lr(optimizer, lr):
-  for param_group in optimizer.param_groups:
-    param_group['lr'] = lr
+
 
 
 def compute_returns(next_value, rewards, masks, discount_factor=0.99):

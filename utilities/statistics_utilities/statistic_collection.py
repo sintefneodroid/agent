@@ -1,6 +1,6 @@
 import statistics as S
 
-from utilities.statistics import StatisticAggregator
+from utilities.statistics_utilities import StatisticAggregator
 
 
 class StatisticCollection(object):

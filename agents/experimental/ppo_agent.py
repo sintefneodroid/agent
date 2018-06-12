@@ -14,7 +14,6 @@ import utilities as U
 from agents.ac_agent import ACAgent
 
 
-
 class PPOAgent(ACAgent):
   '''
 '''
@@ -55,9 +54,9 @@ class PPOAgent(ACAgent):
     self._actor_critic_arch = U.ActorCriticNetwork
     self._actor_critic_arch_params = {
       'input_size':             None,
-      'hidden_layers':            [32, 32],
-      'actor_hidden_layers':      [32],
-      'critic_hidden_layers':     [32],
+      'hidden_layers':          [32, 32],
+      'actor_hidden_layers':    [32],
+      'critic_hidden_layers':   [32],
       'actor_output_size':      None,
       'actor_output_activation':F.log_softmax,
       'critic_output_size':     [1],
@@ -182,7 +181,7 @@ continuous
   def rollout(self,
               initial_state,
               environment,
-              render=False,train=True,
+              render=False, train=True,
               **kwargs):
     self._rollout_i += 1
 
@@ -404,6 +403,7 @@ continuous
 
       if batch_i >= self._initial_observation_period:
         advantage_memories = self.trace_back_steps(transitions)
+
         for m in advantage_memories:
           self._experience_buffer.add(m)
 
@@ -421,48 +421,6 @@ continuous
     return self._actor_critic, []
 
 
-def test_ppo_agent(config):
-  import gym
-
-  device = torch.device('cuda' if config.USE_CUDA else 'cpu')
-  U.set_seed(config.SEED)
-
-  env = gym.make(config.ENVIRONMENT_NAME)
-  env.seed(config.SEED)
-
-  agent = PPOAgent(config)
-  agent.build(env, device)
-
-  listener = U.add_early_stopping_key_combination(agent.stop_training)
-
-  listener.start()
-  try:
-    actor_critic_model, stats = agent.train(env, config.ROLLOUTS, render=config.RENDER_ENVIRONMENT)
-  finally:
-    listener.stop()
-
-  U.save_model(actor_critic_model, config, name='actor_critic')
-
-
 if __name__ == '__main__':
   import configs.ppo_config as C
-
-  from configs.arguments import parse_arguments
-
-  args = parse_arguments('PPO Agent', C)
-
-  for k, arg in args.__dict__.items():
-    setattr(C, k, arg)
-
-  U.sprint(f'\nUsing config: {C}\n', highlight=True, color='yellow')
-  if not args.skip_confirmation:
-    for k, arg in U.get_upper_vars_of(C).items():
-      print(f'{k} = {arg}')
-    input('\nPress Enter to begin... ')
-
-  try:
-    test_ppo_agent(C)
-  except KeyboardInterrupt:
-    print('Stopping')
-
-  torch.cuda.empty_cache()
+  U.test_agent_main(PPOAgent, C)

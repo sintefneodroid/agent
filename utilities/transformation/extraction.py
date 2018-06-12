@@ -1,19 +1,17 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-import cv2
+# import cv2
 import matplotlib.pyplot as plt
 import numpy as np
 import torch
 import torchvision.transforms as T
 from PIL import Image
 
-cv2.setNumThreads(0)
+# cv2.setNumThreads(0)
 
 __author__ = 'cnheider'
 
-resize = T.Compose(
-    [T.ToPILImage(), T.Resize(40, interpolation=Image.CUBIC), T.ToTensor()]
-    )
+resize = T.Compose([T.ToPILImage(), T.Resize(40, interpolation=Image.CUBIC), T.ToTensor()])
 
 # This is based on the code from gym.
 screen_width = 600
@@ -37,9 +35,7 @@ def get_screen(env):
   elif cart_location > (screen_width - view_width // 2):
     slice_range = slice(-view_width, None)
   else:
-    slice_range = slice(
-        cart_location - view_width // 2, cart_location + view_width // 2
-        )
+    slice_range = slice(cart_location - view_width // 2, cart_location + view_width // 2)
   # Strip off the edges, so that we have a square image centered on a cart
   screen = screen[:, :, slice_range]
   # Convert to float, rescale, convert to torch tensor

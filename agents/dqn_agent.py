@@ -334,34 +334,6 @@ class DQNAgent(ValueAgent):
 
     return self._value_model, []
 
-
-def test_dqn_agent(config):
-  import gym
-
-  device = torch.device('cuda' if config.USE_CUDA else 'cpu')
-
-  environment = gym.make(config.ENVIRONMENT_NAME)
-  environment.seed(config.SEED)
-
-  agent = DQNAgent(config)
-  agent.build(environment, device)
-
-  listener = U.add_early_stopping_key_combination(agent.stop_training)
-
-  listener.start()
-  try:
-
-    trained_model, training_statistics, *_ = agent.train_episodic(
-        environment, config.ROLLOUTS, render=config.RENDER_ENVIRONMENT
-        )
-  finally:
-    listener.stop()
-
-  U.save_model(trained_model, config)
-
-  environment.close()
-
-
 def test_cnn_dqn_agent(config):
   import gym
 
@@ -419,28 +391,9 @@ def test_cnn_dqn_agent(config):
   plt.ioff()
   plt.show()
 
-
 if __name__ == '__main__':
   import configs.dqn_config as C
   # import configs.cnn_dqn_config as C
 
-  from configs.arguments import parse_arguments
-
-  args = parse_arguments('DQN agent', C)
-
-  for k, arg in args.__dict__.items():
-    setattr(C, k, arg)
-
-  U.sprint(f'\nUsing config: {C}\n', highlight=True, color='yellow')
-  if not args.skip_confirmation:
-    for k, arg in U.get_upper_vars_of(C).items():
-      print(f'{k} = {arg}')
-    input('\nPress Enter to begin... ')
-
-  try:
-    test_dqn_agent(C)
-    # test_cnn_dqn_agent(C)
-  except KeyboardInterrupt:
-    print('Stopping')
-
-  torch.cuda.empty_cache()
+  U.test_agent_main(DQNAgent, C)
+  # test_cnn_dqn_agent(C)

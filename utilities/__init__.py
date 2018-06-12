@@ -12,12 +12,12 @@ from .memory import *
 from .persistence import *
 from .random_process import *
 from .sampling import *
-from .statistics import *
+from .statistics_utilities import *
 from .stopping import *
-from utilities.torch.torch_utilities import *
+from .torch_utilities import *
 from .transformation import *
 from .updates import *
 from .visualisation import *
-from .torch import *
 from .exceptions import *
 from .specifications import *
+from .agent_tests import *

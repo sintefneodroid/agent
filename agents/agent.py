@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 from itertools import count
+from typing import Any, Tuple
 from warnings import warn
 
 import torch
@@ -42,43 +43,47 @@ All agent should inherit from this class
       self.set_config_attributes(config)
 
   @abstractmethod
-  def _build(self):
+  def _build(self)-> None:
     raise NotImplementedError
 
   @abstractmethod
-  def _defaults(self):
+  def _defaults(self)-> None:
     raise NotImplementedError
 
   @abstractmethod
-  def sample_action(self, state, *args, **kwargs):
+  def sample_action(self, state, *args, **kwargs)->Any:
     raise NotImplementedError()
 
   @abstractmethod
-  def _sample_model(self, state, *args, **kwargs):
+  def _sample_model(self, state, *args, **kwargs)->Any:
     raise NotImplementedError()
 
   @abstractmethod
-  def update(self, *args, **kwargs):
+  def update(self, *args, **kwargs)-> None:
     raise NotImplementedError()
 
   @abstractmethod
-  def _optimise_wrt(self, error, *args, **kwargs):
+  def _optimise_wrt(self, error, *args, **kwargs)-> None:
     raise NotImplementedError()
 
   @abstractmethod
-  def evaluate(self, batch, *args, **kwargs):
+  def evaluate(self, batch, *args, **kwargs)->Any:
     raise NotImplementedError()
 
   @abstractmethod
-  def rollout(self, initial_state, environment, *, train=True, **kwargs):
+  def rollout(self, initial_state, environment, *, train=True, render=False, **kwargs)->Any:
     raise NotImplementedError()
 
   @abstractmethod
-  def load(self, *args, **kwargs):
+  def load(self, *args, **kwargs)-> None:
     raise NotImplementedError()
 
   @abstractmethod
-  def save(self, *args, **kwargs):
+  def save(self, *args, **kwargs)-> None:
+    raise NotImplementedError()
+
+  @abstractmethod
+  def train(self,*args,**kwargs) -> Tuple[Any, Any]:
     raise NotImplementedError()
 
   def _step(self):
@@ -189,6 +194,7 @@ Tries to infer input and output size from env if either _input_size or _output_s
     self._end_training = True
 
   def build(self, env, device, **kwargs):
+    self._environment = env
     self._infer_input_output_sizes(env)
     self._device = device
 

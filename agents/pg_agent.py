@@ -277,51 +277,7 @@ class PGAgent(PolicyAgent):
     return self._policy, stats
 
 
-def test_pg_agent(config):
-  device = torch.device('cuda' if config.USE_CUDA else 'cpu')
-
-  env = gym.make(config.ENVIRONMENT_NAME)
-  env.seed(config.SEED)
-  torch.manual_seed(config.SEED)
-
-  agent = PGAgent(config)
-  agent.build(env, device)
-
-  listener = U.add_early_stopping_key_combination(agent.stop_training)
-
-  listener.start()
-  try:
-    _trained_model, training_statistics, *_ = agent.train(
-        env, config.ROLLOUTS, render=config.RENDER_ENVIRONMENT
-        )
-  finally:
-    listener.stop()
-
-  U.save_model(_trained_model, config)
-  training_statistics.save()
-
-  env.close()
-
-
 if __name__ == '__main__':
   import configs.pg_config as C
 
-  from configs.arguments import parse_arguments
-
-  args = parse_arguments('PG Agent', C)
-
-  for k, arg in args.__dict__.items():
-    setattr(C, k, arg)
-
-  U.sprint(f'\nUsing config: {C}\n', highlight=True, color='yellow')
-  if not args.skip_confirmation:
-    for k, arg in U.get_upper_vars_of(C).items():
-      print(f'{k} = {arg}')
-    input('\nPress Enter to begin... ')
-
-  try:
-    test_pg_agent(C)
-  except KeyboardInterrupt:
-    print('Stopping')
-
-  torch.cuda.empty_cache()
+  U.test_agent_main(PGAgent, C)
