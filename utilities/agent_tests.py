@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-from utilities.environment_wrappers.action_encoding import BinaryActionEncodingWrapper
+from utilities.environment_wrappers.action_encoding_wrappers import BinaryActionEncodingWrapper
 
 __author__ = 'cnheider'
 import glob
@@ -9,6 +9,7 @@ import os
 import torch
 import utilities as U
 import gym
+
 
 def train_agent(agent_type, config):
   device = torch.device('cuda' if config.USE_CUDA else 'cpu')
@@ -33,6 +34,7 @@ def train_agent(agent_type, config):
   stats.save()
 
   env.close()
+
 
 def train_agent2(env, agent, config):
   device = torch.device('cuda' if config.USE_CUDA else 'cpu')
@@ -108,6 +110,7 @@ def test_agent_main(agent, config):
 if __name__ == '__main__':
   import configs.pg_config as C
   from agents.pg_agent import PGAgent
+
   env = BinaryActionEncodingWrapper(name=C.ENVIRONMENT_NAME,
                                     connect_to_running=C.CONNECT_TO_RUNNING)
   env.seed(C.SEED)

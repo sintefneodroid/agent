@@ -6,7 +6,6 @@ Description: Config for training
 Author: Christian Heider Nielsen
 '''
 
-from configs.base_config import *
 from utilities import *
 
 CONFIG_NAME = __name__
@@ -14,20 +13,20 @@ CONFIG_FILE = __file__
 
 # Architecture
 POLICY_ARCH_PARAMS = {
-  'input_size': None,  # Obtain from environment
-  'activation': F.leaky_relu,
+  'input_size':   None,  # Obtain from environment
+  'activation':   F.leaky_relu,
   'hidden_layers':[128, 64, 32, 16],
-  'output_size':None,  # Obtain from environment,
-  'use_bias':   False,
+  'output_size':  None,  # Obtain from environment,
+  'use_bias':     False,
   }
 POLICY_ARCH = CategoricalMLP
 
 VALUE_ARCH_PARAMS = {
-  'input_size': None,  # Obtain from environment
-  'activation': F.relu,
+  'input_size':   None,  # Obtain from environment
+  'activation':   F.relu,
   'hidden_layers':[128, 64, 32, 16],
-  'output_size':None,  # Obtain from environment
-  'use_bias':   False,
+  'output_size':  None,  # Obtain from environment
+  'use_bias':     False,
   }
 VALUE_ARCH = MLP
 

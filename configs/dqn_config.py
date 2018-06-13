@@ -39,9 +39,9 @@ ENVIRONMENT_NAME = 'CartPole-v0'
 
 # Architecture
 VALUE_ARCH_PARAMETERS = {
-  'input_size': None,  # Obtain from environment
+  'input_size':   None,  # Obtain from environment
   'hidden_layers':[64, 32, 16],
-  'output_size':None,  # Obtain from environment
-  'activation': F.relu,
-  'use_bias':   True,
+  'output_size':  None,  # Obtain from environment
+  'activation':   F.relu,
+  'use_bias':     True,
   }

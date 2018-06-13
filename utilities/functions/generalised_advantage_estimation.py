@@ -3,15 +3,10 @@
 
 __author__ = 'cnheider'
 
-
-
 import numpy as np
 import torch
 
 import utilities as U
-
-
-
 
 
 def generalised_advantage_estimate(
@@ -129,9 +124,6 @@ def mean_std_groups(x, y, group_size):
     y_stds = np.concatenate([y_stds, y_tail.std(axis=0, keepdims=True)])
 
   return x_means, x_stds, y_means, y_stds
-
-
-
 
 
 def compute_returns(next_value, rewards, masks, discount_factor=0.99):

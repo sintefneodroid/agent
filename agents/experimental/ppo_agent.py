@@ -334,7 +334,7 @@ continuous
                           num_batches=10000,
                           render=False,
                           render_frequency=100,
-                          stat_frequency=100,
+                          stat_frequency=10,
                           batch_length=100):
 
     self._rollout_i = 1
@@ -378,7 +378,7 @@ continuous
                       num_batches=10000,
                       render=False,
                       render_frequency=100,
-                      stat_frequency=100,
+                      stat_frequency=10,
                       **kwargs):
 
     self._rollout_i = 1
@@ -423,4 +423,5 @@ continuous
 
 if __name__ == '__main__':
   import configs.ppo_config as C
+
   U.test_agent_main(PPOAgent, C)

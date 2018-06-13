@@ -6,7 +6,7 @@ from utilities.statistics_utilities import StatisticAggregator
 class StatisticCollection(object):
 
   def __init__(self, stats=('signal', 'length'), measures=S.__all__[1:],
-               keep_measure_history=False):
+               keep_measure_history=True):
     self._statistics = {}
     self._measures = measures
     self._keep_measure_history = keep_measure_history
@@ -49,6 +49,12 @@ class StatisticCollection(object):
 
   def __str__(self):
     return self.__repr__()
+
+  def __iter__(self):
+    return self.statistics
+
+  def items(self):
+    return self.statistics.items()
 
   def save(self, **kwargs):
     for key, value in self._statistics.items():

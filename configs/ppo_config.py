@@ -59,9 +59,9 @@ ACTOR_CRITIC_LR = 3e-4
 
 ACTOR_CRITIC_ARCH_PARAMS = {
   'input_size':             None,
-  'hidden_layers':            [32, 32],
-  'actor_hidden_layers':      [32],
-  'critic_hidden_layers':     [32],
+  'hidden_layers':          [32, 32],
+  'actor_hidden_layers':    [32],
+  'critic_hidden_layers':   [32],
   'actor_output_size':      None,
   'actor_output_activation':F.log_softmax,
   'critic_output_size':     [1],

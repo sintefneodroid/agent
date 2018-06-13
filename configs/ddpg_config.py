@@ -67,7 +67,7 @@ ENVIRONMENT_NAME = 'Pendulum-v0'
 # Architecture
 ACTOR_ARCH_PARAMS = {
   'input_size':       None,  # Obtain from environment
-  'hidden_layers':      [128, 64],
+  'hidden_layers':    [128, 64],
   'output_activation':None,
   'output_size':      None,  # Obtain from environment
   }
@@ -75,7 +75,7 @@ ACTOR_ARCH = U.ActorArchitecture
 
 CRITIC_ARCH_PARAMS = {
   'input_size':       None,  # Obtain from environment
-  'hidden_layers':      [128, 64],
+  'hidden_layers':    [128, 64],
   'output_activation':None,
   'output_size':      None,  # Obtain from environment
   }

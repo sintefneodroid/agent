@@ -22,8 +22,13 @@ All policy iteration agents should inherit from this class
   def _infer_input_output_sizes(self, env, **kwargs):
     super()._infer_input_output_sizes(env)
 
-    self._policy_arch_params['input_size'] = self._input_size
-    self._policy_arch_params['output_size'] = self._output_size
+    di = self._policy_arch_params._asdict()
+    di['input_size'] = self._input_size
+    di['output_size'] = self._output_size
+
+    self._policy_arch_params=U.ConciseArchSpecification(**di)
+
+
 
   def save(self, C):
     U.save_model(self._policy, C)

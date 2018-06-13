@@ -54,7 +54,7 @@ if __name__ == '__main__':
   U.sprint(f'\nUsing config: {C}\n', highlight=True, color='yellow')
   if not args.skip_confirmation:
     for key, arg in U.get_upper_vars_of(C).items():
-      print(f'{k} = {arg}')
+      print(f'{key} = {arg}')
     input('\nPress Enter to begin... ')
 
   _agent = C.AGENT_TYPE(C)

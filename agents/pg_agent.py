@@ -5,7 +5,6 @@ __author__ = 'cnheider'
 import time
 from itertools import count
 
-import gym
 import numpy as np
 import torch
 import torch.nn.functional as F
@@ -15,7 +14,6 @@ from tqdm import tqdm
 
 import utilities as U
 from agents.policy_agent import PolicyAgent
-from utilities.visualisation.term_plot import term_plot
 
 tqdm.monitor_interval = 0
 
@@ -73,7 +71,7 @@ class PGAgent(PolicyAgent):
 
   def _build(self):
 
-    policy = self._policy_arch(**self._policy_arch_params).to(self._device)
+    policy = self._policy_arch(**(self._policy_arch_params._asdict())).to(self._device)
 
     self.optimiser = self._optimiser_type(
         policy.parameters(),
@@ -218,43 +216,26 @@ class PGAgent(PolicyAgent):
       rollouts=2000,
       render=False,
       render_frequency=100,
-      stat_frequency=100,
+      stat_frequency=10,
       ):
 
     training_start_timestamp = time.time()
     E = range(1, rollouts)
     E = tqdm(E, f'Episode: {1}', leave=False)
 
-    stats = U.StatisticCollection(stats=('signal', 'duration', 'entropy'), keep_measure_history=True)
+    stats = U.StatisticCollection(stats=('signal', 'duration', 'entropy'))
 
     for episode_i in E:
       initial_state = _environment.reset()
 
       if episode_i % stat_frequency == 0:
-        t_episode = [i for i in range(1, episode_i + 1)]
-        term_plot(
-            t_episode,
-            stats.signal.running_value,
-            'Running Return',
-            printer=E.write,
-            percent_size=(1, .24),
-            )
-        term_plot(
-            t_episode,
-            stats.duration.running_value,
-            'Running Lengths',
-            printer=E.write,
-            percent_size=(1, .24),
-            )
-        term_plot(
-            t_episode,
-            stats.entropy.running_value,
-            'Running Entropy',
-            printer=E.write,
-            percent_size=(1, .24),
-            )
+        U.term_plot_stats_shared_x(stats,
+                                   printer=E.write,styles=[U.style(color='magenta', highlight=True),
+                                           U.style(color='cyan', highlight=True),U.style(color='yellow',
+                                                                                         highlight=True)])
 
-        E.set_description(f'Episode: {episode_i}, Running length: {stats.duration.running_value[-1]}')
+        E.set_description(f'Episode: {episode_i}, Running signal: {stats.signal.running_value[-1]}, '
+                          f'Running length: {stats.duration.running_value[-1]}')
 
       if render and episode_i % render_frequency == 0:
         signal, dur, entrp, *extras = self.rollout(

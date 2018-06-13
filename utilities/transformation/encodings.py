@@ -1,17 +1,18 @@
-#!/usr/bin/env python3 
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 __author__ = 'cnheider'
 
 import numpy as np
 
 
-def signed_one_hot_encoding(size: int, index):
+def signed_ternary_encoding(size: int, index):
   a = np.zeros(size)
   if index < size:
     a[index] = 1
   else:
     a[index - size] = -1
   return a
+
 
 
 def to_one_hot(dims, index):

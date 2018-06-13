@@ -14,8 +14,6 @@ tqdm.monitor_interval = 0
 import utilities as U
 from agents.ac_agent import ACAgent
 from utilities.random_process.ornstein_uhlenbeck import OrnsteinUhlenbeckProcess
-from utilities.visualisation.term_plot import term_plot
-
 
 
 class DDPGAgent(ACAgent):
@@ -79,7 +77,7 @@ Parameters
     self._actor_arch = U.ActorArchitecture
     self._actor_arch_parameters = {
       'input_size':       None,  # Obtain from environment
-      'hidden_layers':      [128, 64],
+      'hidden_layers':    [128, 64],
       'output_activation':None,
       'output_size':      None,  # Obtain from environment
       }
@@ -87,7 +85,7 @@ Parameters
     self._critic_arch = U.CriticArchitecture
     self._critic_arch_parameters = {
       'input_size':       None,  # Obtain from environment
-      'hidden_layers':      [128, 64],
+      'hidden_layers':    [128, 64],
       'output_activation':None,
       'output_size':      None,  # Obtain from environment
       }
@@ -264,7 +262,7 @@ Update the target networks
           * target_param.data
           )
 
-  def rollout(self, initial_state, environment, render=False,train=True, **kwargs):
+  def rollout(self, initial_state, environment, render=False, train=True, **kwargs):
     self._rollout_i += 1
 
     state = initial_state
@@ -327,7 +325,7 @@ The Deep Deterministic Policy Gradient algorithm.
 :param stat_frequency:
 :type stat_frequency:
 '''
-    stats = U.StatisticCollection(stats=('signal', 'duration'), keep_measure_history=True)
+    stats = U.StatisticCollection(stats=('signal', 'duration'))
 
     E = range(1, rollouts)
     E = tqdm(E, desc='', leave=False)
@@ -337,23 +335,10 @@ The Deep Deterministic Policy Gradient algorithm.
       self._random_process.reset()
 
       if episode_i % stat_frequency == 0:
-        t_episode = [i for i in range(1, episode_i + 1)]
-        term_plot(
-            t_episode,
-            stats.signal.running_value,
-            'Running signal',
-            printer=E.write,
-            percent_size=(1, .24),
-            style=U.style(color='magenta', highlight=True)
-            )
-        term_plot(
-            t_episode,
-            stats.duration.running_value,
-            'Duration',
-            printer=E.write,
-            percent_size=(1, .24),
-            style=U.style(color='cyan', highlight=True)
-            )
+        U.term_plot_stats_shared_x(stats,
+                                   printer=E.write,
+                                   styles=[U.style(color='magenta', highlight=True),
+                                           U.style(color='cyan', highlight=True)])
         E.set_description(
             f'Episode: {episode_i}, Last signal: {stats.signal[-1]}'
             )

@@ -6,7 +6,6 @@ from tqdm import tqdm
 
 import utilities as U
 from agents.agent import Agent
-from utilities.visualisation.term_plot import term_plot
 
 
 class RandomAgent(Agent):
@@ -47,6 +46,7 @@ class RandomAgent(Agent):
       action = self.sample_action(state)
 
       state, signal, terminated, info = environment.step(action=action)
+      episode_signal+=signal
 
       if render:
         environment.render()
@@ -71,32 +71,21 @@ class RandomAgent(Agent):
             rollouts=2000,
             render=False,
             render_frequency=100,
-            stat_frequency=100,
+            stat_frequency=10,
             **kwargs) -> Tuple[Any, Any]:
     training_start_timestamp = time.time()
     E = range(1, rollouts)
     E = tqdm(E, f'Episode: {1}', leave=False)
 
-    stats = U.StatisticCollection(stats=('signal', 'duration', 'entropy'), keep_measure_history=True)
+    stats = U.StatisticCollection(stats=('signal', 'duration'))
 
     for episode_i in E:
       initial_state = _environment.reset()
 
       if episode_i % stat_frequency == 0:
-        t_episode = [i for i in range(1, episode_i + 1)]
-        term_plot(
-            t_episode,
-            stats.signal.running_value,
-            'Running Return',
+        U.term_plot_stats_shared_x(
+            stats,
             printer=E.write,
-            percent_size=(1, .24),
-            )
-        term_plot(
-            t_episode,
-            stats.duration.running_value,
-            'Duration',
-            printer=E.write,
-            percent_size=(1, .24),
             )
 
         E.set_description(f'Episode: {episode_i}, Running length: {stats.duration.running_value[-1]}')
@@ -123,5 +112,8 @@ class RandomAgent(Agent):
 
 if __name__ == '__main__':
   import configs.pg_config as C
+
+  C.CONNECT_TO_RUNNING = False
+  C.ENVIRONMENT_NAME = 'small_grid_world'
 
   U.test_agent_main(RandomAgent, C)

@@ -17,8 +17,7 @@ import pylab as plt
 
 import utilities as U
 from agents.value_agent import ValueAgent
-from utilities.visualisation.term_plot import term_plot
-
+from utilities.visualisation.term_plot import term_plot_stats_shared_x
 
 
 class DQNAgent(ValueAgent):
@@ -36,11 +35,11 @@ class DQNAgent(ValueAgent):
 
     self._value_arch = U.MLP
     self._value_arch_parameters = U.ConciseArchSpecification(**{
-      'input_size': None,  # Obtain from environment
+      'input_size':   None,  # Obtain from environment
       'hidden_layers':[64, 32, 16],
-      'output_size':None,  # Obtain from environment
-      'activation': F.relu,
-      'use_bias':   True,
+      'output_size':  None,  # Obtain from environment
+      'activation':   F.relu,
+      'use_bias':     True,
       })
 
     self._batch_size = 128
@@ -257,7 +256,7 @@ class DQNAgent(ValueAgent):
       rollouts=1000,
       render=False,
       render_frequency=100,
-      stat_frequency=100,
+      stat_frequency=10,
       **kwargs
       ):
     '''
@@ -276,7 +275,7 @@ class DQNAgent(ValueAgent):
 :rtype:
 '''
 
-    stats = U.StatisticCollection(stats=('signal', 'duration', 'td_error'), keep_measure_history=True)
+    stats = U.StatisticCollection(stats=('signal', 'duration', 'td_error'))
 
     E = range(1, rollouts)
     E = tqdm(E, leave=False)
@@ -287,28 +286,7 @@ class DQNAgent(ValueAgent):
       initial_state = _environment.reset()
 
       if episode_i % stat_frequency == 0:
-        t_episode = [i for i in range(1, episode_i + 1)]
-        term_plot(
-            t_episode,
-            stats.signal.running_value,
-            'Running Signal',
-            printer=E.write,
-            percent_size=(1, .24),
-            )
-        term_plot(
-            t_episode,
-            stats.duration.running_value,
-            'Duration',
-            printer=E.write,
-            percent_size=(1, .24),
-            )
-        term_plot(
-            t_episode,
-            stats.td_error.running_value,
-            'TD Error',
-            printer=E.write,
-            percent_size=(1, .24),
-            )
+        term_plot_stats_shared_x(stats, printer=E.write)
         E.set_description(
             f'Episode: {episode_i}, '
             f'Running Signal: {stats.signal.running_value[-1]}, '
@@ -333,6 +311,7 @@ class DQNAgent(ValueAgent):
     print('\n{} {} {}\n'.format('-' * 9, end_message, '-' * 9))
 
     return self._value_model, []
+
 
 def test_cnn_dqn_agent(config):
   import gym
@@ -391,8 +370,10 @@ def test_cnn_dqn_agent(config):
   plt.ioff()
   plt.show()
 
+
 if __name__ == '__main__':
   import configs.dqn_config as C
+
   # import configs.cnn_dqn_config as C
 
   U.test_agent_main(DQNAgent, C)

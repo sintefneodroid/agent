@@ -6,6 +6,7 @@ from warnings import warn
 
 import torch
 from tqdm import tqdm
+
 tqdm.monitor_interval = 0
 
 from utilities.exceptions.exceptions import HasNoEnvException
@@ -43,47 +44,47 @@ All agent should inherit from this class
       self.set_config_attributes(config)
 
   @abstractmethod
-  def _build(self)-> None:
+  def _build(self) -> None:
     raise NotImplementedError
 
   @abstractmethod
-  def _defaults(self)-> None:
+  def _defaults(self) -> None:
     raise NotImplementedError
 
   @abstractmethod
-  def sample_action(self, state, *args, **kwargs)->Any:
+  def sample_action(self, state, *args, **kwargs) -> Any:
     raise NotImplementedError()
 
   @abstractmethod
-  def _sample_model(self, state, *args, **kwargs)->Any:
+  def _sample_model(self, state, *args, **kwargs) -> Any:
     raise NotImplementedError()
 
   @abstractmethod
-  def update(self, *args, **kwargs)-> None:
+  def update(self, *args, **kwargs) -> None:
     raise NotImplementedError()
 
   @abstractmethod
-  def _optimise_wrt(self, error, *args, **kwargs)-> None:
+  def _optimise_wrt(self, error, *args, **kwargs) -> None:
     raise NotImplementedError()
 
   @abstractmethod
-  def evaluate(self, batch, *args, **kwargs)->Any:
+  def evaluate(self, batch, *args, **kwargs) -> Any:
     raise NotImplementedError()
 
   @abstractmethod
-  def rollout(self, initial_state, environment, *, train=True, render=False, **kwargs)->Any:
+  def rollout(self, initial_state, environment, *, train=True, render=False, **kwargs) -> Any:
     raise NotImplementedError()
 
   @abstractmethod
-  def load(self, *args, **kwargs)-> None:
+  def load(self, *args, **kwargs) -> None:
     raise NotImplementedError()
 
   @abstractmethod
-  def save(self, *args, **kwargs)-> None:
+  def save(self, *args, **kwargs) -> None:
     raise NotImplementedError()
 
   @abstractmethod
-  def train(self,*args,**kwargs) -> Tuple[Any, Any]:
+  def train(self, *args, **kwargs) -> Tuple[Any, Any]:
     raise NotImplementedError()
 
   def _step(self):
@@ -133,32 +134,30 @@ Tries to infer input and output size from env if either _input_size or _output_s
     self.__parse_set_attr(**kwargs)
 
   def __check_for_duplicates_in_args(self, *args, **kwargs):
-    for k, v in kwargs.items():
+    for key, value in kwargs.items():
 
       occur = 0
 
-      if kwargs.get(k) is not None:
+      if kwargs.get(key) is not None:
         occur += 1
       else:
         pass
 
-      if k.isupper():
-        k_lowered = f'_{k.lower()}'
+      if key.isupper():
+        k_lowered = f'_{key.lower()}'
         if kwargs.get(k_lowered) is not None:
           occur += 1
         else:
           pass
       else:
-        k_lowered = f'{k.lstrip("_").upper()}'
+        k_lowered = f'{key.lstrip("_").upper()}'
         if kwargs.get(k_lowered) is not None:
           occur += 1
         else:
           pass
 
       if occur > 1:
-        warn(
-            f'Config contains hiding duplicates of {k} and {k_lowered}, {occur} times'
-            )
+        warn(f'Config contains hiding duplicates of {key} and {k_lowered}, {occur} times')
 
   def __parse_set_attr(self, *args, **kwargs):
     for k, v in kwargs.items():

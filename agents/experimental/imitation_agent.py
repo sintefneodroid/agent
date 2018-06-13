@@ -36,5 +36,5 @@ class ImitationAgent(Agent):
   def _optimise_wrt(self, error, **kwargs):
     pass
 
-  def rollout(self, init_obs, env,train=True, **kwargs):
+  def rollout(self, init_obs, env, train=True, **kwargs):
     pass

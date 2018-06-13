@@ -15,5 +15,5 @@ class EVOAgent(Agent):
   def evaluate(self, batch, **kwargs):
     pass
 
-  def rollout(self, init_obs, env,train=True, **kwargs):
+  def rollout(self, init_obs, env, train=True, **kwargs):
     pass

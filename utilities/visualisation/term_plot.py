@@ -4,7 +4,7 @@ import sys
 
 from utilities.visualisation.sprint import *
 
-sys.stdout.write(style(u'Term Plot Ûnicöde Probe', underline=True))
+sys.stdout.write(style(u'\nTerm Plot Ûnicöde Probe\n\n', underline=True))
 
 __author__ = 'cnheider'
 
@@ -15,8 +15,9 @@ import termios
 
 
 def term_plot(
-    x,
     y,
+    *,
+    x=None,
     title='',
     rows=None,
     columns=None,
@@ -31,6 +32,15 @@ def term_plot(
 x, y list of values on x- and y-axis
 plot those values within canvas size (rows and columns)
 '''
+
+  num_y = len(y)
+  if x:
+    if len(x) != num_y:
+      raise ValueError(f'x argument must match the length of y, got x:{len(x)} and '
+                       f'y:{num_y}')
+  else:
+    x = [i for i in range(num_y)]
+
   actual_columns = columns
   actual_rows = rows
   border_size = (1, 1)
@@ -105,3 +115,27 @@ def get_terminal_size():
     rc = (os.getenv('LINES', 25), os.getenv('COLUMNS', 80))
 
   return rc
+
+
+def term_plot_stats_shared_x(stats, *, x=None, styles=None, printer=print, margin=.25, summary=True):
+  num_stats = len(stats)
+
+  y_size = (1 - margin) / num_stats
+
+  if styles:
+    if len(styles) != num_stats:
+      raise ValueError(f'styles argument must match the length of stats, got styles:{len(styles)} and '
+                       f'stats:{num_stats}')
+  else:
+    styles = [None for _ in range(num_stats)]
+
+  for (key, stat), sty in zip(stats.items(), styles):
+    term_plot(
+        stat.running_value,
+        title=key,
+        x=x,
+        printer=printer,
+        style=sty,
+        percent_size=(1, y_size),
+        summary=summary
+        )

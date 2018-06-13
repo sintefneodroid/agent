@@ -49,7 +49,7 @@ class StatisticAggregator(object):
         try:
           val = getattr(S, key)(self._values)
         except S.StatisticsError as e:
-          warn(f'{e}')
+          # TODO: warn(f'{e}')
           val = None
         out[key] = val
       return out
@@ -75,11 +75,11 @@ class StatisticAggregator(object):
             val = None
           self._measures[key].append(val)
         else:
-          #warn(f'Length of statistical values are <=1, measure "{key}" maybe ill-defined')
+          # warn(f'Length of statistical values are <=1, measure "{key}" maybe ill-defined')
           try:
             val = getattr(S, key)(self._values)
           except S.StatisticsError as e:
-            warn(f'{e}')
+            # TODO: warn(f'{e}')
             val = None
           self._measures[key].append(val)
 

@@ -10,7 +10,7 @@ import torch
 from tqdm import tqdm
 
 import neodroid.wrappers.curriculum_wrapper as neo
-from utilities.environment_wrappers.action_encoding import BinaryActionEnvironment
+from utilities.environment_wrappers.action_encoding_wrappers import BinaryActionEnvironment
 from utilities.visualisation.term_plot import term_plot
 
 tqdm.monitor_interval = 0
@@ -150,7 +150,7 @@ if __name__ == '__main__':
   U.sprint(f'\nUsing config: {C}\n', highlight=True, color='yellow')
   if not args.skip_confirmation:
     for key, arg in U.get_upper_vars_of(C).items():
-      print(f'{k} = {arg}')
+      print(f'{key} = {arg}')
     input('\nPress Enter to begin... ')
 
   _agent = PGAgent(C)

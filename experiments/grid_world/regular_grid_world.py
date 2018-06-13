@@ -8,18 +8,15 @@ from tqdm import tqdm
 
 tqdm.monitor_interval = 0
 
-from neodroid.wrappers.gym_wrapper import NeodroidGymWrapper as neo
 import utilities as U
 
 
 def train_agent(config, agent):
   device = torch.device('cuda' if config.USE_CUDA else 'cpu')
-  neo.seed(config.SEED)
   torch.manual_seed(config.SEED)
 
-  env = neo(
-      environment_name=config.ENVIRONMENT_NAME, connect_to_running=config.CONNECT_TO_RUNNING
-      )
+  env = U.BinaryActionEncodingWrapper(environment_name=config.ENVIRONMENT_NAME,
+                                      connect_to_running=config.CONNECT_TO_RUNNING)
   env.seed(config.SEED)
 
   agent.build(env, device)
@@ -28,9 +25,8 @@ def train_agent(config, agent):
 
   listener.start()
   try:
-    _trained_model, running_signals, running_lengths, *training_statistics = agent.train(
-        env, config.ROLLOUTS, render=config.RENDER_ENVIRONMENT
-        )
+    _trained_model, running_signals, running_lengths, *training_statistics = agent.train(env, config.ROLLOUTS,
+                                                                                         render=config.RENDER_ENVIRONMENT)
   finally:
     listener.stop()
 
@@ -46,7 +42,7 @@ if __name__ == '__main__':
 
   from configs.arguments import parse_arguments
 
-  args = parse_arguments('Regular grid world experiment', C)
+  args = parse_arguments('Regular small grid world experiment', C)
 
   for key, arg in args.__dict__.items():
     setattr(C, key, arg)
@@ -54,7 +50,7 @@ if __name__ == '__main__':
   U.sprint(f'\nUsing config: {C}\n', highlight=True, color='yellow')
   if not args.skip_confirmation:
     for key, arg in U.get_upper_vars_of(C).items():
-      print(f'{k} = {arg}')
+      print(f'{key} = {arg}')
     input('\nPress Enter to begin... ')
 
   _agent = C.AGENT_TYPE(C)

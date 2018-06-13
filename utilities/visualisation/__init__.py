@@ -7,5 +7,8 @@ from .plot_figure import *
 from .plotting import *
 from .run_visdom_server import *
 from .sprint import *
+from .statistics_plot import *
+from .term_plot import *
 from .visdom_manager import *
 from .visualisation import *
+from .visualise_pytorch_autograd_graph import *

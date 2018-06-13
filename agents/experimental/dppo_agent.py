@@ -1,9 +1,10 @@
 import multiprocessing
 import time
 
-from utilities.memory.expandable_circular_buffer import TransitionBuffer
 from utilities.torch.torch_utilities import *
+
 import utilities as U
+from utilities.memory.expandable_circular_buffer import TransitionBuffer
 
 use_gpu = False
 
