@@ -104,7 +104,8 @@ downloads
 eggs
 parts
 *.egg-info
-.idea
+#.idea
 .ropeproject
 .pyre
 logs/*.csv
+
