@@ -68,7 +68,7 @@ This repository will host all initial machine learning efforts applying the [Neo
   - [Perfect Information Navigator](#perfect-information-navigator)
 - [Requirements](#requirements)
 - [Usage](#usage)
-- [To Do](#to-dos)
+- [To Do's](#to-do's)
 - [Contributing](#contributing)
 - [Other Components](#other-components-of-the-neodroid-platform)
 

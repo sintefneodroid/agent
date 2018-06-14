@@ -4,7 +4,11 @@
       <w>cuda</w>
       <w>datasets</w>
       <w>dofs</w>
+      <w>mkdir</w>
+      <w>pynput</w>
+      <w>trackfolder</w>
       <w>ytype</w>
+      <w>yyyy</w>
     </words>
   </dictionary>
 </component>

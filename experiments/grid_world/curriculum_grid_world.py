@@ -7,19 +7,15 @@ import torch
 from tqdm import tqdm
 
 tqdm.monitor_interval = 0
-
-from neodroid.wrappers.gym_wrapper import NeodroidGymWrapper as neo
 import utilities as U
 
 
 def train_agent(config, agent):
   device = torch.device('cuda' if config.USE_CUDA else 'cpu')
-  neo.seed(config.SEED)
   torch.manual_seed(config.SEED)
 
-  env = neo(
-      environment_name=config.ENVIRONMENT_NAME, connect_to_running=config.CONNECT_TO_RUNNING
-      )
+  env = U.BinaryActionEncodingWrapper(environment_name=config.ENVIRONMENT_NAME,
+                                      connect_to_running=config.CONNECT_TO_RUNNING)
   env.seed(config.SEED)
 
   agent.build(env, device)
@@ -46,7 +42,7 @@ if __name__ == '__main__':
 
   from configs.arguments import parse_arguments
 
-  args = parse_arguments('Regular grid world experiment', C)
+  args = parse_arguments('Curriculum grid world experiment', C)
 
   for key, arg in args.__dict__.items():
     setattr(C, key, arg)

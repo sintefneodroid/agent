@@ -1,5 +1,23 @@
-# Byte-compiled / optimized / DLL files
+build/
+dist/
+.vscode
+.installed.cfg
+develop-eggs
+downloads
+eggs
+parts
+*.egg-info
 __pycache__/
+#*.py[cod]
+
+venv/
+*.db
+
+environments/
+*.log
+#.idea
+
+# Byte-compiled / optimized / DLL files
 *$py.class
 
 # C extensions
@@ -8,9 +26,9 @@ __pycache__/
 # Distribution / packaging
 .Python
 env/
-build/
+
 develop-eggs/
-dist/
+
 downloads/
 eggs/
 .eggs/
@@ -20,8 +38,6 @@ parts/
 sdist/
 var/
 wheels/
-*.egg-info/
-.installed.cfg
 *.egg
 
 # PyInstaller
@@ -50,7 +66,6 @@ coverage.xml
 *.pot
 
 # Django stuff:
-*.log
 local_settings.py
 
 # Flask stuff:
@@ -83,7 +98,6 @@ celerybeat-schedule
 
 # virtualenv
 .venv
-venv/
 ENV/
 
 # Spyder project settings
@@ -97,15 +111,11 @@ ENV/
 .mypy_cache/
 *.model
 *.model.py
-.vscode
 
-develop-eggs
-downloads
-eggs
-parts
-*.egg-info
+
 #.idea
 .ropeproject
 .pyre
 logs/*.csv
+
 

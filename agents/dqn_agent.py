@@ -286,7 +286,7 @@ class DQNAgent(ValueAgent):
       initial_state = _environment.reset()
 
       if episode_i % stat_frequency == 0:
-        term_plot_stats_shared_x(stats, printer=E.write)
+        U.styled_term_plot_stats_shared_x(stats, printer=E.write)
         E.set_description(
             f'Episode: {episode_i}, '
             f'Running Signal: {stats.signal.running_value[-1]}, '

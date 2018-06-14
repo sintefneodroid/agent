@@ -335,10 +335,7 @@ The Deep Deterministic Policy Gradient algorithm.
       self._random_process.reset()
 
       if episode_i % stat_frequency == 0:
-        U.term_plot_stats_shared_x(stats,
-                                   printer=E.write,
-                                   styles=[U.style(color='magenta', highlight=True),
-                                           U.style(color='cyan', highlight=True)])
+        U.styled_term_plot_stats_shared_x(stats, printer=E.write)
         E.set_description(
             f'Episode: {episode_i}, Last signal: {stats.signal[-1]}'
             )

@@ -10,7 +10,7 @@ import torch
 from tqdm import tqdm
 
 import neodroid.wrappers.curriculum_wrapper as neo
-from utilities.environment_wrappers.action_encoding_wrappers import BinaryActionEnvironment
+from utilities.environment_wrappers.action_encoding_wrappers import BinaryActionEncodingCurriculumEnvironment
 from utilities.visualisation.term_plot import term_plot
 
 tqdm.monitor_interval = 0
@@ -50,7 +50,7 @@ def main(config, agent, full_state_evaluation_frequency=2):
   _episode_i = 0
   _step_i = 0
 
-  env = BinaryActionEnvironment(
+  env = BinaryActionEncodingCurriculumEnvironment(
       name=C.ENVIRONMENT_NAME, connect_to_running=C.CONNECT_TO_RUNNING
       )
   device = torch.device('cuda' if C.USE_CUDA else 'cpu')

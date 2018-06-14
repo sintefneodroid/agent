@@ -116,6 +116,10 @@ def get_terminal_size():
 
   return rc
 
+def styled_term_plot_stats_shared_x(stats,*,styles=None,**kwargs):
+  if styles is None:
+    styles = [style(color=color, highlight=True) for color,_ in zip(Colors.keys(),range(len(stats)))]
+  return term_plot_stats_shared_x(stats,styles=styles,**kwargs)
 
 def term_plot_stats_shared_x(stats, *, x=None, styles=None, printer=print, margin=.25, summary=True):
   num_stats = len(stats)

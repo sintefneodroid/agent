@@ -11,7 +11,7 @@ import utilities as U
 import gym
 
 
-def train_agent(agent_type, config):
+def regular_train_agent_procedure(agent_type, config):
   device = torch.device('cuda' if config.USE_CUDA else 'cpu')
   U.set_seeds(config.SEED)
 
@@ -36,7 +36,7 @@ def train_agent(agent_type, config):
   env.close()
 
 
-def train_agent2(env, agent, config):
+def regular_train_agent_procedure2(env, agent, config):
   device = torch.device('cuda' if config.USE_CUDA else 'cpu')
   U.set_seeds(config.SEED)
 
@@ -85,7 +85,7 @@ def test_agent():
   _agent.infer(_environment)
 
 
-def test_agent_main(agent, config):
+def test_agent_main(agent, config, training_procedure=regular_train_agent_procedure):
   from configs.arguments import parse_arguments
 
   args = parse_arguments(f'{type(agent)}', config)
@@ -100,7 +100,7 @@ def test_agent_main(agent, config):
     input('\nPress Enter to begin... ')
 
   try:
-    train_agent(agent, config)
+    training_procedure(agent, config)
   except KeyboardInterrupt:
     print('Stopping')
 
@@ -117,4 +117,4 @@ if __name__ == '__main__':
 
   _agent = PGAgent(C)
 
-  train_agent2(env, agent=_agent, config=C)
+  regular_train_agent_procedure2(env, agent=_agent, config=C)

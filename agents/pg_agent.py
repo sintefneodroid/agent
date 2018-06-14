@@ -229,10 +229,8 @@ class PGAgent(PolicyAgent):
       initial_state = _environment.reset()
 
       if episode_i % stat_frequency == 0:
-        U.term_plot_stats_shared_x(stats,
-                                   printer=E.write,styles=[U.style(color='magenta', highlight=True),
-                                           U.style(color='cyan', highlight=True),U.style(color='yellow',
-                                                                                         highlight=True)])
+        U.styled_term_plot_stats_shared_x(stats,
+                                   printer=E.write)
 
         E.set_description(f'Episode: {episode_i}, Running signal: {stats.signal.running_value[-1]}, '
                           f'Running length: {stats.duration.running_value[-1]}')
