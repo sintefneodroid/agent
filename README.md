@@ -63,22 +63,21 @@ This repository will host all initial machine learning efforts applying the [Neo
 </p>
 
 # Contents Of This Readme
-- [Models](#models)
-  - [Target Point Estimator](#target-point-estimator)
-  - [Perfect Information Navigator](#perfect-information-navigator)
+- [Algorithms](#algorithms)
 - [Requirements](#requirements)
 - [Usage](#usage)
-- [To Do's](#to-do's)
+- [Results](#results)
+  - [Target Point Estimator](#target-point-estimator)
+  - [Perfect Information Navigator](#perfect-information-navigator)
 - [Contributing](#contributing)
 - [Other Components](#other-components-of-the-neodroid-platform)
 
-# Models
-
-## Target Point Estimator
-Using Depth, Segmentation And RGB images to estimate the location of target point in an environment.
-
-## Perfect Information Navigator
-Has access to perfect location information about the obstructions and target in the environment, the objective is to navigate to the target with colliding with the obstructions.
+# Algorithms
+- [REINFORCE (PG)](agents/pg_agent.py)
+- [DQN](agents/dqn_agent.py)
+- [DDPG](agents/ddpg_agent.py)
+- [PPO](agents/experimental/ppo_agent.py)
+- GA, EVO, IMITATION...
 
 # Requirements
 - pytorch
@@ -106,8 +105,34 @@ For testing a trained agent use:
 python3 procedures/test_agent.py
 ````
 
-# To Do's
-- [ ] Actually make the models work
+# Results
+
+## Target Point Estimator
+Using Depth, Segmentation And RGB images to estimate the location of target point in an environment.
+
+### [REINFORCE (PG)](agents/pg_agent.py)
+
+### [DQN](agents/dqn_agent.py)
+
+### [DDPG](agents/ddpg_agent.py)
+
+### [PPO](agents/experimental/ppo_agent.py)
+
+### GA, EVO, IMITATION...
+
+## Perfect Information Navigator
+Has access to perfect location information about the obstructions and target in the environment, the objective is to navigate to the target with colliding with the obstructions.
+
+### [REINFORCE (PG)](agents/pg_agent.py)
+
+### [DQN](agents/dqn_agent.py)
+
+### [DDPG](agents/ddpg_agent.py)
+
+### [PPO](agents/experimental/ppo_agent.py)
+
+### GA, EVO, IMITATION...
+
 
 # Contributing
 See guidelines for contributing [here](CONTRIBUTING.md).
@@ -116,6 +141,7 @@ See guidelines for contributing [here](CONTRIBUTING.md).
 
 For citation you may use the following bibtex entry:
 
+````
 @misc{neodroid-agent,
   author = {Heider, Christian},
   title = {Neodroid Platform Agents},
@@ -124,6 +150,7 @@ For citation you may use the following bibtex entry:
   journal = {GitHub repository},
   howpublished = {\url{https://github.com/sintefneodroid/agent}},
 }
+````
 
 # Other Components Of the Neodroid Platform
 
