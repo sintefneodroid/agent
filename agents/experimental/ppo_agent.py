@@ -11,10 +11,10 @@ from torch.distributions import Categorical
 from tqdm import tqdm
 
 import utilities as U
-from agents.ac_agent import ACAgent
+from agents.abstract.joint_ac_agent import JointACAgent
 
 
-class PPOAgent(ACAgent):
+class PPOAgent(JointACAgent):
   '''
 '''
 
@@ -325,17 +325,17 @@ continuous
     action, value_estimate, action_log_std, *_ = self._sample_model(state)
     return action, value_estimate, action_log_std
 
-  def train(self, *args, **kwargs):
-    return self._train_episodic(*args, **kwargs)
-    # return self._train_step_batched(*args, **kwargs)
+  def _train(self, *args, **kwargs):
+    return self.train_episodic(*args, **kwargs)
+    # return self.train_step_batched(*args, **kwargs)
 
-  def _train_step_batched(self,
-                          env,
-                          num_batches=10000,
-                          render=False,
-                          render_frequency=100,
-                          stat_frequency=10,
-                          batch_length=100):
+  def train_step_batched(self,
+                         env,
+                         num_batches=10000,
+                         render=False,
+                         render_frequency=100,
+                         stat_frequency=10,
+                         batch_length=100):
 
     self._rollout_i = 1
 
@@ -373,13 +373,13 @@ continuous
 
     return self._actor_critic, []
 
-  def _train_episodic(self,
-                      env,
-                      num_batches=10000,
-                      render=False,
-                      render_frequency=100,
-                      stat_frequency=10,
-                      **kwargs):
+  def train_episodic(self,
+                     env,
+                     num_batches=10000,
+                     render=False,
+                     render_frequency=100,
+                     stat_frequency=10,
+                     **kwargs):
 
     self._rollout_i = 1
 
@@ -422,6 +422,6 @@ continuous
 
 
 if __name__ == '__main__':
-  import configs.ppo_config as C
+  import configs.agent_test_configs.test_ppo_config as C
 
   U.test_agent_main(PPOAgent, C)

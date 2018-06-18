@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 __author__ = 'cnheider'
-from agents.agent import Agent
+from agents.abstract.agent import Agent
 
 
 class EVOAgent(Agent):

@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 __author__ = 'cnheider'
 
-import time
 from itertools import count
 
 import numpy as np
@@ -13,7 +12,7 @@ from torch.distributions import Categorical
 from tqdm import tqdm
 
 import utilities as U
-from agents.policy_agent import PolicyAgent
+from agents.abstract.policy_agent import PolicyAgent
 
 tqdm.monitor_interval = 0
 
@@ -210,7 +209,7 @@ class PGAgent(PolicyAgent):
         if terminated:
           break
 
-  def train(
+  def train_episodic(
       self,
       _environment,
       rollouts=2000,
@@ -219,7 +218,6 @@ class PGAgent(PolicyAgent):
       stat_frequency=10,
       ):
 
-    training_start_timestamp = time.time()
     E = range(1, rollouts)
     E = tqdm(E, f'Episode: {1}', leave=False)
 
@@ -230,7 +228,7 @@ class PGAgent(PolicyAgent):
 
       if episode_i % stat_frequency == 0:
         U.styled_term_plot_stats_shared_x(stats,
-                                   printer=E.write)
+                                          printer=E.write)
 
         E.set_description(f'Episode: {episode_i}, Running signal: {stats.signal.running_value[-1]}, '
                           f'Running length: {stats.duration.running_value[-1]}')
@@ -249,14 +247,10 @@ class PGAgent(PolicyAgent):
       if self._end_training:
         break
 
-    time_elapsed = time.time() - training_start_timestamp
-    end_message = f'Training done, time elapsed: {time_elapsed // 60:.0f}m {time_elapsed %60:.0f}s'
-    print('\n{} {} {}\n'.format('-' * 9, end_message, '-' * 9))
-
     return self._policy, stats
 
 
 if __name__ == '__main__':
-  import configs.pg_config as C
+  import configs.agent_test_configs.test_pg_config as C
 
   U.test_agent_main(PGAgent, C)

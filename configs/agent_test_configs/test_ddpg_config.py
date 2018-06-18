@@ -9,7 +9,6 @@ Author: Christian Heider Nielsen
 '''
 
 # General
-from configs.base_config import *
 from utilities.random_process.ornstein_uhlenbeck import OrnsteinUhlenbeckProcess
 
 CONFIG_NAME = __name__
@@ -63,6 +62,8 @@ ENVIRONMENT_NAME = 'Pendulum-v0'
 # ENVIRONMENT_NAME = 'Ant-v1'
 # ENVIRONMENT_NAME = 'Humanoid-v1'
 # ENVIRONMENT_NAME = 'HalfCheetah-v1'
+
+ROLLOUTS = 10
 
 # Architecture
 ACTOR_ARCH_PARAMS = {

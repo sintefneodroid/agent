@@ -6,7 +6,6 @@ from utilities.transformation.extraction import get_screen
 from utilities.visualisation.statistics_plot import plot_durations
 
 __author__ = 'cnheider'
-import time
 from itertools import count
 
 import numpy as np
@@ -16,8 +15,7 @@ from tqdm import tqdm
 import pylab as plt
 
 import utilities as U
-from agents.value_agent import ValueAgent
-from utilities.visualisation.term_plot import term_plot_stats_shared_x
+from agents.abstract.value_agent import ValueAgent
 
 
 class DQNAgent(ValueAgent):
@@ -247,7 +245,7 @@ class DQNAgent(ValueAgent):
     action = self.sample_action(state)
     return action, env.step(action)
 
-  def train(self, *args, **kwargs):
+  def _train(self, *args, **kwargs):
     return self.train_episodic(*args, **kwargs)
 
   def train_episodic(
@@ -280,8 +278,6 @@ class DQNAgent(ValueAgent):
     E = range(1, rollouts)
     E = tqdm(E, leave=False)
 
-    training_start_timestamp = time.time()
-
     for episode_i in E:
       initial_state = _environment.reset()
 
@@ -306,11 +302,7 @@ class DQNAgent(ValueAgent):
       if self._end_training:
         break
 
-    time_elapsed = time.time() - training_start_timestamp
-    end_message = f'Training done, time elapsed: {time_elapsed // 60:.0f}m {time_elapsed %60:.0f}s'
-    print('\n{} {} {}\n'.format('-' * 9, end_message, '-' * 9))
-
-    return self._value_model, []
+    return self._value_model, stats
 
 
 def test_cnn_dqn_agent(config):
@@ -372,7 +364,7 @@ def test_cnn_dqn_agent(config):
 
 
 if __name__ == '__main__':
-  import configs.dqn_config as C
+  import configs.agent_test_configs.test_dqn_config as C
 
   # import configs.cnn_dqn_config as C
 

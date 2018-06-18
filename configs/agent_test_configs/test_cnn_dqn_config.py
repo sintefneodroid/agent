@@ -5,7 +5,6 @@ __author__ = 'cnheider'
 Description: Config for training
 Author: Christian Heider Nielsen
 '''
-from configs.base_config import *
 
 CONFIG_NAME = __name__
 CONFIG_FILE = __file__

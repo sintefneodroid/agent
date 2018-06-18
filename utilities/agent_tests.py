@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+from itertools import count
+
 from utilities.environment_wrappers.action_encoding_wrappers import BinaryActionEncodingWrapper
 
 __author__ = 'cnheider'
@@ -15,38 +17,40 @@ def regular_train_agent_procedure(agent_type, config):
   device = torch.device('cuda' if config.USE_CUDA else 'cpu')
   U.set_seeds(config.SEED)
 
-  env = gym.make(config.ENVIRONMENT_NAME)
-  env.seed(config.SEED)
+  environment = gym.make(config.ENVIRONMENT_NAME)
+  environment.seed(config.SEED)
 
   agent = agent_type(config)
-  agent.build(env, device)
+  agent.build(environment, device)
 
   listener = U.add_early_stopping_key_combination(agent.stop_training)
 
   listener.start()
   try:
-    models, stats, *_ = agent.train(env, config.ROLLOUTS, render=config.RENDER_ENVIRONMENT)
+    models, stats = agent.train(environment, config.ROLLOUTS, render=config.RENDER_ENVIRONMENT)
   finally:
     listener.stop()
 
-  U.save_model(models, config, name=f'{type(agent)}')
+  identifier = count()
+  for model in models:
+    U.save_model(model, config, name=f'{type(agent)}-{identifier.__next__()}')
 
   stats.save()
 
-  env.close()
+  environment.close()
 
 
-def regular_train_agent_procedure2(env, agent, config):
+def regular_train_agent_procedure2(environment, agent, config):
   device = torch.device('cuda' if config.USE_CUDA else 'cpu')
   U.set_seeds(config.SEED)
 
-  agent.build(env, device)
+  agent.build(environment, device)
 
   listener = U.add_early_stopping_key_combination(agent.stop_training)
 
   listener.start()
   try:
-    models, stats, *_ = agent.train(env, config.ROLLOUTS, render=config.RENDER_ENVIRONMENT)
+    models, stats, *_ = agent.train(environment, config.ROLLOUTS, render=config.RENDER_ENVIRONMENT)
   finally:
     listener.stop()
 
@@ -54,7 +58,7 @@ def regular_train_agent_procedure2(env, agent, config):
 
   stats.save()
 
-  env.close()
+  environment.close()
 
 
 def test_agent():
@@ -63,7 +67,7 @@ def test_agent():
 '''
 
   # _environment = neo.make(C.ENVIRONMENT_NAME, connect_to_running=C.CONNECT_TO_RUNNING)
-  import configs.pg_config as C
+  import configs.agent_test_configs.test_pg_config as C
   from agents.pg_agent import PGAgent
 
   '''_environment = BinaryActionEncodingWrapper(
@@ -90,8 +94,15 @@ def test_agent_main(agent, config, training_procedure=regular_train_agent_proced
 
   args = parse_arguments(f'{type(agent)}', config)
 
-  for key, arg in args.__dict__.items():
-    setattr(config, key, arg)
+  if 'CONFIG' in args.__dict__.keys() and args.__dict__['CONFIG']:
+    import importlib.util
+    spec = importlib.util.spec_from_file_location('overloaded.config', args.__dict__['CONFIG'])
+    config = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(config)
+  else:
+    for key, arg in args.__dict__.items():
+      if key != 'CONFIG':
+        setattr(config, key, arg)
 
   U.sprint(f'\nUsing config: {config}\n', highlight=True, color='yellow')
   if not args.skip_confirmation:
@@ -108,7 +119,7 @@ def test_agent_main(agent, config, training_procedure=regular_train_agent_proced
 
 
 if __name__ == '__main__':
-  import configs.pg_config as C
+  import configs.agent_test_configs.test_pg_config as C
   from agents.pg_agent import PGAgent
 
   env = BinaryActionEncodingWrapper(name=C.ENVIRONMENT_NAME,

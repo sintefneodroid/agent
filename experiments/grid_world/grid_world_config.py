@@ -1,8 +1,5 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-from agents.dqn_agent import DQNAgent
-from agents.random_agent import RandomAgent
-from agents.pg_agent import PGAgent
 
 __author__ = 'cnheider'
 '''

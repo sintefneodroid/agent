@@ -7,7 +7,7 @@ import numpy
 import six
 
 Colors = dict(
-    #gray='30', #Black
+    # gray='30', #Black
     red='31',
     green='32',
     yellow='33',

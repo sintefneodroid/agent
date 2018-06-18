@@ -72,6 +72,13 @@ def parse_arguments(desc, C):
       default=C.ROLLOUTS,
       metavar='ROLLOUTS',
       help='Number of rollouts')
+  parser.add_argument(
+      '--CONFIG',
+      '-config',
+      type=str,
+      default=None,
+      metavar='CONFIG',
+      help='Path to a config (nullifies all other arguments, if specified)')
   args = parser.parse_args()
 
   return args

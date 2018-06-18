@@ -10,7 +10,7 @@ import torch.optim as optim
 from torchvision import datasets, transforms
 
 
-def train(rankey, args, model):
+def _train(rankey, args, model):
   torch.manual_seed(args.seed + rank)
 
   magic_mean = 0.1307
@@ -128,7 +128,7 @@ if __name__ == '__main__':
   processes.append(p)
 
   for rank in range(args.num_processes):
-    p = MP.Process(target=train, args=(rank, args, model))
+    p = MP.Process(target=_train, args=(rank, args, model))
     p.start()
     processes.append(p)
 

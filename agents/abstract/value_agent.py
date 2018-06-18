@@ -9,7 +9,7 @@ import numpy as np
 import torch
 
 import utilities as U
-from agents.agent import Agent
+from agents.abstract.agent import Agent
 
 
 class ValueAgent(Agent):

@@ -5,7 +5,6 @@ __author__ = 'cnheider'
 import random
 
 import numpy as np
-
 from neodroid.utilities.random_process import RandomProcess
 
 

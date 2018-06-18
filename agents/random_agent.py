@@ -5,7 +5,7 @@ from typing import Any, Tuple
 from tqdm import tqdm
 
 import utilities as U
-from agents.agent import Agent
+from agents.abstract.agent import Agent
 
 
 class RandomAgent(Agent):
@@ -46,7 +46,7 @@ class RandomAgent(Agent):
       action = self.sample_action(state)
 
       state, signal, terminated, info = environment.step(action=action)
-      episode_signal+=signal
+      episode_signal += signal
 
       if render:
         environment.render()
@@ -66,13 +66,13 @@ class RandomAgent(Agent):
   def save(self, *args, **kwargs) -> None:
     pass
 
-  def train(self,
-            _environment,
-            rollouts=2000,
-            render=False,
-            render_frequency=100,
-            stat_frequency=10,
-            **kwargs) -> Tuple[Any, Any]:
+  def _train(self,
+             _environment,
+             rollouts=2000,
+             render=False,
+             render_frequency=100,
+             stat_frequency=10,
+             **kwargs) -> Tuple[Any, Any]:
     training_start_timestamp = time.time()
     E = range(1, rollouts)
     E = tqdm(E, f'Episode: {1}', leave=False)
@@ -111,7 +111,7 @@ class RandomAgent(Agent):
 
 
 if __name__ == '__main__':
-  import configs.pg_config as C
+  import configs.agent_test_configs.test_pg_config as C
 
   C.CONNECT_TO_RUNNING = False
   C.ENVIRONMENT_NAME = 'small_grid_world'

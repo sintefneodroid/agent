@@ -12,11 +12,11 @@ from tqdm import tqdm
 tqdm.monitor_interval = 0
 
 import utilities as U
-from agents.ac_agent import ACAgent
+from agents.abstract.joint_ac_agent import JointACAgent
 from utilities.random_process.ornstein_uhlenbeck import OrnsteinUhlenbeckProcess
 
 
-class DDPGAgent(ACAgent):
+class DDPGAgent(JointACAgent):
   '''
 The Deep Deterministic Policy Gradient (DDPG) Agent
 Parameters
@@ -308,7 +308,7 @@ Update the target networks
 
     return episode_signal, episode_length
 
-  def train(
+  def _train(
       self, env, rollouts=1000, render=False, render_frequency=10, stat_frequency=10
       ):
     '''
@@ -383,6 +383,6 @@ def test_ddpg_agent(config):
 
 
 if __name__ == '__main__':
-  import configs.ddpg_config as C
+  import configs.agent_test_configs.test_ddpg_config as C
 
   U.test_agent_main(DDPGAgent, C)

@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+import time
 from itertools import count
 from typing import Any, Tuple
 from warnings import warn
@@ -84,8 +85,20 @@ All agent should inherit from this class
     raise NotImplementedError()
 
   @abstractmethod
-  def train(self, *args, **kwargs) -> Tuple[Any, Any]:
+  def _train(self, *args, **kwargs) -> Tuple[Any, Any]:
     raise NotImplementedError()
+
+  def train(self, *args, **kwargs) -> Tuple[Any, Any]:
+
+    training_start_timestamp = time.time()
+
+    res = self._train(*args, **kwargs)
+
+    time_elapsed = time.time() - training_start_timestamp
+    end_message = f'Training done, time elapsed: {time_elapsed // 60:.0f}m {time_elapsed %60:.0f}s'
+    print('\n{} {} {}\n'.format('-' * 9, end_message, '-' * 9))
+
+    return res
 
   def _step(self):
     if self._environment:

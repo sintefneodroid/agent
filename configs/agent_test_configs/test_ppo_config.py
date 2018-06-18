@@ -7,7 +7,7 @@ Author: Christian Heider Nielsen
 '''
 
 # General
-from configs.base_config import *
+from configs.agent_test_configs.base_test_config import *
 
 CONFIG_NAME = __name__
 CONFIG_FILE = __file__

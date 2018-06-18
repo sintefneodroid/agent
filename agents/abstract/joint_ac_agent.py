@@ -4,10 +4,10 @@ __author__ = 'cnheider'
 import torch
 
 import utilities as U
-from agents.agent import Agent
+from agents.abstract.agent import Agent
 
 
-class ACAgent(Agent):
+class JointACAgent(Agent):
   '''
 All value iteration agents should inherit from this class
 '''

@@ -42,7 +42,7 @@ def train_agent(config, agent):
 
 
 if __name__ == '__main__':
-  import configs.ddpg_config as C
+  import configs.agent_test_configs.test_ddpg_config as C
 
   from configs.arguments import parse_arguments
 

@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+from abc import abstractmethod
+
 __author__ = 'cnheider'
 
 import torch
 
 import utilities as U
-from agents.agent import Agent
+from agents.abstract.agent import Agent
 
 
 class PolicyAgent(Agent):
@@ -29,6 +31,13 @@ All policy iteration agents should inherit from this class
     di['output_size'] = self._output_size
 
     self._policy_arch_params = U.ConciseArchSpecification(**di)
+
+  @abstractmethod
+  def train_episodic(self, *args, **kwargs):
+    raise NotImplementedError
+
+  def _train(self, *args, **kwargs):
+    return self.train_episodic(*args, **kwargs)
 
   def save(self, C):
     U.save_model(self._policy, C)

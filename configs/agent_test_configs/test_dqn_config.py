@@ -5,7 +5,7 @@ __author__ = 'cnheider'
 Description: Config for training
 Author: Christian Heider Nielsen
 '''
-from configs.base_config import *
+from configs.agent_test_configs.base_test_config import *
 
 CONFIG_NAME = __name__
 CONFIG_FILE = __file__
@@ -15,7 +15,6 @@ EXPLORATION_EPSILON_START = 1.0
 EXPLORATION_EPSILON_END = 0.04
 EXPLORATION_EPSILON_DECAY = 400
 
-ROLLOUTS = 10000
 INITIAL_OBSERVATION_PERIOD = 0
 LEARNING_FREQUENCY = 1
 REPLAY_MEMORY_SIZE = 10000

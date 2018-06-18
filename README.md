@@ -112,6 +112,18 @@ python3 procedures/test_agent.py
 # Contributing
 See guidelines for contributing [here](CONTRIBUTING.md).
 
+# Citation
+
+For citation you may use the following bibtex entry:
+
+@misc{neodroid-agent,
+  author = {Heider, Christian},
+  title = {Neodroid Platform Agents},
+  year = {2018},
+  publisher = {GitHub},
+  journal = {GitHub repository},
+  howpublished = {\url{https://github.com/sintefneodroid/agent}},
+}
 
 # Other Components Of the Neodroid Platform
 

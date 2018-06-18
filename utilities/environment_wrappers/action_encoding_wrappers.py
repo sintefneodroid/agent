@@ -12,9 +12,9 @@ from neodroid.wrappers.gym_wrapper import NeodroidGymWrapper
 
 class BinaryActionEncodingWrapper(NeodroidGymWrapper):
 
-  def step(self, action:int=0, **kwargs)->Any:
+  def step(self, action: int = 0, **kwargs) -> Any:
     action = U.signed_ternary_encoding(self.action_space.num_actions, action)
-    return super().step(action=action,**kwargs)
+    return super().step(action=action, **kwargs)
 
   @property
   def action_space(self):
@@ -28,11 +28,12 @@ class BinaryActionEncodingWrapper(NeodroidGymWrapper):
     num = self.act_spc.num_binary_actions
     return random.randrange(num)
 
+
 class BinaryActionEncodingCurriculumEnvironment(NeodroidCurriculumWrapper):
 
-  def step(self, action:int=0, **kwargs)->Any:
+  def step(self, action: int = 0, **kwargs) -> Any:
     a = U.signed_ternary_encoding(self.action_space.num_actions, action)
-    return super().act(a,**kwargs)
+    return super().act(a, **kwargs)
 
   @property
   def action_space(self):
