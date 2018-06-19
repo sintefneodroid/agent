@@ -1,6 +1,7 @@
-#!/usr/bin/env python3 
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 from typing import Dict, List, Union
+from configs.base_config import *
 
 __author__ = 'cnheider'
 

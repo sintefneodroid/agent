@@ -15,6 +15,8 @@ def generalised_advantage_estimate(
   '''
 compute GAE(lambda) advantages and discounted returns
 
+  :param n_step_summary:
+  :param device:
 :param use_cuda:
 :type use_cuda:
 :param signals:

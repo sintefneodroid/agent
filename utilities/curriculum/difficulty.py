@@ -57,11 +57,11 @@ def sample_configuration(current_difficulty, info):
   return b
 
 
-def color_sample(id):
+def color_sample(identifier):
   return [
-    neodroid.Configuration(id + 'ColorConfigurableR', np.random.sample()),
-    neodroid.Configuration(id + 'ColorConfigurableG', np.random.sample()),
-    neodroid.Configuration(id + 'ColorConfigurableB', np.random.sample())
+    neodroid.Configuration(identifier + 'ColorConfigurableR', np.random.sample()),
+    neodroid.Configuration(identifier + 'ColorConfigurableG', np.random.sample()),
+    neodroid.Configuration(identifier + 'ColorConfigurableB', np.random.sample())
     # neodroid.Configuration(id+'ColorConfigurableA',
     #                       np.random.sample()),
     ]

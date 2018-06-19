@@ -9,7 +9,7 @@ from utilities.architectures import Architecture
 LSTM_MEMORY = 128
 
 
-class LSTMDQN(Architecture):
+class LSTM_DQN(Architecture):
 
   def __init__(self, n_action):
     super().__init__()

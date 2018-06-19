@@ -51,9 +51,9 @@ def main(config, agent, full_state_evaluation_frequency=2):
   _step_i = 0
 
   env = BinaryActionEncodingCurriculumEnvironment(
-      name=C.ENVIRONMENT_NAME, connect_to_running=C.CONNECT_TO_RUNNING
+      name=config.ENVIRONMENT_NAME, connect_to_running=config.CONNECT_TO_RUNNING
       )
-  device = torch.device('cuda' if C.USE_CUDA else 'cpu')
+  device = torch.device('cuda' if config.USE_CUDA else 'cpu')
 
   _agent.build(env, device)
 
@@ -64,7 +64,7 @@ def main(config, agent, full_state_evaluation_frequency=2):
   S_prev = env.generate_trajectory_from_configuration(
       initial_configuration, l_star, random_process=_random_process
       )
-  train_session = range(1, C.ROLLOUTS + 1)
+  train_session = range(1, config.ROLLOUTS + 1)
   train_session = tqdm(train_session, leave=False)
 
   for i in train_session:
@@ -82,16 +82,7 @@ def main(config, agent, full_state_evaluation_frequency=2):
     num_candidates = tqdm(range(1, C.CANDIDATE_SET_SIZE + 1), leave=False)
     for c in num_candidates:
       if _plot_stats:
-        t_range = [i+1 for i in range(_episode_i)]
-        term_plot(t_range                  ,
-                  stats.sample_lengths.values,
-                  printer=train_session.write
-                  )
-        term_plot(
-            t_range,
-            stats.entropies.values,
-            printer=train_session.write
-            )
+        U.term_plot_stats_shared_x(stats, printer=train_session.write)
         train_session.set_description(
             f'Steps: {_step_i:9.0f} | Ent: {stats.entropies.calc_moving_average():.2f}'
             )

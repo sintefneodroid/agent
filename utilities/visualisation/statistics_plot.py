@@ -24,8 +24,8 @@ plt.ion()
 
 def ma_plot(file_name, name):
   with open(file_name, 'r') as f:
-    agg = U.Aggregator()
-    agg_ma = U.Aggregator()
+    agg = U.StatisticAggregator()
+    agg_ma = U.StatisticAggregator()
 
     reader = csv.reader(f, delimiter=' ', quotechar='|')
     for line in reader:
@@ -40,7 +40,7 @@ def ma_plot(file_name, name):
 
 def simple_plot(file_name, name='Statistic Name'):
   with open(file_name, 'r') as f:
-    agg = U.Aggregator()
+    agg = U.StatisticAggregator()
 
     reader = csv.reader(f, delimiter=' ', quotechar='|')
     for line in reader:
@@ -62,7 +62,7 @@ def error_plot(results, interval=1, file_name=''):
 
   x = range(0, results.shape[1] * interval, interval)
   fig, ax = plt.subplots(1, 1, figsize=(6, 5))
-  plt.xlabel('Timestep')
+  plt.xlabel('Time step')
   plt.ylabel('Average Reward')
   ax.errorbar(x, y, yerr=error, fmt='-o')
   # plt.savefig(file_name + '.png')

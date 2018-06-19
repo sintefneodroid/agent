@@ -1,5 +1,5 @@
 from collections import namedtuple
-
+import numpy as np
 
 class InitStateDistribution(object):
   StateDist = namedtuple('StateDist', ('state', 'prob'))
