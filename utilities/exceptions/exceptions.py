@@ -1,4 +1,4 @@
-class HasNoEnvException(Exception):
+class HasNoEnvError(Exception):
   """
   Raised when an agent has no environment assigned and some implicit next or step called.
   """

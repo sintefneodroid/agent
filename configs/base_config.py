@@ -1,5 +1,12 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+import os
+
+import torch
+from pathlib import Path
+
+import utilities as U
+import torch.nn.functional as F
 from agents.pg_agent import PGAgent
 
 __author__ = 'cnheider'
@@ -8,9 +15,7 @@ Description: Config for training
 Author: Christian Heider Nielsen
 '''
 
-from pathlib import Path
 
-from utilities import *
 
 PROJECT = 'Neodroid'
 CONFIG_NAME = __name__
@@ -26,7 +31,7 @@ POLICY_ARCH_PARAMS = U.ConciseArchSpecification(**{
   'activation':   F.relu,
   'use_bias':     True,
   })
-POLICY_ARCH = CategoricalMLP
+POLICY_ARCH = U.CategoricalMLP
 
 AGENT_TYPE = PGAgent
 

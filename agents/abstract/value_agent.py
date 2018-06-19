@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+from abc import abstractmethod
+from typing import Any
+
 __author__ = 'cnheider'
 
 import math
@@ -26,6 +29,8 @@ All value iteration agents should inherit from this class
     self._value_arch_parameters = None
     self._value_arch = None
     self._value_model = None
+
+    self._naive_max_policy = False
 
     super().__init__(config, *args, **kwargs)
 
@@ -65,7 +70,8 @@ All value iteration agents should inherit from this class
 
     return sample > eps_threshold
 
-  def _sample_model(self, state, **kwargs):
+  @abstractmethod
+  def _sample_model(self, state, *args, **kwargs) -> Any:
     raise NotImplementedError
 
   def save(self, C):

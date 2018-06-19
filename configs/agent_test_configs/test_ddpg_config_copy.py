@@ -9,7 +9,14 @@ Author: Christian Heider Nielsen
 '''
 
 # General
-from utilities.random_process.ornstein_uhlenbeck import OrnsteinUhlenbeckProcess
+import os
+
+import torch
+from pathlib import Path
+
+import utilities as U
+import torch.functional as F
+from configs.agent_test_configs.base_test_config import *
 
 CONFIG_NAME = __name__
 CONFIG_FILE = __file__
@@ -45,7 +52,7 @@ CRITIC_OPTIMISER_SPEC = U.OptimiserSpecification(
 
 RANDOM_PROCESS_THETA = 0.15
 RANDOM_PROCESS_SIGMA = 0.2
-RANDOM_PROCESS = OrnsteinUhlenbeckProcess(
+RANDOM_PROCESS = U.OrnsteinUhlenbeckProcess(
     theta=RANDOM_PROCESS_THETA, sigma=RANDOM_PROCESS_SIGMA
     )
 

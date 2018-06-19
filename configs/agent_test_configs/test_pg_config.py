@@ -1,5 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+import torch
+
+import utilities as U
+import torch.nn.functional as F
+
 __author__ = 'cnheider'
 
 from configs.agent_test_configs.base_test_config import *
@@ -29,4 +34,4 @@ POLICY_ARCH_PARAMS = {
   'output_size':  None,  # Obtain from environment
   'use_bias':     True,
   }
-POLICY_ARCH = CategoricalMLP
+POLICY_ARCH = U.CategoricalMLP

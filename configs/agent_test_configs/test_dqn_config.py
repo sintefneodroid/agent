@@ -1,5 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+import torch
+
+import utilities as U
+import torch.nn.functional as F
+
 __author__ = 'cnheider'
 '''
 Description: Config for training
@@ -29,7 +34,7 @@ SYNC_TARGET_MODEL_FREQUENCY = 1000
 
 # EVALUATION_FUNCTION = lambda Q_state, Q_true_state: (Q_state - Q_true_state).pow(2).mean()
 
-VALUE_ARCH = MLP
+VALUE_ARCH = U.MLP
 OPTIMISER_TYPE = torch.optim.RMSprop  # torch.optim.Adam
 ENVIRONMENT_NAME = 'CartPole-v0'
 # 'LunarLander-v2' #(coord_x, coord_y, vel_x, vel_y, angle,

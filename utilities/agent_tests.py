@@ -13,14 +13,19 @@ import utilities as U
 import gym
 
 
-def regular_train_agent_procedure(agent_type, config):
-  device = torch.device('cuda' if config.USE_CUDA else 'cpu')
-  U.set_seeds(config.SEED)
+def regular_train_agent_procedure(agent_type, config, environment = None):
+  if not environment:
+    if '-v' in config.ENVIRONMENT_NAME:
+      environment = gym.make(config.ENVIRONMENT_NAME)
+    else:
+      environment = BinaryActionEncodingWrapper(name=config.ENVIRONMENT_NAME,
+                                                connect_to_running=config.CONNECT_TO_RUNNING)
 
-  environment = gym.make(config.ENVIRONMENT_NAME)
+  U.set_seeds(config.SEED)
   environment.seed(config.SEED)
 
   agent = agent_type(config)
+  device = torch.device('cuda' if config.USE_CUDA else 'cpu')
   agent.build(environment, device)
 
   listener = U.add_early_stopping_key_combination(agent.stop_training)
@@ -39,41 +44,14 @@ def regular_train_agent_procedure(agent_type, config):
 
   environment.close()
 
-
-def regular_train_agent_procedure2(environment, agent, config):
-  device = torch.device('cuda' if config.USE_CUDA else 'cpu')
-  U.set_seeds(config.SEED)
-
-  agent.build(environment, device)
-
-  listener = U.add_early_stopping_key_combination(agent.stop_training)
-
-  listener.start()
-  try:
-    models, stats, *_ = agent.train(environment, config.ROLLOUTS, render=config.RENDER_ENVIRONMENT)
-  finally:
-    listener.stop()
-
-  U.save_model(models, config, name=f'{type(agent)}')
-
-  stats.save()
-
-  environment.close()
-
-
-def test_agent():
+def test_agent_not_used():
   '''
 
 '''
 
-  # _environment = neo.make(C.ENVIRONMENT_NAME, connect_to_running=C.CONNECT_TO_RUNNING)
   import configs.agent_test_configs.test_pg_config as C
   from agents.pg_agent import PGAgent
 
-  '''_environment = BinaryActionEncodingWrapper(
-      name=C.ENVIRONMENT_NAME, connect_to_running=C.CONNECT_TO_RUNNING
-      )
-  '''
   _environment = gym.make(C.ENVIRONMENT_NAME)
   _environment.seed(C.SEED)
 
@@ -126,6 +104,4 @@ if __name__ == '__main__':
                                     connect_to_running=C.CONNECT_TO_RUNNING)
   env.seed(C.SEED)
 
-  _agent = PGAgent(C)
-
-  regular_train_agent_procedure2(env, agent=_agent, config=C)
+  regular_train_agent_procedure(agent_type=PGAgent, config=C,environment=env)

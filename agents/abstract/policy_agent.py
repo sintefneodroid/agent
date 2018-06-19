@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 from abc import abstractmethod
+from typing import Any
 
 __author__ = 'cnheider'
 
@@ -19,7 +20,44 @@ All policy iteration agents should inherit from this class
     self._policy_arch = None
     self._policy_arch_params = None
     self._policy = None
+
+    self._deterministic = True
+
     super().__init__(*args, **kwargs)
+
+  '''
+        is action_space.is_singular:
+      if not self._naive_max_policy:
+        if action_space.is_discrete:
+          num_outputs = action_space.n
+          self.dist = Categorical(self.base.output_size, num_outputs)
+        elif action_space.is_continuous:
+          num_outputs = action_space.shape[0]
+          self.dist = DiagGaussian(self.base.output_size, num_outputs) # Diagonal Multivariate Gaussian
+        else:
+          raise NotImplementedError
+      else:
+        pass
+
+
+    def act(self, inputs, states, masks, deterministic=False):
+        value, actor_features, states = self.base(inputs, states, masks)
+        dist = self.dist(actor_features)
+
+        if deterministic:
+            action = dist.mode()
+        else:
+            action = dist.sample()
+
+        action_log_probs = dist.log_probs(action)
+        dist_entropy = dist.entropy().mean()
+
+        return value, action, action_log_probs, states
+  '''
+
+  @abstractmethod
+  def _sample_model(self, state, *args, **kwargs) -> Any:
+    raise NotImplementedError
 
   def _infer_input_output_sizes(self, env, **kwargs):
     super()._infer_input_output_sizes(env)

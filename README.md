@@ -77,14 +77,22 @@ This repository will host all initial machine learning efforts applying the [Neo
 - [DQN](agents/dqn_agent.py)
 - [DDPG](agents/ddpg_agent.py)
 - [PPO](agents/experimental/ppo_agent.py)
-- GA, EVO, IMITATION...
+- TRPO, GA, EVO, IMITATION...
 
 # Requirements
 - pytorch
-- neodroid
+- tqdm
+- Pillow
+- numpy
+- matplotlib
+- torchvision
+- torch
+- Neodroid
+- pynput
 
 (Optional)
 - visdom
+- gym
 
 To install these use the command:
 ````bash

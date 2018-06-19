@@ -82,9 +82,8 @@ def main(config, agent, full_state_evaluation_frequency=2):
     num_candidates = tqdm(range(1, C.CANDIDATE_SET_SIZE + 1), leave=False)
     for c in num_candidates:
       if _plot_stats:
-        t_range = [i for i in range(1, _episode_i + 1)]
-        term_plot(t_range
-                  ,
+        t_range = [i+1 for i in range(_episode_i)]
+        term_plot(t_range                  ,
                   stats.sample_lengths.values,
                   printer=train_session.write
                   )

@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+from abc import abstractmethod
+from typing import Any
+
 __author__ = 'cnheider'
 import torch
 
@@ -18,6 +21,10 @@ All value iteration agents should inherit from this class
     self._actor_critic = None
 
     super().__init__(*args, **kwargs)
+
+  @abstractmethod
+  def _sample_model(self, state, *args, **kwargs) -> Any:
+    raise NotImplementedError
 
   def save(self, C):
     U.save_model(self._actor_critic, C)

@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 import sys
+from typing import Iterable, Sized
 
 from utilities.visualisation.sprint import *
 
@@ -15,7 +16,7 @@ import termios
 
 
 def term_plot(
-    y,
+    y: Sized,
     *,
     x=None,
     title='',
@@ -39,7 +40,7 @@ plot those values within canvas size (rows and columns)
       raise ValueError(f'x argument must match the length of y, got x:{len(x)} and '
                        f'y:{num_y}')
   else:
-    x = [i for i in range(num_y)]
+    x = range(num_y)
 
   actual_columns = columns
   actual_rows = rows
@@ -86,15 +87,11 @@ plot those values within canvas size (rows and columns)
 
   # Print scale
   if summary:
-    summry = (f'{title} - '
-              f'Min x: {str(min(x))}, '
-              f'Max x: {str(max(x))}, '
-              f'Min y: {str(min(y))}, '
-              f'Max y: {str(max(y))}\n')
+    smmry = f'{title} - (min, max): x({min(x)}, {max(x)}), y({min(y)}, {max(y)})\n'
     if style:
-      printer(style(summry))
+      printer(style(smmry))
     else:
-      printer(summry)
+      printer(smmry)
 
 
 def scale(x, length):
@@ -103,7 +100,11 @@ Scale points in 'x', such that distance between
 max(x) and min(x) equals to 'length'. min(x)
 will be moved to 0.
 '''
-  s = float(length) / (max(x) - min(x)) if x and max(x) - min(x) != 0 else length
+  if x is list:
+    s = float(length) / (max(x) - min(x)) if x and max(x) - min(x) != 0 else length
+  else:  # TODO: Retarded comparison
+    s = float(length) / (np.max(x) - np.min(x)) if len(x) and np.max(x) - np.min(x) != 0 else length
+
   return [int((i - min(x)) * s) for i in x]
 
 
@@ -145,3 +146,9 @@ def term_plot_stats_shared_x(stats, *, x=None, styles=None, printer=print, margi
         percent_size=(1, y_size),
         summary=summary
         )
+
+
+if __name__ == '__main__':
+  import numpy as np
+
+  term_plot(np.tile(range(9), 4))

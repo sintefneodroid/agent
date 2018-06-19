@@ -9,6 +9,8 @@ Author: Christian Heider Nielsen
 # General
 from configs.agent_test_configs.base_test_config import *
 
+import torch.nn.functional as F
+
 CONFIG_NAME = __name__
 CONFIG_FILE = __file__
 
@@ -37,7 +39,7 @@ REACHED_HORIZON_PENALTY = -10.
 ROLLOUTS = int(10e6)
 
 # CRITIC_LOSS = F.smooth_l1_loss
-CRITIC_LOSS = nn.MSELoss
+CRITIC_LOSS = F.MSELoss
 
 EXPLORATION_EPSILON_START = 0.99
 EXPLORATION_EPSILON_END = 0.05

@@ -1,3 +1,5 @@
+seaborn
+pandas
 tqdm
 gym
 Pillow
