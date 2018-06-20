@@ -12,7 +12,7 @@ import numpy as np
 import torch
 import torch.nn.functional as F
 from tqdm import tqdm
-import pylab as plt
+import matplotlib.pyplot as plt
 
 import utilities as U
 from agents.abstract.value_agent import ValueAgent

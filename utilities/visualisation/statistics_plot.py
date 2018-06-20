@@ -10,7 +10,7 @@ __author__ = 'cnheider'
 
 import csv
 
-import pylab as plt
+import matplotlib.pyplot as plt
 
 import utilities as U
 

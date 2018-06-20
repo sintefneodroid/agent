@@ -3,7 +3,7 @@
 
 __author__ = 'cnheider'
 
-import pylab as plt
+import matplotlib.pyplot as plt
 
 import csv
 

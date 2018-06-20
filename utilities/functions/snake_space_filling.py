@@ -1,7 +1,7 @@
 import math
 from enum import Enum, auto
 
-import pylab as plt
+import matplotlib.pyplot as plt
 
 plt.ion()
 
