@@ -13,7 +13,7 @@ import utilities as U
 import gym
 
 
-def regular_train_agent_procedure(agent_type, config, environment = None):
+def regular_train_agent_procedure(agent_type, config, environment=None):
   if not environment:
     if '-v' in config.ENVIRONMENT_NAME:
       environment = gym.make(config.ENVIRONMENT_NAME)
@@ -43,6 +43,7 @@ def regular_train_agent_procedure(agent_type, config, environment = None):
   stats.save()
 
   environment.close()
+
 
 def test_agent_not_used():
   '''
@@ -104,4 +105,4 @@ if __name__ == '__main__':
                                     connect_to_running=C.CONNECT_TO_RUNNING)
   env.seed(C.SEED)
 
-  regular_train_agent_procedure(agent_type=PGAgent, config=C,environment=env)
+  regular_train_agent_procedure(agent_type=PGAgent, config=C, environment=env)

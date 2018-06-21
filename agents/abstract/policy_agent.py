@@ -61,7 +61,7 @@ All policy iteration agents should inherit from this class
 
   def _infer_input_output_sizes(self, env, **kwargs):
     super()._infer_input_output_sizes(env)
-    if self._policy_arch_params is U.ConciseArchSpecification:
+    if type(self._policy_arch_params) is U.ConciseArchSpecification:
       di = self._policy_arch_params._asdict()
     else:
       di = self._policy_arch_params

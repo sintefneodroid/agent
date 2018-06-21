@@ -3,9 +3,9 @@
 
 __author__ = 'cnheider'
 
-import matplotlib.pyplot as plt
-
 import csv
+
+import matplotlib.pyplot as plt
 
 import utilities as U
 
@@ -24,8 +24,6 @@ plt.rcParams['savefig.edgecolor'] = '#ffffff'
 plt.rcParams['savefig.facecolor'] = '#ffffff'
 plt.rcParams['xtick.labelsize'] = 16
 plt.rcParams['ytick.labelsize'] = 16
-
-
 
 # set up matplotlib
 is_ipython = 'inline' in plt.get_backend()

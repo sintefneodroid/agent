@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-from utilities.architectures.architecture import Architecture
+from .architecture import Architecture
 
 __author__ = 'cnheider'
 
 from torch import nn
 from torch.nn import functional as F, init
 
-from utilities.initialisation.fan_in_init import fan_in_init
+from utilities.initialisation import fan_in_init
 
 
 class ActorArchitecture(Architecture):

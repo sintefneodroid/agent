@@ -6,9 +6,10 @@ Description: Config for training
 Author: Christian Heider Nielsen
 '''
 
+import os
+
 # noinspection PyUnresolvedReferences
 from configs.base_config import *
-import os
 
 # CONSTANTS
 MOVING_AVERAGE_WINDOW = 100

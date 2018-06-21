@@ -53,6 +53,8 @@ if __name__ == '__main__':
       print(f'{key} = {arg}')
     input('\nPress Enter to begin... ')
 
+  C.CONNECT_TO_RUNNING = True
+
   _agent = C.AGENT_TYPE(C)
 
   try:

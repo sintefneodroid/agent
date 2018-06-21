@@ -1,14 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 __author__ = 'cnheider'
-import os
-
-import torch
-from pathlib import Path
-
-import utilities as U
-import torch.functional as F
-from agents.pg_agent import PGAgent
 
 from configs.agent_test_configs.base_test_config import *
 

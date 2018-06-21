@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 import sys
-from typing import Iterable, Sized
+from typing import Sized
 
 from utilities.visualisation.sprint import *
 
@@ -9,6 +9,7 @@ sys.stdout.write(style(u'\nTerm Plot Ûnicöde Probe\n\n', underline=True))
 
 __author__ = 'cnheider'
 
+import numpy as np
 import fcntl
 import os
 import struct

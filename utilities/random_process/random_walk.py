@@ -4,7 +4,7 @@ __author__ = 'cnheider'
 
 import random
 
-from neodroid.utilities.random_process import RandomProcess
+from neodroid.utilities.unused.random_process import RandomProcess
 
 
 class RandomWalk(RandomProcess):

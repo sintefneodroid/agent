@@ -11,7 +11,6 @@ from tqdm import tqdm
 
 import neodroid.wrappers.curriculum_wrapper as neo
 from utilities.environment_wrappers.action_encoding_wrappers import BinaryActionEncodingCurriculumEnvironment
-from utilities.visualisation.term_plot import term_plot
 
 tqdm.monitor_interval = 0
 

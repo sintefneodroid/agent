@@ -2,8 +2,8 @@
 # -*- coding: utf-8 -*-
 __author__ = 'cnheider'
 
-from configs.agent_test_configs.base_test_config import *
 import utilities as U
+from configs.agent_test_configs.base_test_config import *
 
 CONFIG_NAME = __name__
 CONFIG_FILE = __file__

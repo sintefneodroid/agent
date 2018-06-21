@@ -5,7 +5,8 @@ __author__ = 'cnheider'
 import random
 
 import numpy as np
-from neodroid.utilities.random_process import RandomProcess
+
+from neodroid.utilities.unused.random_process import RandomProcess
 
 
 class SelfAvoiding(RandomProcess):

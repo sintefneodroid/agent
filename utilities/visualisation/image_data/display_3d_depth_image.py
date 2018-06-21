@@ -2,8 +2,6 @@
 # -*- coding: utf-8 -*-
 __author__ = 'cnheider'
 
-import math
-
 import matplotlib.image as mpimg
 import matplotlib.pyplot as plt
 import numpy as np
@@ -19,18 +17,17 @@ def main():
   data_set_directory = '/home/heider/Datasets/neodroid/depth/'
   file_name = '80.png'
 
-
   img = mpimg.imread(data_set_directory + file_name)
   img = img[:, :, 0]
 
-  #def ivas(x, cam_ang):
+  # def ivas(x, cam_ang):
   #  return x * math.cos(math.radians(90 - cam_ang))
 
-  #image_length = img.shape[0]
-  #camera_angle = 45.
-  #ys = np.array([ivas(x, camera_angle) / 255 for x in range(0, image_length)])
-  #ys = np.repeat(ys, img.shape[0], axis=0).reshape((img.shape[0], img.shape[0]))
-  #img = img - ys
+  # image_length = img.shape[0]
+  # camera_angle = 45.
+  # ys = np.array([ivas(x, camera_angle) / 255 for x in range(0, image_length)])
+  # ys = np.repeat(ys, img.shape[0], axis=0).reshape((img.shape[0], img.shape[0]))
+  # img = img - ys
 
   img = scipy.misc.imresize(img, 0.2, interp='cubic')
 

@@ -2,8 +2,9 @@ import random
 from types import coroutine
 
 import numpy as np
-from neodroid.models import Configuration, Displayable, Reaction, ReactionParameters
 from tqdm import tqdm
+
+from neodroid import Configuration, Displayable, Reaction, ReactionParameters
 
 
 @coroutine

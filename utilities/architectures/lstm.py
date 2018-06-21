@@ -4,7 +4,7 @@ from torch.autograd import Variable
 from torch.nn import functional as F
 
 # LSTM Memory
-from utilities.architectures import Architecture
+from .architecture import Architecture
 
 LSTM_MEMORY = 128
 

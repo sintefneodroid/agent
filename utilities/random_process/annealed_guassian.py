@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 __author__ = 'cnheider'
 
-from neodroid.utilities.random_process import RandomProcess
+from neodroid.utilities.unused.random_process import RandomProcess
 
 
 class AnnealedGaussianProcess(RandomProcess):

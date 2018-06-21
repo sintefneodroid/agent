@@ -1,13 +1,12 @@
-#!/usr/bin/env python3 
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-from utilities.architectures import Architecture
+from .architecture import Architecture
 
 __author__ = 'cnheider'
 from torch import nn
 from torch.nn import functional as F
 
-from utilities.initialisation.atari_weight_init import atari_initializer
-from utilities.initialisation.ortho_weight_init import ortho_weights
+from utilities.initialisation import atari_initializer, ortho_weights
 
 
 class CNN(Architecture):

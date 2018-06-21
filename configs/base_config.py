@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 import os
-
-import torch
 from pathlib import Path
 
-import utilities as U
+import torch
 import torch.nn.functional as F
+
+import utilities as U
 from agents.pg_agent import PGAgent
 
 __author__ = 'cnheider'
@@ -14,8 +14,6 @@ __author__ = 'cnheider'
 Description: Config for training
 Author: Christian Heider Nielsen
 '''
-
-
 
 PROJECT = 'Neodroid'
 CONFIG_NAME = __name__

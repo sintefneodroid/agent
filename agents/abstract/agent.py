@@ -208,4 +208,3 @@ Tries to infer input and output size from env if either _input_size or _output_s
   @abstractmethod
   def _train(self, *args, **kwargs) -> Tuple[Any, Any]:
     raise NotImplementedError
-

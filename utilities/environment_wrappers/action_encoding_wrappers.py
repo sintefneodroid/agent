@@ -3,11 +3,12 @@
 import random
 from typing import Any
 
+from neodroid.wrappers.gym_wrapper import NeodroidGymWrapper
+
 __author__ = 'cnheider'
 
 import utilities as U
 from neodroid.wrappers.curriculum_wrapper import NeodroidCurriculumWrapper
-from neodroid.wrappers.gym_wrapper import NeodroidGymWrapper
 
 
 class BinaryActionEncodingWrapper(NeodroidGymWrapper):
@@ -33,7 +34,7 @@ class BinaryActionEncodingCurriculumEnvironment(NeodroidCurriculumWrapper):
 
   def step(self, action: int = 0, **kwargs) -> Any:
     a = U.signed_ternary_encoding(self.action_space.num_actions, action)
-    return super().act(a, **kwargs)
+    return super().act(input_reaction=a, **kwargs)
 
   @property
   def action_space(self):

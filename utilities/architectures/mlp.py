@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-from utilities.architectures.architecture import Architecture
+from .architecture import Architecture
 
 __author__ = 'cnheider'
 
@@ -39,15 +39,15 @@ OOOO hidden_layer_size * (Weights,Biases)
     if self.num_of_layer > 0:
       for i in range(1, self.num_of_layer + 1):
         layer = nn.Linear(
-            previous_layer_size, self._hidden_layers[i - 1], bias=self._use_bias
-            )
+          previous_layer_size, self._hidden_layers[i - 1], bias=self._use_bias
+          )
         # fan_in_init(layer.weight)
         setattr(self, f'fc{i}', layer)
         previous_layer_size = self._hidden_layers[i - 1]
 
     self.head = nn.Linear(
-        previous_layer_size, self._output_size[0], bias=self._use_bias
-        )
+      previous_layer_size, self._output_size[0], bias=self._use_bias
+      )
 
   def forward(self, x, **kwargs):
     '''

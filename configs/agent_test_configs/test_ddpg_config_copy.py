@@ -9,13 +9,7 @@ Author: Christian Heider Nielsen
 '''
 
 # General
-import os
 
-import torch
-from pathlib import Path
-
-import utilities as U
-import torch.functional as F
 from configs.agent_test_configs.base_test_config import *
 
 CONFIG_NAME = __name__

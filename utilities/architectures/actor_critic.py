@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 import torch
 
-from utilities.architectures.architecture import Architecture
+from .architecture import Architecture
 
 __author__ = 'cnheider'
 

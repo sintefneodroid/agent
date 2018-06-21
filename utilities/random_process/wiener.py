@@ -6,8 +6,9 @@ from math import sqrt
 
 import matplotlib.pyplot as plt
 import numpy as np
-from neodroid.utilities.random_process import RandomProcess
 from scipy.stats import norm
+
+from neodroid.utilities.unused.random_process import RandomProcess
 
 
 class WienerProcess(RandomProcess):

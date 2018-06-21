@@ -80,12 +80,12 @@ class DQNAgent(ValueAgent):
     target_value_model.eval()
 
     optimiser = self._optimiser_type(
-        value_model.parameters(),
-        lr=self._optimiser_learning_rate,
-        eps=self._optimiser_epsilon,
-        # alpha=self._optimiser_alpha,
-        # momentum=self._optimiser_momentum,
-        )
+      value_model.parameters(),
+      lr=self._optimiser_learning_rate,
+      eps=self._optimiser_epsilon,
+      # alpha=self._optimiser_alpha,
+      # momentum=self._optimiser_momentum,
+      )
 
     self._value_model, self._target_value_model, self._optimiser = value_model, target_value_model, optimiser
 
@@ -135,16 +135,16 @@ class DQNAgent(ValueAgent):
       with torch.no_grad():
         Q_successors = self._target_value_model(non_terminal_successors)
     Q_max_successor = torch.zeros(
-        self._batch_size, dtype=self._value_type, device=self._device
-        )
+      self._batch_size, dtype=self._value_type, device=self._device
+      )
     Q_max_successor[non_terminal_mask] = Q_successors.gather(
-        1, Q_successors_max_action_indices
-        ).squeeze()
+      1, Q_successors_max_action_indices
+      ).squeeze()
 
     # Integrate with the true signal
     Q_expected = true_signals + (self._discount_factor * Q_max_successor).view(
-        -1, 1
-        )
+      -1, 1
+      )
 
     # Calculate Q of state
     Q_state = self._value_model(states).gather(1, action_indices)
@@ -193,15 +193,15 @@ class DQNAgent(ValueAgent):
         successor_state = next_state
 
       self._memory.add_transition(
-          state, action, signal, successor_state, not terminated
-          )
+        state, action, signal, successor_state, not terminated
+        )
 
       td_error = 0
 
       if (
-          len(self._memory) >= self._batch_size
-          and self._step_i > self._initial_observation_period
-          and self._step_i % self._learning_frequency == 0
+        len(self._memory) >= self._batch_size
+        and self._step_i > self._initial_observation_period
+        and self._step_i % self._learning_frequency == 0
       ):
 
         td_error = self.update()
@@ -209,8 +209,8 @@ class DQNAgent(ValueAgent):
         # T.set_description(f'TD error: {td_error}')
 
       if (
-          self._use_double_dqn
-          and self._step_i % self._sync_target_model_frequency == 0
+        self._use_double_dqn
+        and self._step_i % self._sync_target_model_frequency == 0
       ):
         self._target_value_model = U.copy_state(self._target_value_model, self._value_model)
         if self._verbose:
@@ -249,14 +249,14 @@ class DQNAgent(ValueAgent):
     return self.train_episodic(*args, **kwargs)
 
   def train_episodic(
-      self,
-      _environment,
-      rollouts=1000,
-      render=False,
-      render_frequency=100,
-      stat_frequency=10,
-      **kwargs
-      ):
+    self,
+    _environment,
+    rollouts=1000,
+    render=False,
+    render_frequency=100,
+    stat_frequency=10,
+    **kwargs
+    ):
     '''
 
 :param _environment:
@@ -284,16 +284,16 @@ class DQNAgent(ValueAgent):
       if episode_i % stat_frequency == 0:
         U.styled_term_plot_stats_shared_x(stats, printer=E.write)
         E.set_description(
-            f'Episode: {episode_i}, '
-            f'Running Signal: {stats.signal.running_value[-1]}, '
-            f'Duration: {stats.duration.running_value[-1]}, '
-            f'TD Error: {stats.td_error.running_value[-1]}'
-            )
+          f'Episode: {episode_i}, '
+          f'Running Signal: {stats.signal.running_value[-1]}, '
+          f'Duration: {stats.duration.running_value[-1]}, '
+          f'TD Error: {stats.td_error.running_value[-1]}'
+          )
 
       if render and episode_i % render_frequency == 0:
         signal, dur, td_error, *extras = self.rollout(
-            initial_state, _environment, render=render
-            )
+          initial_state, _environment, render=render
+          )
       else:
         signal, dur, td_error, *extras = self.rollout(initial_state, _environment)
 

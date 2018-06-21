@@ -4,9 +4,10 @@ __author__ = 'cnheider'
 from collections import namedtuple
 from itertools import count
 
-import neodroid.wrappers.curriculum_wrapper as neo
 import numpy as np
-from neodroid.models import Configuration
+
+import neodroid.wrappers.curriculum_wrapper as neo
+from neodroid import Configuration
 
 random_motion_horizon = 5
 initial_states_to_generate = 100
@@ -44,8 +45,8 @@ def main():
   initial_configuration = get_initial_configuration(_environment)
 
   initial_start_set = _environment.generate_initial_states_from_configuration(
-      initial_configuration
-      )
+    initial_configuration
+    )
 
   StateValuePair = namedtuple('StateValuePair', ('init_state', 'value_estimate'))
   frontier = []
@@ -65,8 +66,8 @@ def main():
         initial_start_set = []
         for start in good_starts:
           initial_start_set.extend(
-              _environment.generate_initial_states_from_state(start)
-              )
+            _environment.generate_initial_states_from_state(start)
+            )
 
     init_state = sample_initial_state(initial_start_set)
 
