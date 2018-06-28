@@ -28,7 +28,8 @@ def term_plot(
     y_offsets=(1, 1),
     printer=print,
     summary=True,
-    style: PrintStyle = None
+    plot_character=u'\u2981',
+    print_style: PrintStyle = None
     ):
   '''
 x, y list of values on x- and y-axis
@@ -76,21 +77,21 @@ plot those values within canvas size (rows and columns)
 
   # Add scaled points to canvas
   for ix, iy in zip(x_scaled, y_scaled):
-    canvas[1 + y_offsets[0] + (actual_rows - iy)][1 + x_offsets[0] + ix] = u'\u2981'
+    canvas[1 + y_offsets[0] + (actual_rows - iy)][1 + x_offsets[0] + ix] = plot_character
 
   print('\n')
   # Print rows of canvas
   for row in [''.join(row) for row in canvas]:
-    if style:
-      printer(style(row))
+    if print_style:
+      printer(print_style(row))
     else:
       printer(row)
 
   # Print scale
   if summary:
     smmry = f'{title} - (min, max): x({min(x)}, {max(x)}), y({min(y)}, {max(y)})\n'
-    if style:
-      printer(style(smmry))
+    if print_style:
+      printer(print_style(smmry))
     else:
       printer(smmry)
 
@@ -143,7 +144,7 @@ def term_plot_stats_shared_x(stats, *, x=None, styles=None, printer=print, margi
         title=key,
         x=x,
         printer=printer,
-        style=sty,
+        print_style=sty,
         percent_size=(1, y_size),
         summary=summary
         )
@@ -152,4 +153,4 @@ def term_plot_stats_shared_x(stats, *, x=None, styles=None, printer=print, margi
 if __name__ == '__main__':
   import numpy as np
 
-  term_plot(np.tile(range(9), 4))
+  term_plot(np.tile(range(9), 4),plot_character='o')
