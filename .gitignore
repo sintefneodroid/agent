@@ -119,3 +119,5 @@ ENV/
 logs/*.csv
 
 
+exclude/
+

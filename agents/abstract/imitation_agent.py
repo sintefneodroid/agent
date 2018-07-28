@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+from abc import ABC
+
 __author__ = 'cnheider'
 from agents.abstract.agent import Agent
 
 
-class ImitationAgent(Agent):
+class ImitationAgent(Agent, ABC):
 
   def _build(self):
     pass

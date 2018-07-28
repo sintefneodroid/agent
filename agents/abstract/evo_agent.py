@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+from abc import ABC
+
 __author__ = 'cnheider'
 from agents.abstract.agent import Agent
 
 
-class EVOAgent(Agent):
+class EVOAgent(Agent, ABC):
 
   def sample_action(self, state, **kwargs):
     pass

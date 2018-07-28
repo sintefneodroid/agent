@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from scipy.stats import norm
 
-from neodroid.utilities.unused.random_process import RandomProcess
+from utilities.random_process.random_process import RandomProcess
 
 
 class WienerProcess(RandomProcess):

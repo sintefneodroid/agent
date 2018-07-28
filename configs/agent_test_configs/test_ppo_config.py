@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+from torch.nn import MSELoss
+
 __author__ = 'cnheider'
 '''
 Description: Config for training
@@ -39,7 +41,7 @@ REACHED_HORIZON_PENALTY = -10.
 ROLLOUTS = int(10e6)
 
 # CRITIC_LOSS = F.smooth_l1_loss
-CRITIC_LOSS = F.MSELoss
+CRITIC_LOSS = MSELoss
 
 EXPLORATION_EPSILON_START = 0.99
 EXPLORATION_EPSILON_END = 0.05

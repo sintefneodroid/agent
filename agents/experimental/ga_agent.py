@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 __author__ = 'cnheider'
 
-from agents.experimental.evo_agent import EVOAgent
+from agents.abstract.evo_agent import EVOAgent
 
 
 class GAAgent(EVOAgent):
