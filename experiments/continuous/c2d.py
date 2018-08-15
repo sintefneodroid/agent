@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 __author__ = 'cnheider'
 
+import neodroid.wrappers as neo
 import torch
 # import configs.base_config as C
 from tqdm import tqdm
@@ -15,8 +16,8 @@ def train_agent(config, agent):
   device = torch.device('cuda' if config.USE_CUDA else 'cpu')
   torch.manual_seed(config.SEED)
 
-  env = U.BinaryActionEncodingWrapper(environment_name=config.ENVIRONMENT_NAME,
-                                      connect_to_running=config.CONNECT_TO_RUNNING)
+  env = neo.NeodroidFormalWrapper(environment_name=config.ENVIRONMENT_NAME,
+                                  connect_to_running=config.CONNECT_TO_RUNNING)
   env.seed(config.SEED)
 
   agent.build(env, device)
@@ -27,11 +28,6 @@ def train_agent(config, agent):
   try:
     _trained_model, running_signals, running_lengths, *training_statistics = agent.train(env, config.ROLLOUTS,
                                                                                          render=config.RENDER_ENVIRONMENT)
-  except ValueError:
-    running_signals = None
-    running_lengths = None
-    _trained_model = None
-    print('Training procedure did not return as excepted')
   finally:
     listener.stop()
 
@@ -43,11 +39,11 @@ def train_agent(config, agent):
 
 
 if __name__ == '__main__':
-  import experiments.grid_world.grid_world_config as C
+  import experiments.continuous.c2d_config as C
 
   from configs.arguments import parse_arguments
 
-  args = parse_arguments('Regular small grid world experiment', C)
+  args = parse_arguments('C2D', C)
 
   for key, arg in args.__dict__.items():
     setattr(C, key, arg)

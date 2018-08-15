@@ -9,7 +9,6 @@ sys.stdout.write(style(u'\nTerm Plot Ûnicöde Probe\n\n', underline=True))
 
 __author__ = 'cnheider'
 
-import numpy as np
 import fcntl
 import os
 import struct
@@ -153,4 +152,4 @@ def term_plot_stats_shared_x(stats, *, x=None, styles=None, printer=print, margi
 if __name__ == '__main__':
   import numpy as np
 
-  term_plot(np.tile(range(9), 4),plot_character='o')
+  term_plot(np.tile(range(9), 4), plot_character='o')

@@ -6,8 +6,6 @@ Description: Config for training
 Author: Christian Heider Nielsen
 '''
 
-import os
-
 # noinspection PyUnresolvedReferences
 from configs.base_config import *
 

@@ -2,4 +2,4 @@
 # -*- coding: utf-8 -*-
 __author__ = 'cnheider'
 
-from .key import *
+from .stopping_key import *

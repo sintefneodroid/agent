@@ -1,3 +1,7 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+__author__ = 'cnheider'
 import statistics as S
 
 from utilities.statistics_utilities import StatisticAggregator

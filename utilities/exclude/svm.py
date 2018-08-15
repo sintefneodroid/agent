@@ -1,9 +1,8 @@
 #!/usr/bin/env python
 import itertools
-import pickle
-
 import matplotlib.pyplot as plt
 import numpy as np
+import pickle
 from sklearn import cross_validation, metrics, svm
 from sklearn.preprocessing import LabelEncoder, StandardScaler
 

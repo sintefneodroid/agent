@@ -9,8 +9,7 @@ import time
 import torch
 from tqdm import tqdm
 
-import neodroid.wrappers.curriculum_wrapper as neo
-from utilities.environment_wrappers.action_encoding_wrappers import BinaryActionEncodingCurriculumEnvironment
+from neodroid.wrappers.action_encoding_wrappers import BinaryActionEncodingCurriculumEnvironment
 
 tqdm.monitor_interval = 0
 
@@ -19,7 +18,7 @@ import configs.curriculum.curriculum_config as C
 import utilities as U
 
 torch.manual_seed(C.SEED)
-neo.seed(C.SEED)
+# neo.seed(C.SEED)
 
 stats = U.StatisticCollection(
     stats={

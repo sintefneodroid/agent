@@ -6,7 +6,6 @@ Description: Config for training
 Author: Christian Heider Nielsen
 '''
 
-from configs.base_config import *
 from utilities import *
 
 CONFIG_NAME = __name__

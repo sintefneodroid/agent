@@ -28,8 +28,8 @@ Initialize a Critic for low dimensional environment.
     fan_in_init(self.fc1.weight)
 
     self.fc2 = nn.Linear(
-      self._hidden_layers[0] + self._output_size[0], self._hidden_layers[1]
-      )  # Actions are not included until the 2nd layer of Q.
+        self._hidden_layers[0] + self._output_size[0], self._hidden_layers[1]
+        )  # Actions are not included until the 2nd layer of Q.
     fan_in_init(self.fc2.weight)
 
     self.head = nn.Linear(self._hidden_layers[1], 1)

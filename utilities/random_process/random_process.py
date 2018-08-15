@@ -4,6 +4,7 @@ from abc import ABC
 
 __author__ = 'cnheider'
 
+
 class RandomProcess(ABC):
 
   def reset(self):

@@ -36,7 +36,7 @@ AGENT_TYPE = PGAgent
 # Environment Related Parameters
 CONNECT_TO_RUNNING = True
 RENDER_ENVIRONMENT = False
-ENVIRONMENT_NAME = 'small_grid_world'
+ENVIRONMENT_NAME = 'grd'
 SOLVED_REWARD = 0.9
 ACTION_MAGNITUDES = 10000
 

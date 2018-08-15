@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+from neodroid import EnvironmentState
+
 __author__ = 'cnheider'
 
 from itertools import count
@@ -7,7 +9,6 @@ from itertools import count
 import numpy as np
 import torch
 import torch.nn.functional as F
-from torch.autograd import Variable
 from torch.distributions import Categorical
 from tqdm import tqdm
 
@@ -80,7 +81,13 @@ class PGAgent(PolicyAgent):
 
     self._policy = policy
 
-  def sample_action(self, state, **kwargs):
+  def sample_action(self, state, discrete=True, **kwargs):
+    if discrete:
+      return self.sample_discrete_action(state)
+
+    return self.sample_continuous_action(state)
+
+  def sample_discrete_action(self, state):
     state_var = U.to_tensor([state], device=self._device, dtype=self._state_type)
 
     probs = self._policy(state_var)
@@ -93,11 +100,13 @@ class PGAgent(PolicyAgent):
 
     return action, m.log_prob(action_sample), m.entropy()
 
-  def sample_cont_action(self, state):
+  def sample_continuous_action(self, state):
     model_input = U.to_tensor([state], device=self._device, dtype=self._state_type)
 
     with torch.no_grad():
-      mu, sigma_sq = self._policy(model_input)  # requires MultiheadedMLP
+      mu, sigma_sq = self._policy(model_input)
+
+      mu, sigma_sq = mu[0], sigma_sq[0]
 
     # std = self.sigma.exp().expand_as(mu)
     # dist = torch.Normal(mu, std)
@@ -105,16 +114,15 @@ class PGAgent(PolicyAgent):
 
     eps = torch.randn(mu.size())
     # calculate the probability
-    action = (mu + sigma_sq.sqrt() * Variable(eps).cuda()).data
+    action = (mu + sigma_sq.sqrt() * eps).data
     prob = U.normal(action, mu, sigma_sq)
-    entropy = -0.5 * (
-        (
-            sigma_sq
-            + 2
-            * U.pi_torch(self._use_cuda).expand_as(sigma_sq)
-        ).log()
-        + 1
-    )
+    entropy = -0.5 * ((
+                          sigma_sq
+                          + 2
+                          * U.pi_torch(self._device).expand_as(sigma_sq)
+                      ).log()
+                      + 1
+                      )
 
     log_prob = prob.log()
     return action, log_prob, entropy
@@ -154,7 +162,10 @@ class PGAgent(PolicyAgent):
     episode_length = 0
     episode_entropy = 0
 
-    state = initial_state
+    if type(initial_state) is EnvironmentState:
+      state = initial_state.observables
+    else:
+      state = initial_state
 
     T = count(1)
     T = tqdm(T, f'Rollout #{self._rollout_i}', leave=False)
@@ -162,7 +173,7 @@ class PGAgent(PolicyAgent):
     for t in T:
       action, action_log_probs, entropy, *_ = self.sample_action(state)
 
-      state, signal, terminated, info = environment.step(action=action)
+      state, signal, terminated, info = environment.step(action)
 
       if self._signal_clipping:
         signal = np.clip(signal, -1.0, 1.0)

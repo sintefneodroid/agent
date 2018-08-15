@@ -114,6 +114,6 @@ if __name__ == '__main__':
   import configs.agent_test_configs.test_pg_config as C
 
   C.CONNECT_TO_RUNNING = False
-  C.ENVIRONMENT_NAME = 'small_grid_world'
+  C.ENVIRONMENT_NAME = 'grd'
 
   U.test_agent_main(RandomAgent, C)

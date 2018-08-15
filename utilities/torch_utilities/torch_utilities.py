@@ -25,8 +25,6 @@ def kl_probs(prob1, prob2):
 
 
 def to_tensor(obj, dtype=torch.float, device='cpu'):
-  # if type(x) is not torch.Tensor:
-  # if not isinstance(obj, torch.Tensor):t
   if not torch.is_tensor(obj):
     return torch.tensor(obj, device=device, dtype=dtype)
   else:
@@ -34,7 +32,7 @@ def to_tensor(obj, dtype=torch.float, device='cpu'):
 
 
 def pi_torch(device='cpu'):
-  to_tensor([np.math.pi], device=device)
+  return to_tensor([np.math.pi], device=device)
 
 
 def normal(x, mu, sigma_sq, device='cpu'):

@@ -39,15 +39,15 @@ OOOO hidden_layer_size * (Weights,Biases)
     if self.num_of_layer > 0:
       for i in range(1, self.num_of_layer + 1):
         layer = nn.Linear(
-          previous_layer_size, self._hidden_layers[i - 1], bias=self._use_bias
-          )
+            previous_layer_size, self._hidden_layers[i - 1], bias=self._use_bias
+            )
         # fan_in_init(layer.weight)
         setattr(self, f'fc{i}', layer)
         previous_layer_size = self._hidden_layers[i - 1]
 
     self.head = nn.Linear(
-      previous_layer_size, self._output_size[0], bias=self._use_bias
-      )
+        previous_layer_size, self._output_size[0], bias=self._use_bias
+        )
 
   def forward(self, x, **kwargs):
     '''
@@ -80,7 +80,7 @@ class CategoricalMLP(MLP):
 
 class MultiHeadedMLP(MLP):
 
-  def __init__(self, heads, **kwargs):
+  def __init__(self, *, heads, **kwargs):
     super().__init__(**kwargs)
 
     self._heads = heads
@@ -88,9 +88,9 @@ class MultiHeadedMLP(MLP):
     self.num_of_heads = len(self._heads)
     if self.num_of_heads > 0:
       for i in range(self.num_of_heads):
-        layer = nn.Linear(self._output_size[0], self._heads[i])
+        head = nn.Linear(self._output_size[0], self._heads[i])
         # fan_in_init(layer.weight)
-        setattr(self, f'subhead{str(i + 1)}', layer)
+        setattr(self, f'subhead{str(i + 1)}', head)
     else:
       raise ValueError('Number of head must be >0')
 
@@ -98,11 +98,21 @@ class MultiHeadedMLP(MLP):
     x = super().forward(x, **kwargs)
 
     output = []
-    for i in range(1, self._heads + 1):
-      layer = getattr(self, 'subhead' + str(i))
-      output.append(layer(x))
+    for i in range(1, self.num_of_heads + 1):
+      head = getattr(self, 'subhead' + str(i))
+      sub_res = head(x)
+      if type(sub_res) is not list:
+        sub_res = [sub_res]
+      output.append(sub_res)
 
     return output
+
+
+class DistributionMLP(MultiHeadedMLP):
+  def __init__(self, **kwargs):
+    heads = [1, 1]
+
+    super().__init__(heads=heads, **kwargs)
 
 
 class RecurrentCategoricalMLP(MLP):

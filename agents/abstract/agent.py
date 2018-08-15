@@ -82,6 +82,9 @@ Tries to infer input and output size from env if either _input_size or _output_s
 
 :rtype: object
 '''
+    self._observation_space = env.observation_space
+    self._action_space = env.action_space
+
     if self._input_size is None or self._input_size == -1:
       self._input_size = env.observation_space.shape
     U.sprint(f'\nobservation dimensions: {self._input_size}\n', color='green', bold=True, highlight=True)

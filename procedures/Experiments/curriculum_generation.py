@@ -4,9 +4,8 @@ __author__ = 'cnheider'
 from collections import namedtuple
 from itertools import count
 
-import numpy as np
-
 import neodroid.wrappers.curriculum_wrapper as neo
+import numpy as np
 from neodroid import Configuration
 
 random_motion_horizon = 5
@@ -15,25 +14,25 @@ initial_states_to_generate = 100
 
 def get_initial_configuration2(environment):
   if environment:
-    # goal_pos_x = environment.description.configurable('GoalTransformX').observation
-    # goal_pos_z = environment.description.configurable('GoalTransformZ').observation
-    # return goal_pos_x,goal_pos_z
-    goal_pos = environment.description.configurable('GoalPosition').configurable_value
+    goal_pos_x = environment.description.configurable('GoalTransformX_Configurable').observation
+    goal_pos_z = environment.description.configurable('GoalTransformZ_Configurable').observation
+    goal_pos = [goal_pos_x, 0, goal_pos_z]
+    # goal_pos = environment.description.configurable('GoalPosition_').configurable_value
     initial_configuration = [
-      Configuration('ActorPositionX', goal_pos[0]),
-      Configuration('ActorPositionY', goal_pos[1]),
-      Configuration('ActorPositionZ', goal_pos[2]),
+      Configuration('ActorPositionX_Configurable', goal_pos[0]),
+      Configuration('ActorPositionY_Configurable', goal_pos[1]),
+      Configuration('ActorPositionZ_Configurable', goal_pos[2]),
       ]
     return initial_configuration
 
 
 def get_initial_configuration(environment):
   if environment:
-    goal_pos_x = environment.description.configurable('GoalTransformX').configurable_value
-    goal_pos_z = environment.description.configurable('GoalTransformZ').configurable_value
+    goal_pos_x = environment.description.configurable('GoalTransformX_Configurable').configurable_value
+    goal_pos_z = environment.description.configurable('GoalTransformZ_Configurable').configurable_value
     initial_configuration = [
-      Configuration('ActorTransformX', goal_pos_x),
-      Configuration('ActorTransformZ', goal_pos_z),
+      Configuration('ActorTransformX_Configurable', goal_pos_x),
+      Configuration('ActorTransformZ_Configurable', goal_pos_z),
       ]
     return initial_configuration
 
@@ -45,8 +44,8 @@ def main():
   initial_configuration = get_initial_configuration(_environment)
 
   initial_start_set = _environment.generate_initial_states_from_configuration(
-    initial_configuration
-    )
+      initial_configuration
+      )
 
   StateValuePair = namedtuple('StateValuePair', ('init_state', 'value_estimate'))
   frontier = []
@@ -66,8 +65,8 @@ def main():
         initial_start_set = []
         for start in good_starts:
           initial_start_set.extend(
-            _environment.generate_initial_states_from_state(start)
-            )
+              _environment.generate_initial_states_from_state(start)
+              )
 
     init_state = sample_initial_state(initial_start_set)
 
@@ -78,9 +77,10 @@ def main():
       for k in count(1):
 
         actions = _environment.action_space.sample()
-        observations, reward, terminated, info = _environment.act(actions)
+        observations, reward, terminated, info = _environment.sample_action(actions, )
 
         episode_reward += reward
+
         if terminated:
           print('Interrupted', reward)
           episode_rewards.append(episode_reward)

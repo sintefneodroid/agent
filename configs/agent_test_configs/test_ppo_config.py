@@ -8,8 +8,6 @@ Description: Config for training
 Author: Christian Heider Nielsen
 '''
 
-import torch.nn.functional as F
-
 # General
 from configs.agent_test_configs.base_test_config import *
 

@@ -1,4 +1,4 @@
-#!/usr/bin/env python3 
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 __author__ = 'cnheider'
 import datetime
@@ -45,12 +45,14 @@ def save_model(model, configuration, name=''):
   print(f'Saved model at {_model_path}')
 
 
-def _save(model, _model_path, configuration):
-  torch.save(
-      model.state_dict(), _model_path
-      )  # TODO possible to .cpu() copy would be great
-  save_config(_model_path, configuration)
-  return True
+def _save(model, model_path, configuration):
+  if model and model_path:
+    torch.save(
+        model.state_dict(), model_path
+        )  # TODO possible to .cpu() copy would be great
+    save_config(model_path, configuration)
+    return True
+  return False
 
 
 def save_config(model_path, configuration):
