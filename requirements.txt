@@ -1,3 +1,5 @@
+IPython
+six
 scipy
 seaborn
 pandas

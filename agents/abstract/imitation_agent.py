@@ -8,14 +8,14 @@ from agents.abstract.agent import Agent
 
 class ImitationAgent(Agent, ABC):
 
-  def _build(self):
+  # region Private
+
+  def __next__(self):
     pass
 
-  def _defaults(self):
-    pass
+  # endregion
 
-  def _sample_model(self, state, *args, **kwargs):
-    pass
+  # region Public
 
   def update(self, *args, **kwargs):
     pass
@@ -26,17 +26,29 @@ class ImitationAgent(Agent, ABC):
   def save(self, *args, **kwargs):
     pass
 
-  def __next__(self):
-    pass
-
   def evaluate(self, batch, **kwargs):
     pass
 
   def sample_action(self, state, **kwargs):
     pass
 
+  def rollout(self, init_obs, env, train=True, **kwargs):
+    pass
+
+  # endregion
+
+  # region Protected
+
+  def _build(self, **kwargs) -> None:
+    pass
+
+  def __defaults__(self) -> None:
+    pass
+
+  def _sample_model(self, state, *args, **kwargs):
+    pass
+
   def _optimise_wrt(self, error, **kwargs):
     pass
 
-  def rollout(self, init_obs, env, train=True, **kwargs):
-    pass
+  # endregion

@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+from agents.experimental.tabular_q_agent import TabularQAgent
 
 __author__ = 'cnheider'
 '''
@@ -11,7 +12,7 @@ from configs.base_config import *
 CONFIG_NAME = __name__
 CONFIG_FILE = __file__
 
-AGENT_TYPE = PGAgent
+AGENT_TYPE = TabularQAgent
 
 # Exploration
 EXPLORATION_EPSILON_START = 1.0
@@ -36,6 +37,7 @@ CONNECT_TO_RUNNING = True
 
 VALUE_ARCH = U.MLP
 OPTIMISER_TYPE = torch.optim.Adam
+OPTIMISER_LEARNING_RATE = 0.0025
 # ENVIRONMENT_NAME = 'CartPole-v0'
 ENVIRONMENT_NAME = 'grd'
 # 'LunarLander-v2' #(coord_x, coord_y, vel_x, vel_y, angle,

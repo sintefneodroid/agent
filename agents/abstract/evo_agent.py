@@ -8,10 +8,9 @@ from agents.abstract.agent import Agent
 
 class EVOAgent(Agent, ABC):
 
-  def sample_action(self, state, **kwargs):
-    pass
+  # region Public
 
-  def _optimise_wrt(self, error, **kwargs):
+  def sample_action(self, state, **kwargs):
     pass
 
   def evaluate(self, batch, **kwargs):
@@ -19,3 +18,12 @@ class EVOAgent(Agent, ABC):
 
   def rollout(self, init_obs, env, train=True, **kwargs):
     pass
+
+  # endregion
+
+  # region Protected
+
+  def _optimise_wrt(self, error, **kwargs):
+    pass
+
+  # endregion

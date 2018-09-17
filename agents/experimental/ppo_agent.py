@@ -18,7 +18,9 @@ class PPOAgent(JointACAgent):
   '''
 '''
 
-  def _defaults(self):
+  # region Private
+
+  def __defaults__(self) -> None:
     self._steps = 10
 
     self._discount_factor = 0.99
@@ -67,7 +69,11 @@ class PPOAgent(JointACAgent):
     self._actor_critic_target = None
     self._optimiser = None
 
-  def _build(self):
+  # endregion
+
+  # region Protected
+
+  def _build(self, **kwargs) -> None:
     self._actor_critic_arch_params['input_size'] = self._input_size
     self._actor_critic_arch_params['actor_output_size'] = self._output_size
 
@@ -128,6 +134,17 @@ continuous
       action = m.sample()
       a = action.to('cpu').data.numpy()[0]
       return a, value_estimate, m.log_prob(action)
+
+  def _train(self, *args, **kwargs):
+
+    # num_updates = int(args.num_frames) // args.num_steps // args.num_processes
+
+    return self.train_episodic(*args, **kwargs)
+    # return self.train_step_batched(*args, **kwargs)
+
+  # endregion
+
+  # region Public
 
   def take_n_steps(self,
                    initial_state,
@@ -320,17 +337,9 @@ continuous
       self._actor_optimiser.step()
   '''
 
-  # choose an action based on state for execution
   def sample_action(self, state, **kwargs):
     action, value_estimate, action_log_std, *_ = self._sample_model(state)
     return action, value_estimate, action_log_std
-
-  def _train(self, *args, **kwargs):
-
-    # num_updates = int(args.num_frames) // args.num_steps // args.num_processes
-
-    return self.train_episodic(*args, **kwargs)
-    # return self.train_step_batched(*args, **kwargs)
 
   def train_step_batched(self,
                          env,
@@ -376,7 +385,7 @@ continuous
 
     return self._actor_critic, []
 
-  def train_episodic(self,
+  def train_episodically(self,
                      env,
                      num_batches=10000,
                      render=False,
@@ -422,6 +431,7 @@ continuous
         break
 
     return self._actor_critic, []
+  # endregion
 
 
 if __name__ == '__main__':

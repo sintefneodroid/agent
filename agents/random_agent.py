@@ -9,22 +9,76 @@ from agents.abstract.agent import Agent
 
 
 class RandomAgent(Agent):
-  def _build(self) -> None:
-    pass
 
-  def _defaults(self) -> None:
+  # region Private
+
+  def __defaults__(self) -> None:
     self._policy = None
 
-  def sample_action(self, state, *args, **kwargs) -> Any:
-    return self._environment.action_space.sample()
+  # endregion
+
+  # region Protected
+
+  def _build(self, **kwargs) -> None:
+    pass
+
+  def _optimise_wrt(self, error, *args, **kwargs) -> None:
+    pass
 
   def _sample_model(self, state, *args, **kwargs) -> Any:
     pass
 
-  def update(self, *args, **kwargs) -> None:
-    pass
+  def _train(self,
+             _environment,
+             rollouts=2000,
+             render=False,
+             render_frequency=100,
+             stat_frequency=10,
+             **kwargs) -> Tuple[Any, Any]:
+    training_start_timestamp = time.time()
+    E = range(1, rollouts)
+    E = tqdm(E, f'Episode: {1}', leave=False)
 
-  def _optimise_wrt(self, error, *args, **kwargs) -> None:
+    stats = U.StatisticCollection(stats=('signal', 'duration'))
+
+    for episode_i in E:
+      initial_state = _environment.reset()
+
+      if episode_i % stat_frequency == 0:
+        U.term_plot_stats_shared_x(
+          stats,
+          printer=E.write,
+          )
+
+        E.set_description(f'Episode: {episode_i}, Running length: {stats.duration.running_value[-1]}')
+
+      if render and episode_i % render_frequency == 0:
+        signal, dur, *extras = self.rollout(
+          initial_state, _environment, render=render
+          )
+      else:
+        signal, dur, *extras = self.rollout(initial_state, _environment)
+
+      stats.duration.append(dur)
+      stats.signal.append(signal)
+
+      if self._end_training:
+        break
+
+    time_elapsed = time.time() - training_start_timestamp
+    end_message = f'Training done, time elapsed: {time_elapsed // 60:.0f}m {time_elapsed %60:.0f}s'
+    print('\n{} {} {}\n'.format('-' * 9, end_message, '-' * 9))
+
+    return self._policy, stats
+
+  # endregion
+
+  # region Public
+
+  def sample_action(self, state, *args, **kwargs) -> Any:
+    return self._environment.action_space.sample()
+
+  def update(self, *args, **kwargs) -> None:
     pass
 
   def evaluate(self, batch, *args, **kwargs) -> Any:
@@ -66,48 +120,7 @@ class RandomAgent(Agent):
   def save(self, *args, **kwargs) -> None:
     pass
 
-  def _train(self,
-             _environment,
-             rollouts=2000,
-             render=False,
-             render_frequency=100,
-             stat_frequency=10,
-             **kwargs) -> Tuple[Any, Any]:
-    training_start_timestamp = time.time()
-    E = range(1, rollouts)
-    E = tqdm(E, f'Episode: {1}', leave=False)
-
-    stats = U.StatisticCollection(stats=('signal', 'duration'))
-
-    for episode_i in E:
-      initial_state = _environment.reset()
-
-      if episode_i % stat_frequency == 0:
-        U.term_plot_stats_shared_x(
-            stats,
-            printer=E.write,
-            )
-
-        E.set_description(f'Episode: {episode_i}, Running length: {stats.duration.running_value[-1]}')
-
-      if render and episode_i % render_frequency == 0:
-        signal, dur, *extras = self.rollout(
-            initial_state, _environment, render=render
-            )
-      else:
-        signal, dur, *extras = self.rollout(initial_state, _environment)
-
-      stats.duration.append(dur)
-      stats.signal.append(signal)
-
-      if self._end_training:
-        break
-
-    time_elapsed = time.time() - training_start_timestamp
-    end_message = f'Training done, time elapsed: {time_elapsed // 60:.0f}m {time_elapsed %60:.0f}s'
-    print('\n{} {} {}\n'.format('-' * 9, end_message, '-' * 9))
-
-    return self._policy, stats
+  # endregion
 
 
 if __name__ == '__main__':

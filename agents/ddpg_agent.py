@@ -37,90 +37,6 @@ Parameters
         The update rate that target networks slowly track the learned networks.
 '''
 
-  def _optimise_wrt(self, td_error, state_batch, *args, **kwargs):
-    '''
-
-:type kwargs: object
-'''
-    self.optimise_critic_wrt(td_error)
-
-    ### Actor ###
-    loss = -self._critic(state_batch, self._actor(state_batch)).mean()
-    # loss = -torch.sum(self.critic(state_batch, self.actor(state_batch)))
-
-    self.optimise_actor_wrt(loss)
-
-    self.update_target(self._target_critic, self._critic)
-    self.update_target(self._target_actor, self._actor)
-
-    # self._memory.batch_update(indices, errors.tolist())  # Cuda trouble
-
-    return loss
-
-  def _defaults(self):
-    self._optimiser_type = torch.optim.Adam
-
-    self._actor_optimiser_spec = U.OptimiserSpecification(
-        constructor=self._optimiser_type, kwargs=dict(lr=0.0001)
-        )
-    self._critic_optimiser_spec = U.OptimiserSpecification(
-        constructor=self._optimiser_type, kwargs=dict(lr=0.001, weight_decay=0.01)
-        )
-
-    self._random_process = OrnsteinUhlenbeckProcess(theta=0.15, sigma=0.2)
-    # Adds noise for exploration
-
-    # self._memory = U.PrioritisedReplayMemory(config.REPLAY_MEMORY_SIZE)  # Cuda trouble
-    self._memory = U.TransitionBuffer(1000000)
-    self._evaluation_function = F.smooth_l1_loss
-
-    self._actor_arch = U.ActorArchitecture
-    self._actor_arch_parameters = {
-      'input_size':       None,  # Obtain from environment
-      'hidden_layers':    [128, 64],
-      'output_activation':None,
-      'output_size':      None,  # Obtain from environment
-      }
-
-    self._critic_arch = U.CriticArchitecture
-    self._critic_arch_parameters = {
-      'input_size':       None,  # Obtain from environment
-      'hidden_layers':    [128, 64],
-      'output_activation':None,
-      'output_size':      None,  # Obtain from environment
-      }
-
-    self._discount_factor = 0.99
-    self._use_double_dqn = False
-    self._signal_clipping = False
-    self._action_clipping = False
-    self._initial_observation_period = 10000
-    self._learning_frequency = 4
-    self._sync_target_model_frequency = 10000
-    self._state_type = torch.float
-    self._value_type = torch.float
-    self._action_type = torch.float
-
-    self._epsilon_start = 0.9
-    self._epsilon_end = 0.05
-    self._epsilon_decay = 35000
-
-    self._early_stopping_condition = None
-    self._optimiser = None
-
-    self._end_training = False
-
-    self._batch_size = 60
-    self._target_update_tau = 0.001
-
-    self._end_training = False
-
-    self._actor, self._target_actor, self._critic, self._target_critic, self._actor_optimiser, \
-    self._critic_optimiser = None, None, None, None, None, None
-
-    self._input_size = None
-    self._output_size = None
-
   def save(self, C):
     U.save_model(self._actor, C, 'actor')
     U.save_model(self._critic, C, 'policy')
@@ -128,7 +44,7 @@ Parameters
   def load(self, model_path, evaluation=False):
     print('loading latest model: ' + model_path)
 
-    self._build()
+    self._build(**kwargs)
 
     self._actor.load_state_dict(torch.load(f'actor-{model_path}'))
     self._critic.load_state_dict(torch.load(f'critic-{model_path}'))
@@ -146,41 +62,6 @@ Parameters
     self._target_actor = self._target_actor.to(self._device)
     self._critic = self._critic.to(self._device)
     self._target_critic = self._target_critic.to(self._device)
-
-  def _build(self):
-
-    self._actor_arch_parameters['input_size'] = self._input_size
-    self._actor_arch_parameters['output_size'] = self._output_size
-    self._critic_arch_parameters['input_size'] = self._input_size
-    self._critic_arch_parameters['output_size'] = self._output_size
-
-    # Construct actor and critic
-    actor = self._actor_arch(**self._actor_arch_parameters).to(self._device)
-    target_actor = self._actor_arch(**self._actor_arch_parameters).to(
-        self._device
-        ).eval()
-    critic = self._critic_arch(**self._critic_arch_parameters).to(self._device)
-    target_critic = self._critic_arch(**self._critic_arch_parameters).to(
-        self._device
-        ).eval()
-
-    # Construct the optimizers for actor and critic
-    actor_optimizer = self._actor_optimiser_spec.constructor(
-        actor.parameters(), **self._critic_optimiser_spec.kwargs
-        )
-    critic_optimizer = self._critic_optimiser_spec.constructor(
-        critic.parameters(), **self._critic_optimiser_spec.kwargs
-        )
-
-    self._actor, self._target_actor, self._critic, self._target_critic, self._actor_optimiser, \
-    self._critic_optimiser = actor, target_actor, critic, target_critic, actor_optimizer, critic_optimizer
-
-  def _sample_model(self, state, **kwargs):
-    state = U.to_tensor([state], device=self._device, dtype=self._state_type)
-    with torch.no_grad():
-      action = self._actor(state)
-    a = action.to('cpu').numpy()
-    return a[0]
 
   def sample_action(self, state, **kwargs):
     return self._sample_model(state)
@@ -307,6 +188,125 @@ Update the target networks
         break
 
     return episode_signal, episode_length
+
+  def _optimise_wrt(self, td_error, state_batch, *args, **kwargs):
+    '''
+
+    :type kwargs: object
+    '''
+    self.optimise_critic_wrt(td_error)
+
+    ### Actor ###
+    loss = -self._critic(state_batch, self._actor(state_batch)).mean()
+    # loss = -torch.sum(self.critic(state_batch, self.actor(state_batch)))
+
+    self.optimise_actor_wrt(loss)
+
+    self.update_target(self._target_critic, self._critic)
+    self.update_target(self._target_actor, self._actor)
+
+    # self._memory.batch_update(indices, errors.tolist())  # Cuda trouble
+
+    return loss
+
+  def __defaults__(self) -> None:
+    self._optimiser_type = torch.optim.Adam
+
+    self._actor_optimiser_spec = U.OptimiserSpecification(
+        constructor=self._optimiser_type, kwargs=dict(lr=0.0001)
+        )
+    self._critic_optimiser_spec = U.OptimiserSpecification(
+        constructor=self._optimiser_type, kwargs=dict(lr=0.001, weight_decay=0.01)
+        )
+
+    self._random_process = OrnsteinUhlenbeckProcess(theta=0.15, sigma=0.2)
+    # Adds noise for exploration
+
+    # self._memory = U.PrioritisedReplayMemory(config.REPLAY_MEMORY_SIZE)  # Cuda trouble
+    self._memory = U.TransitionBuffer(1000000)
+    self._evaluation_function = F.smooth_l1_loss
+
+    self._actor_arch = U.ActorArchitecture
+    self._actor_arch_parameters = {
+      'input_size':       None,  # Obtain from environment
+      'hidden_layers':    [128, 64],
+      'output_activation':None,
+      'output_size':      None,  # Obtain from environment
+      }
+
+    self._critic_arch = U.CriticArchitecture
+    self._critic_arch_parameters = {
+      'input_size':       None,  # Obtain from environment
+      'hidden_layers':    [128, 64],
+      'output_activation':None,
+      'output_size':      None,  # Obtain from environment
+      }
+
+    self._discount_factor = 0.99
+    self._use_double_dqn = False
+    self._signal_clipping = False
+    self._action_clipping = False
+    self._initial_observation_period = 10000
+    self._learning_frequency = 4
+    self._sync_target_model_frequency = 10000
+    self._state_type = torch.float
+    self._value_type = torch.float
+    self._action_type = torch.float
+
+    self._epsilon_start = 0.9
+    self._epsilon_end = 0.05
+    self._epsilon_decay = 35000
+
+    self._early_stopping_condition = None
+    self._optimiser = None
+
+    self._end_training = False
+
+    self._batch_size = 60
+    self._target_update_tau = 0.001
+
+    self._end_training = False
+
+    self._actor, self._target_actor, self._critic, self._target_critic, self._actor_optimiser, \
+    self._critic_optimiser = None, None, None, None, None, None
+
+    self._input_size = None
+    self._output_size = None
+
+  def _build(self, **kwargs) -> None:
+
+    self._actor_arch_parameters['input_size'] = self._input_size
+    self._actor_arch_parameters['output_size'] = self._output_size
+    self._critic_arch_parameters['input_size'] = self._input_size
+    self._critic_arch_parameters['output_size'] = self._output_size
+
+    # Construct actor and critic
+    actor = self._actor_arch(**self._actor_arch_parameters).to(self._device)
+    target_actor = self._actor_arch(**self._actor_arch_parameters).to(
+        self._device
+        ).eval()
+    critic = self._critic_arch(**self._critic_arch_parameters).to(self._device)
+    target_critic = self._critic_arch(**self._critic_arch_parameters).to(
+        self._device
+        ).eval()
+
+    # Construct the optimizers for actor and critic
+    actor_optimizer = self._actor_optimiser_spec.constructor(
+        actor.parameters(), **self._critic_optimiser_spec.kwargs
+        )
+    critic_optimizer = self._critic_optimiser_spec.constructor(
+        critic.parameters(), **self._critic_optimiser_spec.kwargs
+        )
+
+    self._actor, self._target_actor, self._critic, self._target_critic, self._actor_optimiser, \
+    self._critic_optimiser = actor, target_actor, critic, target_critic, actor_optimizer, critic_optimizer
+
+  def _sample_model(self, state, **kwargs):
+    state = U.to_tensor([state], device=self._device, dtype=self._state_type)
+    with torch.no_grad():
+      action = self._actor(state)
+    a = action.to('cpu').numpy()
+    return a[0]
 
   def _train(
       self, env, rollouts=1000, render=False, render_frequency=10, stat_frequency=10

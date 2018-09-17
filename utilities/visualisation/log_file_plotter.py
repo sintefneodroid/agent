@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 
 import utilities as U
 
-print(plt.style.available)
+# print(plt.style.available)
 plot_style = 'fivethirtyeight'
 # plot_style='bmh'
 # plot_style='ggplot'

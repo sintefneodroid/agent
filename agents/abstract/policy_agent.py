@@ -16,6 +16,8 @@ class PolicyAgent(Agent):
 All policy iteration agents should inherit from this class
 '''
 
+  # region Private
+
   def __init__(self, *args, **kwargs):
     self._policy_arch = None
     self._policy_arch_params = None
@@ -55,27 +57,9 @@ All policy iteration agents should inherit from this class
         return value, action, action_log_probs, states
   '''
 
-  @abstractmethod
-  def _sample_model(self, state, *args, **kwargs) -> Any:
-    raise NotImplementedError
+  # endregion
 
-  def _infer_input_output_sizes(self, env, **kwargs):
-    super()._infer_input_output_sizes(env)
-    if type(self._policy_arch_params) is U.ConciseArchSpecification:
-      di = self._policy_arch_params._asdict()
-    else:
-      di = self._policy_arch_params
-    di['input_size'] = self._input_size
-    di['output_size'] = self._output_size
-
-    self._policy_arch_params = U.ConciseArchSpecification(**di)
-
-  @abstractmethod
-  def train_episodic(self, *args, **kwargs):
-    raise NotImplementedError
-
-  def _train(self, *args, **kwargs):
-    return self.train_episodic(*args, **kwargs)
+  # region Public
 
   def save(self, C):
     U.save_model(self._policy, C)
@@ -89,3 +73,35 @@ All policy iteration agents should inherit from this class
       self._policy.train(False)
     if self._use_cuda:
       self._policy = self._policy.cuda()
+
+  # endregion
+
+  # region Protected
+
+  def _infer_input_output_sizes(self, env, **kwargs):
+    super()._infer_input_output_sizes(env)
+    if type(self._policy_arch_params) is U.ConciseArchSpecification:
+      di = self._policy_arch_params._asdict()
+    else:
+      di = self._policy_arch_params
+    di['input_size'] = self._input_size
+    di['output_size'] = self._output_size
+
+    self._policy_arch_params = U.ConciseArchSpecification(**di)
+
+  def _train(self, *args, **kwargs):
+    return self.train_episodically(*args, **kwargs)
+
+  # endregion
+
+  # region Abstract
+
+  @abstractmethod
+  def _sample_model(self, state, *args, **kwargs) -> Any:
+    raise NotImplementedError
+
+  @abstractmethod
+  def train_episodically(self, *args, **kwargs):
+    raise NotImplementedError
+
+  # endregion

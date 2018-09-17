@@ -26,7 +26,7 @@ def term_plot(
     x_offsets=(1, 1),
     y_offsets=(1, 1),
     printer=print,
-    summary=True,
+    print_summary=True,
     plot_character=u'\u2981',
     print_style: PrintStyle = None
     ):
@@ -87,12 +87,12 @@ plot those values within canvas size (rows and columns)
       printer(row)
 
   # Print scale
-  if summary:
-    smmry = f'{title} - (min, max): x({min(x)}, {max(x)}), y({min(y)}, {max(y)})\n'
+  if print_summary:
+    summary = f'{title} - (min, max): x({min(x)}, {max(x)}), y({min(y)}, {max(y)})\n'
     if print_style:
-      printer(print_style(smmry))
+      printer(print_style(summary))
     else:
-      printer(smmry)
+      printer(summary)
 
 
 def scale(x, length):
@@ -145,7 +145,7 @@ def term_plot_stats_shared_x(stats, *, x=None, styles=None, printer=print, margi
         printer=printer,
         print_style=sty,
         percent_size=(1, y_size),
-        summary=summary
+        print_summary=summary
         )
 
 

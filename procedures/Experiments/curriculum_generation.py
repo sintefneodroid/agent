@@ -4,8 +4,9 @@ __author__ = 'cnheider'
 from collections import namedtuple
 from itertools import count
 
-import neodroid.wrappers.curriculum_wrapper as neo
 import numpy as np
+
+import neodroid.wrappers.curriculum_wrapper as neo
 from neodroid import Configuration
 
 random_motion_horizon = 5

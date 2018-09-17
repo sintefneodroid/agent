@@ -4,20 +4,37 @@ from typing import Any, Tuple
 
 import gym
 import numpy as np
+
+from agents.abstract.value_agent import ValueAgent
 from neodroid import Displayable
 
-from agents.abstract.agent import Agent
 
-
-class TabularQAgent(Agent):
+class TabularQAgent(ValueAgent):
   '''
   Agent implementing tabular Q-learning.
   '''
 
-  def update(self, *args, **kwargs) -> None:
-    pass
+  # region Private
 
-  def _optimise_wrt(self, error, *args, **kwargs) -> None:
+  def __defaults__(self) -> None:
+
+    self._action_n = 6
+
+    self._init_mean = 0.0
+    self._init_std = 0.1
+    self._learning_rate = .6
+    self._discount_factor = .95
+
+    self._initial_observation_period = 0
+    self._eps_start = 0.99
+    self._eps_decay = 500
+    self._eps_end = 0.1
+
+  # endregion
+
+  # region Public
+
+  def update(self, *args, **kwargs) -> None:
     pass
 
   def evaluate(self, batch, *args, **kwargs) -> Any:
@@ -29,37 +46,14 @@ class TabularQAgent(Agent):
   def save(self, *args, **kwargs) -> None:
     pass
 
-  def _build(self) -> None:
-    pass
+  def sample_action(self, state, **kwargs):
+    if type(state) is not str:
+      state = str(state)
 
-  def _defaults(self) -> None:
+    return super().sample_action(state)
 
-    self._action_n = 4
-
-    self._eps = 0.8
-    self._init_mean = 0.0
-    self._init_std = 0.1
-    self._learning_rate = .8
-    self._discount_factor = .95
-
-    self._q_table = defaultdict(
-        lambda:self._init_std * np.random.randn(self._action_n) + self._init_mean)
-    # Q = np.zeros([self._environment.observation_space.n, self._environment.action_space.n])
-
-  def sample_action(self, observation, **kwargs):
-    if type(observation) is not str:
-      observation = str(observation)
-
-    s = np.random.random()
-    if s > self._eps:
-      # action = self._environment._action_space.discrete_sample()
-      action = self._environment.action_space.sample()
-    else:
-      action = np.argmax(self._q_table[observation])
-
-    self._eps = self._eps * 0.9999
-
-    return action
+  def sample_random_process(self):
+    return self._environment.action_space.signed_one_hot_sample()
 
   def rollout(self, initial_state, environment, *, train=True, render=False, **kwargs) -> Any:
     obs = initial_state
@@ -81,20 +75,57 @@ class TabularQAgent(Agent):
       ep_r += reward
 
       if done:
+        print(reward)
+        steps = t
         break
 
     return ep_r, steps
 
+  # endregion
+
+  # region Protected
+
+  def _sample_model(self, state, *args, **kwargs) -> Any:
+    return np.argmax(self._q_table[state])
+
+  def _optimise_wrt(self, error, *args, **kwargs) -> None:
+    pass
+
+  def _build(self, **kwargs) -> None:
+
+    self._action_n = self._environment.action_space.num_binary_actions
+
+    # self._verbose = True
+
+    self._q_table = defaultdict(
+        lambda:self._init_std * np.random.randn(self._action_n) + self._init_mean)
+
+    # self._q_table = np.zeros([self._environment.observation_space.n, self._environment.action_space.n])
+
   def _train(self, env, iters=10000, *args, **kwargs) -> Tuple[Any, Any]:
+    return self.train_episodically(env,iters)
+
+  # endregion
+
+  def train_episodically(
+    self,
+      env,
+    rollouts=1000,
+    render=False,
+    render_frequency=100,
+    stat_frequency=10,
+    **kwargs
+    ):
     obs = env.reset()
     obs = str(obs)
-    for i in range(iters):
+
+    for i in range(rollouts):
       ep_r, steps = self.rollout(obs, env)
       obs = env.reset()
       obs = str(obs)
-      print(ep_r)
+      print('episode done', ep_r, obs, steps)
 
-    return 0, 0
+    return 0, 0, 0, 0
 
 
 def get_actor_configuration(environment, candidate):

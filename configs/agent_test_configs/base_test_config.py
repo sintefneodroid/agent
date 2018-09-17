@@ -12,4 +12,4 @@ from configs.base_config import *
 CONFIG_NAME = __name__
 CONFIG_FILE = __file__
 
-ROLLOUTS = 100
+ROLLOUTS = 10000

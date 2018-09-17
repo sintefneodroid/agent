@@ -15,6 +15,8 @@ class JointACAgent(Agent):
 All value iteration agents should inherit from this class
 '''
 
+  # region Private
+
   def __init__(self, *args, **kwargs):
     self._actor_critic_arch = None
     self._value_arch_parameters = None
@@ -22,9 +24,9 @@ All value iteration agents should inherit from this class
 
     super().__init__(*args, **kwargs)
 
-  @abstractmethod
-  def _sample_model(self, state, *args, **kwargs) -> Any:
-    raise NotImplementedError
+  # endregion
+
+  # region Public
 
   def save(self, C):
     U.save_model(self._actor_critic, C)
@@ -42,3 +44,13 @@ All value iteration agents should inherit from this class
       self._actor_critic = self._actor_critic.cuda()
     else:
       self._actor_critic = self._actor_critic.cpu()
+
+  # endregion
+
+  # region Protected
+
+  @abstractmethod
+  def _sample_model(self, state, *args, **kwargs) -> Any:
+    raise NotImplementedError
+
+  # endregion

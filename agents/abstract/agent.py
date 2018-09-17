@@ -24,6 +24,8 @@ class Agent(ABC):
 All agent should inherit from this class
 '''
 
+  # region Private
+
   def __init__(self, config=None, environment=None, use_cuda=False, verbose=False, *args, **kwargs):
     self._step_i = 0
     self._rollout_i = 0
@@ -39,29 +41,10 @@ All agent should inherit from this class
 
     self._verbose = verbose
 
-    self._defaults()
+    self.__defaults__()
 
     if config:
       self.set_config_attributes(config)
-
-  def train(self, *args, **kwargs) -> Tuple[Any, Any]:
-
-    training_start_timestamp = time.time()
-
-    res = self._train(*args, **kwargs)
-
-    time_elapsed = time.time() - training_start_timestamp
-    end_message = f'Training done, time elapsed: {time_elapsed // 60:.0f}m {time_elapsed %60:.0f}s'
-    print('\n{} {} {}\n'.format('-' * 9, end_message, '-' * 9))
-
-    return res
-
-  def _step(self):
-    if self._environment:
-      self._last_state = self._environment.react(self.sample_action(self._last_state))
-      return
-    else:
-      raise HasNoEnvError
 
   def __next__(self):
     if self._environment:
@@ -76,34 +59,13 @@ All agent should inherit from this class
     else:
       raise HasNoEnvError
 
-  def _infer_input_output_sizes(self, env, *args, **kwargs) -> None:
-    '''
-Tries to infer input and output size from env if either _input_size or _output_size, is None or -1 (int)
-
-:rtype: object
-'''
-    self._observation_space = env.observation_space
-    self._action_space = env.action_space
-
-    if self._input_size is None or self._input_size == -1:
-      self._input_size = env.observation_space.shape
-    U.sprint(f'\nobservation dimensions: {self._input_size}\n', color='green', bold=True, highlight=True)
-
-    if self._output_size is None or self._output_size == -1:
-      if hasattr(env.action_space, 'num_binary_actions'):
-        self._output_size = [env.action_space.num_binary_actions]
-      elif len(env.action_space.shape) >= 1:
-        self._output_size = env.action_space.shape
+  def __parse_set_attr(self, **kwargs) -> None:
+    for k, v in kwargs.items():
+      if k.isupper():
+        k_lowered = f'_{k.lower()}'
+        self.__setattr__(k_lowered, v)
       else:
-        self._output_size = [env.action_space.n]
-    U.sprint(f'\naction dimensions: {self._output_size}\n', color='green', bold=True, highlight=True)
-
-  def set_config_attributes(self, config, **kwargs) -> None:
-    if config:
-      config_vars = U.get_upper_vars_of(config)
-      self.__check_for_duplicates_in_args(**config_vars)
-      self.__parse_set_attr(**config_vars)
-    self.__parse_set_attr(**kwargs)
+        self.__setattr__(k, v)
 
   @staticmethod
   def __check_for_duplicates_in_args(**kwargs) -> None:
@@ -132,13 +94,9 @@ Tries to infer input and output size from env if either _input_size or _output_s
       if occur > 1:
         warn(f'Config contains hiding duplicates of {key} and {k_lowered}, {occur} times')
 
-  def __parse_set_attr(self, **kwargs) -> None:
-    for k, v in kwargs.items():
-      if k.isupper():
-        k_lowered = f'_{k.lower()}'
-        self.__setattr__(k_lowered, v)
-      else:
-        self.__setattr__(k, v)
+  # endregion
+
+  # region Public
 
   def run(self, environment, render=True, *args, **kwargs) -> None:
 
@@ -170,26 +128,66 @@ Tries to infer input and output size from env if either _input_size or _output_s
     self._infer_input_output_sizes(env)
     self._device = device
 
-    self._build()
+    self._build(**kwargs)
+
+  def train(self, *args, **kwargs) -> Tuple[Any, Any]:
+
+    training_start_timestamp = time.time()
+
+    res = self._train(*args, **kwargs)
+
+    time_elapsed = time.time() - training_start_timestamp
+    end_message = f'Training done, time elapsed: {time_elapsed // 60:.0f}m {time_elapsed %60:.0f}s'
+    print('\n{} {} {}\n'.format('-' * 9, end_message, '-' * 9))
+
+    return res
+
+  def set_config_attributes(self, config, **kwargs) -> None:
+    if config:
+      config_vars = U.get_upper_vars_of(config)
+      self.__check_for_duplicates_in_args(**config_vars)
+      self.__parse_set_attr(**config_vars)
+    self.__parse_set_attr(**kwargs)
+
+  # endregion
+
+  # region Protected
+
+  def _step(self):
+    if self._environment:
+      self._last_state = self._environment.react(self.sample_action(self._last_state))
+      return
+    else:
+      raise HasNoEnvError
+
+  def _infer_input_output_sizes(self, env, *args, **kwargs) -> None:
+    '''
+Tries to infer input and output size from env if either _input_size or _output_size, is None or -1 (int)
+
+:rtype: object
+'''
+    self._observation_space = env.observation_space
+    self._action_space = env.action_space
+
+    if self._input_size is None or self._input_size == -1:
+      self._input_size = env.observation_space.shape
+    U.sprint(f'\nobservation dimensions: {self._input_size}\n', color='green', bold=True, highlight=True)
+
+    if self._output_size is None or self._output_size == -1:
+      if hasattr(env.action_space, 'num_binary_actions'):
+        self._output_size = [env.action_space.num_binary_actions]
+      elif len(env.action_space.shape) >= 1:
+        self._output_size = env.action_space.shape
+      else:
+        self._output_size = [env.action_space.n]
+    U.sprint(f'\naction dimensions: {self._output_size}\n', color='green', bold=True, highlight=True)
+
+  # endregion
+
+  # region Abstract
 
   @abstractmethod
-  def _build(self) -> None:
-    raise NotImplementedError
-
-  @abstractmethod
-  def _defaults(self) -> None:
-    raise NotImplementedError
-
-  @abstractmethod
-  def sample_action(self, state, *args, **kwargs) -> Any:
-    raise NotImplementedError
-
-  @abstractmethod
-  def update(self, *args, **kwargs) -> None:
-    raise NotImplementedError
-
-  @abstractmethod
-  def _optimise_wrt(self, error, *args, **kwargs) -> None:
+  def __defaults__(self) -> None:
     raise NotImplementedError
 
   @abstractmethod
@@ -209,5 +207,23 @@ Tries to infer input and output size from env if either _input_size or _output_s
     raise NotImplementedError
 
   @abstractmethod
+  def sample_action(self, state, *args, **kwargs) -> Any:
+    raise NotImplementedError
+
+  @abstractmethod
+  def update(self, *args, **kwargs) -> None:
+    raise NotImplementedError
+
+  @abstractmethod
+  def _build(self, **kwargs) -> None:
+    raise NotImplementedError
+
+  @abstractmethod
+  def _optimise_wrt(self, error, *args, **kwargs) -> None:
+    raise NotImplementedError
+
+  @abstractmethod
   def _train(self, *args, **kwargs) -> Tuple[Any, Any]:
     raise NotImplementedError
+
+  # endregion

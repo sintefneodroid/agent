@@ -6,19 +6,20 @@ import torch
 # import configs.base_config as C
 from tqdm import tqdm
 
-import neodroid.wrappers as neo
-
 tqdm.monitor_interval = 0
 
+from neodroid.wrappers.gym_wrapper import NeodroidGymWrapper as neo
 import utilities as U
 
 
 def train_agent(config, agent):
   device = torch.device('cuda' if config.USE_CUDA else 'cpu')
+  neo.seed(config.SEED)
   torch.manual_seed(config.SEED)
 
-  env = neo.NeodroidFormalWrapper(environment_name=config.ENVIRONMENT_NAME,
-                                  connect_to_running=config.CONNECT_TO_RUNNING)
+  env = neo(
+      environment_name=config.ENVIRONMENT_NAME, connect_to_running=config.CONNECT_TO_RUNNING
+      )
   env.seed(config.SEED)
 
   agent.build(env, device)
@@ -27,8 +28,9 @@ def train_agent(config, agent):
 
   listener.start()
   try:
-    _trained_model, running_signals, running_lengths, *training_statistics = agent.train(env, config.ROLLOUTS,
-                                                                                         render=config.RENDER_ENVIRONMENT)
+    _trained_model, running_signals, running_lengths, *training_statistics = agent.train(
+        env, config.ROLLOUTS, render=config.RENDER_ENVIRONMENT
+        )
   finally:
     listener.stop()
 
@@ -40,11 +42,11 @@ def train_agent(config, agent):
 
 
 if __name__ == '__main__':
-  import experiments.continuous.c2d_config as C
+  import configs.agent_test_configs.test_ddpg_config as C
 
   from configs.arguments import parse_arguments
 
-  args = parse_arguments('C2D', C)
+  args = parse_arguments('Manipulator experiment', C)
 
   for key, arg in args.__dict__.items():
     setattr(C, key, arg)

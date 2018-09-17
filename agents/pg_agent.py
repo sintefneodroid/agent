@@ -20,19 +20,9 @@ tqdm.monitor_interval = 0
 
 class PGAgent(PolicyAgent):
 
-  def update(self, *args, **kwargs):
-    error = self.evaluate()
+  # region Private
 
-    if error is not None:
-      if self._use_batched_updates:
-        self._accumulated_error += error
-        if self._rollout_i % self._batch_size == 0:
-          self._optimise_wrt(self._accumulated_error / self._batch_size)
-          self._accumulated_error = U.to_tensor(0.0, device=self._device)
-      else:
-        self._optimise_wrt(error)
-
-  def _defaults(self):
+  def __defaults__(self) -> None:
 
     self._policy_arch = U.CategoricalMLP
     self._accumulated_error = U.to_tensor(0.0, device=self._device)
@@ -61,6 +51,10 @@ class PGAgent(PolicyAgent):
     self._state_type = torch.float
     self._signals_tensor_type = torch.float
 
+  # endregion
+
+  # region Protected
+
   def _sample_model(self, state, **kwargs):
     state_tensor = U.to_tensor([state], device=self._device, dtype=self._state_type)
     with torch.no_grad():
@@ -69,9 +63,11 @@ class PGAgent(PolicyAgent):
     action = m.sample()
     return action.item()
 
-  def _build(self):
+  def _build(self, **kwargs) -> None:
 
-    policy = self._policy_arch(**(self._policy_arch_params._asdict())).to(self._device)
+    policy = self._policy_arch(
+        **(self._policy_arch_params._asdict())
+        ).to(self._device)
 
     self.optimiser = self._optimiser_type(
         policy.parameters(),
@@ -80,6 +76,17 @@ class PGAgent(PolicyAgent):
         )
 
     self._policy = policy
+
+  def _optimise_wrt(self, loss, **kwargs):
+    self.optimiser.zero_grad()
+    loss.backward()
+    for params in self._policy.parameters():
+      params.grad.data.clamp_(-1, 1)
+    self.optimiser.step()
+
+  # endregion
+
+  # region Public
 
   def sample_action(self, state, discrete=True, **kwargs):
     if discrete:
@@ -154,6 +161,18 @@ class PGAgent(PolicyAgent):
     loss = torch.cat(policy_loss).sum()
     return loss
 
+  def update(self, *args, **kwargs):
+    error = self.evaluate()
+
+    if error is not None:
+      if self._use_batched_updates:
+        self._accumulated_error += error
+        if self._rollout_i % self._batch_size == 0:
+          self._optimise_wrt(self._accumulated_error / self._batch_size)
+          self._accumulated_error = U.to_tensor(0.0, device=self._device)
+      else:
+        self._optimise_wrt(error)
+
   def rollout(self, initial_state, environment, render=False, train=True, **kwargs):
     if train:
       self._rollout_i += 1
@@ -197,13 +216,6 @@ class PGAgent(PolicyAgent):
 
     return episode_signal, episode_length, avg_entropy
 
-  def _optimise_wrt(self, loss, **kwargs):
-    self.optimiser.zero_grad()
-    loss.backward()
-    for params in self._policy.parameters():
-      params.grad.data.clamp_(-1, 1)
-    self.optimiser.step()
-
   def infer(self, env, render=True):
 
     for episode_i in count(1):
@@ -220,9 +232,9 @@ class PGAgent(PolicyAgent):
         if terminated:
           break
 
-  def train_episodic(
+  def train_episodically(
       self,
-      _environment,
+      env,
       rollouts=2000,
       render=False,
       render_frequency=100,
@@ -235,7 +247,7 @@ class PGAgent(PolicyAgent):
     stats = U.StatisticCollection(stats=('signal', 'duration', 'entropy'))
 
     for episode_i in E:
-      initial_state = _environment.reset()
+      initial_state = env.reset()
 
       if episode_i % stat_frequency == 0:
         U.styled_term_plot_stats_shared_x(stats,
@@ -246,10 +258,10 @@ class PGAgent(PolicyAgent):
 
       if render and episode_i % render_frequency == 0:
         signal, dur, entrp, *extras = self.rollout(
-            initial_state, _environment, render=render
+            initial_state, env, render=render
             )
       else:
-        signal, dur, entrp, *extras = self.rollout(initial_state, _environment)
+        signal, dur, entrp, *extras = self.rollout(initial_state, env)
 
       stats.duration.append(dur)
       stats.signal.append(signal)
@@ -259,6 +271,7 @@ class PGAgent(PolicyAgent):
         break
 
     return self._policy, stats
+  # endregion
 
 
 if __name__ == '__main__':
