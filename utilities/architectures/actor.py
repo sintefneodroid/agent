@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+import torch
+
 from .architecture import Architecture
 
 __author__ = 'cnheider'
@@ -38,7 +40,7 @@ Initialize a Actor for low dimensional environment.
   def forward(self, x):
     x = F.relu(self.fc1(x))
     x = F.relu(self.fc2(x))
-    x = F.tanh(self.head(x))
+    x = torch.tanh(self.head(x))
     if self.activation:
       x = self.activation(x, -1)
     return x

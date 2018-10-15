@@ -47,8 +47,8 @@ EXPLORATION_EPSILON_DECAY = 500
 
 SEED = 66
 
-VALUE_REG_COEF = 1.
-ENTROPY_REG_COEF = 0.1
+VALUE_REG_COEF = .5
+ENTROPY_REG_COEF = 0.001
 
 LR_FUNC = lambda a:OPTIMISER_LEARNING_RATE * (1. - a)
 
@@ -58,14 +58,10 @@ SURROGATE_CLIP_FUNC = lambda a:SURROGATE_CLIP * (
 )  # clip range schedule function
 
 ACTOR_CRITIC_LR = 3e-4
-
 ACTOR_CRITIC_ARCH_PARAMS = {
-  'input_size':             None,
-  'hidden_layers':          [32, 32],
-  'actor_hidden_layers':    [32],
-  'critic_hidden_layers':   [32],
-  'actor_output_size':      None,
-  'actor_output_activation':F.log_softmax,
-  'critic_output_size':     [1],
-  'continuous':             True,
+  'input_size':   None,
+  'hidden_layers':[32, 32],
+  'output_size':  32,
+  'heads':        [1, 1],
+  'distribution': False
   }

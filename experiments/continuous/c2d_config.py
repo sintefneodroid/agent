@@ -34,7 +34,7 @@ CONNECT_TO_RUNNING = False
 
 # EVALUATION_FUNCTION = lambda Q_state, Q_true_state: (Q_state - Q_true_state).pow(2).mean()
 
-POLICY_ARCH = U.DistributionMLP
+POLICY_ARCH = U.SingleDistributionMLP
 OPTIMISER_TYPE = torch.optim.RMSprop  # torch.optim.Adam
 # ENVIRONMENT_NAME = 'CartPole-v0'
 ENVIRONMENT_NAME = 'c2d'

@@ -58,7 +58,7 @@ This repository will host all initial machine learning efforts applying the [Neo
     <img alt="tqdm" src=".github/images/tqdm.gif" height="40" align="center">
   </a>
   <a href="https://matplotlib.org/" style="float: right;">
-    <img alt="matplotlib" src=".github/images/matplotlib.svg" height="40" align="right">
+    <img alt="matplotlib" src=".github/images/matplotlib.svg" height="40" align="right" />
   </a>
 </p>
 

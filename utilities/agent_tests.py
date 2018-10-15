@@ -37,7 +37,7 @@ def regular_train_agent_procedure(agent_type, config, environment=None):
     listener.stop()
 
   identifier = count()
-  if isinstance(models, list):
+  if isinstance(models, list) or isinstance(models, tuple):
     for model in models:
       U.save_model(model, config, name=f'{type(agent)}-{identifier.__next__()}')
   else:

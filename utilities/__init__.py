@@ -4,7 +4,6 @@ __author__ = 'cnheider'
 
 from .agent_tests import *
 from .architectures import *
-from .configurations import *
 from .curriculum import *
 from .environment_wrappers import *
 from .exceptions import *

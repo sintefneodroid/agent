@@ -10,3 +10,4 @@ def fan_in_init(tensor):
   fan_in = tensor.size(1)
   v = 1.0 / np.sqrt(fan_in)
   init.uniform_(tensor, -v, v)
+

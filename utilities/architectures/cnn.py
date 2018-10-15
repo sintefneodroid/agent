@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+from collections import  Collection
+
 from .architecture import Architecture
 
 __author__ = 'cnheider'
@@ -11,11 +13,13 @@ from utilities.initialisation import atari_initializer, ortho_weights
 
 class CNN(Architecture):
 
-  def __init__(self, input_channels, output_size, **kwargs):
-    super().__init__()
+  def __init__(self, *, input_size, hidden_layers: Collection, output_size, activation: callable = F.relu,
+               **kwargs):
+    super().__init__(**kwargs)
 
-    self._input_channels = input_channels
+    self._input_channels = input_size
     self._output_size = output_size
+    self._activation = activation
 
     self.conv1 = nn.Conv2d(3, 16, kernel_size=5, stride=2)
     self.bn1 = nn.BatchNorm2d(16)
@@ -26,9 +30,9 @@ class CNN(Architecture):
     self.head = nn.Linear(448, 2)
 
   def forward(self, x):
-    x = F.relu(self.bn1(self.conv1(x)))
-    x = F.relu(self.bn2(self.conv2(x)))
-    x = F.relu(self.bn3(self.conv3(x)))
+    x = self._activation(self.bn1(self.conv1(x)))
+    x = self._activation(self.bn2(self.conv2(x)))
+    x = self._activation(self.bn3(self.conv3(x)))
     return self.head(x.view(x.size(0), -1))
 
 

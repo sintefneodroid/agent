@@ -12,7 +12,7 @@ from configs.base_config import *
 CONFIG_NAME = __name__
 CONFIG_FILE = __file__
 
-AGENT_TYPE = TabularQAgent
+AGENT_TYPE = PGAgent
 
 # Exploration
 EXPLORATION_EPSILON_START = 1.0
@@ -35,20 +35,20 @@ CONNECT_TO_RUNNING = True
 
 # EVALUATION_FUNCTION = lambda Q_state, Q_true_state: (Q_state - Q_true_state).pow(2).mean()
 
-VALUE_ARCH = U.MLP
+ARCH = U.CategoricalCNN
 OPTIMISER_TYPE = torch.optim.Adam
 OPTIMISER_LEARNING_RATE = 0.0025
 # ENVIRONMENT_NAME = 'CartPole-v0'
-ENVIRONMENT_NAME = 'grd'
+ENVIRONMENT_NAME = 'grd_camera'
 # 'LunarLander-v2' #(coord_x, coord_y, vel_x, vel_y, angle,
 # angular_vel, l_leg_on_ground, r_leg_on_ground)
 
 
-# Architecture
-VALUE_ARCH_PARAMETERS = {
+POLICY_ARCH_PARAMS = {
   'input_size':   None,  # Obtain from environment
-  'hidden_layers':[64, 32, 16],
+  'activation':   F.leaky_relu,
+  'hidden_layers':[128, 64, 32, 16],
   'output_size':  None,  # Obtain from environment
-  'activation':   F.relu,
   'use_bias':     True,
   }
+POLICY_ARCH = U.CategoricalCNN

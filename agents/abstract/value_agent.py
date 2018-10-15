@@ -70,11 +70,11 @@ All value iteration agents should inherit from this class
     a = self._eps_start - self._eps_end
 
     b = math.exp(-1. * steps_taken / (self._eps_decay + self._divide_by_zero_safety))
-    eps_threshold = self._eps_end + a * b
+    self._eps_threshold = self._eps_end + a * b
 
     if self._verbose:
-      print(f'{sample} > {eps_threshold} = {sample > eps_threshold}, where a ={a} and b={b}')
-    return sample > eps_threshold
+      print(f'{sample} > {self._eps_threshold} = {sample > self._eps_threshold}, where a ={a} and b={b}')
+    return sample > self._eps_threshold
 
   def save(self, C):
     U.save_model(self._value_model, C)

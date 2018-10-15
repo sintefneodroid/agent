@@ -13,7 +13,7 @@ import fcntl
 import os
 import struct
 import termios
-
+import numpy as np
 
 def term_plot(
     y: Sized,
@@ -150,6 +150,6 @@ def term_plot_stats_shared_x(stats, *, x=None, styles=None, printer=print, margi
 
 
 if __name__ == '__main__':
-  import numpy as np
+
 
   term_plot(np.tile(range(9), 4), plot_character='o')

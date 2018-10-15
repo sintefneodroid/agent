@@ -24,16 +24,24 @@ OOOO hidden_layer_size * (Weights,Biases)
 0000 output_size * (Weights,Biases)
 '''
 
-  def __init__(self, input_size, hidden_layers, output_size, activation, use_bias):
-    super().__init__()
+  def __init__(self,
+               *,
+               input_size:list=[10],
+               hidden_layers:list =[32],
+               output_size:list=[2],
+               activation:callable=F.tanh,
+               use_bias:bool=True,
+               **kwargs
+               ):
+    super().__init__(**kwargs)
 
-    self._input_size = input_size
+    self._input_size = input_size[0]
     self._hidden_layers = hidden_layers
     self._activation = activation
-    self._output_size = output_size
+    self._output_size = output_size[0]
     self._use_bias = use_bias
 
-    previous_layer_size = self._input_size[0]
+    previous_layer_size = self._input_size
 
     self.num_of_layer = len(self._hidden_layers)
     if self.num_of_layer > 0:
@@ -46,7 +54,7 @@ OOOO hidden_layer_size * (Weights,Biases)
         previous_layer_size = self._hidden_layers[i - 1]
 
     self.head = nn.Linear(
-        previous_layer_size, self._output_size[0], bias=self._use_bias
+        previous_layer_size, self._output_size, bias=self._use_bias
         )
 
   def forward(self, x, **kwargs):
@@ -80,35 +88,43 @@ class CategoricalMLP(MLP):
 
 class MultiHeadedMLP(MLP):
 
-  def __init__(self, *, heads, **kwargs):
+  def __init__(self, *, heads_hidden_sizes=[32,64], heads=[2,1], **kwargs):
     super().__init__(**kwargs)
 
+    assert len(heads_hidden_sizes) == len(heads)
+
+    self._heads_hidden_sizes = heads_hidden_sizes
     self._heads = heads
 
     self.num_of_heads = len(self._heads)
     if self.num_of_heads > 0:
-      for i in range(self.num_of_heads):
-        head = nn.Linear(self._output_size[0], self._heads[i])
-        # fan_in_init(layer.weight)
-        setattr(self, f'subhead{str(i + 1)}', head)
+      for i in range(1,self.num_of_heads+ 1):
+        head_hidden = nn.Linear(self._output_size, self._heads_hidden_sizes[i-1],bias=self._use_bias)
+        setattr(self, f'subhead{str(i)}_hidden', head_hidden)
+        head = nn.Linear(self._heads_hidden_sizes[i-1], self._heads[i-1],bias=self._use_bias)
+        setattr(self, f'subhead{str(i)}', head)
     else:
-      raise ValueError('Number of head must be >0')
+      raise ValueError('Number of heads must be >0')
 
   def forward(self, x, **kwargs):
     x = super().forward(x, **kwargs)
 
     output = []
     for i in range(1, self.num_of_heads + 1):
-      head = getattr(self, 'subhead' + str(i))
-      sub_res = head(x)
-      if type(sub_res) is not list:
-        sub_res = [sub_res]
+      head_hidden = getattr(self, f'subhead{str(i)}_hidden')
+      x_s = head_hidden(x)
+      head = getattr(self, f'subhead{str(i)}')
+      sub_res = head(x_s)
+
+      #if type(sub_res) is not list:
+      #  sub_res = [sub_res]
+
       output.append(sub_res)
 
     return output
 
 
-class DistributionMLP(MultiHeadedMLP):
+class SingleDistributionMLP(MultiHeadedMLP):
   def __init__(self, **kwargs):
     heads = [1, 1]
 
@@ -120,10 +136,10 @@ class RecurrentCategoricalMLP(MLP):
   def __init__(self, r_hidden_layers=10, **kwargs):
     super().__init__(**kwargs)
     self._r_hidden_layers = r_hidden_layers
-    self._r_input_size = self._output_size[0] + r_hidden_layers
+    self._r_input_size = self._output_size + r_hidden_layers
 
-    self.hidden = nn.Linear(self._r_input_size, r_hidden_layers)
-    self.out = nn.Linear(self._r_input_size, r_hidden_layers)
+    self.hidden = nn.Linear(self._r_input_size, r_hidden_layers,bias=self._use_bias)
+    self.out = nn.Linear(self._r_input_size, r_hidden_layers,bias=self._use_bias)
 
     self._prev_hidden_x = torch.zeros(r_hidden_layers)
 

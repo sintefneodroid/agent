@@ -9,60 +9,73 @@ import torch
 import utilities as U
 
 
-def generalised_advantage_estimate(
-    n_step_summary, discount_factor=0.99, tau=0.95, device='cpu'
+def advantage_estimate(
+    signal,
+non_terminal,
+value_estimate,
+    discount_factor=0.99,
+    tau=0.95,
+    device='cpu'
     ):
   '''
-compute GAE(lambda) advantages and discounted returns
+    Computes advantages and discounted returns.
+    If the advantage is positive for an action, then it yielded a more positive signal than expected. And thus
+    expectations can be adjust to make actions more likely.
 
-  :param n_step_summary:
-  :param device:
-:param use_cuda:
-:type use_cuda:
-:param signals:
-:type signals:
-:param value_estimates:
-:type value_estimates:
-:param non_terminals:
-:type non_terminals:
-:param discount_factor:
-:type discount_factor:
-:param tau:
-:type tau:
-:return:
-:rtype:
-'''
+      :param device:
+    :param use_cuda:
+    :type use_cuda:
+    :param signals:
+    :type signals:
+    :param value_estimates:
+    :type value_estimates:
+    :param non_terminals:
+    :type non_terminals:
+    :param discount_factor:
+    :type discount_factor:
+    :param tau:
+    :type tau:
+    :return:
+    :rtype:
+  '''
 
-  signals = U.to_tensor(n_step_summary.signal, device=device, dtype=torch.float)
-
-  non_terminals = U.to_tensor(n_step_summary.non_terminal, device=device, dtype=torch.float)
-
-  value_estimates = U.to_tensor(n_step_summary.value_estimate, device=device, dtype=torch.float)
+  signals = U.to_tensor(signal, device=device, dtype=torch.float)
+  non_terminals = U.to_tensor(non_terminal, device=device, dtype=torch.float)
+  value_estimates = U.to_tensor(value_estimate, device=device, dtype=torch.float)
 
   T = signals.size()
   T = T[0]
   num_workers = 1
   # T,num_workers,_  = signals.size()
 
-  advs = torch.zeros(T, num_workers, 1).to(device)
-  advantage_now = torch.zeros(num_workers, 1).to(device)
+  advantages_out = torch.zeros(T, num_workers, 1).to(device)
+  advantage_estimate_now = torch.zeros(num_workers, 1).to(device)
 
   for t in reversed(range(T - 1)):
     signal_now = signals[t]
-    value_future = value_estimates[t + 1]
-    value_now = value_estimates[t]
+    baseline_value_future = value_estimates[t + 1]
+    baseline_value_now = value_estimates[t]
     non_terminal_now = non_terminals[t]
 
-    td_error = signal_now + value_future * discount_factor * non_terminal_now - value_now
+    td_error = signal_now + baseline_value_future * discount_factor * non_terminal_now - baseline_value_now
+    advantage_estimate_now = advantage_estimate_now * discount_factor * tau * non_terminal_now + td_error
 
-    advantage_now = advantage_now * discount_factor * tau * non_terminal_now + td_error
+    advantages_out[t] = advantage_estimate_now
 
-    advs[t] = advantage_now
-
-  advantages = advs.squeeze()
+  advantages = advantages_out.squeeze()
 
   return advantages
 
+
+def compute_gae(next_value, rewards, masks, values, gamma=0.99, tau=0.95):
+  values = values + [next_value]
+  gae = 0
+  returns = []
+  for step in reversed(range(len(rewards))):
+    delta = rewards[step] + gamma * values[step + 1] * masks[step] - values[step]
+    gae = delta + gamma * tau * masks[step] * gae
+    returns.insert(0, gae + values[step])
+  return returns
 
 '''
 processed_rollout = [None] * (len(rollout) - 1)

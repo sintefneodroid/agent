@@ -9,5 +9,5 @@ __author__ = 'cnheider'
 
 class Architecture(nn.Module, ABC):
 
-  def __init__(self):
+  def __init__(self, **kwargs):
     super().__init__()
