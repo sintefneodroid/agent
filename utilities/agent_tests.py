@@ -88,7 +88,7 @@ def test_agent_main(agent, config, training_procedure=regular_train_agent_proced
 
   U.sprint(f'\nUsing config: {config}\n', highlight=True, color='yellow')
   if not args.skip_confirmation:
-    for key, arg in U.get_upper_vars_of(config).items():
+    for key, arg in U.get_upper_case_vars_or_protected_of(config).items():
       print(f'{key} = {arg}')
     input('\nPress Enter to begin... ')
 
