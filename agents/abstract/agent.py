@@ -8,6 +8,8 @@ from warnings import warn
 import torch
 from tqdm import tqdm
 
+from configs import get_upper_case_vars_or_protected_of
+
 tqdm.monitor_interval = 0
 
 from utilities.exceptions.exceptions import HasNoEnvError
@@ -144,7 +146,7 @@ All agent should inherit from this class
 
   def set_config_attributes(self, config, **kwargs) -> None:
     if config:
-      config_vars = U.get_upper_case_vars_or_protected_of(config)
+      config_vars = get_upper_case_vars_or_protected_of(config)
       self.__check_for_duplicates_in_args(**config_vars)
       self.__parse_set_attr(**config_vars)
     self.__parse_set_attr(**kwargs)

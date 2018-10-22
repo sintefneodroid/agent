@@ -137,7 +137,7 @@ if __name__ == '__main__':
 
   U.sprint(f'\nUsing config: {C}\n', highlight=True, color='yellow')
   if not args.skip_confirmation:
-    for key, arg in U.get_upper_case_vars_or_protected_of(C).items():
+    for key, arg in configs.get_upper_case_vars_or_protected_of(C).items():
       print(f'{key} = {arg}')
     input('\nPress Enter to begin... ')
 
