@@ -55,7 +55,7 @@ class PPOAgent(JointACAgent):
 
     self._use_cuda = False
 
-    self._surrogate_clip = 0.2
+    self._surrogate_clipping_value = 0.2
 
     self._optimiser_type = torch.optim.Adam
 
@@ -121,26 +121,31 @@ class PPOAgent(JointACAgent):
       :rtype:
     '''
 
-    model_input = U.to_tensor([state], device=self._device, dtype=self._state_type)
+    # state = U.to_tensor([state], device=self._device, dtype=self._state_type)
 
     # if continuous:
     with torch.no_grad():
-      dist, value_estimate = self._actor_critic(model_input)
+      distribution, value_estimate = self._actor_critic(state)
 
       # action = dist.sample()
       # log_prob = dist.log_prob(action)
       # entropy += dist.entropy().mean()
 
       # a = action.to('cpu').numpy()[0]
-    return dist, value_estimate
+      action = distribution.sample()
+
+    action_log_prob = distribution.log_prob(action)
+
+
+    return action, action_log_prob, value_estimate, distribution
     # else:
-      # dist, value_estimate = self._actor_critic(model_input)
-      # action = torch.multinomial(softmax_probs)
-      # m = Categorical(softmax_probs)
-      # action = m.sample()
-      # a = action.to('cpu').data.numpy()[0]
-      # log_prob = m.log_prob(action)
-      # return a, value_estimate, log_prob
+    # dist, value_estimate = self._actor_critic(model_input)
+    # action = torch.multinomial(softmax_probs)
+    # m = Categorical(softmax_probs)
+    # action = m.sample()
+    # a = action.to('cpu').data.numpy()[0]
+    # log_prob = m.log_prob(action)
+    # return a, value_estimate, log_prob
 
   def _train(self, *args, **kwargs):
 
@@ -300,9 +305,8 @@ class PPOAgent(JointACAgent):
 
     discounted_returns = U.to_tensor(batch.discounted_return, device=self._device)
 
-
     action_probs = U.to_tensor(batch.action_prob, device=self._device) \
-  .view(-1, self._output_size[0])
+      .view(-1, self._output_size[0])
 
     # endregion
 
@@ -323,7 +327,8 @@ class PPOAgent(JointACAgent):
 
     surrogate = ratio * advantage
 
-    clamped_ratio = torch.clamp(ratio, min=1. - self._surrogate_clip, max=1. + self._surrogate_clip)
+    clamped_ratio = torch.clamp(ratio, min=1. - self._surrogate_clipping_value,
+                                max=1. + self._surrogate_clipping_value)
     surrogate_clipped = clamped_ratio * advantage  # (L^CLIP)
 
     policy_loss = -torch.min(surrogate, surrogate_clipped).mean()
@@ -366,10 +371,13 @@ class PPOAgent(JointACAgent):
         new_log_probs = dist.log_prob(action)
 
         ratio = (new_log_probs - old_log_probs).exp()
-        surr1 = ratio * advantage
-        surr2 = torch.clamp(ratio, 1.0 - _agent._surrogate_clip, 1.0 + _agent._surrogate_clip) * advantage
+        surrogate = ratio * advantage
+        surrogate_clipped = (torch.clamp(ratio,
+                                         1.0 - _agent._surrogate_clipping_value,
+                                         1.0 + _agent._surrogate_clipping_value)
+                             * advantage)
 
-        actor_loss = - torch.min(surr1, surr2).mean()
+        actor_loss = - torch.min(surrogate, surrogate_clipped).mean()
         critic_loss = (return_now - value).pow(2).mean()
 
         loss = _agent._value_reg_coef * critic_loss + actor_loss - _agent._entropy_reg_coef * entropy
@@ -379,9 +387,10 @@ class PPOAgent(JointACAgent):
         _agent._optimiser.step()
 
   #
-  def sample_action(self, state, **kwargs) -> Tuple[Any, Any]:
-    dist, value_estimate, *_ = self._sample_model(state)
-    return dist, value_estimate
+  def sample_action(self, state, **kwargs) -> Tuple[Any, Any, Any,Any]:
+    action, action_log_prob, value_estimate, distribution = self._sample_model(state)
+
+    return action, action_log_prob, value_estimate, distribution
 
   #
   def train_episodically(self,
@@ -415,8 +424,8 @@ class PPOAgent(JointACAgent):
       if batch_i >= self._initial_observation_period:
         advantage_memories = self.back_trace(transitions)
 
-        for m in advantage_memories:
-          self._experience_buffer.add(m)
+        for memory in advantage_memories:
+          self._experience_buffer.add(memory)
 
         self.update()
         self._experience_buffer.clear()
@@ -433,66 +442,78 @@ class PPOAgent(JointACAgent):
 
   def train_step_batched(self,
                          environments,
+                         *,
                          num_steps=40,
                          max_steps=1000000,
-                         ppo_epochs=6
+                         ppo_epochs=6,
+                         render=True
                          ):
-    test_rewards = []
+    self.test_rewards = []
     state = environments.reset()
 
     S = tqdm(range(max_steps), leave=False).__iter__()
     while self._step_i < max_steps and not self._end_training:
 
-      log_probs = []
-      values = []
-      states = []
-      actions = []
-      rewards = []
-      masks = []
-      entropy = 0
+      self.episode_entropy = 0
 
-      next_state = None
+      transitions = []
+
+      successor_state = None
+
+      state = U.to_tensor(state, device=self._device)
 
       I = tqdm(range(num_steps), leave=False).__iter__()
       for _ in I:
-        state = U.to_tensor(state, device=self._device)
-        dist, value = self._actor_critic(state)
 
-        action = dist.sample()
-        next_state, reward, terminated, _ = environments.step(action.cpu().numpy())
+        action, action_log_prob, value_estimate,distribution = self.sample_action(state)
+        self.episode_entropy += distribution.entropy().mean()
+        successor_state, signal, terminated, _ = environments.step(action.cpu().numpy())
 
-        log_prob = dist.log_prob(action)
-        entropy += dist.entropy().mean()
+        successor_state = U.to_tensor(successor_state, device=self._device)
+        signal_ = U.to_tensor(signal, device=self._device).unsqueeze(1)
+        not_terminated = U.to_tensor(1 - terminated, device=self._device).unsqueeze(1)
 
-        log_probs.append(log_prob)
-        values.append(value)
-        rewards.append(U.to_tensor(reward, device=self._device).unsqueeze(1))
-        masks.append(U.to_tensor(1 - terminated, device=self._device).unsqueeze(1))
+        transitions.append(
+            U.ValuedTransition(state,
+                               action,
+                               action_log_prob,
+                               value_estimate,
+                               signal_,
+                               successor_state,
+                               not_terminated
+                               # not terminated,
+                               )
+            )
 
-        states.append(state)
-        actions.append(action)
+        state = successor_state
 
-        state = next_state
         self._step_i += 1
         S.__next__()
 
         if self._step_i % self._test_interval == 0:
-          test_reward = numpy.mean([test_agent(_test_env) for _ in range(10)])
-          test_rewards.append(test_reward)
-          U.term_plot(test_rewards)
+          test_reward = numpy.mean([test_agent(_test_env, render=render) for _ in range(10)])
+          self.test_rewards.append(test_reward)
+          U.term_plot(self.test_rewards)
           if test_reward > self._solved_threshold and self._early_stop:
             self._end_training = True
 
       # only calculate value of next state for the last step this time
-      next_state = U.to_tensor(next_state, device=self._device)
-      _, next_value = self._actor_critic(next_state)
-      returns = U.compute_gae(next_value, rewards, masks, values)
+      _, value_estimate = self._actor_critic(successor_state)
 
-      returns = torch.cat(returns).detach()
-      log_probs = torch.cat(log_probs).detach()
-      values = torch.cat(values).detach()
-      states = torch.cat(states)
-      actions = torch.cat(actions)
+
+      trans = U.ValuedTransition(*zip(*transitions))
+      returns_ = U.compute_gae(value_estimate,
+                               trans.signal,
+                               trans.non_terminal,
+                               trans.value_estimate)
+
+
+      returns = torch.cat(returns_).detach()
+      log_probs = torch.cat(trans.action_prob).detach()
+      values = torch.cat(trans.value_estimate).detach()
+      states = torch.cat(trans.state)
+      actions = torch.cat(trans.action)
+
       advantage = returns - values
 
       self.ppo_update(ppo_epochs,
