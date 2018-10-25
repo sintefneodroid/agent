@@ -134,14 +134,13 @@ class PPOAgent(JointACAgent):
       # a = action.to('cpu').numpy()[0]
     return dist, value_estimate
     # else:
-
-    # dist, value_estimate = self._actor_critic(model_input)
-    # action = torch.multinomial(softmax_probs)
-    # m = Categorical(softmax_probs)
-    # action = m.sample()
-    # a = action.to('cpu').data.numpy()[0]
-    # log_prob = m.log_prob(action)
-    # return a, value_estimate, log_prob
+      # dist, value_estimate = self._actor_critic(model_input)
+      # action = torch.multinomial(softmax_probs)
+      # m = Categorical(softmax_probs)
+      # action = m.sample()
+      # a = action.to('cpu').data.numpy()[0]
+      # log_prob = m.log_prob(action)
+      # return a, value_estimate, log_prob
 
   def _train(self, *args, **kwargs):
 
@@ -291,6 +290,7 @@ class PPOAgent(JointACAgent):
     return advantage_memories
 
   def evaluate(self, batch, discrete=False, **kwargs):
+    # region Tensorise
 
     states = U.to_tensor(batch.state, device=self._device).view(-1, self._input_size[0])
 
@@ -300,10 +300,13 @@ class PPOAgent(JointACAgent):
 
     discounted_returns = U.to_tensor(batch.discounted_return, device=self._device)
 
-    advantage = (advantages - advantages.mean()) / (advantages.std() + self._divide_by_zero_safety)
 
     action_probs = U.to_tensor(batch.action_prob, device=self._device) \
-      .view(-1, self._output_size[0])
+  .view(-1, self._output_size[0])
+
+    # endregion
+
+    advantage = (advantages - advantages.mean()) / (advantages.std() + self._divide_by_zero_safety)
 
     _, _, action_probs_old, *_ = self._actor_critic_target(states)
 
@@ -338,13 +341,49 @@ class PPOAgent(JointACAgent):
     collective_cost, actor_loss, critic_loss = self.evaluate(batch)
     self._optimise_wrt(collective_cost)
 
+  def ppo_update(self,
+                 ppo_epochs,
+                 mini_batch_size,
+                 states, actions,
+                 log_probs,
+                 returns,
+                 advantages
+                 ):
+    for _ in range(ppo_epochs):
+      for (state,
+           action,
+           old_log_probs,
+           return_now,
+           advantage) in ppo_iter(mini_batch_size,
+                                  states,
+                                  actions,
+                                  log_probs,
+                                  returns,
+                                  advantages
+                                  ):
+        dist, value = _agent._actor_critic(state)
+        entropy = dist.entropy().mean()
+        new_log_probs = dist.log_prob(action)
+
+        ratio = (new_log_probs - old_log_probs).exp()
+        surr1 = ratio * advantage
+        surr2 = torch.clamp(ratio, 1.0 - _agent._surrogate_clip, 1.0 + _agent._surrogate_clip) * advantage
+
+        actor_loss = - torch.min(surr1, surr2).mean()
+        critic_loss = (return_now - value).pow(2).mean()
+
+        loss = _agent._value_reg_coef * critic_loss + actor_loss - _agent._entropy_reg_coef * entropy
+
+        _agent._optimiser.zero_grad()
+        loss.backward()
+        _agent._optimiser.step()
+
   #
   def sample_action(self, state, **kwargs) -> Tuple[Any, Any]:
     dist, value_estimate, *_ = self._sample_model(state)
     return dist, value_estimate
 
   #
-
   def train_episodically(self,
                          env,
                          num_batches=10000,
@@ -383,9 +422,7 @@ class PPOAgent(JointACAgent):
         self._experience_buffer.clear()
 
         if self._rollout_i % self._update_target_interval == 0:
-          self._actor_critic_target.load_state_dict(
-              self._actor_critic.state_dict()
-              )
+          self._actor_critic_target.load_state_dict(self._actor_critic.state_dict())
 
       if self._end_training:
         break
@@ -400,9 +437,7 @@ class PPOAgent(JointACAgent):
                          max_steps=1000000,
                          ppo_epochs=6
                          ):
-
     test_rewards = []
-
     state = environments.reset()
 
     S = tqdm(range(max_steps), leave=False).__iter__()
@@ -420,7 +455,7 @@ class PPOAgent(JointACAgent):
 
       I = tqdm(range(num_steps), leave=False).__iter__()
       for _ in I:
-        state = torch.FloatTensor(state).to(self._device)
+        state = U.to_tensor(state, device=self._device)
         dist, value = self._actor_critic(state)
 
         action = dist.sample()
@@ -431,8 +466,8 @@ class PPOAgent(JointACAgent):
 
         log_probs.append(log_prob)
         values.append(value)
-        rewards.append(torch.FloatTensor(reward).unsqueeze(1).to(self._device))
-        masks.append(torch.FloatTensor(1 - terminated).unsqueeze(1).to(self._device))
+        rewards.append(U.to_tensor(reward, device=self._device).unsqueeze(1))
+        masks.append(U.to_tensor(1 - terminated, device=self._device).unsqueeze(1))
 
         states.append(state)
         actions.append(action)
@@ -449,7 +484,7 @@ class PPOAgent(JointACAgent):
             self._end_training = True
 
       # only calculate value of next state for the last step this time
-      next_state = torch.FloatTensor(next_state).to(self._device)
+      next_state = U.to_tensor(next_state, device=self._device)
       _, next_value = self._actor_critic(next_state)
       returns = U.compute_gae(next_value, rewards, masks, values)
 
@@ -460,14 +495,14 @@ class PPOAgent(JointACAgent):
       actions = torch.cat(actions)
       advantage = returns - values
 
-      ppo_update(ppo_epochs,
-                 self._batch_size,
-                 states,
-                 actions,
-                 log_probs,
-                 returns,
-                 advantage
-                 )
+      self.ppo_update(ppo_epochs,
+                      self._batch_size,
+                      states,
+                      actions,
+                      log_probs,
+                      returns,
+                      advantage
+                      )
 
       if self._rollout_i % self._update_target_interval == 0:
         self._actor_critic_target.load_state_dict(self._actor_critic.state_dict())
@@ -522,39 +557,6 @@ def ppo_iter(mini_batch_size, states, actions, log_probs, returns, advantage):
           advantage[rand_ids, :]
 
 
-def ppo_update(ppo_epochs,
-               mini_batch_size,
-               states, actions,
-               log_probs,
-               returns,
-               advantages
-               ):
-  for _ in range(ppo_epochs):
-    for state, action, old_log_probs, return_, advantage in ppo_iter(mini_batch_size,
-                                                                     states,
-                                                                     actions,
-                                                                     log_probs,
-                                                                     returns,
-                                                                     advantages
-                                                                     ):
-      dist, value = _agent._actor_critic(state)
-      entropy = dist.entropy().mean()
-      new_log_probs = dist.log_prob(action)
-
-      ratio = (new_log_probs - old_log_probs).exp()
-      surr1 = ratio * advantage
-      surr2 = torch.clamp(ratio, 1.0 - _agent._surrogate_clip, 1.0 + _agent._surrogate_clip) * advantage
-
-      actor_loss = - torch.min(surr1, surr2).mean()
-      critic_loss = (return_ - value).pow(2).mean()
-
-      loss = _agent._value_reg_coef * critic_loss + actor_loss - _agent._entropy_reg_coef * entropy
-
-      _agent._optimiser.zero_grad()
-      loss.backward()
-      _agent._optimiser.step()
-
-
 def test_agent(test_environment, render=False):
   state = test_environment.reset()
   if render:
@@ -562,7 +564,7 @@ def test_agent(test_environment, render=False):
   done = False
   total_reward = 0
   while not done:
-    state = torch.FloatTensor(state).unsqueeze(0).to(_agent._device)
+    state = U.to_tensor(state, device=_agent._device).unsqueeze(0)
     dist, _ = _agent._actor_critic(state)
     next_state, reward, done, _ = test_environment.step(dist.sample().cpu().numpy()[0])
     state = next_state

@@ -2,17 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="3aa1d8f8-c31c-4a9a-90cd-15bde372cd8f" name="Default" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/agents/ddpg_agent.py" beforeDir="false" afterPath="$PROJECT_DIR$/agents/ddpg_agent.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/agents/experimental/ppo_agent.py" beforeDir="false" afterPath="$PROJECT_DIR$/agents/ppo_agent.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/configs/agent_test_configs/test_ddpg_config.py" beforeDir="false" afterPath="$PROJECT_DIR$/configs/agent_test_configs/test_ddpg_config.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/configs/agent_test_configs/test_ddpg_config_copy.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/utilities/agent_tests.py" beforeDir="false" afterPath="$PROJECT_DIR$/utilities/agent_tests.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/utilities/functions/advantage_estimation.py" beforeDir="false" afterPath="$PROJECT_DIR$/utilities/functions/advantage_estimation.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/utilities/persistence/model.py" beforeDir="false" afterPath="$PROJECT_DIR$/utilities/persistence/model.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/agents/ppo_agent.py" beforeDir="false" afterPath="$PROJECT_DIR$/agents/ppo_agent.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/utilities/torch_utilities/torch_utilities.py" beforeDir="false" afterPath="$PROJECT_DIR$/utilities/torch_utilities/torch_utilities.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/utilities/visualisation/statistics_plot.py" beforeDir="false" afterPath="$PROJECT_DIR$/utilities/visualisation/statistics_plot.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -26,7 +17,7 @@
     <SUITE FILE_PATH="coverage/agent$NavigatorTest.coverage" NAME="NavigatorTest Coverage Results" MODIFIED="1509545539519" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/pim" />
     <SUITE FILE_PATH="coverage/agent$NavigatorTrain.coverage" NAME="NavigatorTrain Coverage Results" MODIFIED="1509542615399" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/pim" />
     <SUITE FILE_PATH="coverage/agent$RCLTrain.coverage" NAME="RCLTrain Coverage Results" MODIFIED="1511456533470" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/RCL" />
-    <SUITE FILE_PATH="coverage/policy$ppo_agent.coverage" NAME="ppo_agent Coverage Results" MODIFIED="1540456815500" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/policy$ppo_agent.coverage" NAME="ppo_agent Coverage Results" MODIFIED="1540463592390" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/policy$ddpg_agent.coverage" NAME="ddpg_agent Coverage Results" MODIFIED="1540457089230" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
   <component name="FUSProjectUsageTrigger">
@@ -55,57 +46,126 @@
       </usages-collector>
       <usages-collector id="statistics.file.extensions.open">
         <counts>
-          <entry key="py" value="17" />
+          <entry key="py" value="25" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.open">
         <counts>
-          <entry key="Python" value="17" />
+          <entry key="Python" value="25" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.extensions.edit">
         <counts>
-          <entry key="py" value="54" />
+          <entry key="py" value="184" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
-          <entry key="Python" value="54" />
+          <entry key="Python" value="184" />
         </counts>
       </usages-collector>
     </session>
   </component>
   <component name="FileEditorManager">
-    <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/utilities/persistence/model.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="320">
-              <caret line="20" column="39" lean-forward="true" selection-start-line="20" selection-start-column="39" selection-end-line="20" selection-end-column="39" />
-              <folding>
-                <element signature="e#71#86#0" expanded="true" />
-                <element signature="e#171#375#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/agents/ddpg_agent.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="416">
-              <caret line="51" column="16" lean-forward="true" selection-start-line="51" selection-start-column="16" selection-end-line="51" selection-end-column="16" />
-              <folding>
-                <element signature="e#2270#3658#0" expanded="true" />
-                <element signature="e#5888#6371#0" expanded="true" />
-                <element signature="e#6411#8461#0" expanded="true" />
-                <element signature="e#8506#9714#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-    </leaf>
+    <splitter split-orientation="horizontal" split-proportion="0.5">
+      <split-first>
+        <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
+          <file pinned="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/utilities/persistence/model.py">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="704">
+                  <caret line="56" lean-forward="true" selection-start-line="56" selection-end-line="56" />
+                  <folding>
+                    <element signature="e#71#86#0" expanded="true" />
+                    <element signature="e#437#1244#0" expanded="true" />
+                  </folding>
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file pinned="false" current-in-tab="true">
+            <entry file="file://$PROJECT_DIR$/agents/pg_agent.py">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="236">
+                  <caret line="55" column="2" lean-forward="true" selection-start-line="55" selection-start-column="2" selection-end-line="55" selection-end-column="2" />
+                  <folding>
+                    <element signature="e#406#422#0" expanded="true" />
+                    <element signature="e#463#1354#0" expanded="true" />
+                    <element signature="e#1373#1391#0" expanded="true" />
+                    <element signature="e#2235#2250#0" expanded="true" />
+                  </folding>
+                </state>
+              </provider>
+            </entry>
+          </file>
+        </leaf>
+      </split-first>
+      <split-second>
+        <leaf>
+          <file pinned="false" current-in-tab="true">
+            <entry file="file://$PROJECT_DIR$/agents/ppo_agent.py">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="-2566">
+                  <caret line="80" column="37" lean-forward="true" selection-start-line="80" selection-start-column="37" selection-end-line="80" selection-end-column="37" />
+                  <folding>
+                    <element signature="e#364#380#0" expanded="true" />
+                    <element signature="e#1779#2443#0" expanded="true" />
+                    <element signature="e#2492#2693#0" expanded="true" />
+                    <element signature="e#2760#3762#0" expanded="true" />
+                    <element signature="e#2760#3076#1" />
+                    <element signature="e#3806#3989#0" expanded="true" />
+                    <element signature="e#4008#4023#0" expanded="true" />
+                    <element signature="e#6721#7709#0" expanded="true" />
+                    <element signature="e#7766#9318#0" expanded="true" />
+                    <element signature="e#7766#7784#0" expanded="true" />
+                    <element signature="e#9431#9605#0" expanded="true" />
+                    <element signature="e#9746#10808#0" expanded="true" />
+                    <element signature="e#10881#10965#0" expanded="true" />
+                    <element signature="e#11247#12395#0" expanded="true" />
+                    <element signature="e#12900#15168#0" expanded="true" />
+                    <element signature="e#15003#15317#0" expanded="true" />
+                    <element signature="e#16754#17199#0" expanded="true" />
+                  </folding>
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file pinned="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/utilities/torch_utilities/torch_utilities.py">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="304">
+                  <caret line="26" column="36" selection-start-line="26" selection-start-column="36" selection-end-line="26" selection-end-column="36" />
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file pinned="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/agents/pg_agent.py">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="572">
+                  <caret line="55" column="2" lean-forward="true" selection-start-line="55" selection-start-column="2" selection-end-line="55" selection-end-column="2" />
+                  <folding>
+                    <element signature="e#406#422#0" expanded="true" />
+                    <element signature="e#463#1354#0" expanded="true" />
+                    <element signature="e#1373#1391#0" expanded="true" />
+                    <element signature="e#2235#2250#0" expanded="true" />
+                  </folding>
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file pinned="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/configs/base_config.py">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="524">
+                  <caret line="74" column="37" lean-forward="true" selection-start-line="74" selection-start-column="37" selection-end-line="74" selection-end-column="37" />
+                </state>
+              </provider>
+            </entry>
+          </file>
+        </leaf>
+      </split-second>
+    </splitter>
   </component>
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
@@ -120,6 +180,7 @@
       <find>torch.float</find>
       <find>PROJECT_DIRECTORY</find>
       <find>load_latest_model</find>
+      <find>train_step_batched</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -148,12 +209,12 @@
         <option value="$PROJECT_DIR$/README.md" />
         <option value="$PROJECT_DIR$/utilities/agent_tests.py" />
         <option value="$PROJECT_DIR$/configs/agent_test_configs/test_ddpg_config.py" />
-        <option value="$PROJECT_DIR$/utilities/torch_utilities/torch_utilities.py" />
         <option value="$PROJECT_DIR$/utilities/functions/advantage_estimation.py" />
         <option value="$PROJECT_DIR$/utilities/visualisation/statistics_plot.py" />
-        <option value="$PROJECT_DIR$/agents/ppo_agent.py" />
         <option value="$PROJECT_DIR$/utilities/persistence/model.py" />
         <option value="$PROJECT_DIR$/agents/ddpg_agent.py" />
+        <option value="$PROJECT_DIR$/utilities/torch_utilities/torch_utilities.py" />
+        <option value="$PROJECT_DIR$/agents/ppo_agent.py" />
       </list>
     </option>
   </component>
@@ -224,7 +285,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Python.ddpg_agent">
+  <component name="RunManager" selected="Python.ppo_agent">
     <configuration name="ddpg_agent" type="PythonConfigurationType" factoryName="Python">
       <module name="agent" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -368,10 +429,10 @@
     <frame x="-1" y="-1" width="1922" height="1086" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.4995074" visible="true" weight="0.17266949" />
+      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.4995074" visible="true" weight="0.1032839" />
       <window_info id="Version Control" order="1" sideWeight="0.50049263" side_tool="true" weight="0.17266949" />
       <window_info id="TODO" order="2" sideWeight="0.5005005" side_tool="true" weight="0.17266949" />
-      <window_info active="true" id="Find" order="3" sideWeight="0.50049263" side_tool="true" visible="true" weight="0.17266949" />
+      <window_info id="Find" order="3" sideWeight="0.50049263" side_tool="true" visible="true" weight="0.1032839" />
       <window_info id="Structure" order="4" side_tool="true" weight="0.25" />
       <window_info id="DB Browser" order="5" />
       <window_info id="Favorites" order="6" side_tool="true" />
@@ -394,8 +455,8 @@
       <window_info anchor="right" id="Event Log" order="8" sideWeight="0.50049263" side_tool="true" weight="0.2838983" />
       <window_info anchor="right" id="Terminal" order="9" sideWeight="0.50049263" side_tool="true" weight="0.2838983" />
       <window_info anchor="right" id="Python Console" order="10" sideWeight="0.5005005" side_tool="true" weight="0.2838983" />
-      <window_info anchor="right" x="0" y="0" width="417" height="830" id="Documentation" order="11" sideWeight="0.50049263" side_tool="true" visible="true" weight="0.2838983" />
-      <window_info anchor="right" id="Run" order="12" sideWeight="0.4995074" visible="true" weight="0.2838983" />
+      <window_info anchor="right" x="0" y="0" width="417" height="830" id="Documentation" order="11" sideWeight="0.50049263" side_tool="true" visible="true" weight="0.15572034" />
+      <window_info active="true" anchor="right" id="Run" order="12" sideWeight="0.4995074" visible="true" weight="0.15572034" />
     </layout>
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -520,13 +581,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/agents/pg_agent.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="256">
-          <caret line="16" selection-start-line="16" selection-end-line="16" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/procedures/curriculum_training.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="112">
@@ -572,30 +626,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/agents/ppo_agent.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="358">
-          <caret line="271" column="84" selection-start-line="271" selection-start-column="84" selection-end-line="271" selection-end-column="84" />
-          <folding>
-            <element signature="e#7792#9540#0" expanded="true" />
-            <element signature="e#15640#16834#0" expanded="true" />
-            <element signature="e#16887#17332#0" expanded="true" />
-            <element signature="e#17360#17451#0" expanded="true" />
-            <element signature="e#17396#17434#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/utilities/torch_utilities/torch_utilities.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="304">
-          <caret line="26" column="35" selection-start-line="26" selection-start-column="35" selection-end-line="26" selection-end-column="35" />
-          <folding>
-            <element signature="e#526#657#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/agents/experimental/__init__.py">
       <provider selected="true" editor-type-id="text-editor" />
     </entry>
@@ -609,33 +639,79 @@
     <entry file="file://$PROJECT_DIR$/configs/agent_test_configs/test_cnn_pg_config.py">
       <provider selected="true" editor-type-id="text-editor" />
     </entry>
+    <entry file="file://$PROJECT_DIR$/agents/ddpg_agent.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="512">
+          <caret line="57" column="39" lean-forward="true" selection-start-line="57" selection-start-column="39" selection-end-line="57" selection-end-column="39" />
+          <folding>
+            <element signature="e#2270#3658#0" expanded="true" />
+            <element signature="e#5888#6371#0" expanded="true" />
+            <element signature="e#6411#8461#0" expanded="true" />
+            <element signature="e#8506#9714#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/utilities/persistence/model.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="320">
-          <caret line="20" column="39" lean-forward="true" selection-start-line="20" selection-start-column="39" selection-end-line="20" selection-end-column="39" />
+        <state relative-caret-position="704">
+          <caret line="56" lean-forward="true" selection-start-line="56" selection-end-line="56" />
           <folding>
             <element signature="e#71#86#0" expanded="true" />
-            <element signature="e#171#375#0" expanded="true" />
+            <element signature="e#437#1244#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/agents/pg_agent.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="572">
+          <caret line="55" column="2" lean-forward="true" selection-start-line="55" selection-start-column="2" selection-end-line="55" selection-end-column="2" />
+          <folding>
+            <element signature="e#406#422#0" expanded="true" />
+            <element signature="e#463#1354#0" expanded="true" />
+            <element signature="e#1373#1391#0" expanded="true" />
+            <element signature="e#2235#2250#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/configs/base_config.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="498">
+        <state relative-caret-position="524">
           <caret line="74" column="37" lean-forward="true" selection-start-line="74" selection-start-column="37" selection-end-line="74" selection-end-column="37" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/agents/ddpg_agent.py">
+    <entry file="file://$PROJECT_DIR$/utilities/torch_utilities/torch_utilities.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="416">
-          <caret line="51" column="16" lean-forward="true" selection-start-line="51" selection-start-column="16" selection-end-line="51" selection-end-column="16" />
+        <state relative-caret-position="304">
+          <caret line="26" column="36" selection-start-line="26" selection-start-column="36" selection-end-line="26" selection-end-column="36" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/agents/ppo_agent.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-2566">
+          <caret line="80" column="37" lean-forward="true" selection-start-line="80" selection-start-column="37" selection-end-line="80" selection-end-column="37" />
           <folding>
-            <element signature="e#2270#3658#0" expanded="true" />
-            <element signature="e#5888#6371#0" expanded="true" />
-            <element signature="e#6411#8461#0" expanded="true" />
-            <element signature="e#8506#9714#0" expanded="true" />
+            <element signature="e#364#380#0" expanded="true" />
+            <element signature="e#1779#2443#0" expanded="true" />
+            <element signature="e#2492#2693#0" expanded="true" />
+            <element signature="e#2760#3762#0" expanded="true" />
+            <element signature="e#2760#3076#1" />
+            <element signature="e#3806#3989#0" expanded="true" />
+            <element signature="e#4008#4023#0" expanded="true" />
+            <element signature="e#6721#7709#0" expanded="true" />
+            <element signature="e#7766#9318#0" expanded="true" />
+            <element signature="e#7766#7784#0" expanded="true" />
+            <element signature="e#9431#9605#0" expanded="true" />
+            <element signature="e#9746#10808#0" expanded="true" />
+            <element signature="e#10881#10965#0" expanded="true" />
+            <element signature="e#11247#12395#0" expanded="true" />
+            <element signature="e#12900#15168#0" expanded="true" />
+            <element signature="e#15003#15317#0" expanded="true" />
+            <element signature="e#16754#17199#0" expanded="true" />
           </folding>
         </state>
       </provider>

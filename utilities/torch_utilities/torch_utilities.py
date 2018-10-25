@@ -24,7 +24,7 @@ def kl_probs(prob1, prob2):
   return -torch.sum(prob1 * torch.log(prob2 / prob1), 1)
 
 
-def to_tensor(obj, dtype=torch.half, device='cpu'):
+def to_tensor(obj, dtype=torch.float, device='cpu'):
   if not torch.is_tensor(obj):
     return torch.tensor(obj, device=device, dtype=dtype)
   else:
