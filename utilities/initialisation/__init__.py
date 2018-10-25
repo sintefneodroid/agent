@@ -10,6 +10,7 @@ from .ortho_weight_init import *
 
 import torch.nn as nn
 
+
 def set_seeds(seed):
   random.seed(seed)
   np.random.seed(seed)

@@ -41,7 +41,6 @@ def exploration_action(self, state):
   return action
 
 
-
 import numpy as np
 from multiprocessing import Process, Pipe
 

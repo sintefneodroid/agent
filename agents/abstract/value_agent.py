@@ -41,8 +41,8 @@ All value iteration agents should inherit from this class
   def sample_action(self, state, **kwargs):
     self._step_i += 1
     if (
-      self.epsilon_random(self._step_i)
-      and self._step_i > self._initial_observation_period
+        self.epsilon_random(self._step_i)
+        and self._step_i > self._initial_observation_period
     ):
       if self._verbose:
         print('Sampling from model')
@@ -92,14 +92,14 @@ All value iteration agents should inherit from this class
       self._value_model = self._value_model.cpu()
 
   def train_episodically(
-    self,
-    _environment,
-    rollouts=1000,
-    render=False,
-    render_frequency=100,
-    stat_frequency=10,
-    **kwargs
-    ):
+      self,
+      _environment,
+      rollouts=1000,
+      render=False,
+      render_frequency=100,
+      stat_frequency=10,
+      **kwargs
+      ):
     '''
       :param _environment:
       :type _environment:
@@ -126,16 +126,16 @@ All value iteration agents should inherit from this class
       if episode_i % stat_frequency == 0:
         U.styled_term_plot_stats_shared_x(stats, printer=E.write)
         E.set_description(
-          f'Episode: {episode_i}, '
-          f'Running Signal: {stats.signal.running_value[-1]}, '
-          f'Duration: {stats.duration.running_value[-1]}, '
-          f'TD Error: {stats.td_error.running_value[-1]}'
-          )
+            f'Episode: {episode_i}, '
+            f'Running Signal: {stats.signal.running_value[-1]}, '
+            f'Duration: {stats.duration.running_value[-1]}, '
+            f'TD Error: {stats.td_error.running_value[-1]}'
+            )
 
       if render and episode_i % render_frequency == 0:
         signal, dur, td_error, *extras = self.rollout(
-          initial_state, _environment, render=render
-          )
+            initial_state, _environment, render=render
+            )
       else:
         signal, dur, td_error, *extras = self.rollout(initial_state, _environment)
 

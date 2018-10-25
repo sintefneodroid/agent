@@ -76,7 +76,7 @@ This repository will host all initial machine learning efforts applying the [Neo
 - [REINFORCE (PG)](agents/pg_agent.py)
 - [DQN](agents/dqn_agent.py)
 - [DDPG](agents/ddpg_agent.py)
-- [PPO](agents/experimental/ppo_agent.py)
+- [PPO](agents/ppo_agent.py)
 - TRPO, GA, EVO, IMITATION...
 
 # Requirements
@@ -124,7 +124,7 @@ Using Depth, Segmentation And RGB images to estimate the location of target poin
 
 ### [DDPG](agents/ddpg_agent.py)
 
-### [PPO](agents/experimental/ppo_agent.py)
+### [PPO](agents/ppo_agent.py)
 
 ### GA, EVO, IMITATION...
 
@@ -137,7 +137,7 @@ Has access to perfect location information about the obstructions and target in 
 
 ### [DDPG](agents/ddpg_agent.py)
 
-### [PPO](agents/experimental/ppo_agent.py)
+### [PPO](agents/ppo_agent.py)
 
 ### GA, EVO, IMITATION...
 

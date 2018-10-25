@@ -38,10 +38,10 @@ Parameters
 '''
 
   def save(self, C):
-    U.save_model(self._actor, C, 'actor')
-    U.save_model(self._critic, C, 'policy')
+    U.save_model(self._actor, C, name='actor')
+    U.save_model(self._critic, C, name='policy')
 
-  def load(self, model_path, evaluation=False):
+  def load(self, model_path, evaluation=False, **kwargs):
     print('loading latest model: ' + model_path)
 
     self._build(**kwargs)
@@ -88,7 +88,7 @@ Parameters
       .view(-1, self._output_size[0])
     signals = U.to_tensor(signal_batch, device=self._device, dtype=self._value_type)
 
-    non_terminal_mask = U.to_tensor(non_terminal_batch, device=self._device, dtype=torch.float)
+    non_terminal_mask = U.to_tensor(non_terminal_batch, device=self._device, dtype=self._value_type)
 
     ### Critic ###
     # Compute current Q value, critic takes state and action chosen

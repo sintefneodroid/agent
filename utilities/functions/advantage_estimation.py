@@ -11,8 +11,8 @@ import utilities as U
 
 def advantage_estimate(
     signal,
-non_terminal,
-value_estimate,
+    non_terminal,
+    value_estimate,
     discount_factor=0.99,
     tau=0.95,
     device='cpu'
@@ -39,9 +39,9 @@ value_estimate,
     :rtype:
   '''
 
-  signals = U.to_tensor(signal, device=device, dtype=torch.float)
-  non_terminals = U.to_tensor(non_terminal, device=device, dtype=torch.float)
-  value_estimates = U.to_tensor(value_estimate, device=device, dtype=torch.float)
+  signals = U.to_tensor(signal, device=device)
+  non_terminals = U.to_tensor(non_terminal, device=device)
+  value_estimates = U.to_tensor(value_estimate, device=device)
 
   T = signals.size()
   T = T[0]
@@ -76,6 +76,7 @@ def compute_gae(next_value, rewards, masks, values, gamma=0.99, tau=0.95):
     gae = delta + gamma * tau * masks[step] * gae
     returns.insert(0, gae + values[step])
   return returns
+
 
 '''
 processed_rollout = [None] * (len(rollout) - 1)

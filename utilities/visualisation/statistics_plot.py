@@ -71,7 +71,7 @@ def error_plot(results, interval=1, file_name=''):
 def plot_durations(episode_durations):
   plt.figure(2)
   plt.clf()
-  durations_t = U.to_tensor(episode_durations, dtype=torch.float)
+  durations_t = U.to_tensor(episode_durations)
   plt.title('Training...')
   plt.xlabel('Episode')
   plt.ylabel('Duration')

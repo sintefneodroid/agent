@@ -26,11 +26,11 @@ OOOO hidden_layer_size * (Weights,Biases)
 
   def __init__(self,
                *,
-               input_size:list=[10],
-               hidden_layers:list =[32],
-               output_size:list=[2],
-               activation:callable=F.tanh,
-               use_bias:bool=True,
+               input_size: list = [10],
+               hidden_layers: list = [32],
+               output_size: list = [2],
+               activation: callable = F.tanh,
+               use_bias: bool = True,
                **kwargs
                ):
     super().__init__(**kwargs)
@@ -88,7 +88,7 @@ class CategoricalMLP(MLP):
 
 class MultiHeadedMLP(MLP):
 
-  def __init__(self, *, heads_hidden_sizes=[32,64], heads=[2,1], **kwargs):
+  def __init__(self, *, heads_hidden_sizes=[32, 64], heads=[2, 1], **kwargs):
     super().__init__(**kwargs)
 
     assert len(heads_hidden_sizes) == len(heads)
@@ -98,10 +98,10 @@ class MultiHeadedMLP(MLP):
 
     self.num_of_heads = len(self._heads)
     if self.num_of_heads > 0:
-      for i in range(1,self.num_of_heads+ 1):
-        head_hidden = nn.Linear(self._output_size, self._heads_hidden_sizes[i-1],bias=self._use_bias)
+      for i in range(1, self.num_of_heads + 1):
+        head_hidden = nn.Linear(self._output_size, self._heads_hidden_sizes[i - 1], bias=self._use_bias)
         setattr(self, f'subhead{str(i)}_hidden', head_hidden)
-        head = nn.Linear(self._heads_hidden_sizes[i-1], self._heads[i-1],bias=self._use_bias)
+        head = nn.Linear(self._heads_hidden_sizes[i - 1], self._heads[i - 1], bias=self._use_bias)
         setattr(self, f'subhead{str(i)}', head)
     else:
       raise ValueError('Number of heads must be >0')
@@ -116,7 +116,7 @@ class MultiHeadedMLP(MLP):
       head = getattr(self, f'subhead{str(i)}')
       sub_res = head(x_s)
 
-      #if type(sub_res) is not list:
+      # if type(sub_res) is not list:
       #  sub_res = [sub_res]
 
       output.append(sub_res)
@@ -138,8 +138,8 @@ class RecurrentCategoricalMLP(MLP):
     self._r_hidden_layers = r_hidden_layers
     self._r_input_size = self._output_size + r_hidden_layers
 
-    self.hidden = nn.Linear(self._r_input_size, r_hidden_layers,bias=self._use_bias)
-    self.out = nn.Linear(self._r_input_size, r_hidden_layers,bias=self._use_bias)
+    self.hidden = nn.Linear(self._r_input_size, r_hidden_layers, bias=self._use_bias)
+    self.out = nn.Linear(self._r_input_size, r_hidden_layers, bias=self._use_bias)
 
     self._prev_hidden_x = torch.zeros(r_hidden_layers)
 

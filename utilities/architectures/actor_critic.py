@@ -26,7 +26,6 @@ have distinct output layers
       std=0.0,
       **kwargs
       ):
-
     assert len(head_size) == 2
 
     super().__init__(heads=head_size, **kwargs)
@@ -47,21 +46,22 @@ have distinct output layers
     action_distribution = self._distribution(x, std)
     return action_distribution
 
+
 class ActorCritic(nn.Module):
   def __init__(self, num_inputs, num_outputs, hidden_size, activation=torch.nn.ReLU(),
                distribution=Normal, std=0.0):
     super(ActorCritic, self).__init__()
 
-    self.common = nn.Linear(num_inputs,hidden_size*2)
+    self.common = nn.Linear(num_inputs, hidden_size * 2)
 
     self.critic = nn.Sequential(
-        nn.Linear(hidden_size*2, hidden_size),
+        nn.Linear(hidden_size * 2, hidden_size),
         activation,
         nn.Linear(hidden_size, 1)
         )
 
     self.actor = nn.Sequential(
-        nn.Linear(hidden_size*2, hidden_size),
+        nn.Linear(hidden_size * 2, hidden_size),
         activation,
         nn.Linear(hidden_size, num_outputs),
         )

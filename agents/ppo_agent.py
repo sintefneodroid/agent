@@ -23,7 +23,6 @@ class PPOAgent(JointACAgent):
 
   # region Private
 
-
   def __defaults__(self) -> None:
     self._steps = 10
 
@@ -124,31 +123,31 @@ class PPOAgent(JointACAgent):
 
     model_input = U.to_tensor([state], device=self._device, dtype=self._state_type)
 
-    #if continuous:
+    # if continuous:
     with torch.no_grad():
       dist, value_estimate = self._actor_critic(model_input)
 
-      #action = dist.sample()
-      #log_prob = dist.log_prob(action)
-      #entropy += dist.entropy().mean()
+      # action = dist.sample()
+      # log_prob = dist.log_prob(action)
+      # entropy += dist.entropy().mean()
 
-      #a = action.to('cpu').numpy()[0]
+      # a = action.to('cpu').numpy()[0]
     return dist, value_estimate
-    #else:
+    # else:
 
-      #dist, value_estimate = self._actor_critic(model_input)
-      # action = torch.multinomial(softmax_probs)
-      #m = Categorical(softmax_probs)
-      #action = m.sample()
-      #a = action.to('cpu').data.numpy()[0]
-      #log_prob = m.log_prob(action)
-      #return a, value_estimate, log_prob
+    # dist, value_estimate = self._actor_critic(model_input)
+    # action = torch.multinomial(softmax_probs)
+    # m = Categorical(softmax_probs)
+    # action = m.sample()
+    # a = action.to('cpu').data.numpy()[0]
+    # log_prob = m.log_prob(action)
+    # return a, value_estimate, log_prob
 
   def _train(self, *args, **kwargs):
 
     # num_updates = int(args.num_frames) // args.num_steps // args.num_processes
 
-    #return self.train_episodically(*args, **kwargs)
+    # return self.train_episodically(*args, **kwargs)
     return self.train_step_batched(*args, **kwargs)
 
   # endregion
@@ -269,7 +268,7 @@ class PPOAgent(JointACAgent):
                                       tau=self._gae_tau
                                       )
 
-    value_estimates = U.to_tensor(n_step_summary.value_estimate, device=self._device, dtype=torch.float)
+    value_estimates = U.to_tensor(n_step_summary.value_estimate, device=self._device)
 
     discounted_returns = value_estimates + advantages
 
@@ -293,23 +292,23 @@ class PPOAgent(JointACAgent):
 
   def evaluate(self, batch, discrete=False, **kwargs):
 
-    states = U.to_tensor(batch.state, device=self._device, dtype=torch.float).view(-1, self._input_size[0])
+    states = U.to_tensor(batch.state, device=self._device).view(-1, self._input_size[0])
 
-    value_estimates = U.to_tensor(batch.value_estimate, device=self._device, dtype=torch.float)
+    value_estimates = U.to_tensor(batch.value_estimate, device=self._device)
 
-    advantages = U.to_tensor(batch.advantage, device=self._device, dtype=torch.float)
+    advantages = U.to_tensor(batch.advantage, device=self._device)
 
-    discounted_returns = U.to_tensor(batch.discounted_return, device=self._device, dtype=torch.float)
+    discounted_returns = U.to_tensor(batch.discounted_return, device=self._device)
 
     advantage = (advantages - advantages.mean()) / (advantages.std() + self._divide_by_zero_safety)
 
-    action_probs = U.to_tensor(batch.action_prob, device=self._device, dtype=torch.float) \
+    action_probs = U.to_tensor(batch.action_prob, device=self._device) \
       .view(-1, self._output_size[0])
 
     _, _, action_probs_old, *_ = self._actor_critic_target(states)
 
     if discrete:
-      actions = U.to_tensor(batch.action, device=self._device, dtype=torch.float) \
+      actions = U.to_tensor(batch.action, device=self._device) \
         .view(-1, self._output_size[0])
       action_probs = action_probs.gather(1, actions)
       action_probs_old = action_probs_old.gather(1, actions)
@@ -475,6 +474,7 @@ class PPOAgent(JointACAgent):
 
     return self._actor_critic, []
 
+
 '''
     B = tqdm(range(1, num_updates + 1), f'Batch {0}, {num_batches} - Episode {self._rollout_i}', leave=False)
     for batch_i in B:
@@ -509,6 +509,7 @@ class PPOAgent(JointACAgent):
     return self._actor_critic, []
 
     '''
+
 
 def ppo_iter(mini_batch_size, states, actions, log_probs, returns, advantage):
   batch_size = states.size(0)
@@ -587,7 +588,7 @@ if __name__ == '__main__':
 
   num_environments = 8
   env_name = 'Pendulum-v0'
-  env_name = 'MountainCarContinuous-v0'
+  #  env_name = 'MountainCarContinuous-v0'
 
   _environments = [make_env(env_name) for i in range(num_environments)]
   _environments = U.SubprocVecEnv(_environments)

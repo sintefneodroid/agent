@@ -130,7 +130,7 @@ class TabularQAgent(ValueAgent):
       print('episode done', ep_r, obs, steps, self._eps_threshold)
       r += ep_r
       s += steps
-      #print(self._q_table)
+      # print(self._q_table)
 
     return r, s, r, s
 

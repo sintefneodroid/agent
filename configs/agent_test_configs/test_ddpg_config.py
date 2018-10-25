@@ -64,7 +64,7 @@ ENVIRONMENT_NAME = 'Pendulum-v0'
 # ENVIRONMENT_NAME = 'Humanoid-v1'
 # ENVIRONMENT_NAME = 'HalfCheetah-v1'
 
-ROLLOUTS = 10
+ROLLOUTS = 1000
 
 # Architecture
 ACTOR_ARCH_PARAMS = {

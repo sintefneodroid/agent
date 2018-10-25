@@ -37,7 +37,8 @@ def get_upper_case_vars_or_protected_of(module):
       }
   return {}
 
-def to_dict(C,only_upper_case=True):
+
+def to_dict(C, only_upper_case=True):
   if only_upper_case:
     return get_upper_case_vars_or_protected_of(C)
   else:

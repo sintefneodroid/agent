@@ -46,16 +46,16 @@ class RandomAgent(Agent):
 
       if episode_i % stat_frequency == 0:
         U.term_plot_stats_shared_x(
-          stats,
-          printer=E.write,
-          )
+            stats,
+            printer=E.write,
+            )
 
         E.set_description(f'Episode: {episode_i}, Running length: {stats.duration.running_value[-1]}')
 
       if render and episode_i % render_frequency == 0:
         signal, dur, *extras = self.rollout(
-          initial_state, _environment, render=render
-          )
+            initial_state, _environment, render=render
+            )
       else:
         signal, dur, *extras = self.rollout(initial_state, _environment)
 

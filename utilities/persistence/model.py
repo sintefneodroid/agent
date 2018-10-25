@@ -9,7 +9,7 @@ import sys
 import torch
 
 
-def load_model(configuration, latest=True):
+def load_latest_model(configuration):
   _list_of_files = configuration.MODEL_DIRECTORY.glob('*')
   _latest_model = max(_list_of_files, key=os.path.getctime)
   print('loading previous model: ' + _latest_model)
@@ -17,7 +17,7 @@ def load_model(configuration, latest=True):
   return torch.load(_latest_model)
 
 
-def save_model(model, configuration, name=''):
+def save_model(model, configuration, *, name=''):
   _model_date = datetime.datetime.now()
   prepend = ''
   if len(name) > 0:
