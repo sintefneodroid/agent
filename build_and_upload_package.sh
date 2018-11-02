@@ -4,4 +4,4 @@
 #python2 setup.py bdist_wheel
 python3 setup.py bdist
 python3 setup.py bdist_wheel
-twinWe upload dist/*
+twine upload dist/*
