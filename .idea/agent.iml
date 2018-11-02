@@ -13,6 +13,11 @@
     <orderEntry type="jdk" jdkName="Python 3.6" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module" module-name="neo" />
+    <orderEntry type="module" module-name="neo" />
+    <orderEntry type="module" module-name="bootml" />
+    <orderEntry type="module" module-name="bootml" />
+    <orderEntry type="module" module-name="envs_neodroid" />
+    <orderEntry type="module" module-name="documentation" />
   </component>
   <component name="TemplatesService">
     <option name="TEMPLATE_CONFIGURATION" value="Jinja2" />

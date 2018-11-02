@@ -604,8 +604,7 @@ def make_env(env_nam):
   return _thunk
 
 
-if __name__ == '__main__':
-
+def main():
   # U.test_agent_main(PPOAgent, C)
   _agent = PPOAgent()
 
@@ -649,3 +648,7 @@ if __name__ == '__main__':
   _agent._optimiser = optim.Adam(_agent._actor_critic.parameters(), lr=_agent._actor_critic_lr)
 
   _agent.train(_environments)
+
+
+if __name__ == '__main__':
+  main()

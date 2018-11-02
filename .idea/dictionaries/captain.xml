@@ -1,7 +1,14 @@
 <component name="ProjectDictionaryState">
   <dictionary name="captain">
     <words>
+      <w>githubpages</w>
+      <w>intersphinx</w>
+      <w>mathjax</w>
+      <w>pytest</w>
       <w>rollout</w>
+      <w>scipy</w>
+      <w>seaborn</w>
+      <w>sqlalchemy</w>
     </words>
   </dictionary>
 </component>

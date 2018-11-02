@@ -3,6 +3,10 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/agent.iml" filepath="$PROJECT_DIR$/.idea/agent.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../envs_neodroid/.idea/bootml.iml" filepath="$PROJECT_DIR$/../envs_neodroid/.idea/bootml.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../documentation/.idea/documentation.iml" filepath="$PROJECT_DIR$/../documentation/.idea/documentation.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../envs_neodroid/.idea/envs_neodroid.iml" filepath="$PROJECT_DIR$/../envs_neodroid/.idea/envs_neodroid.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../neo/.idea/neo.iml" filepath="$PROJECT_DIR$/../neo/.idea/neo.iml" />
     </modules>
   </component>
 </project>
