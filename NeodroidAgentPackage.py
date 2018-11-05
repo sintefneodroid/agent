@@ -1,6 +1,6 @@
 from setuptools import find_packages
 
-from neodroid.version import get_version
+from version import get_version
 
 class NeodroidAgentPackage:
 
