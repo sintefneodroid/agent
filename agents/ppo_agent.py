@@ -1,11 +1,12 @@
 #!/usr/local/bin/python
 # coding: utf-8
-from functools import wraps
 from itertools import count
-from typing import Tuple, Any
+from typing import Any, Tuple
 
 import gym
 import numpy
+
+from utilities.environment_wrappers.wrapme import make_env
 
 __author__ = 'cnheider'
 
@@ -28,7 +29,7 @@ class PPOAgent(JointACAgent):
 
     self._discount_factor = 0.99
     self._gae_tau = 0.95
-    self._reached_horizon_penalty = -10.
+    # self._reached_horizon_penalty = -10.
 
     self._experience_buffer = U.ExpandableCircularBuffer()
     self._critic_loss = nn.MSELoss
@@ -135,7 +136,6 @@ class PPOAgent(JointACAgent):
       action = distribution.sample()
 
     action_log_prob = distribution.log_prob(action)
-
 
     return action, action_log_prob, value_estimate, distribution
     # else:
@@ -359,35 +359,35 @@ class PPOAgent(JointACAgent):
            action,
            old_log_probs,
            return_now,
-           advantage) in ppo_iter(mini_batch_size,
-                                  states,
-                                  actions,
-                                  log_probs,
-                                  returns,
-                                  advantages
-                                  ):
-        dist, value = _agent._actor_critic(state)
+           advantage) in self.ppo_mini_batch_iter(mini_batch_size,
+                                                  states,
+                                                  actions,
+                                                  log_probs,
+                                                  returns,
+                                                  advantages
+                                                  ):
+        dist, value = self._actor_critic(state)
         entropy = dist.entropy().mean()
         new_log_probs = dist.log_prob(action)
 
         ratio = (new_log_probs - old_log_probs).exp()
         surrogate = ratio * advantage
         surrogate_clipped = (torch.clamp(ratio,
-                                         1.0 - _agent._surrogate_clipping_value,
-                                         1.0 + _agent._surrogate_clipping_value)
+                                         1.0 - self._surrogate_clipping_value,
+                                         1.0 + self._surrogate_clipping_value)
                              * advantage)
 
         actor_loss = - torch.min(surrogate, surrogate_clipped).mean()
         critic_loss = (return_now - value).pow(2).mean()
 
-        loss = _agent._value_reg_coef * critic_loss + actor_loss - _agent._entropy_reg_coef * entropy
+        loss = self._value_reg_coef * critic_loss + actor_loss - self._entropy_reg_coef * entropy
 
-        _agent._optimiser.zero_grad()
+        self._optimiser.zero_grad()
         loss.backward()
-        _agent._optimiser.step()
+        self._optimiser.step()
 
   #
-  def sample_action(self, state, **kwargs) -> Tuple[Any, Any, Any,Any]:
+  def sample_action(self, state, **kwargs) -> Tuple[Any, Any, Any, Any]:
     action, action_log_prob, value_estimate, distribution = self._sample_model(state)
 
     return action, action_log_prob, value_estimate, distribution
@@ -442,19 +442,22 @@ class PPOAgent(JointACAgent):
 
   def train_step_batched(self,
                          environments,
+                         test_env,
                          *,
                          num_steps=40,
                          max_steps=1000000,
                          ppo_epochs=6,
                          render=True
                          ):
-    self.test_rewards = []
+    self.stats = U.StatisticCollection(stats=('signal','test_signal', 'entropy'))
+
     state = environments.reset()
 
     S = tqdm(range(max_steps), leave=False).__iter__()
     while self._step_i < max_steps and not self._end_training:
 
-      self.episode_entropy = 0
+      self.batch_entropy = 0
+      self.batch_signal = 0
 
       transitions = []
 
@@ -465,9 +468,11 @@ class PPOAgent(JointACAgent):
       I = tqdm(range(num_steps), leave=False).__iter__()
       for _ in I:
 
-        action, action_log_prob, value_estimate,distribution = self.sample_action(state)
-        self.episode_entropy += distribution.entropy().mean()
+        action, action_log_prob, value_estimate, distribution = self.sample_action(state)
+        self.batch_entropy += distribution.entropy().mean().item()
+
         successor_state, signal, terminated, _ = environments.step(action.cpu().numpy())
+        self.batch_signal += signal[0]
 
         successor_state = U.to_tensor(successor_state, device=self._device)
         signal_ = U.to_tensor(signal, device=self._device).unsqueeze(1)
@@ -491,22 +496,30 @@ class PPOAgent(JointACAgent):
         S.__next__()
 
         if self._step_i % self._test_interval == 0:
-          test_reward = numpy.mean([test_agent(_test_env, render=render) for _ in range(10)])
-          self.test_rewards.append(test_reward)
-          U.term_plot(self.test_rewards)
-          if test_reward > self._solved_threshold and self._early_stop:
+          test_signals = [self.test_agent(test_env, render=render) for _ in range(10)]
+          test_signal = numpy.mean(test_signals)
+          self.stats.test_signal.append(test_signal)
+
+          U.term_plot(self.stats.entropy.values,title='batch_entropy',percent_size=(.8,.25))
+          U.term_plot(self.stats.signal.values,title='batch_signal',percent_size=(.8,.25))
+          U.term_plot(self.stats.test_signal.values,title='test_signal',percent_size=(.8,.3))
+
+          if test_signal > self._solved_threshold and self._early_stop:
             self._end_training = True
+
+      self.stats.signal.append(self.batch_signal)
+      self.stats.entropy.append(self.batch_entropy)
+
+
 
       # only calculate value of next state for the last step this time
       _, value_estimate = self._actor_critic(successor_state)
-
 
       trans = U.ValuedTransition(*zip(*transitions))
       returns_ = U.compute_gae(value_estimate,
                                trans.signal,
                                trans.non_terminal,
                                trans.value_estimate)
-
 
       returns = torch.cat(returns_).detach()
       log_probs = torch.cat(trans.action_prob).detach()
@@ -530,78 +543,74 @@ class PPOAgent(JointACAgent):
 
     return self._actor_critic, []
 
-
-'''
-    B = tqdm(range(1, num_updates + 1), f'Batch {0}, {num_batches} - Episode {self._rollout_i}', leave=False)
-    for batch_i in B:
-      if batch_i % stat_frequency == 0:
-        B.set_description(f'Batch {batch_i}, {num_batches} - Episode {self._rollout_i}')
-
-      if render and batch_i % render_frequency == 0:
-        transitions, accumulated_signal, terminated, initial_state = self.take_n_steps(
-            initial_state, env, render=render, n=batch_length
-            )
-      else:
-        transitions, accumulated_signal, terminated, initial_state = self.take_n_steps(
-            initial_state, env, n=batch_length
-            )
-
-      if batch_i >= self._initial_observation_period:
-        advantage_memories = self.back_trace(transitions)
-        for m in advantage_memories:
-          self._experience_buffer.add(m)
-
-        self.update()
-        self._experience_buffer.clear()
-
-        if self._rollout_i % self._update_target_interval == 0:
-          self._actor_critic_target.load_state_dict(
-              self._actor_critic.state_dict()
-              )
-
-      if self._end_training:
-        break
-
-    return self._actor_critic, []
-
     '''
+        B = tqdm(range(1, num_updates + 1), f'Batch {0}, {num_batches} - Episode {self._rollout_i}', 
+        leave=False)
+        for batch_i in B:
+          if batch_i % stat_frequency == 0:
+            B.set_description(f'Batch {batch_i}, {num_batches} - Episode {self._rollout_i}')
 
+          if render and batch_i % render_frequency == 0:
+            transitions, accumulated_signal, terminated, initial_state = self.take_n_steps(
+                initial_state, env, render=render, n=batch_length
+                )
+          else:
+            transitions, accumulated_signal, terminated, initial_state = self.take_n_steps(
+                initial_state, env, n=batch_length
+                )
 
-def ppo_iter(mini_batch_size, states, actions, log_probs, returns, advantage):
-  batch_size = states.size(0)
-  for _ in range(batch_size // mini_batch_size):
-    rand_ids = numpy.random.randint(0, batch_size, mini_batch_size)
-    yield states[rand_ids, :], \
-          actions[rand_ids, :], \
-          log_probs[rand_ids, :], \
-          returns[rand_ids, :], \
-          advantage[rand_ids, :]
+          if batch_i >= self._initial_observation_period:
+            advantage_memories = self.back_trace(transitions)
+            for m in advantage_memories:
+              self._experience_buffer.add(m)
 
+            self.update()
+            self._experience_buffer.clear()
 
-def test_agent(test_environment, render=False):
-  state = test_environment.reset()
-  if render:
-    test_environment.render()
-  done = False
-  total_reward = 0
-  while not done:
-    state = U.to_tensor(state, device=_agent._device).unsqueeze(0)
-    dist, _ = _agent._actor_critic(state)
-    next_state, reward, done, _ = test_environment.step(dist.sample().cpu().numpy()[0])
-    state = next_state
+            if self._rollout_i % self._update_target_interval == 0:
+              self._actor_critic_target.load_state_dict(
+                  self._actor_critic.state_dict()
+                  )
+
+          if self._end_training:
+            break
+
+        return self._actor_critic, []
+
+        '''
+
+  def test_agent(self, test_environment, render=False):
+    state = test_environment.reset()
     if render:
       test_environment.render()
-    total_reward += reward
-  return total_reward
+    done = False
+    total_reward = 0
+    while not done:
+      state = U.to_tensor(state, device=self._device).unsqueeze(0)
+      dist, _ = self._actor_critic(state)
+      next_state, reward, done, _ = test_environment.step(dist.sample().cpu().numpy()[0])
+      state = next_state
+      if render:
+        test_environment.render()
+      total_reward += reward
+    return total_reward
 
+  @staticmethod
+  def ppo_mini_batch_iter(mini_batch_size: int,
+                          states: Any,
+                          actions: Any,
+                          log_probs: Any,
+                          returns: Any,
+                          advantage: Any) -> iter:
 
-def make_env(env_nam):
-  @wraps(env_nam)
-  def _thunk():
-    env = gym.make(env_nam)
-    return env
-
-  return _thunk
+    batch_size = states.size(0)
+    for _ in range(batch_size // mini_batch_size):
+      rand_ids = numpy.random.randint(0, batch_size, mini_batch_size)
+      yield (states[rand_ids, :],
+             actions[rand_ids, :],
+             log_probs[rand_ids, :],
+             returns[rand_ids, :],
+             advantage[rand_ids, :])
 
 
 def main():
@@ -647,7 +656,7 @@ def main():
 
   _agent._optimiser = optim.Adam(_agent._actor_critic.parameters(), lr=_agent._actor_critic_lr)
 
-  _agent.train(_environments)
+  _agent.train(_environments, _test_env)
 
 
 if __name__ == '__main__':

@@ -37,6 +37,9 @@ plot those values within canvas size (rows and columns)
 '''
 
   num_y = len(y)
+  if num_y == 0:
+    return
+
   if x:
     if len(x) != num_y:
       raise ValueError(f'x argument must match the length of y, got x:{len(x)} and '
@@ -102,9 +105,11 @@ Scale points in 'x', such that distance between
 max(x) and min(x) equals to 'length'. min(x)
 will be moved to 0.
 '''
-  if x is list:
+  if type(x) is list:
     s = float(length) / (max(x) - min(x)) if x and max(x) - min(x) != 0 else length
-  else:  # TODO: Retarded comparison
+  #elif type(x) is range:
+  #  s = length
+  else:
     s = float(length) / (np.max(x) - np.min(x)) if len(x) and np.max(x) - np.min(x) != 0 else length
 
   return [int((i - min(x)) * s) for i in x]

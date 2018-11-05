@@ -52,7 +52,10 @@ class TabularQAgent(ValueAgent):
     return super().sample_action(state)
 
   def sample_random_process(self):
-    return self._environment.action_space.signed_one_hot_sample()
+    if hasattr(self._environment.action_space,'signed_one_hot_sample'):
+      return self._environment.action_space.signed_one_hot_sample()
+    else:
+      return self._environment.action_space.sample()
 
   def rollout(self, initial_state, environment, *, train=True, render=False, **kwargs) -> Any:
     obs = initial_state
@@ -92,7 +95,10 @@ class TabularQAgent(ValueAgent):
 
   def _build(self, **kwargs) -> None:
 
-    self._action_n = self._environment.action_space.num_binary_actions
+    if hasattr(self._environment.action_space,'num_binary_actions'):
+      self._action_n = self._environment.action_space.num_binary_actions
+    else:
+      self._action_n =self._environment.action_space.n
 
     # self._verbose = True
 
@@ -101,8 +107,8 @@ class TabularQAgent(ValueAgent):
 
     # self._q_table = np.zeros([self._environment.observation_space.n, self._environment.action_space.n])
 
-  def _train(self, env, iters=10000, *args, **kwargs) -> Tuple[Any, Any]:
-    model, *stats = self.train_episodically(env, iters)
+  def _train(self, env, rollouts=100000, *args, **kwargs) -> Tuple[Any, Any]:
+    model, *stats = self.train_episodically(env, rollouts=rollouts)
 
     return model, stats
 
@@ -111,7 +117,8 @@ class TabularQAgent(ValueAgent):
   def train_episodically(
       self,
       env,
-      rollouts=1000,
+      *,
+      rollouts=100000,
       render=False,
       render_frequency=100,
       stat_frequency=10,
@@ -132,15 +139,17 @@ class TabularQAgent(ValueAgent):
       s += steps
       # print(self._q_table)
 
-    return r, s, r, s
+    return r, s
 
 
 def main():
   # env = PuddleWorld(
   #   world_file_path='/home/heider/Neodroid/agent/utilities/exclude/saved_maps/PuddleWorldA.dat')
   env = gym.make('FrozenLake-v0')
-  agent = TabularQAgent(observation_space=env.observation_space, action_space=env.action_space,
+  agent = TabularQAgent(observation_space=env.observation_space,
+                        action_space=env.action_space,
                         environment=env)
+  agent.build(env,device='cpu')
   agent.train(env)
 
 

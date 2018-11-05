@@ -25,8 +25,12 @@ def train_agent(config, agent):
 
   listener.start()
   try:
-    _trained_model, running_signals, running_lengths, *training_statistics = agent.train(env, config.ROLLOUTS,
-                                                                                         render=config.RENDER_ENVIRONMENT)
+    (_trained_model,
+     running_signals,
+     running_lengths,
+     *training_statistics) = agent.train(env,
+                                         trials=config.ROLLOUTS,
+                                         render=config.RENDER_ENVIRONMENT)
   except ValueError:
     running_signals = None
     running_lengths = None

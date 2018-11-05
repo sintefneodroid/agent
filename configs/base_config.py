@@ -21,6 +21,13 @@ CONFIG_FILE = __file__
 VERBOSE = False
 USE_LOGGING = True
 
+#class LearningConfig(object):
+#  pass
+
+#class EnvironmentConfig(object):
+#  pass
+
+
 # Architecture
 POLICY_ARCH_PARAMS = U.ConciseArchSpecification(**{
   'input_size':   None,  # Obtain from environment

@@ -115,6 +115,9 @@ class StatisticAggregator(object):
     else:
       raise AttributeError
 
+  #def __call__(self, *args, **kwargs):
+  #  return self._values
+
   def __repr__(self):
     return f'<StatisticAggregator> values: { self._values }, measures: {self.measures} </StatisticAggregator>'
 

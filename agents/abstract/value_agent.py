@@ -94,6 +94,7 @@ All value iteration agents should inherit from this class
   def train_episodically(
       self,
       _environment,
+      *,
       rollouts=1000,
       render=False,
       render_frequency=100,
