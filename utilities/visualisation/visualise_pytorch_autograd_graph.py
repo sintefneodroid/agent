@@ -72,4 +72,4 @@ if __name__ == '__main__':
   g.format = 'svg'
   g.render()
   # g.render('test-output/round-table.gv', view=True)
-  # g.view()
+  g.view()

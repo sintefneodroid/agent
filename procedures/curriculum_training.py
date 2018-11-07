@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+import draugr
+
 import configs
 from agents.pg_agent import PGAgent
 
@@ -80,7 +82,7 @@ def main(config, agent, full_state_evaluation_frequency=2):
     num_candidates = tqdm(range(1, C.CANDIDATE_SET_SIZE + 1), leave=False)
     for c in num_candidates:
       if _plot_stats:
-        U.term_plot_stats_shared_x(stats, printer=train_session.write)
+        draugr.terminal_plot_stats_shared_x(stats, printer=train_session.write)
         train_session.set_description(
             f'Steps: {_step_i:9.0f} | Ent: {stats.entropies.calc_moving_average():.2f}'
             )
@@ -135,7 +137,7 @@ if __name__ == '__main__':
   for key, arg in args.__dict__.items():
     setattr(C, key, arg)
 
-  U.sprint(f'\nUsing config: {C}\n', highlight=True, color='yellow')
+  draugr.sprint(f'\nUsing config: {C}\n', highlight=True, color='yellow')
   if not args.skip_confirmation:
     for key, arg in configs.get_upper_case_vars_or_protected_of(C).items():
       print(f'{key} = {arg}')

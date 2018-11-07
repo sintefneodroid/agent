@@ -35,7 +35,7 @@ def get_version():
 
     #warn(f'Environment variable VERSION is not set, only using timestamp: {version}')
 
-  version = f'{version}-{date_version}'
+  version = f'{version}.{date_version}'
 
   return version
 

@@ -2,13 +2,15 @@ import time
 from itertools import count
 from typing import Any, Tuple
 
+import draugr
 from tqdm import tqdm
 
 import utilities as U
 from agents.abstract.agent import Agent
+from agents.abstract.evo_agent import EVOAgent
 
 
-class RandomAgent(Agent):
+class CMAAgent(EVOAgent):
 
   # region Private
 
@@ -45,7 +47,7 @@ class RandomAgent(Agent):
       initial_state = _environment.reset()
 
       if episode_i % stat_frequency == 0:
-        U.term_plot_stats_shared_x(
+        draugr.terminal_plot_stats_shared_x(
             stats,
             printer=E.write,
             )
@@ -129,4 +131,4 @@ if __name__ == '__main__':
   C.CONNECT_TO_RUNNING = False
   C.ENVIRONMENT_NAME = 'grd'
 
-  U.test_agent_main(RandomAgent, C)
+  U.test_agent_main(CMAAgent, C)

@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+import draugr
 
 __author__ = 'cnheider'
 from itertools import count
@@ -335,7 +336,7 @@ The Deep Deterministic Policy Gradient algorithm.
       self._random_process.reset()
 
       if episode_i % stat_frequency == 0:
-        U.styled_term_plot_stats_shared_x(stats, printer=E.write)
+        draugr.styled_terminal_plot_stats_shared_x(stats, printer=E.write)
         E.set_description(
             f'Episode: {episode_i}, Last signal: {stats.signal[-1]}'
             )

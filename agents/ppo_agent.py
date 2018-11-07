@@ -3,6 +3,7 @@
 from itertools import count
 from typing import Any, Tuple
 
+import draugr
 import gym
 import numpy
 
@@ -500,9 +501,9 @@ class PPOAgent(JointACAgent):
           test_signal = numpy.mean(test_signals)
           self.stats.test_signal.append(test_signal)
 
-          U.term_plot(self.stats.entropy.values,title='batch_entropy',percent_size=(.8,.25))
-          U.term_plot(self.stats.signal.values,title='batch_signal',percent_size=(.8,.25))
-          U.term_plot(self.stats.test_signal.values,title='test_signal',percent_size=(.8,.3))
+          draugr.terminal_plot(self.stats.entropy.values,title='batch_entropy',percent_size=(.8,.25))
+          draugr.terminal_plot(self.stats.signal.values,title='batch_signal',percent_size=(.8,.25))
+          draugr.terminal_plot(self.stats.test_signal.values,title='test_signal',percent_size=(.8,.3))
 
           if test_signal > self._solved_threshold and self._early_stop:
             self._end_training = True

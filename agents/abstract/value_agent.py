@@ -3,6 +3,7 @@
 from abc import abstractmethod
 from typing import Any
 
+import draugr
 from tqdm import tqdm
 
 __author__ = 'cnheider'
@@ -125,7 +126,7 @@ All value iteration agents should inherit from this class
       initial_state = _environment.reset()
 
       if episode_i % stat_frequency == 0:
-        U.styled_term_plot_stats_shared_x(stats, printer=E.write)
+        draugr.styled_terminal_plot_stats_shared_x(stats, printer=E.write)
         E.set_description(
             f'Episode: {episode_i}, '
             f'Running Signal: {stats.signal.running_value[-1]}, '

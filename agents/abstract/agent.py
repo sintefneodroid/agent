@@ -5,6 +5,7 @@ from itertools import count
 from typing import Any, Tuple
 from warnings import warn
 
+import draugr
 import torch
 from tqdm import tqdm
 
@@ -173,7 +174,7 @@ Tries to infer input and output size from env if either _input_size or _output_s
 
     if self._input_size is None or self._input_size == -1:
       self._input_size = env.observation_space.shape
-    U.sprint(f'\nobservation dimensions: {self._input_size}\n', color='green', bold=True, highlight=True)
+    draugr.sprint(f'\nobservation dimensions: {self._input_size}\n', color='green', bold=True, highlight=True)
 
     if self._output_size is None or self._output_size == -1:
       if hasattr(env.action_space, 'num_binary_actions'):
@@ -182,7 +183,7 @@ Tries to infer input and output size from env if either _input_size or _output_s
         self._output_size = env.action_space.shape
       else:
         self._output_size = [env.action_space.n]
-    U.sprint(f'\naction dimensions: {self._output_size}\n', color='green', bold=True, highlight=True)
+    draugr.sprint(f'\naction dimensions: {self._output_size}\n', color='green', bold=True, highlight=True)
 
   # endregion
 

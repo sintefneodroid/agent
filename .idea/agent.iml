@@ -18,6 +18,7 @@
     <orderEntry type="module" module-name="bootml" />
     <orderEntry type="module" module-name="envs_neodroid" />
     <orderEntry type="module" module-name="documentation" />
+    <orderEntry type="module" module-name="draugr" />
   </component>
   <component name="TemplatesService">
     <option name="TEMPLATE_CONFIGURATION" value="Jinja2" />

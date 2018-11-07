@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+import draugr
+
 from neodroid import EnvironmentState
 
 __author__ = 'cnheider'
@@ -19,6 +21,9 @@ tqdm.monitor_interval = 0
 
 
 class PGAgent(PolicyAgent):
+  '''
+  REINFORCE, Vanilla Policy Gradient method
+  '''
 
   # region Private
 
@@ -250,7 +255,7 @@ class PGAgent(PolicyAgent):
       initial_state = env.reset()
 
       if episode_i % stat_frequency == 0:
-        U.styled_term_plot_stats_shared_x(stats,
+        draugr.styled_terminal_plot_stats_shared_x(stats,
                                           printer=E.write)
 
         E.set_description(f'Episode: {episode_i}, Running signal: {stats.signal.running_value[-1]}, '

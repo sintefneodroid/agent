@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-from agents.tabular_q_agent import TabularQAgent
+from agents.baselines.tabular_q_agent import TabularQAgent
 
 __author__ = 'cnheider'
 '''

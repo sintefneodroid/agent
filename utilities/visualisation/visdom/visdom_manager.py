@@ -14,7 +14,7 @@ class VisdomManager:
       import subprocess
 
       self.VISDOM_PROCESS = subprocess.Popen(
-          ['python3', 'utilities/visualisation/run_visdom_server.py'],
+          ['python3', 'draugr_utilities/visualisation/run_visdom_server.py'],
           stdout=subprocess.PIPE,
           stderr=subprocess.STDOUT,
           )

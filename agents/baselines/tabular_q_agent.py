@@ -144,7 +144,7 @@ class TabularQAgent(ValueAgent):
 
 def main():
   # env = PuddleWorld(
-  #   world_file_path='/home/heider/Neodroid/agent/utilities/exclude/saved_maps/PuddleWorldA.dat')
+  #   world_file_path='/home/heider/Neodroid/agent/draugr_utilities/exclude/saved_maps/PuddleWorldA.dat')
   env = gym.make('FrozenLake-v0')
   agent = TabularQAgent(observation_space=env.observation_space,
                         action_space=env.action_space,

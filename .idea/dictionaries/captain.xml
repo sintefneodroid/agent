@@ -3,6 +3,7 @@
     <words>
       <w>displayables</w>
       <w>displayer</w>
+      <w>draugr</w>
       <w>githubpages</w>
       <w>intersphinx</w>
       <w>iters</w>
@@ -14,6 +15,7 @@
       <w>scipy</w>
       <w>seaborn</w>
       <w>sqlalchemy</w>
+      <w>ûnicöde</w>
     </words>
   </dictionary>
 </component>
