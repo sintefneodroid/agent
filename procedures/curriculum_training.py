@@ -22,7 +22,7 @@ import utilities as U
 torch.manual_seed(C.SEED)
 # neo.seed(C.SEED)
 
-stats = U.StatisticCollection(
+stats = draugr.StatisticCollection(
     stats={
       'signals',
       'lengths',

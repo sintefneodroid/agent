@@ -51,3 +51,73 @@ def normal_log_density(x, mean, log_std, std):
   var = std.pow(2)
   log_density = -(x - mean).pow(2) / (2 * var) - 0.5 * math.log(2 * math.pi) - log_std
   return log_density.sum(1, keepdim=True)
+
+import torch
+from torch.autograd import Function, Variable
+
+class DiceCoeff(Function):
+    """Dice coeff for individual examples"""
+
+    def forward(self, input, target):
+        self.save_for_backward(input, target)
+        eps = 0.0001
+        self.inter = torch.dot(input.view(-1), target.view(-1))
+        self.union = torch.sum(input) + torch.sum(target) + eps
+
+        t = (2 * self.inter.float() + eps) / self.union.float()
+        return t
+
+    # This function has only a single output, so it gets only one gradient
+    def backward(self, grad_output):
+
+        input, target = self.saved_variables
+        grad_input = grad_target = None
+
+        if self.needs_input_grad[0]:
+            grad_input = grad_output * 2 * (target * self.union + self.inter) \
+                         / self.union * self.union
+        if self.needs_input_grad[1]:
+            grad_target = None
+
+        return grad_input, grad_target
+
+
+def dice_coeff(input, target):
+    """Dice coeff for batches"""
+    if input.is_cuda:
+        s = torch.FloatTensor(1).cuda().zero_()
+    else:
+        s = torch.FloatTensor(1).zero_()
+
+    for i, c in enumerate(zip(input, target)):
+        s = s + DiceCoeff().forward(c[0], c[1])
+
+    return s / (i + 1)
+
+
+
+def identity(x):
+  return x
+
+
+
+def _discount_reward(self, signals, value):
+  discounted_r = np.zeros_like(signals)
+  running_add = value
+  for t in reversed(range(0, len(signals))):
+    running_add = running_add * self.gamma + signals[t]
+    discounted_r[t] = running_add
+  return discounted_r
+
+
+# choose an action based on state with random noise added for exploration in training
+def exploration_action(self, state):
+  softmax_action = self._sample_model(state)
+  epsilon = self.epsilon_end + (self.epsilon_start - self.epsilon_end) * np.exp(
+      -1. * self._step_i / self.epsilon_decay
+      )
+  if np.random.rand() < epsilon:
+    action = np.random.choice(self.action_dim)
+  else:
+    action = np.argmax(softmax_action)
+  return action

@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 import draugr
+from procedures.agent_tests import test_agent_main
 
 __author__ = 'cnheider'
 from itertools import count
@@ -14,7 +15,7 @@ tqdm.monitor_interval = 0
 
 import utilities as U
 from agents.abstract.joint_ac_agent import JointACAgent
-from utilities.random_process.ornstein_uhlenbeck import OrnsteinUhlenbeckProcess
+from utilities.sampling.random_process import OrnsteinUhlenbeckProcess
 
 
 class DDPGAgent(JointACAgent):
@@ -326,7 +327,7 @@ The Deep Deterministic Policy Gradient algorithm.
 :param stat_frequency:
 :type stat_frequency:
 '''
-    stats = U.StatisticCollection(stats=('signal', 'duration'))
+    stats = draugr.StatisticCollection(stats=('signal', 'duration'))
 
     E = range(1, rollouts)
     E = tqdm(E, desc='', leave=False)
@@ -386,4 +387,4 @@ def test_ddpg_agent(config):
 if __name__ == '__main__':
   import configs.agent_test_configs.test_ddpg_config as C
 
-  U.test_agent_main(DDPGAgent, C)
+  test_agent_main(DDPGAgent, C)

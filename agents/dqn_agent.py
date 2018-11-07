@@ -2,8 +2,9 @@
 # -*- coding: utf-8 -*-
 import matplotlib
 
+from procedures.agent_tests import test_agent_main
 from utilities.transformation.extraction import get_screen
-from utilities.visualisation.statistics_plot import plot_durations
+from utilities.visualisation.experimental.statistics_plot import plot_durations
 
 __author__ = 'cnheider'
 from itertools import count
@@ -315,5 +316,5 @@ if __name__ == '__main__':
 
   # import configs.cnn_dqn_config as C
 
-  U.test_agent_main(DQNAgent, C)
+  test_agent_main(DQNAgent, C)
   # test_cnn_dqn_agent(C)

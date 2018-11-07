@@ -1,4 +1,4 @@
-#!/usr/bin/env python3 
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 __author__ = 'cnheider'
 '''
@@ -13,7 +13,7 @@ def update_visualiser(
     episode,
     loss,
     moving_loss,
-    reward,
+    signal,
     moving_reward,
     episode_length,
     moving_length,
@@ -24,7 +24,7 @@ def update_visualiser(
   '''
 
 :param moving_loss:
-:param reward:
+:param signal:
 :param moving_reward:
 :param moving_length:
 :param configuration:
@@ -53,8 +53,8 @@ def update_visualiser(
         opts={'title':'Average Episode Q Value Loss'},
         )
 
-  if 'reward' in windows:
-    reward_window = windows['reward']
+  if 'signal' in windows:
+    reward_window = windows['signal']
     visualiser.line(
         X=np.array([episode]),
         Y=np.array([moving_reward]),
@@ -63,7 +63,7 @@ def update_visualiser(
         update='append',
         )
   else:
-    windows['reward'] = visualiser.line(
+    windows['signal'] = visualiser.line(
         X=np.array([episode]),
         Y=np.array([moving_reward]),
         env=configuration.CONFIG_NAME,

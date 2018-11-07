@@ -3,7 +3,7 @@
 __author__ = 'cnheider'
 from .experimental import *
 from .image_data import *
-from .log_file_plotter import *
-from .statistics_plot import *
+from utilities.visualisation.experimental.log_file_plotter import *
+from utilities.visualisation.experimental.statistics_plot import *
 from .visdom import *
-from .visualise_pytorch_autograd_graph import *
+from utilities.visualisation.experimental.visualise_pytorch_autograd_graph import *

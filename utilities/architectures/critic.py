@@ -7,7 +7,7 @@ import torch
 from torch import nn
 from torch.nn import functional as F, init
 
-from utilities.initialisation import fan_in_init
+from utilities.torch_utilities.initialisation import fan_in_init
 
 
 class CriticArchitecture(Architecture):

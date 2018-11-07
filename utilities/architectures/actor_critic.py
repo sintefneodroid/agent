@@ -3,13 +3,12 @@
 import torch
 from torch.distributions import Categorical, Normal
 
-from utilities.initialisation import init_weights, fan_in_init
+from utilities.torch_utilities.initialisation import init_weights
 from utilities.architectures.mlp import MultiHeadedMLP
 
 __author__ = 'cnheider'
 
 from torch import nn
-from torch.nn import functional as F
 
 
 class ActorCriticNetwork(MultiHeadedMLP):

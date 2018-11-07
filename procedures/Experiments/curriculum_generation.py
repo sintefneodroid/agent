@@ -78,12 +78,12 @@ def main():
       for k in count(1):
 
         actions = _environment.action_space.sample()
-        observations, reward, terminated, info = _environment.sample_action(actions, )
+        observations, signal, terminated, info = _environment.sample_action(actions, )
 
-        episode_reward += reward
+        episode_reward += signal
 
         if terminated:
-          print('Interrupted', reward)
+          print('Interrupted', signal)
           episode_rewards.append(episode_reward)
           break
 

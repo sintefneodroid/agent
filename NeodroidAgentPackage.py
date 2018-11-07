@@ -31,7 +31,7 @@ class NeodroidAgentPackage:
   def packages(self):
     return find_packages(
         exclude=[
-          #'neodroid/environments'
+          #'neodroid/environment_utilities'
           ]
         )
 
@@ -53,14 +53,14 @@ class NeodroidAgentPackage:
 
   @property
   def package_data(self):
-    # data = glob.glob('environments/mab/**', recursive=True)
+    # data = glob.glob('environment_utilities/mab/**', recursive=True)
     return {
       #'neodroid':[
         # *data
-        # 'environments/mab/**',
-        # 'environments/mab/**_Data/*',
-        # 'environments/mab/windows/*'
-        # 'environments/mab/windows/*_Data/*'
+        # 'environment_utilities/mab/**',
+        # 'environment_utilities/mab/**_Data/*',
+        # 'environment_utilities/mab/windows/*'
+        # 'environment_utilities/mab/windows/*_Data/*'
       #  ]
       }
 

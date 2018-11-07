@@ -97,21 +97,21 @@ class CEMAgent(DFOAgent):
     ob = env.reset()
     for t in range(num_steps):
       a = policy.act(ob)
-      (ob, reward, done, _info) = env.step(a)
-      disc_total_rew += reward * discount ** t
+      (ob, signal, terminal, _info) = env.step(a)
+      disc_total_rew += signal * discount ** t
       if render and t % 3 == 0:
         env.render()
-      if done:
+      if terminal:
         break
     return disc_total_rew
 
   def noisy_evaluation(self, env, num_steps, theta, discount=0.90):
     policy = self.make_policy(env, theta)
-    reward = self.rolloutm(policy,
+    signal = self.rolloutm(policy,
                            env,
                            num_steps,
                            discount)
-    return reward
+    return signal
 
   def make_policy(self, env, theta):
     if isinstance(env.action_space, Discrete):
@@ -142,7 +142,7 @@ class CEMAgent(DFOAgent):
     E = range(1, rollouts)
     E = tqdm(E, f'Episode: {1}', leave=False)
 
-    stats = U.StatisticCollection(stats=('signal', 'duration'))
+    stats = draugr.StatisticCollection(stats=('signal', 'duration'))
 
     for episode_i in E:
       initial_state = _environment.reset()
@@ -284,5 +284,5 @@ if __name__ == '__main__':
   C.CONNECT_TO_RUNNING = False
   C.ENVIRONMENT_NAME = 'grd'
 
-  # U.test_agent_main(CEMAgent, C)
+  # test_agent_main(CEMAgent, C)
   CEMAgent().t()

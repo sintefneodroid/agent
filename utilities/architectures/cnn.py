@@ -8,7 +8,7 @@ __author__ = 'cnheider'
 from torch import nn
 from torch.nn import functional as F
 
-from utilities.initialisation import atari_initializer, ortho_weights
+from utilities.torch_utilities.initialisation import atari_initializer, ortho_weights
 
 
 class CNN(Architecture):

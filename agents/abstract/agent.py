@@ -47,7 +47,7 @@ All agent should inherit from this class
     self.__defaults__()
 
     if config:
-      self.set_config_attributes(config)
+      self.set_config_attributes(config, **kwargs)
 
   def __next__(self):
     if self._environment:
@@ -116,7 +116,7 @@ All agent should inherit from this class
         F.set_description(f'Frame {frame_i}')
 
         action = self.sample_action(state)
-        state, reward, terminated, info = environment.step(action)
+        state, signal, terminated, info = environment.step(action)
         if render:
           environment.render()
 

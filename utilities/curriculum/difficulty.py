@@ -7,12 +7,12 @@ import numpy as np
 import neodroid
 
 
-def calculate_difficulty(current_difficulty, reward, steps_taken, configuration):
+def calculate_difficulty(current_difficulty, signal, steps_taken, configuration):
   # current_difficulty = np.random.normal(0,0.2,size=3) + current_difficulty
 
-  if reward < -.6:
+  if signal < -.6:
     return current_difficulty  # * 0.8
-  elif reward > .6 and steps_taken % configuration.UPDATE_DIFFICULTY_INTERVAL == 0:
+  elif signal > .6 and steps_taken % configuration.UPDATE_DIFFICULTY_INTERVAL == 0:
     return min(current_difficulty * 1.4, 10)
   else:
     return current_difficulty

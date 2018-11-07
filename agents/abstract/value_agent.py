@@ -117,7 +117,7 @@ All value iteration agents should inherit from this class
       :rtype:
     '''
 
-    stats = U.StatisticCollection(stats=('signal', 'duration', 'td_error'))
+    stats = draugr.StatisticCollection(stats=('signal', 'duration', 'td_error'))
 
     E = range(1, rollouts)
     E = tqdm(E, leave=False)

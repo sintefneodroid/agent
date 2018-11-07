@@ -63,21 +63,21 @@ class TabularQAgent(ValueAgent):
     steps = 0
     for t in count():
       action = self.sample_action(obs)
-      next_obs, reward, done, _ = environment.step(action)
+      next_obs, signal, terminal, _ = environment.step(action)
       next_obs = str(next_obs)
 
       current_q = self._q_table[obs][action]
       future = np.max(self._q_table[next_obs])
-      exp_q = reward + self._discount_factor * future
+      exp_q = signal + self._discount_factor * future
       diff = self._learning_rate * (exp_q - current_q)
       self._q_table[obs][action] = current_q + diff
       #        Q[s, a] = Q[s, a] + lr * (r + y * np.max(Q[s1, :]) - Q[s, a])
 
       obs = next_obs
-      ep_r += reward
+      ep_r += signal
 
-      if done:
-        print(reward)
+      if terminal:
+        print(signal)
         steps = t
         break
 

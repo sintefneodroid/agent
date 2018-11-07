@@ -8,6 +8,7 @@ from tqdm import tqdm
 import utilities as U
 from agents.abstract.agent import Agent
 from agents.abstract.evo_agent import EVOAgent
+from procedures.agent_tests import test_agent_main
 
 
 class CMAAgent(EVOAgent):
@@ -41,7 +42,7 @@ class CMAAgent(EVOAgent):
     E = range(1, rollouts)
     E = tqdm(E, f'Episode: {1}', leave=False)
 
-    stats = U.StatisticCollection(stats=('signal', 'duration'))
+    stats = draugr.StatisticCollection(stats=('signal', 'duration'))
 
     for episode_i in E:
       initial_state = _environment.reset()
@@ -131,4 +132,4 @@ if __name__ == '__main__':
   C.CONNECT_TO_RUNNING = False
   C.ENVIRONMENT_NAME = 'grd'
 
-  U.test_agent_main(CMAAgent, C)
+  test_agent_main(CMAAgent, C)

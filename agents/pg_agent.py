@@ -3,6 +3,7 @@
 import draugr
 
 from neodroid import EnvironmentState
+from procedures.agent_tests import test_agent_main
 
 __author__ = 'cnheider'
 
@@ -48,6 +49,8 @@ class PGAgent(PolicyAgent):
     self._batch_size = 5
     self._pg_entropy_reg = 1e-4
     self._signal_clipping = False
+    self._signal_clip_low = -1.0
+    self._signal_clip_high = -self._signal_clip_low
 
     self._optimiser_learning_rate = 1e-4
     self._optimiser_type = torch.optim.Adam
@@ -128,11 +131,10 @@ class PGAgent(PolicyAgent):
     # calculate the probability
     action = (mu + sigma_sq.sqrt() * eps).data
     prob = U.normal(action, mu, sigma_sq)
-    entropy = -0.5 * ((
-                          sigma_sq
-                          + 2
-                          * U.pi_torch(self._device).expand_as(sigma_sq)
-                      ).log()
+    entropy = -0.5 * ((sigma_sq
+                       + 2
+                       * U.pi_torch(self._device).expand_as(sigma_sq)
+                       ).log()
                       + 1
                       )
 
@@ -145,12 +147,12 @@ class PGAgent(PolicyAgent):
     signals = []
 
     trajectory = self._trajectory_trace.retrieve_trajectory()
-    t_signal = trajectory.signal
+    t_signals = trajectory.signal
     log_probs = trajectory.log_prob
-    entrp = trajectory.entropy
+    entropies = trajectory.entropy
     self._trajectory_trace.clear()
 
-    for r in t_signal[::-1]:
+    for r in t_signals[::-1]:
       R = r + self._discount_factor * R
       signals.insert(0, R)
 
@@ -160,7 +162,7 @@ class PGAgent(PolicyAgent):
       stddev = signals.std()
       signals = (signals - signals.mean()) / (stddev + self._divide_by_zero_safety)
 
-    for log_prob, signal, entropy in zip(log_probs, signals, entrp):
+    for log_prob, signal, entropy in zip(log_probs, signals, entropies):
       policy_loss.append(-log_prob * signal - self._pg_entropy_reg * entropy)
 
     loss = torch.cat(policy_loss).sum()
@@ -200,7 +202,7 @@ class PGAgent(PolicyAgent):
       state, signal, terminated, info = environment.step(action)
 
       if self._signal_clipping:
-        signal = np.clip(signal, -1.0, 1.0)
+        signal = np.clip(signal, self._signal_clip_low, self._signal_clip_high)
 
       episode_signal += signal
       episode_entropy += entropy.data.cpu().numpy()
@@ -230,7 +232,7 @@ class PGAgent(PolicyAgent):
       for frame_i in count(1):
 
         action, *_ = self.sample_action(state)
-        state, reward, terminated, info = env.step(action)
+        state, signal, terminated, info = env.step(action)
         if render:
           env.render()
 
@@ -249,28 +251,27 @@ class PGAgent(PolicyAgent):
     E = range(1, rollouts)
     E = tqdm(E, f'Episode: {1}', leave=False)
 
-    stats = U.StatisticCollection(stats=('signal', 'duration', 'entropy'))
+    stats = draugr.StatisticCollection(stats=('signal', 'duration', 'entropy'))
 
     for episode_i in E:
       initial_state = env.reset()
 
       if episode_i % stat_frequency == 0:
         draugr.styled_terminal_plot_stats_shared_x(stats,
-                                          printer=E.write)
+                                                   printer=E.write)
 
-        E.set_description(f'Episode: {episode_i}, Running signal: {stats.signal.running_value[-1]}, '
+        E.set_description(f'Episode: {episode_i}, '
+                          f'Running signal: {stats.signal.running_value[-1]}, '
                           f'Running length: {stats.duration.running_value[-1]}')
 
       if render and episode_i % render_frequency == 0:
-        signal, dur, entrp, *extras = self.rollout(
-            initial_state, env, render=render
-            )
+        signal, dur, entropy, *extras = self.rollout(initial_state, env, render=render)
       else:
-        signal, dur, entrp, *extras = self.rollout(initial_state, env)
+        signal, dur, entropy, *extras = self.rollout(initial_state, env)
 
       stats.duration.append(dur)
       stats.signal.append(signal)
-      stats.entropy.append(entrp)
+      stats.entropy.append(entropy)
 
       if self._end_training:
         break
@@ -282,4 +283,4 @@ class PGAgent(PolicyAgent):
 if __name__ == '__main__':
   import configs.agent_test_configs.test_pg_config as C
 
-  U.test_agent_main(PGAgent, C)
+  test_agent_main(PGAgent, C)

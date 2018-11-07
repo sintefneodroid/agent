@@ -1,13 +1,12 @@
 #!/usr/local/bin/python
 # coding: utf-8
+from functools import wraps
 from itertools import count
 from typing import Any, Tuple
 
 import draugr
 import gym
 import numpy
-
-from utilities.environment_wrappers.wrapme import make_env
 
 __author__ = 'cnheider'
 
@@ -450,7 +449,7 @@ class PPOAgent(JointACAgent):
                          ppo_epochs=6,
                          render=True
                          ):
-    self.stats = U.StatisticCollection(stats=('signal','test_signal', 'entropy'))
+    self.stats = draugr.StatisticCollection(stats=('signal','test_signal', 'entropy'))
 
     state = environments.reset()
 
@@ -584,17 +583,17 @@ class PPOAgent(JointACAgent):
     state = test_environment.reset()
     if render:
       test_environment.render()
-    done = False
-    total_reward = 0
-    while not done:
+    terminal = False
+    total_signal = 0
+    while not terminal:
       state = U.to_tensor(state, device=self._device).unsqueeze(0)
       dist, _ = self._actor_critic(state)
-      next_state, reward, done, _ = test_environment.step(dist.sample().cpu().numpy()[0])
+      next_state, signal, terminal, _ = test_environment.step(dist.sample().cpu().numpy()[0])
       state = next_state
       if render:
         test_environment.render()
-      total_reward += reward
-    return total_reward
+      total_signal += signal
+    return total_signal
 
   @staticmethod
   def ppo_mini_batch_iter(mini_batch_size: int,
@@ -615,12 +614,20 @@ class PPOAgent(JointACAgent):
 
 
 def main():
-  # U.test_agent_main(PPOAgent, C)
+  # test_agent_main(PPOAgent, C)
   _agent = PPOAgent()
 
   num_environments = 8
   env_name = 'Pendulum-v0'
   #  env_name = 'MountainCarContinuous-v0'
+
+  def make_env(env_nam):
+    @wraps(env_nam)
+    def wrapper():
+      env = gym.make(env_nam)
+      return env
+
+    return wrapper
 
   _environments = [make_env(env_name) for i in range(num_environments)]
   _environments = U.SubprocVecEnv(_environments)
