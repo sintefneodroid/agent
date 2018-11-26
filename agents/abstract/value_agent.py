@@ -158,6 +158,26 @@ All value iteration agents should inherit from this class
 
   # endregion
 
+  def _infer_input_output_sizes(self, env, **kwargs):
+    super()._infer_input_output_sizes(env)
+    if type(self._value_arch_parameters) is U.ConciseArchSpecification:
+      di = self._value_arch_parameters._asdict()
+    else:
+      di = self._value_arch_parameters
+    di['input_size'] = self._input_size
+    di['output_size'] = self._output_size
+
+    self._value_arch_parameters = U.ConciseArchSpecification(**di)
+
+  def _infer_hidden_layers(self):
+    super()._infer_hidden_layers()
+    if type(self._value_arch_parameters) is U.ConciseArchSpecification:
+      di = self._value_arch_parameters._asdict()
+    else:
+      di = self._value_arch_parameters
+    di['hidden_layers'] = self._hidden_layers
+    self._value_arch_parameters = U.ConciseArchSpecification(**di)
+
   # region Protected
 
   def _train(self, *args, **kwargs):

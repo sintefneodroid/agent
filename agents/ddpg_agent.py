@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 import draugr
+from neodroid import EnvironmentState
 from procedures.agent_tests import test_agent_main
 
 __author__ = 'cnheider'
@@ -20,208 +21,40 @@ from utilities.sampling.random_process import OrnsteinUhlenbeckProcess
 
 class DDPGAgent(JointACAgent):
   '''
-The Deep Deterministic Policy Gradient (DDPG) Agent
-Parameters
-----------
-    actor_optimizer_spec: OptimizerSpec
-        Specifying the constructor and kwargs, as well as learning rate and other
-        parameters for the optimizer
-    critic_optimizer_spec: OptimizerSpec
-    num_feature: int
-        The number of features of the environmental state
-    num_action: int
-        The number of available actions that agent can choose from
-    replay_memory_size: int
-        How many memories to store in the replay memory.
-    batch_size: int
-        How many transitions to sample each time experience is replayed.
-    tau: float
-        The update rate that target networks slowly track the learned networks.
-'''
+  The Deep Deterministic Policy Gradient (DDPG) Agent
 
-  def save(self, C):
-    U.save_model(self._actor, C, name='actor')
-    U.save_model(self._critic, C, name='policy')
+  Parameters
+  ----------
+      actor_optimizer_spec: OptimiserSpec
+          Specifying the constructor and kwargs, as well as learning rate and other
+          parameters for the optimiser
+      critic_optimizer_spec: OptimiserSpec
+      num_feature: int
+          The number of features of the environmental state
+      num_action: int
+          The number of available actions that agent can choose from
+      replay_memory_size: int
+          How many memories to store in the replay memory.
+      batch_size: int
+          How many transitions to sample each time experience is replayed.
+      tau: float
+          The update rate that target networks slowly track the learned networks.
+  '''
 
-  def load(self, model_path, evaluation=False, **kwargs):
-    print('loading latest model: ' + model_path)
-
-    self._build(**kwargs)
-
-    self._actor.load_state_dict(torch.load(f'actor-{model_path}'))
-    self._critic.load_state_dict(torch.load(f'critic-{model_path}'))
-
-    self.update_target(self._target_critic, self._critic)
-    self.update_target(self._target_actor, self._actor)
-
-    if evaluation:
-      self._actor = self._actor.eval()
-      self._actor.train(False)
-      self._critic = self._actor.eval()
-      self._critic.train(False)
-
-    self._actor = self._actor.to(self._device)
-    self._target_actor = self._target_actor.to(self._device)
-    self._critic = self._critic.to(self._device)
-    self._target_critic = self._target_critic.to(self._device)
-
-  def sample_action(self, state, **kwargs):
-    return self._sample_model(state)
-
-  def evaluate(
-      self,
-      state_batch,
-      action_batch,
-      signal_batch,
-      next_state_batch,
-      non_terminal_batch,
-      *args,
-      **kwargs,
-      ):
-    '''
-
-:type kwargs: object
-'''
-    states = U.to_tensor(state_batch, device=self._device, dtype=self._state_type) \
-      .view(-1, self._input_size[0])
-    next_states = U.to_tensor(next_state_batch, device=self._device, dtype=self._state_type) \
-      .view(-1, self._input_size[0])
-    actions = U.to_tensor(action_batch, device=self._device, dtype=self._action_type) \
-      .view(-1, self._output_size[0])
-    signals = U.to_tensor(signal_batch, device=self._device, dtype=self._value_type)
-
-    non_terminal_mask = U.to_tensor(non_terminal_batch, device=self._device, dtype=self._value_type)
-
-    ### Critic ###
-    # Compute current Q value, critic takes state and action chosen
-    Q_current = self._critic(states, actions)
-    # Compute next Q value based on which action target actor would choose
-    # Detach variable from the current graph since we don't want gradients for next Q to propagated
-    with torch.no_grad():
-      target_actions = self._target_actor(states)
-      next_max_q = self._target_critic(next_states, target_actions).max(1)[0]
-
-    next_Q_values = non_terminal_mask * next_max_q
-
-    Q_target = signals + (self._discount_factor * next_Q_values)  # Compute the target of the current Q values
-
-    td_error = self._evaluation_function(Q_current,
-                                         Q_target.view(-1, 1))  # Compute Bellman error (using Huber loss)
-
-    return td_error, states
-
-  def update(self):
-    '''
-Update the target networks
-
-:return:
-:rtype:
-'''
-    if len(self._memory) < self._batch_size:
-      return
-
-    batch = self._memory.sample_transitions(self._batch_size)
-    td_error, state_batch_var = self.evaluate(*batch)
-    loss = self._optimise_wrt(td_error, state_batch_var)
-
-    return td_error, loss
-
-  def optimise_critic_wrt(self, error):
-    self._critic_optimiser.zero_grad()
-    error.backward()
-    self._critic_optimiser.step()  # Optimize the critic
-
-  def optimise_actor_wrt(self, loss):
-    self._actor_optimiser.zero_grad()
-    loss.backward()
-    self._actor_optimiser.step()  # Optimize the actor
-
-  def update_target(self, target_model, model):
-    for target_param, param in zip(target_model.parameters(), model.parameters()):
-      target_param.data.copy_(
-          self._target_update_tau
-          * param.data
-          + (1 - self._target_update_tau)
-          * target_param.data
-          )
-
-  def rollout(self, initial_state, environment, render=False, train=True, **kwargs):
-    self._rollout_i += 1
-
-    state = initial_state
-    episode_signal = 0
-    episode_length = 0
-
-    T = tqdm(count(1), f'Rollout #{self._rollout_i}', leave=False)
-    for t in T:
-      self._step_i += 1
-
-      action = self.sample_action(state)
-
-      noise = self._random_process.sample()
-
-      action += noise  # Add action space noise for exploration, alternative is parameter space noise
-
-      if self._action_clipping:
-        action = np.clip(action, -1.0, 1.0)
-
-      next_state, signal, terminated, info = environment.step(action)
-
-      if render:
-        environment.render()
-
-      if self._action_clipping:
-        signal = np.clip(action, -1.0, 1.0)
-
-      # successor_state = None
-      # if not terminated:  # If environment terminated then there is no successor state
-      successor_state = next_state
-
-      self._memory.add_transition(
-          state, action, signal, successor_state, not terminated
-          )
-      state = next_state
-
-      self.update()
-      episode_signal += signal
-
-      if terminated:
-        episode_length = t
-        break
-
-    return episode_signal, episode_length
-
-  def _optimise_wrt(self, td_error, state_batch, *args, **kwargs):
-    '''
-
-    :type kwargs: object
-    '''
-    self.optimise_critic_wrt(td_error)
-
-    ### Actor ###
-    loss = -self._critic(state_batch, self._actor(state_batch)).mean()
-    # loss = -torch.sum(self.critic(state_batch, self.actor(state_batch)))
-
-    self.optimise_actor_wrt(loss)
-
-    self.update_target(self._target_critic, self._critic)
-    self.update_target(self._target_actor, self._actor)
-
-    # self._memory.batch_update(indices, errors.tolist())  # Cuda trouble
-
-    return loss
 
   def __defaults__(self) -> None:
     self._optimiser_type = torch.optim.Adam
 
-    self._actor_optimiser_spec = U.OptimiserSpecification(
-        constructor=self._optimiser_type, kwargs=dict(lr=0.0001)
-        )
-    self._critic_optimiser_spec = U.OptimiserSpecification(
-        constructor=self._optimiser_type, kwargs=dict(lr=0.001, weight_decay=0.01)
-        )
+    self._actor_optimiser_spec = U.OptimiserSpecification(constructor=self._optimiser_type,
+                                                          kwargs=dict(lr=0.0001)
+                                                          )
+    self._critic_optimiser_spec = U.OptimiserSpecification(constructor=self._optimiser_type,
+                                                           kwargs=dict(lr=0.001,
+                                                                       weight_decay=0.01)
+                                                           )
 
-    self._random_process = OrnsteinUhlenbeckProcess(theta=0.15, sigma=0.2)
+    self._random_process = OrnsteinUhlenbeckProcess(theta=0.15,
+                                                    sigma=0.2)
     # Adds noise for exploration
 
     # self._memory = U.PrioritisedReplayMemory(config.REPLAY_MEMORY_SIZE)  # Cuda trouble
@@ -269,11 +102,206 @@ Update the target networks
 
     self._end_training = False
 
-    self._actor, self._target_actor, self._critic, self._target_critic, self._actor_optimiser, \
-    self._critic_optimiser = None, None, None, None, None, None
+    (self._actor,
+     self._target_actor,
+     self._critic,
+     self._target_critic,
+     self._actor_optimiser,
+     self._critic_optimiser) = None, None, None, None, None, None
 
-    self._input_size = None
-    self._output_size = None
+    (self._input_size,
+     self._output_size) = None, None
+
+  def save(self, C):
+    U.save_model(self._actor, C, name='actor')
+    U.save_model(self._critic, C, name='policy')
+
+  def load(self,
+           model_path,
+           evaluation=False,
+           **kwargs):
+    print('loading latest model: ' + model_path)
+
+    self._build(**kwargs)
+
+    self._actor.load_state_dict(torch.load(f'actor-{model_path}'))
+    self._critic.load_state_dict(torch.load(f'critic-{model_path}'))
+
+    self.update_target(self._target_critic, self._critic)
+    self.update_target(self._target_actor, self._actor)
+
+    if evaluation:
+      self._actor = self._actor.eval()
+      self._actor.train(False)
+      self._critic = self._actor.eval()
+      self._critic.train(False)
+
+    self._actor = self._actor.to(self._device)
+    self._target_actor = self._target_actor.to(self._device)
+    self._critic = self._critic.to(self._device)
+    self._target_critic = self._target_critic.to(self._device)
+
+  def evaluate(self,
+               batch,
+               **kwargs
+               ):
+    '''
+
+:type kwargs: object
+'''
+    (state_batch,
+     action_batch,
+     signal_batch,
+     next_state_batch,
+     non_terminal_batch) = batch
+    states = U.to_tensor(state_batch, device=self._device, dtype=self._state_type) \
+      .view(-1, self._input_size[0])
+    next_states = U.to_tensor(next_state_batch, device=self._device, dtype=self._state_type) \
+      .view(-1, self._input_size[0])
+    actions = U.to_tensor(action_batch, device=self._device, dtype=self._action_type) \
+      .view(-1, self._output_size[0])
+    signals = U.to_tensor(signal_batch, device=self._device, dtype=self._value_type)
+
+    non_terminal_mask = U.to_tensor(non_terminal_batch, device=self._device, dtype=self._value_type)
+
+    ### Critic ###
+    # Compute current Q value, critic takes state and action chosen
+    Q_current = self._critic(states, actions)
+    # Compute next Q value based on which action target actor would choose
+    # Detach variable from the current graph since we don't want gradients for next Q to propagated
+    with torch.no_grad():
+      target_actions = self._target_actor(states)
+      next_max_q = self._target_critic(next_states, target_actions).max(1)[0]
+
+    next_Q_values = non_terminal_mask * next_max_q
+
+    Q_target = signals + (self._discount_factor * next_Q_values)  # Compute the target of the current Q values
+
+    td_error = self._evaluation_function(Q_current,
+                                         Q_target.view(-1, 1))  # Compute Bellman error (using Huber loss)
+
+    return td_error, states
+
+  def update(self):
+    '''
+  Update the target networks
+
+  :return:
+  :rtype:
+  '''
+    if len(self._memory) < self._batch_size:
+      return
+
+    batch = self._memory.sample_transitions(self._batch_size)
+    td_error, state_batch_var = self.evaluate(batch)
+    loss = self._optimise_wrt_ac(td_error, state_batch_var)
+
+    self.update_target(self._target_critic, self._critic)
+    self.update_target(self._target_actor, self._actor)
+
+    return td_error, loss
+
+  def optimise_critic_wrt(self, error):
+    self._critic_optimiser.zero_grad()
+    error.backward()
+    self._critic_optimiser.step()  # Optimize the critic
+
+  def optimise_actor_wrt(self, loss):
+    self._actor_optimiser.zero_grad()
+    loss.backward()
+    self._actor_optimiser.step()  # Optimize the actor
+
+  def update_target(self, target_model, model):
+    for target_param, param in zip(target_model.parameters(), model.parameters()):
+      target_param.data.copy_(self._target_update_tau
+                              * param.data
+                              + (1 - self._target_update_tau)
+                              * target_param.data
+                              )
+
+  def rollout(self,
+              initial_state,
+              environment,
+              render=False,
+              train=True,
+              **kwargs):
+    self._rollout_i += 1
+
+    state = initial_state
+    episode_signal = 0
+    episode_length = 0
+
+    T = tqdm(count(1), f'Rollout #{self._rollout_i}', leave=False)
+    for t in T:
+      self._step_i += 1
+
+      action = self.sample_action(state)
+
+      noise = self._random_process.sample()
+
+      action += noise  # Add action space noise for exploration, alternative is parameter space noise
+
+      if self._action_clipping:
+        action = np.clip(action, -1.0, 1.0)
+
+
+      if hasattr(environment,'step'):
+        successor_state, signal, terminated, info = environment.step(action)
+      else:
+        info = environment.react(action)
+        successor_state, signal, terminated = info.observables, info.signal, info.terminated
+
+      if render:
+        environment.render()
+
+      if self._action_clipping:
+        signal = np.clip(action, -1.0, 1.0)
+
+      # successor_state = None
+      # if not terminated:  # If environment terminated then there is no successor state
+
+      self._memory.add_transition(          state,
+                                            action,
+                                            signal,
+                                            successor_state,
+                                            not terminated
+          )
+      state = successor_state
+
+      self.update()
+      episode_signal += signal
+
+      if terminated:
+        episode_length = t
+        break
+
+    return episode_signal, episode_length
+
+  def _optimise_wrt(self,
+                    td_error,
+                    **kwargs):
+    pass
+
+  def _optimise_wrt_ac(self,
+                       td_error,
+                       state_batch,
+                       **kwargs):
+    '''
+
+    :type kwargs: object
+    '''
+    self.optimise_critic_wrt(td_error)
+
+    ### Actor ###
+    loss = -self._critic(state_batch, self._actor(state_batch)).mean()
+    # loss = -torch.sum(self.critic(state_batch, self.actor(state_batch)))
+
+    self.optimise_actor_wrt(loss)
+
+    # self._memory.batch_update(indices, errors.tolist())  # Cuda trouble
+
+    return loss
+
 
   def _build(self, **kwargs) -> None:
 
@@ -310,23 +338,14 @@ Update the target networks
     a = action.to('cpu').numpy()
     return a[0]
 
-  def _train(
-      self, env, rollouts=1000, render=False, render_frequency=10, stat_frequency=10
-      ):
-    '''
-The Deep Deterministic Policy Gradient algorithm.
+  def _train(self,
+             env,
+             rollouts=1000,
+             render=False,
+             render_frequency=10,
+             stat_frequency=10
+             ):
 
-:param env: gym environment to train on.
-:type env: gym.Env
-:param rollouts: Number of episodes to run for.
-:type rollouts: int
-:param render:
-:type render:
-:param render_frequency:
-:type render_frequency:
-:param stat_frequency:
-:type stat_frequency:
-'''
     stats = draugr.StatisticCollection(stats=('signal', 'duration'))
 
     E = range(1, rollouts)
@@ -334,12 +353,14 @@ The Deep Deterministic Policy Gradient algorithm.
 
     for episode_i in E:
       state = env.reset()
+      if type(state) is EnvironmentState:
+        state =state.observables
       self._random_process.reset()
 
       if episode_i % stat_frequency == 0:
         draugr.styled_terminal_plot_stats_shared_x(stats, printer=E.write)
-        E.set_description(
-            f'Episode: {episode_i}, Last signal: {stats.signal[-1]}'
+        E.set_description(            f'Episode: {episode_i}, '
+                                      f'Last signal: {stats.signal[-1]}'
             )
 
       if render and episode_i % render_frequency == 0:

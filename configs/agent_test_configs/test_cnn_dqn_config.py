@@ -33,9 +33,6 @@ SYNC_TARGET_MODEL_FREQUENCY = 1000
 
 VALUE_ARCH = U.CNN
 OPTIMISER_TYPE = torch.optim.RMSprop  # torch.optim.Adam
-ENVIRONMENT_NAME = 'CartPole-v0'
-# 'LunarLander-v2' #(coord_x, coord_y, vel_x, vel_y, angle,
-# angular_vel, l_leg_on_ground, r_leg_on_ground)
 
 
 # Architecture

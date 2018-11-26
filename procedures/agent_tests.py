@@ -35,7 +35,9 @@ def regular_train_agent_procedure(agent_type, config, environment=None):
 
   listener.start()
   try:
-    models, stats = agent.train(environment, config.ROLLOUTS, render=config.RENDER_ENVIRONMENT)
+    models, stats = agent.train(environment,
+                                rollouts=config.ROLLOUTS,
+                                render=config.RENDER_ENVIRONMENT)
   finally:
     listener.stop()
 

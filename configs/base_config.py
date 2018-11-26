@@ -31,9 +31,9 @@ USE_LOGGING = True
 # Architecture
 POLICY_ARCH_PARAMS = U.ConciseArchSpecification(**{
   'input_size':   None,  # Obtain from environment
-  'hidden_layers':[32, 16],
+  'hidden_layers':None,   # Obtain from input and output size
   'output_size':  None,  # Obtain from environment
-  'activation':   F.relu,
+  'activation':   F.tanh,
   'use_bias':     True,
   })
 POLICY_ARCH = U.CategoricalMLP

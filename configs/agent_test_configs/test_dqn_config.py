@@ -32,16 +32,13 @@ SYNC_TARGET_MODEL_FREQUENCY = 1000
 
 VALUE_ARCH = U.MLP
 OPTIMISER_TYPE = torch.optim.RMSprop  # torch.optim.Adam
-ENVIRONMENT_NAME = 'CartPole-v0'
-# 'LunarLander-v2' #(coord_x, coord_y, vel_x, vel_y, angle,
-# angular_vel, l_leg_on_ground, r_leg_on_ground)
 
 
 # Architecture
 VALUE_ARCH_PARAMETERS = {
   'input_size':   None,  # Obtain from environment
-  'hidden_layers':[64, 32, 16],
+  'hidden_layers':None,
   'output_size':  None,  # Obtain from environment
-  'activation':   F.relu,
+  'activation':   F.tanh,
   'use_bias':     True,
   }

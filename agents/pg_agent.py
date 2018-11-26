@@ -37,9 +37,9 @@ class PGAgent(PolicyAgent):
 
     self._policy_arch_params = U.ConciseArchSpecification(**{
       'input_size':   None,  # Obtain from environment
-      'hidden_layers':[64, 32, 16],
+      'hidden_layers':None,
       'output_size':  None,  # Obtain from environment
-      'activation':   F.relu,
+      'activation':   F.tanh,
       'use_bias':     True,
       })
 
@@ -58,46 +58,48 @@ class PGAgent(PolicyAgent):
 
     self._state_type = torch.float
     self._signals_tensor_type = torch.float
+    self._discrete = False
+    self._grad_clip = False
+    self._grad_clip_low = -1
+    self._grad_clip_high = 1
+    self._std = .3
 
   # endregion
 
   # region Protected
 
-  def _sample_model(self, state, **kwargs):
-    state_tensor = U.to_tensor([state], device=self._device, dtype=self._state_type)
-    with torch.no_grad():
-      probs = self._policy(state_tensor)
-    m = Categorical(probs)
-    action = m.sample()
-    return action.item()
-
   def _build(self, **kwargs) -> None:
 
-    policy = self._policy_arch(
-        **(self._policy_arch_params._asdict())
-        ).to(self._device)
+    policy = self._policy_arch(**(self._policy_arch_params._asdict())).to(self._device)
 
-    self.optimiser = self._optimiser_type(
-        policy.parameters(),
-        lr=self._optimiser_learning_rate,
-        weight_decay=self._optimiser_weight_decay,
-        )
+    #self.log_std = torch.nn.Parameter(torch.ones(1, self._policy_arch_params._asdict()['output_size'][0]) *
+    #                                  self._std).to(self._device)
+    #policy.log_std = self.log_std
+
+    self.optimiser = self._optimiser_type(policy.parameters(),
+                                          lr=self._optimiser_learning_rate,
+                                          weight_decay=self._optimiser_weight_decay)
 
     self._policy = policy
+
 
   def _optimise_wrt(self, loss, **kwargs):
     self.optimiser.zero_grad()
     loss.backward()
-    for params in self._policy.parameters():
-      params.grad.data.clamp_(-1, 1)
+    if self._grad_clip:
+      for params in self._policy.parameters():
+        params.grad.data.clamp_(self._grad_clip_low, self._grad_clip_high)
     self.optimiser.step()
 
   # endregion
 
   # region Public
 
-  def sample_action(self, state, discrete=True, **kwargs):
-    if discrete:
+  def sample_action(self, state, *args, **kwargs):
+    return self._sample_model(state)
+
+  def _sample_model(self, state, *args, **kwargs):
+    if self._discrete:
       return self.sample_discrete_action(state)
 
     return self.sample_continuous_action(state)
@@ -105,7 +107,8 @@ class PGAgent(PolicyAgent):
   def sample_discrete_action(self, state):
     state_var = U.to_tensor([state], device=self._device, dtype=self._state_type)
 
-    probs = self._policy(state_var)
+    with torch.no_grad():
+      probs = self._policy(state_var)
 
     # action = np.argmax(probs)
 
@@ -119,18 +122,24 @@ class PGAgent(PolicyAgent):
     model_input = U.to_tensor([state], device=self._device, dtype=self._state_type)
 
     with torch.no_grad():
-      mu, sigma_sq = self._policy(model_input)
+      mu,log_std = self._policy(model_input)
 
-      mu, sigma_sq = mu[0], sigma_sq[0]
+    std = log_std.exp().expand_as(mu)
+    dist = torch.distributions.Normal(mu, std)
+    action = dist.sample()
+    log_prob = dist.log_prob(action)
+    entropy=dist.entropy().mean()
+    action = action.to('cpu').numpy()[0]
 
-    # std = self.sigma.exp().expand_as(mu)
-    # dist = torch.Normal(mu, std)
-    # return dist, value
 
-    eps = torch.randn(mu.size())
+    '''eps = torch.randn(mu.size()).to(self._device)
     # calculate the probability
-    action = (mu + sigma_sq.sqrt() * eps).data
-    prob = U.normal(action, mu, sigma_sq)
+    a = mu + sigma_sq.sqrt() * eps
+    action = a.data
+    torch.distributions.Normal(mu,sigma_sq)
+    
+    
+    prob = U.normal(action, mu, sigma_sq,device=self._device)
     entropy = -0.5 * ((sigma_sq
                        + 2
                        * U.pi_torch(self._device).expand_as(sigma_sq)
@@ -139,6 +148,8 @@ class PGAgent(PolicyAgent):
                       )
 
     log_prob = prob.log()
+    '''
+
     return action, log_prob, entropy
 
   def evaluate(self, **kwargs):
@@ -180,7 +191,12 @@ class PGAgent(PolicyAgent):
       else:
         self._optimise_wrt(error)
 
-  def rollout(self, initial_state, environment, render=False, train=True, **kwargs):
+  def rollout(self,
+              initial_state,
+              environment,
+              render=False,
+              train=True,
+              **kwargs):
     if train:
       self._rollout_i += 1
 
@@ -199,7 +215,11 @@ class PGAgent(PolicyAgent):
     for t in T:
       action, action_log_probs, entropy, *_ = self.sample_action(state)
 
-      state, signal, terminated, info = environment.step(action)
+      if hasattr(environment,'step'):
+        state, signal, terminated, info = environment.step(action)
+      else:
+        info = environment.react(action)
+        state, signal, terminated = info.observables, info.signal, info.terminated
 
       if self._signal_clipping:
         signal = np.clip(signal, self._signal_clip_low, self._signal_clip_high)
@@ -239,14 +259,13 @@ class PGAgent(PolicyAgent):
         if terminated:
           break
 
-  def train_episodically(
-      self,
-      env,
-      rollouts=2000,
-      render=False,
-      render_frequency=100,
-      stat_frequency=10,
-      ):
+  def train_episodically(self,
+                         env,
+                         rollouts=2000,
+                         render=False,
+                         render_frequency=100,
+                         stat_frequency=10,
+                         ):
 
     E = range(1, rollouts)
     E = tqdm(E, f'Episode: {1}', leave=False)

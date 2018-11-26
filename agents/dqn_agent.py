@@ -39,7 +39,7 @@ class DQNAgent(ValueAgent):
       'input_size':   None,  # Obtain from environment
       'hidden_layers':[64, 32, 16],
       'output_size':  None,  # Obtain from environment
-      'activation':   F.relu,
+      'activation':   F.tanh,
       'use_bias':     True,
       })
 
@@ -73,14 +73,12 @@ class DQNAgent(ValueAgent):
     self._optimiser_momentum = 0.0
 
   def _build(self, **kwargs) -> None:
-    self._value_arch_parameters['input_size'] = self._input_size
-    self._value_arch_parameters['output_size'] = self._output_size
 
     value_model = self._value_arch(
-        **self._value_arch_parameters
+        **(self._value_arch_parameters._asdict())
         ).to(self._device)
 
-    target_value_model = self._value_arch(**self._value_arch_parameters).to(self._device)
+    target_value_model = self._value_arch(**(self._value_arch_parameters._asdict())).to(self._device)
     target_value_model = U.copy_state(target_value_model, value_model)
     target_value_model.eval()
 

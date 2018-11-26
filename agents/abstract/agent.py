@@ -5,10 +5,11 @@ from itertools import count
 from typing import Any, Tuple
 from warnings import warn
 
-import draugr
+import numpy
 import torch
 from tqdm import tqdm
 
+import draugr
 from configs import get_upper_case_vars_or_protected_of
 
 tqdm.monitor_interval = 0
@@ -18,8 +19,6 @@ from utilities.exceptions.exceptions import HasNoEnvError
 __author__ = 'cnheider'
 
 from abc import ABC, abstractmethod
-
-import utilities as U
 
 
 class Agent(ABC):
@@ -34,6 +33,7 @@ All agent should inherit from this class
     self._rollout_i = 0
     self._end_training = False
     self._input_size = None
+    self._hidden_layers = None
     self._output_size = None
     self._divide_by_zero_safety = 1e-10
     self._use_cuda = use_cuda
@@ -129,6 +129,7 @@ All agent should inherit from this class
   def build(self, env, device, **kwargs) -> None:
     self._environment = env
     self._infer_input_output_sizes(env)
+    self._infer_hidden_layers()
     self._device = device
 
     self._build(**kwargs)
@@ -152,6 +153,27 @@ All agent should inherit from this class
       self.__parse_set_attr(**config_vars)
     self.__parse_set_attr(**kwargs)
 
+  @property
+  def device(self):
+    return self._device
+
+  @property
+  def input_size(self):
+    return self._input_size
+
+  @input_size.setter
+  def input_size(self,input_size):
+    self._input_size = input_size
+
+  @property
+  def output_size(self):
+    return self._output_size
+
+  @output_size.setter
+  def output_size(self,output_size):
+    self._output_size = output_size
+
+
   # endregion
 
   # region Protected
@@ -159,7 +181,7 @@ All agent should inherit from this class
   def _step(self):
     if self._environment:
       self._last_state = self._environment.react(self.sample_action(self._last_state))
-      return
+      return self._last_state
     else:
       raise HasNoEnvError
 
@@ -184,6 +206,19 @@ Tries to infer input and output size from env if either _input_size or _output_s
       else:
         self._output_size = [env.action_space.n]
     draugr.sprint(f'\naction dimensions: {self._output_size}\n', color='green', bold=True, highlight=True)
+
+  def _infer_hidden_layers(self):
+    if self._input_size and self._output_size:
+      input_multiplier = 10
+      output_multiplier = 5
+      h_1_size = int(self._input_size[0] * input_multiplier)
+      h_3_size = int(self._output_size[0] * output_multiplier)
+      self._hidden_layers = [h_1_size,
+                             int(numpy.sqrt(h_1_size * h_3_size)),
+                             h_3_size
+                             ]
+    else:
+      warn('No input or output size')
 
   # endregion
 
@@ -230,3 +265,5 @@ Tries to infer input and output size from env if either _input_size or _output_s
     raise NotImplementedError
 
   # endregion
+
+

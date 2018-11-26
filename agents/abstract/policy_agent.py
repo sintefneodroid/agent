@@ -89,6 +89,15 @@ All policy iteration agents should inherit from this class
 
     self._policy_arch_params = U.ConciseArchSpecification(**di)
 
+  def _infer_hidden_layers(self):
+    super()._infer_hidden_layers()
+    if type(self._policy_arch_params) is U.ConciseArchSpecification:
+      di = self._policy_arch_params._asdict()
+    else:
+      di = self._policy_arch_params
+    di['hidden_layers'] = self._hidden_layers
+    self._policy_arch_params = U.ConciseArchSpecification(**di)
+
   def _train(self, *args, **kwargs):
     return self.train_episodically(*args, **kwargs)
 

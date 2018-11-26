@@ -3,15 +3,16 @@
 import torch
 from torch.distributions import Categorical, Normal
 
-from utilities.torch_utilities.initialisation import init_weights
+from utilities.architectures.mlp import Architecture, MLP
 from utilities.architectures.mlp import MultiHeadedMLP
+from utilities.torch_utilities.initialisation import init_weights
 
 __author__ = 'cnheider'
 
 from torch import nn
 
 
-class ActorCriticNetwork(MultiHeadedMLP):
+class ContinuousActorCriticNetwork(MultiHeadedMLP):
   '''
 An actor-critic network that shared lower-layer representations but
 have distinct output layers
@@ -21,7 +22,6 @@ have distinct output layers
       self,
       *,
       head_size,
-      distribution=Categorical,
       std=0.0,
       **kwargs
       ):
@@ -30,7 +30,7 @@ have distinct output layers
     super().__init__(heads=head_size, **kwargs)
 
     self.log_std = nn.Parameter(torch.ones(1, self._heads[0]) * std)
-    self._distribution = distribution
+    self._distribution = Normal
 
     self.apply(init_weights)
 
@@ -46,8 +46,72 @@ have distinct output layers
     return action_distribution
 
 
+class ContActorCritic(MLP):
+  def __init__(self,
+               std=0.0,
+               **kwargs):
+    super().__init__(**kwargs)
+
+    self.critic = nn.Sequential(
+        nn.Linear(self._output_size,
+                  1)
+        )
+
+    self.actor = nn.Sequential(
+        nn.Linear(self._output_size,
+                  self._output_size)
+        )
+
+    self.log_std = nn.Parameter(torch.ones(1, self._output_size) * std)
+
+    self._distribution = Normal
+
+    self.apply(init_weights)
+
+  def forward(self, x,**kwargs):
+    x = super().forward(x,**kwargs)
+    value = self.critic(x)
+    mu = self.actor(x)
+
+    stdev = self.log_std.exp().expand_as(mu)
+    dist = self._distribution(mu, stdev)
+
+    return dist, value
+
+
+class DiscActorCritic(MLP):
+  def __init__(self,
+               **kwargs):
+    super().__init__(**kwargs)
+
+    self.critic = nn.Sequential(
+        nn.Linear(self._output_size,
+                  1)
+        )
+
+    self.actor = nn.Sequential(
+        nn.Linear(self._output_size,
+                  self._output_size),
+        nn.Softmax
+        )
+
+    self._distribution = Categorical
+
+    self.apply(init_weights)
+
+  def forward(self, x, **kwargs):
+    x = super().forward(x,**kwargs)
+    value = self.critic(x)
+    probs = self.actor(x)
+
+    dist = self._distribution(probs)
+
+    return dist, value
+
+
 class ActorCritic(nn.Module):
-  def __init__(self, num_inputs, num_outputs, hidden_size, activation=torch.nn.ReLU(),
+  def __init__(self,*
+  ,num_inputs, num_outputs, hidden_size, activation=torch.nn.ReLU(),
                distribution=Normal, std=0.0):
     super(ActorCritic, self).__init__()
 

@@ -19,6 +19,7 @@
     <orderEntry type="module" module-name="envs_neodroid" />
     <orderEntry type="module" module-name="documentation" />
     <orderEntry type="module" module-name="draugr" />
+    <orderEntry type="module" module-name="sintefneodroid.github.io" />
   </component>
   <component name="TemplatesService">
     <option name="TEMPLATE_CONFIGURATION" value="Jinja2" />

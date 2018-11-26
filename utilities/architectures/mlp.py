@@ -26,9 +26,9 @@ OOOO hidden_layer_size * (Weights,Biases)
 
   def __init__(self,
                *,
-               input_size: list = [10],
-               hidden_layers: list = [32],
-               output_size: list = [2],
+               input_size: list = (10,),
+               hidden_layers: list = (32,),
+               output_size: list = (2,),
                activation: callable = F.tanh,
                use_bias: bool = True,
                **kwargs
@@ -46,16 +46,16 @@ OOOO hidden_layer_size * (Weights,Biases)
     self.num_of_layer = len(self._hidden_layers)
     if self.num_of_layer > 0:
       for i in range(1, self.num_of_layer + 1):
-        layer = nn.Linear(
-            previous_layer_size, self._hidden_layers[i - 1], bias=self._use_bias
-            )
+        layer = nn.Linear(previous_layer_size,
+                          self._hidden_layers[i - 1],
+                          bias=self._use_bias)
         # fan_in_init(layer.weight)
         setattr(self, f'fc{i}', layer)
         previous_layer_size = self._hidden_layers[i - 1]
 
-    self.head = nn.Linear(
-        previous_layer_size, self._output_size, bias=self._use_bias
-        )
+    self.head = nn.Linear(previous_layer_size,
+                          self._output_size,
+                          bias=self._use_bias)
 
   def forward(self, x, **kwargs):
     '''
@@ -88,7 +88,7 @@ class CategoricalMLP(MLP):
 
 class MultiHeadedMLP(MLP):
 
-  def __init__(self, *, heads_hidden_sizes=[32, 64], heads=[2, 1], **kwargs):
+  def __init__(self, *, heads_hidden_sizes=(32, 64), heads=(2, 1), **kwargs):
     super().__init__(**kwargs)
 
     assert len(heads_hidden_sizes) == len(heads)

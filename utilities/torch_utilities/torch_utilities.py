@@ -16,14 +16,6 @@ def log_entropy(log_prob):
   return -torch.sum(torch.exp(log_prob) * log_prob, 1)
 
 
-def kl_log_probs(log_prob1, log_prob2):
-  return -torch.sum(torch.exp(log_prob1) * (log_prob2 - log_prob1), 1)
-
-
-def kl_probs(prob1, prob2):
-  return -torch.sum(prob1 * torch.log(prob2 / prob1), 1)
-
-
 def to_tensor(obj, dtype=torch.float, device='cpu'):
   if not torch.is_tensor(obj):
     return torch.tensor(obj, device=device, dtype=dtype)
@@ -34,12 +26,12 @@ def to_tensor(obj, dtype=torch.float, device='cpu'):
 def pi_torch(device='cpu'):
   return to_tensor([np.math.pi], device=device)
 
-
+'''
 def normal(x, mu, sigma_sq, device='cpu'):
   a = (-1 * (to_tensor(x, device=device) - mu).pow(2) / (2 * sigma_sq)).exp()
   b = 1 / (2 * sigma_sq * pi_torch(device=device).expand_as(sigma_sq)).sqrt()
   return a * b
-
+'''
 
 def normal_entropy(std):
   var = std.pow(2)
@@ -89,10 +81,12 @@ def dice_coeff(input, target):
     else:
         s = torch.FloatTensor(1).zero_()
 
+    n=0
     for i, c in enumerate(zip(input, target)):
         s = s + DiceCoeff().forward(c[0], c[1])
+        n=i
 
-    return s / (i + 1)
+    return s / (n + 1)
 
 
 

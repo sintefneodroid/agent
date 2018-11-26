@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+from agents.ddpg_agent import DDPGAgent
 
 __author__ = 'cnheider'
 '''
@@ -11,7 +12,7 @@ from configs.base_config import *
 CONFIG_NAME = __name__
 CONFIG_FILE = __file__
 
-AGENT_TYPE = PGAgent
+AGENT_TYPE = DDPGAgent
 
 # Exploration
 EXPLORATION_EPSILON_START = 1.0
@@ -30,7 +31,7 @@ RENDER_ENVIRONMENT = False
 SIGNAL_CLIPPING = True
 DOUBLE_DQN = True
 SYNC_TARGET_MODEL_FREQUENCY = 1000
-CONNECT_TO_RUNNING = False
+CONNECT_TO_RUNNING = True
 
 # EVALUATION_FUNCTION = lambda Q_state, Q_true_state: (Q_state - Q_true_state).pow(2).mean()
 
@@ -45,8 +46,8 @@ ENVIRONMENT_NAME = 'c2d'
 # Architecture
 POLICY_ARCH_PARAMS = {
   'input_size':   None,  # Obtain from environment
-  'hidden_layers':[64, 32, 16],
+  'hidden_layers':None,
   'output_size':  None,  # Obtain from environment
-  'activation':   F.relu,
+  'activation':   F.tanh,
   'use_bias':     True,
   }

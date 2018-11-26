@@ -4,40 +4,8 @@
 This repository will host all initial machine learning efforts applying the [Neodroid](https://github.com/sintefneodroid/) platform.
 
 
-<table>
-   <tr>
-     <td>
-       <a href='https://travis-ci.org/sintefneodroid/agent'>
-         <img src='https://travis-ci.org/sintefneodroid/agent.svg?branch=master' alt='Build Status' />
-       </a>
-     </td>
-     <td>
-       <a href='https://coveralls.io/github/sintefneodroid/agent?branch=master'>
-         <img src='https://coveralls.io/repos/github/sintefneodroid/agent/badge.svg?branch=master' alt='Coverage Status' />
-       </a>
-     </td>
-     <td>
-       <a href='https://github.com/sintefneodroid/agent/issues'>
-         <img src='https://img.shields.io/github/issues/sintefneodroid/agent.svg?style=flat' alt='GitHub Issues' />
-       </a>
-     </td>
-     <td>
-       <a href='https://github.com/sintefneodroid/agent/network'>
-         <img src='https://img.shields.io/github/forks/sintefneodroid/agent.svg?style=flat' alt='GitHub Forks' />
-       </a>
-     </td>
-       <td>
-       <a href='https://github.com/sintefneodroid/agent/stargazers'>
-         <img src='https://img.shields.io/github/stars/sintefneodroid/agent.svg?style=flat' alt='GitHub Stars' />
-       </a>
-     </td>
-       <td>
-       <a href='https://github.com/sintefneodroid/agent/blob/master/LICENSE.md'>
-         <img src='https://img.shields.io/github/license/sintefneodroid/agent.svg?style=flat' alt='GitHub License' />
-       </a>
-     </td>
-  </tr>
-</table>
+| [![Build Status](https://travis-ci.org/sintefneodroid/agent.svg?branch=master)](https://travis-ci.org/sintefneodroid/agent)  | [![Coverage Status](https://coveralls.io/repos/github/sintefneodroid/agent/badge.svg?branch=master)](https://coveralls.io/github/sintefneodroid/agent?branch=master)  | [![GitHub Issues](https://img.shields.io/github/issues/sintefneodroid/agent.svg?style=flat)](https://github.com/sintefneodroid/agent/issues)  |  [![GitHub Forks](https://img.shields.io/github/forks/sintefneodroid/agent.svg?style=flat)](https://github.com/sintefneodroid/agent/network) | [![GitHub Stars](https://img.shields.io/github/stars/sintefneodroid/agent.svg?style=flat)](https://github.com/sintefneodroid/agent/stargazers) |[![GitHub License](https://img.shields.io/github/license/sintefneodroid/agent.svg?style=flat)](https://github.com/sintefneodroid/agent/blob/master/LICENSE.md) |
+|---|---|---|---|---|---|
 
 <p align="center" width="100%">
   <a href="https://www.python.org/">

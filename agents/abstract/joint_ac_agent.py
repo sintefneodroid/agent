@@ -49,6 +49,9 @@ All value iteration agents should inherit from this class
 
   # region Protected
 
+  def sample_action(self, state, *args, **kwargs):
+    return self._sample_model(state,*args,*kwargs)
+
   @abstractmethod
   def _sample_model(self, state, *args, **kwargs) -> Any:
     raise NotImplementedError

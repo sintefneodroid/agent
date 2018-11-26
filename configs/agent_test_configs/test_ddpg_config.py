@@ -55,14 +55,6 @@ MEMORY = U.TransitionBuffer(REPLAY_MEMORY_SIZE)
 ACTION_CLIPPING = False
 SIGNAL_CLIPPING = False
 
-ENVIRONMENT_NAME = 'Pendulum-v0'
-# ENVIRONMENT_NAME = 'MountainCarContinuous-v0'
-# ENVIRONMENT_NAME = 'InvertedPendulum-v2'
-# ENVIRONMENT_NAME = 'Reacher-v1'
-# ENVIRONMENT_NAME = 'Hopper-v1'
-# ENVIRONMENT_NAME = 'Ant-v1'
-# ENVIRONMENT_NAME = 'Humanoid-v1'
-# ENVIRONMENT_NAME = 'HalfCheetah-v1'
 
 ROLLOUTS = 1000
 

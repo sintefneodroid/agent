@@ -16,10 +16,7 @@ CONFIG_FILE = __file__
 
 # Optimiser
 OPTIMISER_TYPE = torch.optim.Adam
-ENVIRONMENT_NAME = 'Pendulum-v0'
-# ENVIRONMENT_NAME = 'InvertedDoublePendulum-v2'
-# ENVIRONMENT_NAME = 'Reacher-v2'
-# ENVIRONMENT_NAME = 'PongNoFrameskip-v4'
+
 
 INITIAL_OBSERVATION_PERIOD = 0
 

@@ -19,8 +19,8 @@ def train_agent(config, agent):
   device = torch.device('cuda' if config.USE_CUDA else 'cpu')
   torch.manual_seed(config.SEED)
 
-  env = neo.NeodroidFormalWrapper(environment_name=config.ENVIRONMENT_NAME,
-                                  connect_to_running=config.CONNECT_TO_RUNNING)
+  env = neo.SingleEnvironmentWrapper(environment_name=config.ENVIRONMENT_NAME,
+                                     connect_to_running=config.CONNECT_TO_RUNNING)
   env.seed(config.SEED)
 
   agent.build(env, device)

@@ -1,5 +1,16 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+
+def python_version_check():
+  import sys
+
+  assert sys.version_info.major == 3 and sys.version_info.minor >= 6, (
+    f'This project is utilises language features only present Python 3.6 and greater. '
+    f'You are running {sys.version_info}.')
+
+
+python_version_check()
+
 from NeodroidAgentPackage import NeodroidAgentPackage
 
 __author__ = 'cnheider'

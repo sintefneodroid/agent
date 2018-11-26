@@ -5,5 +5,6 @@
     <mapping directory="$PROJECT_DIR$/../bootml" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/../documentation" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/../envs_neodroid" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../sintefneodroid.github.io" vcs="Git" />
   </component>
 </project>

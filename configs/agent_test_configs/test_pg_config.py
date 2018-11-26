@@ -8,13 +8,10 @@ from configs.agent_test_configs.base_test_config import *
 CONFIG_NAME = __name__
 CONFIG_FILE = __file__
 
-ENVIRONMENT_NAME = 'CartPole-v0'
-# ENVIRONMENT_NAME = 'LunarLander-v2' # (coord_x, coord_y, vel_x, vel_y, angle, angular_vel, l_leg_on_ground,
-# r_leg_on_ground)
-# ENVIRONMENT_NAME = 'grd'
+
 
 CONNECT_TO_RUNNING = False
-RENDER_ENVIRONMENT = False
+RENDER_ENVIRONMENT = True
 
 EVALUATION_FUNCTION = torch.nn.CrossEntropyLoss
 
@@ -25,9 +22,9 @@ PG_ENTROPY_REG = 1e-4
 # Architecture
 POLICY_ARCH_PARAMS = {
   'input_size':   None,  # Obtain from environment
-  'activation':   F.leaky_relu,
-  'hidden_layers':[128, 64, 32, 16],
+  'activation':   F.tanh,
+  'hidden_layers':None,
   'output_size':  None,  # Obtain from environment
   'use_bias':     True,
   }
-POLICY_ARCH = U.CategoricalMLP
+POLICY_ARCH = U.MLP
