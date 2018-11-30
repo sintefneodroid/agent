@@ -430,10 +430,10 @@ class PPOAgent(JointACAgent):
 
     initial_state = env.reset()
 
-    B = tqdm(range(1, num_batches + 1), f'Batch {0}, {num_batches} - Episode {self._rollout_i}', leave=False)
+    B = tqdm(range(1, num_batches + 1), f'Batch {0}, {num_batches} - Rollout {self._rollout_i}', leave=False)
     for batch_i in B:
       if batch_i % stat_frequency == 0:
-        B.set_description(f'Batch {batch_i}, {num_batches} - Episode {self._rollout_i}')
+        B.set_description(f'Batch {batch_i}, {num_batches} - Rollout {self._rollout_i}')
 
       if render and batch_i % render_frequency == 0:
         transitions, accumulated_signal, terminated, *_ = self.rollout(

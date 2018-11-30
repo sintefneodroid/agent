@@ -39,7 +39,7 @@ class DQNAgent(ValueAgent):
       'input_size':   None,  # Obtain from environment
       'hidden_layers':[64, 32, 16],
       'output_size':  None,  # Obtain from environment
-      'activation':   F.tanh,
+      'activation':   torch.tanh,
       'use_bias':     True,
       })
 
@@ -205,14 +205,16 @@ class DQNAgent(ValueAgent):
       if not terminated:  # If environment terminated then there is no successor state
         successor_state = next_state
 
-      self._memory.add_transition(
-          state, action, signal, successor_state, not terminated
+      self._memory.add_transition(         state,
+                                           action,
+                                           signal,
+                                           successor_state,
+                                           not terminated
           )
 
       td_error = 0
 
-      if (
-          len(self._memory) >= self._batch_size
+      if (          len(self._memory) >= self._batch_size
           and self._step_i > self._initial_observation_period
           and self._step_i % self._learning_frequency == 0
       ):

@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+from warnings import warn
+
+from .transition import Transition, TrajectoryTrace
+
 __author__ = 'cnheider'
 
 import random
-
-from utilities.memory.transition import TrajectoryTrace, Transition
 
 
 class ExpandableCircularBuffer(object):
@@ -36,9 +38,14 @@ class ExpandableCircularBuffer(object):
     if req_num is None:
       return self._memory
     else:
-      if req_num > len(self._memory):
+      num_entries = len(self._memory)
+
+      if req_num > num_entries:
+        warn(f'Buffer only has {num_entries}, returning {num_entries} entries of the requested {req_num}')
         req_num = len(self._memory)
+
       batch = random.sample(self._memory, req_num)
+
       return batch
 
   def clear(self):
@@ -70,6 +77,5 @@ class TrajectoryTraceBuffer(ExpandableCircularBuffer):
     super().add(TrajectoryTrace(*args))
 
   def retrieve_trajectory(self):
-    values = super().sample()
-    batch = TrajectoryTrace(*zip(*values))
+    batch = TrajectoryTrace(*zip(*super().sample()))
     return batch

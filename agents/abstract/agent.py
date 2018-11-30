@@ -11,6 +11,7 @@ from tqdm import tqdm
 
 import draugr
 from configs import get_upper_case_vars_or_protected_of
+from warg import NamedOrderedDictionary
 
 tqdm.monitor_interval = 0
 
@@ -141,7 +142,7 @@ All agent should inherit from this class
     res = self._train(*args, **kwargs)
 
     time_elapsed = time.time() - training_start_timestamp
-    end_message = f'Training done, time elapsed: {time_elapsed // 60:.0f}m {time_elapsed %60:.0f}s'
+    end_message = f'Training done, time elapsed: {time_elapsed // 60:.0f}m {time_elapsed % 60:.0f}s'
     print('\n{} {} {}\n'.format('-' * 9, end_message, '-' * 9))
 
     return res
@@ -162,7 +163,7 @@ All agent should inherit from this class
     return self._input_size
 
   @input_size.setter
-  def input_size(self,input_size):
+  def input_size(self, input_size):
     self._input_size = input_size
 
   @property
@@ -170,9 +171,8 @@ All agent should inherit from this class
     return self._output_size
 
   @output_size.setter
-  def output_size(self,output_size):
+  def output_size(self, output_size):
     self._output_size = output_size
-
 
   # endregion
 
@@ -213,10 +213,11 @@ Tries to infer input and output size from env if either _input_size or _output_s
       output_multiplier = 5
       h_1_size = int(self._input_size[0] * input_multiplier)
       h_3_size = int(self._output_size[0] * output_multiplier)
-      self._hidden_layers = [h_1_size,
-                             int(numpy.sqrt(h_1_size * h_3_size)),
-                             h_3_size
-                             ]
+      h_2_size = int(numpy.sqrt(h_1_size * h_3_size))
+      self._hidden_layers = NamedOrderedDictionary([h_1_size,
+                                                    h_2_size,
+                                                    h_3_size
+                                                    ]).as_list()
     else:
       warn('No input or output size')
 
@@ -265,5 +266,3 @@ Tries to infer input and output size from env if either _input_size or _output_s
     raise NotImplementedError
 
   # endregion
-
-

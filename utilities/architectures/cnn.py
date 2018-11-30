@@ -13,7 +13,12 @@ from utilities.torch_utilities.initialisation import atari_initializer, ortho_we
 
 class CNN(Architecture):
 
-  def __init__(self, *, input_size, hidden_layers: Collection, output_size, activation: callable = F.relu,
+  def __init__(self,
+               *,
+               input_size,
+               hidden_layers: Collection,
+               output_size,
+               activation: callable = F.relu,
                **kwargs):
     super().__init__(**kwargs)
 

@@ -36,8 +36,8 @@ def train_agent(config, agent):
   finally:
     listener.stop()
 
-  U.save_statistic(running_signals, 'running_signals', LOG_DIRECTORY=C.LOG_DIRECTORY)
-  U.save_statistic(running_lengths, 'running_lengths', LOG_DIRECTORY=C.LOG_DIRECTORY)
+  draugr.save_statistic(running_signals, 'running_signals', LOG_DIRECTORY=C.LOG_DIRECTORY)
+  draugr.save_statistic(running_lengths, 'running_lengths', LOG_DIRECTORY=C.LOG_DIRECTORY)
   U.save_model(_trained_model, config)
 
   env.close()

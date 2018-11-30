@@ -80,14 +80,15 @@ def test_agent_main(agent, config, training_procedure=regular_train_agent_proced
   from configs.arguments import parse_arguments
 
   args = parse_arguments(f'{type(agent)}', config)
+  args_dict = args.__dict__
 
-  if 'CONFIG' in args.__dict__.keys() and args.__dict__['CONFIG']:
+  if 'CONFIG' in args_dict.keys() and args_dict['CONFIG']:
     import importlib.util
-    spec = importlib.util.spec_from_file_location('overloaded.config', args.__dict__['CONFIG'])
+    spec = importlib.util.spec_from_file_location('overloaded.config', args_dict['CONFIG'])
     config = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(config)
   else:
-    for key, arg in args.__dict__.items():
+    for key, arg in args_dict.items():
       if key != 'CONFIG':
         setattr(config, key, arg)
 

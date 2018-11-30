@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+from utilities.memory.experimental import ReplayBuffer3
+
 __author__ = 'cnheider'
 '''
 Description: ReplayMemory for storing transition tuples
@@ -7,13 +9,12 @@ Author: Christian Heider Nielsen
 '''
 
 import random
-from collections import deque
 
 import numpy as np
 
 from utilities.memory.data_structures.segment_tree import MinSegmentTree, SumSegmentTree
 from utilities.memory.data_structures.sum_tree import SumTree
-from utilities.memory.transition import Transition
+from .transition import Transition
 
 
 class PrioritisedReplayMemory(object):  # Has cuda issues
@@ -136,30 +137,6 @@ done_mask: np.array
 '''
     idxes = [random.randint(0, len(self._storage) - 1) for _ in range(batch_size)]
     return self._encode_sample(idxes)
-
-
-class ReplayBuffer3(object):
-
-  def __init__(self, capacity):
-    self._buffer = deque(maxlen=capacity)
-
-  def add(self, item):
-    self._buffer.append(item)
-
-  def sample(self, batch_size):
-    assert batch_size <= len(self._buffer)
-    return random.sample(self._buffer, batch_size)
-
-  def __len__(self):
-    return len(self._buffer)
-
-  def add_transition(self, *args):
-    self.add(Transition(*args))
-
-  def sample_transitions(self, num):
-    values = self.sample(num)
-    batch = Transition(*zip(*values))
-    return batch
 
 
 class PrioritizedReplayBuffer(ReplayBuffer3):

@@ -1,5 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+from warnings import warn
+
+import numpy
+
+from warg import NamedOrderedDictionary
 from .architecture import Architecture
 
 __author__ = 'cnheider'
@@ -27,18 +32,35 @@ OOOO hidden_layer_size * (Weights,Biases)
   def __init__(self,
                *,
                input_size: list = (10,),
-               hidden_layers: list = (32,),
+               hidden_layers: list = None,
                output_size: list = (2,),
-               activation: callable = F.tanh,
+               activation: callable = torch.tanh,
                use_bias: bool = True,
+               auto_build_hidden_layers_if_none = True,
                **kwargs
                ):
     super().__init__(**kwargs)
 
     self._input_size = input_size[0]
+    self._output_size = output_size[0]
+
+    if not hidden_layers:
+      if self._input_size and self._output_size:
+        input_multiplier = 10
+        output_multiplier = 5
+        h_1_size = int(self._input_size[0] * input_multiplier)
+        h_3_size = int(self._output_size[0] * output_multiplier)
+        h_2_size = int(numpy.sqrt(h_1_size * h_3_size))
+        hidden_layers = NamedOrderedDictionary([h_1_size,
+                                                      h_2_size,
+                                                      h_3_size
+                                                      ]).as_list()
+      else:
+        warn('No input or output size')
+
     self._hidden_layers = hidden_layers
     self._activation = activation
-    self._output_size = output_size[0]
+
     self._use_bias = use_bias
 
     previous_layer_size = self._input_size
@@ -99,9 +121,13 @@ class MultiHeadedMLP(MLP):
     self.num_of_heads = len(self._heads)
     if self.num_of_heads > 0:
       for i in range(1, self.num_of_heads + 1):
-        head_hidden = nn.Linear(self._output_size, self._heads_hidden_sizes[i - 1], bias=self._use_bias)
+        head_hidden = nn.Linear(self._output_size,
+                                self._heads_hidden_sizes[i - 1],
+                                bias=self._use_bias)
         setattr(self, f'subhead{str(i)}_hidden', head_hidden)
-        head = nn.Linear(self._heads_hidden_sizes[i - 1], self._heads[i - 1], bias=self._use_bias)
+        head = nn.Linear(self._heads_hidden_sizes[i - 1],
+                         self._heads[i - 1],
+                         bias=self._use_bias)
         setattr(self, f'subhead{str(i)}', head)
     else:
       raise ValueError('Number of heads must be >0')

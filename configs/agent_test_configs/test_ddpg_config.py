@@ -17,6 +17,8 @@ CONFIG_FILE = __file__
 
 AGENT_TYPE = DDPGAgent
 
+ENVIRONMENT_NAME = 'Pendulum-v0'
+
 # Optimiser
 OPTIMISER_TYPE = torch.optim.Adam
 OPTIMISER_LEARNING_RATE = 0.00025

@@ -15,8 +15,8 @@ CONFIG_FILE = __file__
 ROLLOUTS = 10000
 
 
-#ENVIRONMENT_NAME = 'CartPole-v1'
-ENVIRONMENT_NAME = 'Pendulum-v0'
+ENVIRONMENT_NAME = 'CartPole-v1'
+#ENVIRONMENT_NAME = 'Pendulum-v0'
 
 ENVIRONMENTS = {
 

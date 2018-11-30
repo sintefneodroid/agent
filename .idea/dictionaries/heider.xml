@@ -4,9 +4,12 @@
       <w>cuda</w>
       <w>datasets</w>
       <w>dofs</w>
+      <w>entropies</w>
+      <w>graphviz</w>
       <w>mkdir</w>
       <w>pynput</w>
       <w>trackfolder</w>
+      <w>vargr</w>
       <w>ytype</w>
       <w>yyyy</w>
     </words>

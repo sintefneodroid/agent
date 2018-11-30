@@ -14,6 +14,8 @@ from configs.agent_test_configs.base_test_config import *
 CONFIG_NAME = __name__
 CONFIG_FILE = __file__
 
+ENVIRONMENT_NAME = 'Pendulum-v0'
+
 # Optimiser
 OPTIMISER_TYPE = torch.optim.Adam
 

@@ -12,7 +12,7 @@ from itertools import count
 import numpy as np
 import torch
 import torch.nn.functional as F
-from torch.distributions import Categorical
+from torch.distributions import Categorical, Normal
 from tqdm import tqdm
 
 import utilities as U
@@ -39,7 +39,7 @@ class PGAgent(PolicyAgent):
       'input_size':   None,  # Obtain from environment
       'hidden_layers':None,
       'output_size':  None,  # Obtain from environment
-      'activation':   F.tanh,
+      'activation':   torch.tanh,
       'use_bias':     True,
       })
 
@@ -58,7 +58,7 @@ class PGAgent(PolicyAgent):
 
     self._state_type = torch.float
     self._signals_tensor_type = torch.float
-    self._discrete = False
+    self._discrete = True
     self._grad_clip = False
     self._grad_clip_low = -1
     self._grad_clip_high = 1
@@ -107,29 +107,30 @@ class PGAgent(PolicyAgent):
   def sample_discrete_action(self, state):
     state_var = U.to_tensor([state], device=self._device, dtype=self._state_type)
 
+    probs = self._policy(state_var)
+
+    distribution = Categorical(logits=probs)
+    action_sample = distribution.sample()
+    log_prob = distribution.log_prob(action_sample)
     with torch.no_grad():
-      probs = self._policy(state_var)
+      action = action_sample.item()
+      entropy = distribution.entropy().mean().item()
 
-    # action = np.argmax(probs)
-
-    m = Categorical(probs)
-    action_sample = m.sample()
-    action = action_sample.item()
-
-    return action, m.log_prob(action_sample), m.entropy()
+    return action,log_prob , entropy
 
   def sample_continuous_action(self, state):
     model_input = U.to_tensor([state], device=self._device, dtype=self._state_type)
 
-    with torch.no_grad():
-      mu,log_std = self._policy(model_input)
+    mu,log_std = self._policy(model_input)
 
     std = log_std.exp().expand_as(mu)
-    dist = torch.distributions.Normal(mu, std)
-    action = dist.sample()
-    log_prob = dist.log_prob(action)
-    entropy=dist.entropy().mean()
-    action = action.to('cpu').numpy()[0]
+    distribution = Normal(mu, std)
+    action = distribution.sample()
+    log_prob = distribution.log_prob(action)
+
+    with torch.no_grad():
+      entropy = distribution.entropy().mean().item()
+      action = action.item()
 
 
     '''eps = torch.randn(mu.size()).to(self._device)
@@ -225,7 +226,7 @@ class PGAgent(PolicyAgent):
         signal = np.clip(signal, self._signal_clip_low, self._signal_clip_high)
 
       episode_signal += signal
-      episode_entropy += entropy.data.cpu().numpy()
+      episode_entropy += entropy
       if train:
         self._trajectory_trace.add_trace(signal, action_log_probs, entropy)
 
@@ -239,9 +240,7 @@ class PGAgent(PolicyAgent):
     if train:
       self.update()
 
-    avg_entropy = episode_entropy.mean().item()
-
-    return episode_signal, episode_length, avg_entropy
+    return episode_signal, episode_length, episode_entropy/episode_length
 
   def infer(self, env, render=True):
 
@@ -279,9 +278,9 @@ class PGAgent(PolicyAgent):
         draugr.styled_terminal_plot_stats_shared_x(stats,
                                                    printer=E.write)
 
-        E.set_description(f'Episode: {episode_i}, '
-                          f'Running signal: {stats.signal.running_value[-1]}, '
-                          f'Running length: {stats.duration.running_value[-1]}')
+        E.set_description(f'Epi: {episode_i}, '
+                          f'Sig: {stats.signal.running_value[-1]:.3f}, '
+                          f'Dur: {stats.duration.running_value[-1]:.1f}')
 
       if render and episode_i % render_frequency == 0:
         signal, dur, entropy, *extras = self.rollout(initial_state, env, render=render)

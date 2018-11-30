@@ -359,8 +359,8 @@ class DDPGAgent(JointACAgent):
 
       if episode_i % stat_frequency == 0:
         draugr.styled_terminal_plot_stats_shared_x(stats, printer=E.write)
-        E.set_description(            f'Episode: {episode_i}, '
-                                      f'Last signal: {stats.signal[-1]}'
+        E.set_description(            f'Epi: {episode_i}, '
+                                      f'Sig: {stats.signal[-1]:.3f}'
             )
 
       if render and episode_i % render_frequency == 0:

@@ -18,7 +18,8 @@ def log_entropy(log_prob):
 
 def to_tensor(obj, dtype=torch.float, device='cpu'):
   if not torch.is_tensor(obj):
-    return torch.tensor(obj, device=device, dtype=dtype)
+    tensor = torch.tensor(obj, device=device, dtype=dtype)
+    return tensor
   else:
     return obj.type(dtype).to(device)
 

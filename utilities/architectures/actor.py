@@ -14,7 +14,11 @@ from utilities.torch_utilities.initialisation import fan_in_init
 
 class ActorArchitecture(Architecture):
 
-  def __init__(self, input_size, hidden_layers, output_size, output_activation):
+  def __init__(self,
+               input_size,
+               hidden_layers,
+               output_size,
+               output_activation):
     '''
 Initialize a Actor for low dimensional environment.
     num_feature: number of features of input.

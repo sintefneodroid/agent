@@ -1,6 +1,7 @@
 IPython
 six
 scipy
+scikit-image
 seaborn
 pandas
 tqdm
@@ -14,4 +15,5 @@ Neodroid
 visdom
 pynput
 draugr
+graphviz
 Box2D

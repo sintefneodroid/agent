@@ -52,7 +52,7 @@ class RandomAgent(Agent):
             printer=E.write,
             )
 
-        E.set_description(f'Episode: {episode_i}, Running length: {stats.duration.running_value[-1]}')
+        E.set_description(f'Epi: {episode_i}, Dur: {stats.duration.running_value[-1]:.1f}')
 
       if render and episode_i % render_frequency == 0:
         signal, dur, *extras = self.rollout(

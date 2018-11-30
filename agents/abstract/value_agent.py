@@ -99,7 +99,7 @@ All value iteration agents should inherit from this class
       rollouts=1000,
       render=False,
       render_frequency=100,
-      stat_frequency=10,
+      stat_frequency=100,
       **kwargs
       ):
     '''
@@ -117,7 +117,9 @@ All value iteration agents should inherit from this class
       :rtype:
     '''
 
-    stats = draugr.StatisticCollection(stats=('signal', 'duration', 'td_error'))
+    stats = draugr.StatisticCollection(stats=('signal',
+                                              'duration',
+                                              'td_error'))
 
     E = range(1, rollouts)
     E = tqdm(E, leave=False)
@@ -127,16 +129,16 @@ All value iteration agents should inherit from this class
 
       if episode_i % stat_frequency == 0:
         draugr.styled_terminal_plot_stats_shared_x(stats, printer=E.write)
-        E.set_description(
-            f'Episode: {episode_i}, '
-            f'Running Signal: {stats.signal.running_value[-1]}, '
-            f'Duration: {stats.duration.running_value[-1]}, '
-            f'TD Error: {stats.td_error.running_value[-1]}'
+        E.set_description(            f'Epi: {episode_i}, '
+            f'Sig: {stats.signal.running_value[-1]:.3f}, '
+            f'Dur: {stats.duration.running_value[-1]:.1f}, '
+            f'TD Err: {stats.td_error.running_value[-1]:.3f}'
             )
 
       if render and episode_i % render_frequency == 0:
-        signal, dur, td_error, *extras = self.rollout(
-            initial_state, _environment, render=render
+        signal, dur, td_error, *extras = self.rollout(            initial_state,
+                                                                  _environment,
+                                                                  render=render
             )
       else:
         signal, dur, td_error, *extras = self.rollout(initial_state, _environment)

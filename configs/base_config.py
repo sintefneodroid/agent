@@ -33,7 +33,7 @@ POLICY_ARCH_PARAMS = U.ConciseArchSpecification(**{
   'input_size':   None,  # Obtain from environment
   'hidden_layers':None,   # Obtain from input and output size
   'output_size':  None,  # Obtain from environment
-  'activation':   F.tanh,
+  'activation':   torch.tanh,
   'use_bias':     True,
   })
 POLICY_ARCH = U.CategoricalMLP

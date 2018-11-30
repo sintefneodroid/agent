@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 import draugr
+from neodroid.wrappers import BinaryActionEncodingWrapper
 
 __author__ = 'cnheider'
 
@@ -17,7 +18,7 @@ def train_agent(config, agent):
   device = torch.device('cuda' if config.USE_CUDA else 'cpu')
   torch.manual_seed(config.SEED)
 
-  env = U.BinaryActionEncodingWrapper(environment_name=config.ENVIRONMENT_NAME,
+  env = BinaryActionEncodingWrapper(environment_name=config.ENVIRONMENT_NAME,
                                       connect_to_running=config.CONNECT_TO_RUNNING)
   env.seed(config.SEED)
 
@@ -41,8 +42,8 @@ def train_agent(config, agent):
   finally:
     listener.stop()
 
-  U.save_statistic(running_signals, 'running_signals', LOG_DIRECTORY=C.LOG_DIRECTORY)
-  U.save_statistic(running_lengths, 'running_lengths', LOG_DIRECTORY=C.LOG_DIRECTORY)
+  draugr.save_statistic(running_signals, 'running_signals', LOG_DIRECTORY=C.LOG_DIRECTORY)
+  draugr.save_statistic(running_lengths, 'running_lengths', LOG_DIRECTORY=C.LOG_DIRECTORY)
   U.save_model(_trained_model, config)
 
   env.close()

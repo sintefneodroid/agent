@@ -9,12 +9,16 @@
       <w>iters</w>
       <w>killable</w>
       <w>mathjax</w>
+      <w>myparam</w>
+      <w>nodict</w>
+      <w>otherparam</w>
       <w>pytest</w>
       <w>rollout</w>
       <w>rollouts</w>
       <w>scipy</w>
       <w>seaborn</w>
       <w>sqlalchemy</w>
+      <w>warg</w>
       <w>ûnicöde</w>
     </words>
   </dictionary>

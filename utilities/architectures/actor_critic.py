@@ -3,8 +3,7 @@
 import torch
 from torch.distributions import Categorical, Normal
 
-from utilities.architectures.mlp import Architecture, MLP
-from utilities.architectures.mlp import MultiHeadedMLP
+from utilities.architectures.mlp import MLP, MultiHeadedMLP
 from utilities.torch_utilities.initialisation import init_weights
 
 __author__ = 'cnheider'
@@ -68,8 +67,8 @@ class ContActorCritic(MLP):
 
     self.apply(init_weights)
 
-  def forward(self, x,**kwargs):
-    x = super().forward(x,**kwargs)
+  def forward(self, x, **kwargs):
+    x = super().forward(x, **kwargs)
     value = self.critic(x)
     mu = self.actor(x)
 
@@ -100,7 +99,7 @@ class DiscActorCritic(MLP):
     self.apply(init_weights)
 
   def forward(self, x, **kwargs):
-    x = super().forward(x,**kwargs)
+    x = super().forward(x, **kwargs)
     value = self.critic(x)
     probs = self.actor(x)
 
@@ -110,25 +109,30 @@ class DiscActorCritic(MLP):
 
 
 class ActorCritic(nn.Module):
-  def __init__(self,*
-  ,num_inputs, num_outputs, hidden_size, activation=torch.nn.ReLU(),
-               distribution=Normal, std=0.0):
+  def __init__(self,
+               *,
+               input_size,
+               output_size,
+               hidden_layers,
+               activation=torch.nn.ReLU(),
+               distribution=Normal,
+               std=0.0):
     super(ActorCritic, self).__init__()
 
-    self.common = nn.Linear(num_inputs, hidden_size * 2)
+    self.common = nn.Linear(input_size[0], hidden_layers[0] * 2)
 
     self.critic = nn.Sequential(
-        nn.Linear(hidden_size * 2, hidden_size),
+        nn.Linear(hidden_layers[0] * 2, hidden_layers[0]),
         activation,
-        nn.Linear(hidden_size, 1)
+        nn.Linear(hidden_layers[0], 1)
         )
 
     self.actor = nn.Sequential(
-        nn.Linear(hidden_size * 2, hidden_size),
+        nn.Linear(hidden_layers[0] * 2, hidden_layers[0]),
         activation,
-        nn.Linear(hidden_size, num_outputs),
+        nn.Linear(hidden_layers[0], output_size[0]),
         )
-    self.log_std = nn.Parameter(torch.ones(1, num_outputs) * std)
+    self.log_std = nn.Parameter(torch.ones(1, output_size[0]) * std)
     self._distribution = distribution
 
     self.apply(init_weights)

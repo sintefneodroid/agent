@@ -61,12 +61,11 @@ def parse_arguments(desc, C):
       type=str,
       default='',
       help='Path of pre-trained model')
-  parser.add_argument(
-      '--RENDER_ENVIRONMENT',
-      '-R',
-      action='store_true',
-      default=C.RENDER_ENVIRONMENT,
-      help='Render the environment')
+  add_bool_arg(parser,
+               'render',
+               dest='RENDER_ENVIRONMENT',
+               default=C.RENDER_ENVIRONMENT,
+               help='Rendering of the environment')
   parser.add_argument(
       '--NUM_WORKERS',
       '-N',
@@ -74,12 +73,11 @@ def parse_arguments(desc, C):
       default=4,
       metavar='NUM_WORKERS',
       help='Number of threads for agent (default: 4)')
-  parser.add_argument(
-      '--CONNECT_TO_RUNNING',
-      '-C',
-      action='store_true',
-      default=C.CONNECT_TO_RUNNING,
-      help='Connect to already running environment instead of starting another instance')
+  add_bool_arg(parser,
+               'connect_to_running',
+               dest='CONNECT_TO_RUNNING',
+                default=C.CONNECT_TO_RUNNING,
+                help='Connect to already running simulation or start an instance')
   parser.add_argument(
       '--SEED',
       '-S',
@@ -113,6 +111,23 @@ def parse_arguments(desc, C):
       default=None,
       metavar='CONFIG',
       help='Path to a config (nullifies all other arguments, if specified)')
+  add_bool_arg(parser,
+               'cuda',
+               dest='USE_CUDA',
+               default=C.USE_CUDA,
+               help='Cuda flag')
+
   args = parser.parse_args()
 
   return args
+
+
+def add_bool_arg(parser, name, *, dest=None, default=False, **kwargs):
+  if not dest:
+    dest = name
+
+  group = parser.add_mutually_exclusive_group(required=False)
+
+  group.add_argument(f'--{name.upper()}', f'-{name.lower()}', dest=dest, action='store_true', **kwargs)
+  group.add_argument(f'--NO-{name.upper()}', f'-no-{name.lower()}', dest=dest, action='store_false', **kwargs)
+  parser.set_defaults(**{dest:default})

@@ -10,7 +10,7 @@
       <excludeFolder url="file://$MODULE_DIR$/agents/experimental/exclude" />
       <excludeFolder url="file://$MODULE_DIR$/utilities/exclude" />
     </content>
-    <orderEntry type="jdk" jdkName="Python 3.6" jdkType="Python SDK" />
+    <orderEntry type="jdk" jdkName="Python 3.6 Conda" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module" module-name="neo" />
     <orderEntry type="module" module-name="neo" />
@@ -20,6 +20,8 @@
     <orderEntry type="module" module-name="documentation" />
     <orderEntry type="module" module-name="draugr" />
     <orderEntry type="module" module-name="sintefneodroid.github.io" />
+    <orderEntry type="module" module-name="warg" />
+    <orderEntry type="module" module-name="warg" />
   </component>
   <component name="TemplatesService">
     <option name="TEMPLATE_CONFIGURATION" value="Jinja2" />

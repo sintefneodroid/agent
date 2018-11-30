@@ -12,15 +12,7 @@ TrajectoryTrace = namedtuple(
       )
     )
 
-Transition = namedtuple(
-    'Transition', (
-      'state',
-      'action',
-      'signal',
-      'successor_state',
-      'non_terminal'
-      )
-    )
+
 
 ValuedTransition = namedtuple(
     'ValuedTransition', (
@@ -44,3 +36,14 @@ AdvantageMemory = namedtuple(
       'discounted_return',
       ),
     )
+
+Transition = namedtuple(
+    'Transition', (
+      'state',
+      'action',
+      'signal',
+      'successor_state',
+      'non_terminal'
+      )
+    )
+
