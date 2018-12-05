@@ -55,6 +55,6 @@ VALUE_ARCH_PARAMETERS = {
   'input_size':   None,  # Obtain from environment
   'hidden_layers':[64, 32, 16],
   'output_size':  None,  # Obtain from environment
-  'activation':   F.relu,
+  'hidden_layer_activation':   F.relu,
   'use_bias':     True,
   }

@@ -56,11 +56,21 @@ SURROGATE_CLIP_FUNC = lambda a:SURROGATE_CLIP * (
     1. - a
 )  # clip range schedule function
 
-ACTOR_CRITIC_LR = 3e-4
-ACTOR_CRITIC_ARCH_PARAMS = {
-  'input_size':   None,
-  'hidden_layers':[32, 32],
-  'output_size':  32,
-  'heads':        [1, 1],
-  'distribution': False
+ACTOR_LR = 3e-3
+# Architecture
+ACTOR_ARCH_PARAMETERS = {
+  'input_size':       None,  # Obtain from environment
+  'hidden_layers':    [256],
+  'hidden_layer_activation':torch.relu,
+  'output_size':      None,  # Obtain from environment
   }
+ACTOR_ARCH = U.ContinuousActorArchitecture
+
+CRITIC_LR = 3e-3
+CRITIC_ARCH_PARAMETERS = {
+  'input_size':       None,  # Obtain from environment
+  'hidden_layers':    [256],
+  'hidden_layer_activation':torch.relu,
+  'output_size':      None,  # Obtain from environment
+  }
+CRITIC_ARCH = U.MLP

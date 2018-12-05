@@ -48,6 +48,6 @@ POLICY_ARCH_PARAMS = {
   'input_size':   None,  # Obtain from environment
   'hidden_layers':None,
   'output_size':  None,  # Obtain from environment
-  'activation':   torch.tanh,
+  'hidden_layer_activation':   torch.tanh,
   'use_bias':     True,
   }

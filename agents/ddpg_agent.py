@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 import draugr
+from warg import NamedOrderedDictionary
+
 from neodroid import EnvironmentState
 from procedures.agent_tests import test_agent_main
 
@@ -15,11 +17,11 @@ from tqdm import tqdm
 tqdm.monitor_interval = 0
 
 import utilities as U
-from agents.abstract.joint_ac_agent import JointACAgent
+from agents.abstract.ac_agent import ActorCriticAgent
 from utilities.sampling.random_process import OrnsteinUhlenbeckProcess
 
 
-class DDPGAgent(JointACAgent):
+class DDPGAgent(ActorCriticAgent):
   '''
   The Deep Deterministic Policy Gradient (DDPG) Agent
 
@@ -41,46 +43,32 @@ class DDPGAgent(JointACAgent):
           The update rate that target networks slowly track the learned networks.
   '''
 
-
   def __defaults__(self) -> None:
-    self._optimiser_type = torch.optim.Adam
-
-    self._actor_optimiser_spec = U.OptimiserSpecification(constructor=self._optimiser_type,
-                                                          kwargs=dict(lr=0.0001)
-                                                          )
-    self._critic_optimiser_spec = U.OptimiserSpecification(constructor=self._optimiser_type,
-                                                           kwargs=dict(lr=0.001,
-                                                                       weight_decay=0.01)
-                                                           )
-
+    # Adds noise for exploration
     self._random_process = OrnsteinUhlenbeckProcess(theta=0.15,
                                                     sigma=0.2)
-    # Adds noise for exploration
+
 
     # self._memory = U.PrioritisedReplayMemory(config.REPLAY_MEMORY_SIZE)  # Cuda trouble
-    self._memory = U.TransitionBuffer(1000000)
+    self._memory_buffer = U.TransitionBuffer(1000000)
+
     self._evaluation_function = F.smooth_l1_loss
 
-    self._actor_arch = U.ActorArchitecture
-    self._actor_arch_parameters = {
+    self._actor_arch = U.DDPGActorArchitecture
+    self._actor_arch_parameters = NamedOrderedDictionary({
       'input_size':       None,  # Obtain from environment
-      'hidden_layers':    [128, 64],
-      'output_activation':None,
+      'output_activation':torch.tanh,
       'output_size':      None,  # Obtain from environment
-      }
+      })
 
-    self._critic_arch = U.CriticArchitecture
-    self._critic_arch_parameters = {
+    self._critic_arch = U.DDPGCriticArchitecture
+    self._critic_arch_parameters = NamedOrderedDictionary({
       'input_size':       None,  # Obtain from environment
-      'hidden_layers':    [128, 64],
-      'output_activation':None,
       'output_size':      None,  # Obtain from environment
-      }
+      })
 
     self._discount_factor = 0.99
-    self._use_double_dqn = False
-    self._signal_clipping = False
-    self._action_clipping = False
+
     self._initial_observation_period = 10000
     self._learning_frequency = 4
     self._sync_target_model_frequency = 10000
@@ -98,7 +86,6 @@ class DDPGAgent(JointACAgent):
     self._end_training = False
 
     self._batch_size = 60
-    self._target_update_tau = 0.001
 
     self._end_training = False
 
@@ -111,35 +98,6 @@ class DDPGAgent(JointACAgent):
 
     (self._input_size,
      self._output_size) = None, None
-
-  def save(self, C):
-    U.save_model(self._actor, C, name='actor')
-    U.save_model(self._critic, C, name='policy')
-
-  def load(self,
-           model_path,
-           evaluation=False,
-           **kwargs):
-    print('loading latest model: ' + model_path)
-
-    self._build(**kwargs)
-
-    self._actor.load_state_dict(torch.load(f'actor-{model_path}'))
-    self._critic.load_state_dict(torch.load(f'critic-{model_path}'))
-
-    self.update_target(self._target_critic, self._critic)
-    self.update_target(self._target_actor, self._actor)
-
-    if evaluation:
-      self._actor = self._actor.eval()
-      self._actor.train(False)
-      self._critic = self._actor.eval()
-      self._critic.train(False)
-
-    self._actor = self._actor.to(self._device)
-    self._target_actor = self._target_actor.to(self._device)
-    self._critic = self._critic.to(self._device)
-    self._target_critic = self._target_critic.to(self._device)
 
   def evaluate(self,
                batch,
@@ -166,12 +124,12 @@ class DDPGAgent(JointACAgent):
 
     ### Critic ###
     # Compute current Q value, critic takes state and action chosen
-    Q_current = self._critic(states, actions)
+    Q_current = self._critic(states,actions=actions)
     # Compute next Q value based on which action target actor would choose
     # Detach variable from the current graph since we don't want gradients for next Q to propagated
     with torch.no_grad():
       target_actions = self._target_actor(states)
-      next_max_q = self._target_critic(next_states, target_actions).max(1)[0]
+      next_max_q = self._target_critic(next_states,actions=target_actions).max(1)[0]
 
     next_Q_values = non_terminal_mask * next_max_q
 
@@ -189,15 +147,19 @@ class DDPGAgent(JointACAgent):
   :return:
   :rtype:
   '''
-    if len(self._memory) < self._batch_size:
+    if len(self._memory_buffer) < self._batch_size:
       return
 
-    batch = self._memory.sample_transitions(self._batch_size)
+    batch = self._memory_buffer.sample_transitions(self._batch_size)
     td_error, state_batch_var = self.evaluate(batch)
     loss = self._optimise_wrt_ac(td_error, state_batch_var)
 
-    self.update_target(self._target_critic, self._critic)
-    self.update_target(self._target_actor, self._actor)
+    self.update_target(target_model=self._target_critic,
+                       source_model=self._critic,
+                       target_update_tau=self._target_update_tau)
+    self.update_target(target_model=self._target_actor,
+                       source_model=self._actor,
+                       target_update_tau=self._target_update_tau)
 
     return td_error, loss
 
@@ -211,71 +173,6 @@ class DDPGAgent(JointACAgent):
     loss.backward()
     self._actor_optimiser.step()  # Optimize the actor
 
-  def update_target(self, target_model, model):
-    for target_param, param in zip(target_model.parameters(), model.parameters()):
-      target_param.data.copy_(self._target_update_tau
-                              * param.data
-                              + (1 - self._target_update_tau)
-                              * target_param.data
-                              )
-
-  def rollout(self,
-              initial_state,
-              environment,
-              render=False,
-              train=True,
-              **kwargs):
-    self._rollout_i += 1
-
-    state = initial_state
-    episode_signal = 0
-    episode_length = 0
-
-    T = tqdm(count(1), f'Rollout #{self._rollout_i}', leave=False)
-    for t in T:
-      self._step_i += 1
-
-      action = self.sample_action(state)
-
-      noise = self._random_process.sample()
-
-      action += noise  # Add action space noise for exploration, alternative is parameter space noise
-
-      if self._action_clipping:
-        action = np.clip(action, -1.0, 1.0)
-
-
-      if hasattr(environment,'step'):
-        successor_state, signal, terminated, info = environment.step(action)
-      else:
-        info = environment.react(action)
-        successor_state, signal, terminated = info.observables, info.signal, info.terminated
-
-      if render:
-        environment.render()
-
-      if self._action_clipping:
-        signal = np.clip(action, -1.0, 1.0)
-
-      # successor_state = None
-      # if not terminated:  # If environment terminated then there is no successor state
-
-      self._memory.add_transition(          state,
-                                            action,
-                                            signal,
-                                            successor_state,
-                                            not terminated
-          )
-      state = successor_state
-
-      self.update()
-      episode_signal += signal
-
-      if terminated:
-        episode_length = t
-        break
-
-    return episode_signal, episode_length
 
   def _optimise_wrt(self,
                     td_error,
@@ -293,7 +190,8 @@ class DDPGAgent(JointACAgent):
     self.optimise_critic_wrt(td_error)
 
     ### Actor ###
-    loss = -self._critic(state_batch, self._actor(state_batch)).mean()
+    action_batch = self._actor(state_batch)
+    loss = -self._critic(state_batch, actions=action_batch).mean()
     # loss = -torch.sum(self.critic(state_batch, self.actor(state_batch)))
 
     self.optimise_actor_wrt(loss)
@@ -303,40 +201,28 @@ class DDPGAgent(JointACAgent):
     return loss
 
 
-  def _build(self, **kwargs) -> None:
-
-    self._actor_arch_parameters['input_size'] = self._input_size
-    self._actor_arch_parameters['output_size'] = self._output_size
-    self._critic_arch_parameters['input_size'] = self._input_size
-    self._critic_arch_parameters['output_size'] = self._output_size
-
-    # Construct actor and critic
-    actor = self._actor_arch(**self._actor_arch_parameters).to(self._device)
-    target_actor = self._actor_arch(**self._actor_arch_parameters).to(
-        self._device
-        ).eval()
-    critic = self._critic_arch(**self._critic_arch_parameters).to(self._device)
-    target_critic = self._critic_arch(**self._critic_arch_parameters).to(
-        self._device
-        ).eval()
-
-    # Construct the optimizers for actor and critic
-    actor_optimizer = self._actor_optimiser_spec.constructor(
-        actor.parameters(), **self._critic_optimiser_spec.kwargs
-        )
-    critic_optimizer = self._critic_optimiser_spec.constructor(
-        critic.parameters(), **self._critic_optimiser_spec.kwargs
-        )
-
-    self._actor, self._target_actor, self._critic, self._target_critic, self._actor_optimiser, \
-    self._critic_optimiser = actor, target_actor, critic, target_critic, actor_optimizer, critic_optimizer
-
-  def _sample_model(self, state, **kwargs):
+  def _sample_model(self,
+                    state,
+                    noise_factor=0.2,
+                    low_action_clip=-1.0,
+                    high_action_clip=1.0,
+                    **kwargs):
     state = U.to_tensor([state], device=self._device, dtype=self._state_type)
+
     with torch.no_grad():
       action = self._actor(state)
-    a = action.to('cpu').numpy()
-    return a[0]
+
+    # action_out = action.to('cpu').numpy()[0]
+    action_out = action.item()
+
+    # Add action space noise for exploration, alternative is parameter space noise
+    noise = self._random_process.sample()
+    action_out += noise * noise_factor
+
+    if self._action_clipping:
+      action_out = np.clip(action_out, low_action_clip, high_action_clip)
+
+    return action_out
 
   def _train(self,
              env,
@@ -354,14 +240,14 @@ class DDPGAgent(JointACAgent):
     for episode_i in E:
       state = env.reset()
       if type(state) is EnvironmentState:
-        state =state.observables
+        state = state.observables
       self._random_process.reset()
 
       if episode_i % stat_frequency == 0:
         draugr.styled_terminal_plot_stats_shared_x(stats, printer=E.write)
-        E.set_description(            f'Epi: {episode_i}, '
-                                      f'Sig: {stats.signal[-1]:.3f}'
-            )
+        E.set_description(f'Epi: {episode_i}, '
+                          f'Sig: {stats.signal[-1]:.3f}'
+                          )
 
       if render and episode_i % render_frequency == 0:
         signal, dur, *rollout_stats = self.rollout(state, env, render=render)
@@ -395,9 +281,10 @@ def test_ddpg_agent(config):
 
   listener.start()
   try:
-    (actor_model, critic_model), stats = agent.train(
-        env, config.ROLLOUTS, render=config.RENDER_ENVIRONMENT
-        )
+    (actor_model, critic_model), stats = agent.train(env,
+                                                     config.ROLLOUTS,
+                                                     render=config.RENDER_ENVIRONMENT
+                                                     )
   finally:
     listener.stop()
 

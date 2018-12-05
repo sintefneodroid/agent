@@ -39,6 +39,6 @@ VALUE_ARCH_PARAMETERS = {
   'input_size':   None,  # Obtain from environment
   'hidden_layers':None,
   'output_size':  None,  # Obtain from environment
-  'activation':   torch.relu,
+  'hidden_layer_activation':   torch.relu,
   'use_bias':     True,
   }

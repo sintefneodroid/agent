@@ -5,6 +5,7 @@ from typing import Any
 
 import draugr
 from tqdm import tqdm
+from warg import NamedOrderedDictionary
 
 __author__ = 'cnheider'
 
@@ -129,17 +130,17 @@ All value iteration agents should inherit from this class
 
       if episode_i % stat_frequency == 0:
         draugr.styled_terminal_plot_stats_shared_x(stats, printer=E.write)
-        E.set_description(            f'Epi: {episode_i}, '
-            f'Sig: {stats.signal.running_value[-1]:.3f}, '
-            f'Dur: {stats.duration.running_value[-1]:.1f}, '
-            f'TD Err: {stats.td_error.running_value[-1]:.3f}'
-            )
+        E.set_description(f'Epi: {episode_i}, '
+                          f'Sig: {stats.signal.running_value[-1]:.3f}, '
+                          f'Dur: {stats.duration.running_value[-1]:.1f}, '
+                          f'TD Err: {stats.td_error.running_value[-1]:.3f}'
+                          )
 
       if render and episode_i % render_frequency == 0:
-        signal, dur, td_error, *extras = self.rollout(            initial_state,
-                                                                  _environment,
-                                                                  render=render
-            )
+        signal, dur, td_error, *extras = self.rollout(initial_state,
+                                                      _environment,
+                                                      render=render
+                                                      )
       else:
         signal, dur, td_error, *extras = self.rollout(initial_state, _environment)
 
@@ -160,25 +161,16 @@ All value iteration agents should inherit from this class
 
   # endregion
 
-  def _infer_input_output_sizes(self, env, **kwargs):
-    super()._infer_input_output_sizes(env)
-    if type(self._value_arch_parameters) is U.ConciseArchSpecification:
-      di = self._value_arch_parameters._asdict()
-    else:
-      di = self._value_arch_parameters
-    di['input_size'] = self._input_size
-    di['output_size'] = self._output_size
+  def _maybe_infer_input_output_sizes(self, env, **kwargs):
+    super()._maybe_infer_input_output_sizes(env)
 
-    self._value_arch_parameters = U.ConciseArchSpecification(**di)
+    self._value_arch_parameters['input_size'] = self._input_size
+    self._value_arch_parameters['output_size'] = self._output_size
 
-  def _infer_hidden_layers(self):
-    super()._infer_hidden_layers()
-    if type(self._value_arch_parameters) is U.ConciseArchSpecification:
-      di = self._value_arch_parameters._asdict()
-    else:
-      di = self._value_arch_parameters
-    di['hidden_layers'] = self._hidden_layers
-    self._value_arch_parameters = U.ConciseArchSpecification(**di)
+  def _maybe_infer_hidden_layers(self, **kwargs):
+    super()._maybe_infer_hidden_layers()
+
+    self._value_arch_parameters['hidden_layers'] = self._hidden_layers
 
   # region Protected
 

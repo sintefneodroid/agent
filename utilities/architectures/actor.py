@@ -2,49 +2,44 @@
 # -*- coding: utf-8 -*-
 import torch
 
-from .architecture import Architecture
+from utilities.torch_utilities.initialisation import init_weights
+from .mlp import MLP
 
 __author__ = 'cnheider'
 
-from torch import nn
-from torch.nn import functional as F, init
-
-from utilities.torch_utilities.initialisation import fan_in_init
+from torch.nn import init
 
 
-class ActorArchitecture(Architecture):
+class DDPGActorArchitecture(MLP):
 
-  def __init__(self,
-               input_size,
-               hidden_layers,
-               output_size,
-               output_activation):
-    '''
-Initialize a Actor for low dimensional environment.
-    num_feature: number of features of input.
-    num_action: number of available actions in the environment.
-'''
-    super().__init__()
+  def __init__(self, output_activation: callable = torch.tanh, init_weight=3e-3, **kwargs):
 
-    self._input_size = input_size
-    self._hidden_layers = hidden_layers
-    self._output_size = output_size
-    self.activation = output_activation
+    super().__init__(**kwargs)
 
-    self.fc1 = nn.Linear(self._input_size[0], self._hidden_layers[0])
-    fan_in_init(self.fc1.weight)
+    self._output_activation = output_activation
 
-    self.fc2 = nn.Linear(self._hidden_layers[0], self._hidden_layers[1])
-    fan_in_init(self.fc2.weight)
+    low, high = -init_weight, init_weight
+    init.uniform_(self._head.weight, low, high)
+    init.uniform_(self._head.bias, low, high)
 
-    self.head = nn.Linear(self._hidden_layers[1], self._output_size[0])
-    init.uniform_(self.head.weight, -3e-3, 3e-3)
-    init.uniform_(self.head.bias, -3e-3, 3e-3)
+  def forward(self, x, **kwargs):
+    val = super().forward(x)
 
-  def forward(self, x):
-    x = F.relu(self.fc1(x))
-    x = F.relu(self.fc2(x))
-    x = torch.tanh(self.head(x))
-    if self.activation:
-      x = self.activation(x, -1)
-    return x
+    if self._output_activation:
+      val = self._output_activation(val)
+
+    return val
+
+
+class ContinuousActorArchitecture(MLP):
+
+  def __init__(self, output_size, std=0.0, **kwargs):
+    super().__init__(output_size=output_size, **kwargs)
+
+    self._log_std = torch.nn.Parameter(torch.ones(1, output_size[0]) * std)
+    self.apply(init_weights)
+
+  def forward(self, x, **kwargs):
+    mean = super().forward(x)#.view(-1,1)
+    std = self._log_std.exp()#.expand_as(mean)
+    return mean, std

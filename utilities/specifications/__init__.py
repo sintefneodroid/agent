@@ -3,7 +3,5 @@
 
 __author__ = 'cnheider'
 
-
-from .consise_arch_spec import *
 from .optimiser_spec import *
 

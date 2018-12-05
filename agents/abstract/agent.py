@@ -38,9 +38,7 @@ All agent should inherit from this class
     self._output_size = None
     self._divide_by_zero_safety = 1e-10
     self._use_cuda = use_cuda
-    self._device = torch.device(
-        'cuda:0' if torch.cuda.is_available() and self._use_cuda else 'cpu'
-        )
+    self._device = torch.device('cuda:0' if torch.cuda.is_available() and self._use_cuda else 'cpu')
     self._environment = environment
 
     self._verbose = verbose
@@ -129,8 +127,8 @@ All agent should inherit from this class
 
   def build(self, env, device, **kwargs) -> None:
     self._environment = env
-    self._infer_input_output_sizes(env)
-    self._infer_hidden_layers()
+    self._maybe_infer_input_output_sizes(env)
+    self._maybe_infer_hidden_layers()
     self._device = device
 
     self._build(**kwargs)
@@ -185,7 +183,7 @@ All agent should inherit from this class
     else:
       raise HasNoEnvError
 
-  def _infer_input_output_sizes(self, env, *args, **kwargs) -> None:
+  def _maybe_infer_input_output_sizes(self, env, *args, **kwargs) -> None:
     '''
 Tries to infer input and output size from env if either _input_size or _output_size, is None or -1 (int)
 
@@ -207,19 +205,22 @@ Tries to infer input and output size from env if either _input_size or _output_s
         self._output_size = [env.action_space.n]
     draugr.sprint(f'\naction dimensions: {self._output_size}\n', color='green', bold=True, highlight=True)
 
-  def _infer_hidden_layers(self):
-    if self._input_size and self._output_size:
-      input_multiplier = 10
-      output_multiplier = 5
-      h_1_size = int(self._input_size[0] * input_multiplier)
-      h_3_size = int(self._output_size[0] * output_multiplier)
-      h_2_size = int(numpy.sqrt(h_1_size * h_3_size))
-      self._hidden_layers = NamedOrderedDictionary([h_1_size,
-                                                    h_2_size,
-                                                    h_3_size
-                                                    ]).as_list()
-    else:
-      warn('No input or output size')
+  def _maybe_infer_hidden_layers(self,
+                                 input_multiplier=8,
+                                 output_multiplier=6):
+    if self._hidden_layers is None or self._hidden_layers == -1:
+      if self._input_size and self._output_size:
+
+        h_1_size = int(self._input_size[0] * input_multiplier)
+        h_3_size = int(self._output_size[0] * output_multiplier)
+
+        h_2_size = int(numpy.sqrt(h_1_size * h_3_size))
+        self._hidden_layers = NamedOrderedDictionary([h_1_size,
+                                                      h_2_size,
+                                                      h_3_size
+                                                      ]).as_list()
+      else:
+        warn('No input or output size')
 
   # endregion
 

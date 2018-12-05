@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 import matplotlib
+from warg import NamedOrderedDictionary
 
 from procedures.agent_tests import test_agent_main
 from utilities.transformation.extraction import get_screen
@@ -27,7 +28,7 @@ class DQNAgent(ValueAgent):
   # region Protected
 
   def __defaults__(self) -> None:
-    self._memory = U.ReplayBuffer3(10000)
+    self._memory_buffer = U.ReplayBuffer3(10000)
     # self._memory = U.PrioritisedReplayMemory(config.REPLAY_MEMORY_SIZE)  # Cuda trouble
 
     self._use_cuda = False
@@ -35,12 +36,12 @@ class DQNAgent(ValueAgent):
     self._evaluation_function = F.smooth_l1_loss
 
     self._value_arch = U.MLP
-    self._value_arch_parameters = U.ConciseArchSpecification(**{
-      'input_size':   None,  # Obtain from environment
-      'hidden_layers':[64, 32, 16],
-      'output_size':  None,  # Obtain from environment
-      'activation':   torch.tanh,
-      'use_bias':     True,
+    self._value_arch_parameters = NamedOrderedDictionary({
+      'input_size':             None,  # Obtain from environment
+      'hidden_layers':          None,
+      'output_size':            None,  # Obtain from environment
+      'hidden_layer_activation':torch.tanh,
+      'use_bias':               True,
       })
 
     self._batch_size = 128
@@ -74,23 +75,19 @@ class DQNAgent(ValueAgent):
 
   def _build(self, **kwargs) -> None:
 
-    value_model = self._value_arch(
-        **(self._value_arch_parameters._asdict())
-        ).to(self._device)
+    self._value_model = self._value_arch(**self._value_arch_parameters).to(self._device)
 
-    target_value_model = self._value_arch(**(self._value_arch_parameters._asdict())).to(self._device)
-    target_value_model = U.copy_state(target_value_model, value_model)
-    target_value_model.eval()
+    self._target_value_model = self._value_arch(**self._value_arch_parameters).to(self._device)
+    self._target_value_model = U.copy_state(target=self._target_value_model, source=self._value_model)
+    self._target_value_model.eval()
 
-    optimiser = self._optimiser_type(
-        value_model.parameters(),
+    self._optimiser = self._optimiser_type(
+        self._value_model.parameters(),
         lr=self._optimiser_learning_rate,
         eps=self._optimiser_epsilon,
         # alpha=self._optimiser_alpha,
         # momentum=self._optimiser_momentum,
         )
-
-    self._value_model, self._target_value_model, self._optimiser = value_model, target_value_model, optimiser
 
   def _optimise_wrt(self, error, **kwargs):
     '''
@@ -111,7 +108,8 @@ class DQNAgent(ValueAgent):
 
     with torch.no_grad():
       action_value_estimates = self._value_model(model_input)
-    max_value_action_idx = action_value_estimates.max(1)[1].item()
+
+    max_value_action_idx = action_value_estimates.max(1)[1].to('cpu').numpy()[0]
     return max_value_action_idx
 
   # region Public
@@ -124,18 +122,26 @@ class DQNAgent(ValueAgent):
 :return:
 :rtype:
 '''
-    states = U.to_tensor(batch.state, dtype=self._state_type, device=self._device) \
-      .view(-1, *self._input_size)
+    states = U.to_tensor(batch.state,
+                         dtype=self._state_type,
+                         device=self._device).view(-1, *self._input_size)
 
-    action_indices = U.to_tensor(batch.action, dtype=self._action_type, device=self._device) \
-      .view(-1, 1)
-    true_signals = U.to_tensor(batch.signal, dtype=self._value_type, device=self._device).view(-1, 1)
+    action_indices = U.to_tensor(batch.action,
+                                 dtype=self._action_type,
+                                 device=self._device).view(-1, 1)
+    true_signals = U.to_tensor(batch.signal,
+                               dtype=self._value_type,
+                               device=self._device).view(-1, 1)
 
-    non_terminal_mask = U.to_tensor(batch.non_terminal, dtype=torch.uint8, device=self._device)
+    non_terminal_mask = U.to_tensor(batch.non_terminal,
+                                    dtype=torch.uint8,
+                                    device=self._device).squeeze()
+
     nts = [state for (state, non_terminal_mask) in zip(batch.successor_state, batch.non_terminal) if
            non_terminal_mask]
-    non_terminal_successors = U.to_tensor(nts, dtype=self._state_type, device=self._device) \
-      .view(-1, *self._input_size)
+    non_terminal_successors = U.to_tensor(nts,
+                                          dtype=self._state_type,
+                                          device=self._device).view(-1, *self._input_size)
 
     if not len(non_terminal_successors) > 0:
       return 0  # Nothing to be learned, all states are terminal
@@ -143,21 +149,20 @@ class DQNAgent(ValueAgent):
     # Calculate Q of successors
     with torch.no_grad():
       Q_successors = self._value_model(non_terminal_successors)
-    Q_successors_max_action_indices = Q_successors.max(1)[1].view(-1, 1)
+    Q_successors_max_action_indices = Q_successors.max(1)[1]
+    Q_successors_max_action_indices = Q_successors_max_action_indices.view(-1, 1)
     if self._use_double_dqn:
       with torch.no_grad():
         Q_successors = self._target_value_model(non_terminal_successors)
-    Q_max_successor = torch.zeros(
-        self._batch_size, dtype=self._value_type, device=self._device
-        )
-    Q_max_successor[non_terminal_mask] = Q_successors.gather(
-        1, Q_successors_max_action_indices
-        ).squeeze()
+    Q_max_successor = torch.zeros(self._batch_size,
+                                  dtype=self._value_type,
+                                  device=self._device)
+    max_next_values = Q_successors.gather(1, Q_successors_max_action_indices)
+    a = Q_max_successor[non_terminal_mask]
+    Q_max_successor[non_terminal_mask] = max_next_values.squeeze()
 
     # Integrate with the true signal
-    Q_expected = true_signals + (self._discount_factor * Q_max_successor).view(
-        -1, 1
-        )
+    Q_expected = true_signals + (self._discount_factor * Q_max_successor).view(-1, 1)
 
     # Calculate Q of state
     Q_state = self._value_model(states).gather(1, action_indices)
@@ -166,9 +171,9 @@ class DQNAgent(ValueAgent):
 
   def update(self):
     error = 0
-    if self._batch_size < len(self._memory):
+    if self._batch_size < len(self._memory_buffer):
       # indices, transitions = self._memory.sample_transitions(self.C.BATCH_SIZE)
-      transitions = self._memory.sample_transitions(self._batch_size)
+      transitions = self._memory_buffer.sample_transitions(self._batch_size)
 
       td_error = self.evaluate(transitions)
       self._optimise_wrt(td_error)
@@ -205,16 +210,16 @@ class DQNAgent(ValueAgent):
       if not terminated:  # If environment terminated then there is no successor state
         successor_state = next_state
 
-      self._memory.add_transition(         state,
-                                           action,
-                                           signal,
-                                           successor_state,
-                                           not terminated
-          )
+      self._memory_buffer.add_transition(state,
+                                         action,
+                                         signal,
+                                         successor_state,
+                                         not terminated
+                                         )
 
       td_error = 0
 
-      if (          len(self._memory) >= self._batch_size
+      if (len(self._memory_buffer) >= self._batch_size
           and self._step_i > self._initial_observation_period
           and self._step_i % self._learning_frequency == 0
       ):
@@ -227,7 +232,7 @@ class DQNAgent(ValueAgent):
           self._use_double_dqn
           and self._step_i % self._sync_target_model_frequency == 0
       ):
-        self._target_value_model = U.copy_state(self._target_value_model, self._value_model)
+        self._target_value_model = U.copy_state(target=self._target_value_model, source=self._value_model)
         if self._verbose:
           T.write('Target Model Synced')
 
@@ -295,7 +300,7 @@ def test_cnn_dqn_agent(config):
       if agent._signal_clipping:
         signal = np.clip(signal, -1.0, 1.0)
 
-      agent._memory.add_transition(state, action, signal, successor_state, not terminated)
+      agent._memory_buffer.add_transition(state, action, signal, successor_state, not terminated)
 
       agent.update()
       if terminated:

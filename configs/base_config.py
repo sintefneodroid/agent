@@ -5,6 +5,7 @@ from pathlib import Path
 
 import torch
 import torch.nn.functional as F
+from warg import NamedOrderedDictionary
 
 import utilities as U
 from agents.pg_agent import PGAgent
@@ -27,13 +28,16 @@ USE_LOGGING = True
 #class EnvironmentConfig(object):
 #  pass
 
+input_size= None  # Obtain from environment
+hidden_layers= None  # Obtain from input and output size
+output_size= None  # Obtain from environment
 
 # Architecture
-POLICY_ARCH_PARAMS = U.ConciseArchSpecification(**{
-  'input_size':   None,  # Obtain from environment
-  'hidden_layers':None,   # Obtain from input and output size
-  'output_size':  None,  # Obtain from environment
-  'activation':   torch.tanh,
+POLICY_ARCH_PARAMS = NamedOrderedDictionary({
+  'input_size':   input_size,
+  'hidden_layers':hidden_layers,
+  'output_size':  output_size,
+  'hidden_layer_activation':   torch.relu,
   'use_bias':     True,
   })
 POLICY_ARCH = U.CategoricalMLP

@@ -1,10 +1,13 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+from typing import Iterable, Sequence
 from warnings import warn
 
 import numpy
 
 from warg import NamedOrderedDictionary
+
+from utilities.torch_utilities.initialisation import fan_in_init
 from .architecture import Architecture
 
 __author__ = 'cnheider'
@@ -31,12 +34,14 @@ OOOO hidden_layer_size * (Weights,Biases)
 
   def __init__(self,
                *,
-               input_size: list = (10,),
-               hidden_layers: list = None,
-               output_size: list = (2,),
-               activation: callable = torch.tanh,
+               input_size: Sequence = (10,),
+               hidden_layers: Sequence = None,
+               hidden_layer_activation: callable = torch.tanh,
+               output_size: Sequence = (2,),
                use_bias: bool = True,
                auto_build_hidden_layers_if_none = True,
+               input_multiplier=8,
+               output_multiplier = 6,
                **kwargs
                ):
     super().__init__(**kwargs)
@@ -44,22 +49,23 @@ OOOO hidden_layer_size * (Weights,Biases)
     self._input_size = input_size[0]
     self._output_size = output_size[0]
 
-    if not hidden_layers:
+    if not hidden_layers and auto_build_hidden_layers_if_none:
       if self._input_size and self._output_size:
-        input_multiplier = 10
-        output_multiplier = 5
-        h_1_size = int(self._input_size[0] * input_multiplier)
-        h_3_size = int(self._output_size[0] * output_multiplier)
+
+        h_1_size = int(self._input_size * input_multiplier)
+        h_3_size = int(self._output_size * output_multiplier)
+
         h_2_size = int(numpy.sqrt(h_1_size * h_3_size))
-        hidden_layers = NamedOrderedDictionary([h_1_size,
+
+        hidden_layers = NamedOrderedDictionary(h_1_size,
                                                       h_2_size,
                                                       h_3_size
-                                                      ]).as_list()
+                                                      ).as_list()
       else:
         warn('No input or output size')
 
     self._hidden_layers = hidden_layers
-    self._activation = activation
+    self._hidden_layer_activation = hidden_layer_activation
 
     self._use_bias = use_bias
 
@@ -71,13 +77,14 @@ OOOO hidden_layer_size * (Weights,Biases)
         layer = nn.Linear(previous_layer_size,
                           self._hidden_layers[i - 1],
                           bias=self._use_bias)
-        # fan_in_init(layer.weight)
-        setattr(self, f'fc{i}', layer)
+        fan_in_init(layer.weight)
+        setattr(self, f'_fc{i}', layer)
         previous_layer_size = self._hidden_layers[i - 1]
 
-    self.head = nn.Linear(previous_layer_size,
+    self._head = nn.Linear(previous_layer_size,
                           self._output_size,
                           bias=self._use_bias)
+    fan_in_init(self._head.weight)
 
   def forward(self, x, **kwargs):
     '''
@@ -93,12 +100,15 @@ OOOO hidden_layer_size * (Weights,Biases)
     #      layer = getattr(self, 'fc' + str(i))
     #      x = F.relu(layer(x))
 
+    val=x
     for i in range(1, self.num_of_layer + 1):
-      layer = getattr(self, f'fc{i}')
-      x = layer(x)
-      x = self._activation(x)
+      layer = getattr(self, f'_fc{i}')
+      val = layer(val)
+      val = self._hidden_layer_activation(val)
 
-    return self.head(x)
+    val = self._head(val)
+
+    return val
 
 
 class CategoricalMLP(MLP):

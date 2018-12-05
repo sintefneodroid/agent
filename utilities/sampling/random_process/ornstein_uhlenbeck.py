@@ -13,7 +13,7 @@ class OrnsteinUhlenbeckProcess(AnnealedGaussianProcess):
   def __init__(
       self,
       theta,
-      mu=0.,
+      mean=0.,
       sigma=1.,
       dt=1e-2,
       x_0=None,
@@ -22,10 +22,10 @@ class OrnsteinUhlenbeckProcess(AnnealedGaussianProcess):
       n_steps_annealing=1000,
       ):
     super().__init__(
-        mu=mu, sigma=sigma, sigma_min=sigma_min, n_steps_annealing=n_steps_annealing
+        mean=mean, sigma=sigma, sigma_min=sigma_min, n_steps_annealing=n_steps_annealing
         )
     self.theta = theta
-    self.mu = mu
+    self.mean = mean
     self.dt = dt
     self.x_0 = x_0
     self.size = size
@@ -33,7 +33,7 @@ class OrnsteinUhlenbeckProcess(AnnealedGaussianProcess):
 
   def sample(self):
     x = self.x_prev + self.theta * (
-        self.mu - self.x_prev
+        self.mean - self.x_prev
     ) * self.dt + self.current_sigma * np.sqrt(
         self.dt
         ) * np.random.normal(

@@ -11,6 +11,6 @@ def copy_parameters(target: torch.nn.Module, source: torch.nn.Module) -> torch.n
   return target
 
 
-def copy_state(target: torch.nn.Module, source: torch.nn.Module) -> torch.nn.Module:
+def copy_state(*,target: torch.nn.Module, source: torch.nn.Module) -> torch.nn.Module:
   target.load_state_dict(source.state_dict())
   return target

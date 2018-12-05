@@ -1,48 +1,51 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-from .architecture import Architecture
+from .mlp import MLP
 
 __author__ = 'cnheider'
 import torch
-from torch import nn
-from torch.nn import functional as F, init
-
-from utilities.torch_utilities.initialisation import fan_in_init
+from torch import nn, Tensor
+from torch.nn import init
 
 
-class CriticArchitecture(Architecture):
+class DDPGCriticArchitecture(MLP):
 
   def __init__(self,
-               input_size,
-               hidden_layers,
+               *,
                output_size,
-               output_activation):
-    '''
-Initialize a Critic for low dimensional environment.
-    num_feature: number of features of input.
+               init_weight=3e-3,
+               **kwargs):
+    super().__init__(output_size=output_size, **kwargs)
 
-'''
-    super().__init__()
+    setattr(self,
+            f'_fc{self.num_of_layer}',
+            nn.Linear(self._hidden_layers[-2] + output_size[0],
+                      self._hidden_layers[-1]))
 
-    self._input_size = input_size
-    self._hidden_layers = hidden_layers
-    self._output_size = output_size
+    self._head = nn.Linear(self._hidden_layers[-1], 1)
 
-    self.fc1 = nn.Linear(self._input_size[0], self._hidden_layers[0])
-    fan_in_init(self.fc1.weight)
+    low, high = -init_weight, init_weight
+    init.uniform_(self._head.weight, low, high)
+    init.uniform_(self._head.bias, low, high)
 
-    self.fc2 = nn.Linear(
-        self._hidden_layers[0] + self._output_size[0], self._hidden_layers[1]
-        )  # Actions are not included until the 2nd layer of Q.
-    fan_in_init(self.fc2.weight)
+  def forward(self,
+              x,
+              *,
+              actions,
+              **kwargs):
+    assert type(x) is Tensor
+    assert type(actions) is Tensor
 
-    self.head = nn.Linear(self._hidden_layers[1], 1)
-    init.uniform_(self.head.weight, -3e-3, 3e-3)
-    init.uniform_(self.head.bias, -3e-3, 3e-3)
+    for i in range(1, self.num_of_layer):  # Not top-inclusive
+      layer = getattr(self, f'_fc{i}')
+      x = layer(x)
+      x = self._hidden_layer_activation(x)
 
-  def forward(self, states, actions):
-    x = F.relu(self.fc1(states))
+    last_h_layer = getattr(self, f'_fc{self.num_of_layer}')
     x = torch.cat((x, actions), 1)
-    x = F.relu(self.fc2(x))
-    x = self.head(x)
+    x = last_h_layer(x)
+    x = self._hidden_layer_activation(x)
+
+    x = self._head(x)
+
     return x

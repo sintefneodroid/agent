@@ -10,8 +10,8 @@ class AnnealedGaussianProcess(RandomProcess):
   def sample(self):
     pass
 
-  def __init__(self, mu, sigma, sigma_min, n_steps_annealing):
-    self.mu = mu
+  def __init__(self, mean, sigma, sigma_min, n_steps_annealing):
+    self.mean = mean
     self.sigma = sigma
     self.n_steps = 0
 

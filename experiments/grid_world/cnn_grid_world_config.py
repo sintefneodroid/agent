@@ -45,7 +45,7 @@ ENVIRONMENT_NAME = 'grd_camera'
 
 POLICY_ARCH_PARAMS = {
   'input_size':   None,  # Obtain from environment
-  'activation':   F.leaky_relu,
+  'hidden_layer_activation':   F.leaky_relu,
   'hidden_layers':[128, 64, 32, 16],
   'output_size':  None,  # Obtain from environment
   'use_bias':     True,

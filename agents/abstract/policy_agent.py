@@ -3,6 +3,8 @@
 from abc import abstractmethod
 from typing import Any
 
+from warg import NamedOrderedDictionary
+
 __author__ = 'cnheider'
 
 import torch
@@ -78,25 +80,17 @@ All policy iteration agents should inherit from this class
 
   # region Protected
 
-  def _infer_input_output_sizes(self, env, **kwargs):
-    super()._infer_input_output_sizes(env)
-    if type(self._policy_arch_params) is U.ConciseArchSpecification:
-      di = self._policy_arch_params._asdict()
-    else:
-      di = self._policy_arch_params
-    di['input_size'] = self._input_size
-    di['output_size'] = self._output_size
+  def _maybe_infer_input_output_sizes(self, env, **kwargs):
+    super()._maybe_infer_input_output_sizes(env)
 
-    self._policy_arch_params = U.ConciseArchSpecification(**di)
+    self._policy_arch_params['input_size'] = self._input_size
+    self._policy_arch_params['output_size'] = self._output_size
 
-  def _infer_hidden_layers(self):
-    super()._infer_hidden_layers()
-    if type(self._policy_arch_params) is U.ConciseArchSpecification:
-      di = self._policy_arch_params._asdict()
-    else:
-      di = self._policy_arch_params
-    di['hidden_layers'] = self._hidden_layers
-    self._policy_arch_params = U.ConciseArchSpecification(**di)
+
+  def _maybe_infer_hidden_layers(self, **kwargs):
+    super()._maybe_infer_hidden_layers()
+
+    self._policy_arch_params['hidden_layers'] = self._hidden_layers
 
   def _train(self, *args, **kwargs):
     return self.train_episodically(*args, **kwargs)

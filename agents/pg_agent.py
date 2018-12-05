@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+from warnings import warn
+
 import draugr
+from warg import NamedOrderedDictionary
 
 from neodroid import EnvironmentState
 from procedures.agent_tests import test_agent_main
@@ -35,11 +38,11 @@ class PGAgent(PolicyAgent):
     self._evaluation_function = torch.nn.CrossEntropyLoss()
     self._trajectory_trace = U.TrajectoryTraceBuffer()
 
-    self._policy_arch_params = U.ConciseArchSpecification(**{
+    self._policy_arch_params = NamedOrderedDictionary({
       'input_size':   None,  # Obtain from environment
       'hidden_layers':None,
       'output_size':  None,  # Obtain from environment
-      'activation':   torch.tanh,
+      'hidden_layer_activation':   torch.relu,
       'use_bias':     True,
       })
 
@@ -69,18 +72,11 @@ class PGAgent(PolicyAgent):
   # region Protected
 
   def _build(self, **kwargs) -> None:
+    self._policy = self._policy_arch(**(self._policy_arch_params)).to(self._device)
 
-    policy = self._policy_arch(**(self._policy_arch_params._asdict())).to(self._device)
-
-    #self.log_std = torch.nn.Parameter(torch.ones(1, self._policy_arch_params._asdict()['output_size'][0]) *
-    #                                  self._std).to(self._device)
-    #policy.log_std = self.log_std
-
-    self.optimiser = self._optimiser_type(policy.parameters(),
+    self.optimiser = self._optimiser_type(self._policy.parameters(),
                                           lr=self._optimiser_learning_rate,
                                           weight_decay=self._optimiser_weight_decay)
-
-    self._policy = policy
 
 
   def _optimise_wrt(self, loss, **kwargs):
@@ -121,10 +117,10 @@ class PGAgent(PolicyAgent):
   def sample_continuous_action(self, state):
     model_input = U.to_tensor([state], device=self._device, dtype=self._state_type)
 
-    mu,log_std = self._policy(model_input)
+    mean,log_std = self._policy(model_input)
 
-    std = log_std.exp().expand_as(mu)
-    distribution = Normal(mu, std)
+    std = log_std.exp().expand_as(mean)
+    distribution = Normal(mean, std)
     action = distribution.sample()
     log_prob = distribution.log_prob(action)
 
@@ -133,14 +129,14 @@ class PGAgent(PolicyAgent):
       action = action.item()
 
 
-    '''eps = torch.randn(mu.size()).to(self._device)
+    '''eps = torch.randn(mean.size()).to(self._device)
     # calculate the probability
-    a = mu + sigma_sq.sqrt() * eps
+    a = mean + sigma_sq.sqrt() * eps
     action = a.data
-    torch.distributions.Normal(mu,sigma_sq)
+    torch.distributions.Normal(mean,sigma_sq)
     
     
-    prob = U.normal(action, mu, sigma_sq,device=self._device)
+    prob = U.normal(action, mean, sigma_sq,device=self._device)
     entropy = -0.5 * ((sigma_sq
                        + 2
                        * U.pi_torch(self._device).expand_as(sigma_sq)
@@ -173,6 +169,8 @@ class PGAgent(PolicyAgent):
     if signals.shape[0] > 1:
       stddev = signals.std()
       signals = (signals - signals.mean()) / (stddev + self._divide_by_zero_safety)
+    else:
+      warn(f'No signals received, got signals.shape[0]:{signals.shape[0]}')
 
     for log_prob, signal, entropy in zip(log_probs, signals, entropies):
       policy_loss.append(-log_prob * signal - self._pg_entropy_reg * entropy)
