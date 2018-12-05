@@ -1,12 +1,12 @@
 import random
 from collections import deque, namedtuple
 
-from .transition import Transition
+from .transitions import Transition
 
 
-class ReplayBuffer3(object):
+class ReplayBuffer(object):
 
-  def __init__(self, capacity):
+  def __init__(self, capacity = int(3e6)):
     self._buffer = deque(maxlen=capacity)
 
   def add(self, item):
@@ -26,4 +26,3 @@ class ReplayBuffer3(object):
     values = self.sample(num)
     batch = Transition(*zip(*values))
     return batch
-

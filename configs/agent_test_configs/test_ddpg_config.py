@@ -62,7 +62,6 @@ ROLLOUTS = 1000
 # Architecture
 ACTOR_ARCH_PARAMETERS = {
   'input_size':       None,  # Obtain from environment
-  'hidden_layers':    [128,64],
   'output_activation':torch.tanh,
   'output_size':      None,  # Obtain from environment
   }
@@ -70,7 +69,6 @@ ACTOR_ARCH = U.DDPGActorArchitecture
 
 CRITIC_ARCH_PARAMETERS = {
   'input_size':       None,  # Obtain from environment
-  'hidden_layers':    [128,64],
   'output_activation':torch.tanh,
   'output_size':      None,  # Obtain from environment
   }

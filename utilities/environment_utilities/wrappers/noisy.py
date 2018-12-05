@@ -10,7 +10,7 @@ from gym.spaces.box import Box
 class NoisyWrapper(gym.ObservationWrapper):
   """Make observation dynamic by adding noise"""
 
-  def __init__(self, env=None, percent_pad=5,bottom_margin=20):
+  def __init__(self, env=None, percent_pad=5, bottom_margin=20):
     '''
     # doom 20px bottom is useless
 
@@ -28,7 +28,9 @@ class NoisyWrapper(gym.ObservationWrapper):
 
   def _observation(self, obs):
     im_noise = np.random.randint(0, 256, self.new_shape).astype(obs.dtype)
-    im_noise[:self.original_shape[0] - self.bottom_margin, :self.original_shape[1], :] = obs[:-self.bottom_margin, :, :]
+    im_noise[:self.original_shape[0] - self.bottom_margin, :self.original_shape[1], :] = obs[
+                                                                                         :-self.bottom_margin,
+                                                                                         :, :]
     self.ob = im_noise
     return im_noise
 

@@ -18,7 +18,7 @@ def train_agent(config, agent):
   torch.manual_seed(config.SEED)
 
   env = BinaryActionEncodingWrapper(environment_name=config.ENVIRONMENT_NAME,
-                                      connect_to_running=config.CONNECT_TO_RUNNING)
+                                    connect_to_running=config.CONNECT_TO_RUNNING)
   env.seed(config.SEED)
 
   agent.build(env, device)

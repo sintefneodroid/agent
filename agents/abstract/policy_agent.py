@@ -29,35 +29,7 @@ All policy iteration agents should inherit from this class
 
     super().__init__(*args, **kwargs)
 
-  '''
-        is action_space.is_singular:
-      if not self._naive_max_policy:
-        if action_space.is_discrete:
-          num_outputs = action_space.n
-          self.dist = Categorical(self.base.output_size, num_outputs)
-        elif action_space.is_continuous:
-          num_outputs = action_space.shape[0]
-          self.dist = DiagGaussian(self.base.output_size, num_outputs) # Diagonal Multivariate Gaussian
-        else:
-          raise NotImplementedError
-      else:
-        pass
 
-
-    def act(self, inputs, states, masks, deterministic=False):
-        value, actor_features, states = self.base(inputs, states, masks)
-        dist = self.dist(actor_features)
-
-        if deterministic:
-            action = dist.mode()
-        else:
-            action = dist.sample()
-
-        action_log_probs = dist.log_probs(action)
-        dist_entropy = dist.entropy().mean()
-
-        return value, action, action_log_probs, states
-  '''
 
   # endregion
 
@@ -85,7 +57,6 @@ All policy iteration agents should inherit from this class
 
     self._policy_arch_params['input_size'] = self._input_size
     self._policy_arch_params['output_size'] = self._output_size
-
 
   def _maybe_infer_hidden_layers(self, **kwargs):
     super()._maybe_infer_hidden_layers()

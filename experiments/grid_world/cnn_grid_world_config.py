@@ -22,7 +22,7 @@ ROLLOUTS = 10000
 INITIAL_OBSERVATION_PERIOD = 0
 LEARNING_FREQUENCY = 1
 REPLAY_MEMORY_SIZE = 10000
-MEMORY = U.ReplayBuffer3(REPLAY_MEMORY_SIZE)
+MEMORY = U.ReplayBuffer(REPLAY_MEMORY_SIZE)
 
 BATCH_SIZE = 128
 DISCOUNT_FACTOR = 0.999
@@ -44,10 +44,10 @@ ENVIRONMENT_NAME = 'grd_camera'
 
 
 POLICY_ARCH_PARAMS = {
-  'input_size':   None,  # Obtain from environment
-  'hidden_layer_activation':   F.leaky_relu,
-  'hidden_layers':[128, 64, 32, 16],
-  'output_size':  None,  # Obtain from environment
-  'use_bias':     True,
+  'input_size':             None,  # Obtain from environment
+  'hidden_layer_activation':F.leaky_relu,
+  'hidden_layers':          [128, 64, 32, 16],
+  'output_size':            None,  # Obtain from environment
+  'use_bias':               True,
   }
 POLICY_ARCH = U.CategoricalCNN

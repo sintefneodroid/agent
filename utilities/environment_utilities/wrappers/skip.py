@@ -1,9 +1,9 @@
-
-#!/usr/bin/env python3
+# !/usr/bin/env python3
 # -*- coding: utf-8 -*-
 __author__ = 'cnheider'
 
 import gym
+
 
 class SkipEnv(gym.Wrapper):
   """Skip timesteps: repeat action, accumulate signal, take last obs."""

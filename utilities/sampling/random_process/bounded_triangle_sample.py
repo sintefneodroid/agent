@@ -12,5 +12,6 @@ def bounded_triangle_sample(set, mean=0.5, number=1):
 
   return set[a]
 
+
 if __name__ == '__main__':
   print(bounded_triangle_sample(np.arange(0, 10)))

@@ -24,8 +24,8 @@ def save_model(model, configuration, *, name=''):
     prepend = f'{name}-'
   _model_name = prepend + \
                 f'{configuration.PROJECT}-' \
-                f'{configuration.CONFIG_NAME.replace(".","_")}-' \
-                f'{_model_date.strftime("%y%m%d%H%M")}.model'
+                  f'{configuration.CONFIG_NAME.replace(".", "_")}-' \
+                  f'{_model_date.strftime("%y%m%d%H%M")}.model'
 
   _model_path = os.path.join(configuration.MODEL_DIRECTORY, _model_name)
   try:

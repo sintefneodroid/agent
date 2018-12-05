@@ -8,11 +8,12 @@ from warnings import warn
 __author__ = 'cnheider'
 __version__ = 0.1
 
+
 def get_version():
   version = os.getenv('VERSION', __version__)
   now = datetime.datetime.utcnow()
   date_version = now.strftime('%Y%m%d%H%M%S')
-  #date_version = time.time()
+  # date_version = time.time()
 
   if version:
     # Most git tags are prefixed with 'v' (example: v1.2.3) this is
@@ -33,11 +34,12 @@ def get_version():
     warn(f'Environment variable VERSION is not set, only using datetime: {date_version}')
     version = '0.0'
 
-    #warn(f'Environment variable VERSION is not set, only using timestamp: {version}')
+    # warn(f'Environment variable VERSION is not set, only using timestamp: {version}')
 
   version = f'{version}.{date_version}'
 
   return version
+
 
 if __version__ is None:
   __version__ = get_version()

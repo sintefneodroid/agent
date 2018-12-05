@@ -2,161 +2,97 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="a003de5b-3d1d-4f9e-ac23-33e84a510ee8" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/agents/abstract/ac_agent.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.github/images/pytorch.svg" beforeDir="false" afterPath="$PROJECT_DIR$/.github/images/pytorch.svg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/.name" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/agent.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/agent.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/codeStyles/Project.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/codeStyles/codeStyleConfig.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dbnavigator.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/deployment.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dictionaries/captain.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dictionaries/heider.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dictionaries/heider.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dictionaries/vr.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/inspectionProfiles/profiles_settings.xml" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/runConfigurations/ddpg_agent.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/runConfigurations/ddpg_agent.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/runConfigurations/ppo_agent.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/runConfigurations/ppo_agent.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/reinforce.iml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/runConfigurations/ddpg_agent.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/runConfigurations/main.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/runConfigurations/multi_armed_bandit.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/agents/abstract/agent.py" beforeDir="false" afterPath="$PROJECT_DIR$/agents/abstract/agent.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/agents/abstract/joint_ac_agent.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/NeodroidAgentPackage.py" beforeDir="false" afterPath="$PROJECT_DIR$/NeodroidAgentPackage.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/agents/abstract/ac_agent.py" beforeDir="false" afterPath="$PROJECT_DIR$/agents/abstract/ac_agent.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/agents/abstract/policy_agent.py" beforeDir="false" afterPath="$PROJECT_DIR$/agents/abstract/policy_agent.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/agents/abstract/value_agent.py" beforeDir="false" afterPath="$PROJECT_DIR$/agents/abstract/value_agent.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/agents/baselines/cem_agent.py" beforeDir="false" afterPath="$PROJECT_DIR$/agents/baselines/cem_agent.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/agents/baselines/random_agent.py" beforeDir="false" afterPath="$PROJECT_DIR$/agents/baselines/random_agent.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/agents/baselines/tabular_q_agent.py" beforeDir="false" afterPath="$PROJECT_DIR$/agents/baselines/tabular_q_agent.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/agents/ddpg_agent.py" beforeDir="false" afterPath="$PROJECT_DIR$/agents/ddpg_agent.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/agents/dqn_agent.py" beforeDir="false" afterPath="$PROJECT_DIR$/agents/dqn_agent.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/agents/experimental/cma_agent.py" beforeDir="false" afterPath="$PROJECT_DIR$/agents/experimental/cma_agent.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/agents/pg_agent.py" beforeDir="false" afterPath="$PROJECT_DIR$/agents/pg_agent.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/agents/ppo_agent.py" beforeDir="false" afterPath="$PROJECT_DIR$/agents/ppo_agent.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/configs/agent_test_configs/base_test_config.py" beforeDir="false" afterPath="$PROJECT_DIR$/configs/agent_test_configs/base_test_config.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/configs/agent_test_configs/test_cnn_dqn_config.py" beforeDir="false" afterPath="$PROJECT_DIR$/configs/agent_test_configs/test_cnn_dqn_config.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/configs/agent_test_configs/test_cnn_pg_config.py" beforeDir="false" afterPath="$PROJECT_DIR$/configs/agent_test_configs/test_cnn_pg_config.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/configs/agent_test_configs/test_ddpg_config.py" beforeDir="false" afterPath="$PROJECT_DIR$/configs/agent_test_configs/test_ddpg_config.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/configs/agent_test_configs/test_dqn_config.py" beforeDir="false" afterPath="$PROJECT_DIR$/configs/agent_test_configs/test_dqn_config.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/configs/agent_test_configs/test_pg_config.py" beforeDir="false" afterPath="$PROJECT_DIR$/configs/agent_test_configs/test_pg_config.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/configs/agent_test_configs/test_ppo_config.py" beforeDir="false" afterPath="$PROJECT_DIR$/configs/agent_test_configs/test_ppo_config.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/configs/arguments.py" beforeDir="false" afterPath="$PROJECT_DIR$/configs/arguments.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/configs/base_config.py" beforeDir="false" afterPath="$PROJECT_DIR$/configs/base_config.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/configs/curriculum/curriculum_config.py" beforeDir="false" afterPath="$PROJECT_DIR$/configs/curriculum/curriculum_config.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/experiments/continuous/c2d_config.py" beforeDir="false" afterPath="$PROJECT_DIR$/experiments/continuous/c2d_config.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/experiments/grid_world/cnn_grid_world.py" beforeDir="false" afterPath="$PROJECT_DIR$/experiments/grid_world/cnn_grid_world.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/experiments/grid_world/cnn_grid_world_config.py" beforeDir="false" afterPath="$PROJECT_DIR$/experiments/grid_world/cnn_grid_world_config.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/experiments/grid_world/curriculum_grid_world.py" beforeDir="false" afterPath="$PROJECT_DIR$/experiments/grid_world/curriculum_grid_world.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/experiments/grid_world/grid_world_config.py" beforeDir="false" afterPath="$PROJECT_DIR$/experiments/grid_world/grid_world_config.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/get-pip.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/utilities/architectures/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/utilities/architectures/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/experiments/grid_world/regular_grid_world.py" beforeDir="false" afterPath="$PROJECT_DIR$/experiments/grid_world/regular_grid_world.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/experiments/segmentation/unet_segmentation.py" beforeDir="false" afterPath="$PROJECT_DIR$/experiments/segmentation/unet_segmentation.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/utilities/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/utilities/__init__.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/utilities/architectures/actor.py" beforeDir="false" afterPath="$PROJECT_DIR$/utilities/architectures/actor.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/utilities/architectures/actor_critic.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/utilities/architectures/critic.py" beforeDir="false" afterPath="$PROJECT_DIR$/utilities/architectures/critic.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/utilities/architectures/mlp.py" beforeDir="false" afterPath="$PROJECT_DIR$/utilities/architectures/mlp.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/utilities/sampling/random_process/annealed_guassian.py" beforeDir="false" afterPath="$PROJECT_DIR$/utilities/sampling/random_process/annealed_guassian.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/utilities/sampling/random_process/ornstein_uhlenbeck.py" beforeDir="false" afterPath="$PROJECT_DIR$/utilities/sampling/random_process/ornstein_uhlenbeck.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/utilities/environment_utilities/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/utilities/environment_utilities/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/utilities/environment_utilities/wrappers/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/utilities/environment_utilities/wrappers/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/utilities/environment_utilities/wrappers/clipped.py" beforeDir="false" afterPath="$PROJECT_DIR$/utilities/environment_utilities/wrappers/clipped.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/utilities/environment_utilities/wrappers/noisy.py" beforeDir="false" afterPath="$PROJECT_DIR$/utilities/environment_utilities/wrappers/noisy.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/utilities/environment_utilities/wrappers/skip.py" beforeDir="false" afterPath="$PROJECT_DIR$/utilities/environment_utilities/wrappers/skip.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/utilities/environment_utilities/wrappers/vector.py" beforeDir="false" afterPath="$PROJECT_DIR$/utilities/environment_utilities/wrappers/vector.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/utilities/memory/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/utilities/memory/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/utilities/memory/experimental/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/utilities/memory/experimental/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/utilities/memory/experimental/expandable_circular_buffer.py" beforeDir="false" afterPath="$PROJECT_DIR$/utilities/memory/experimental/expandable_circular_buffer.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/utilities/memory/experimental/replay_buffer.py" beforeDir="false" afterPath="$PROJECT_DIR$/utilities/memory/experimental/replay_buffer.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/utilities/memory/experimental/scrap.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/utilities/memory/experimental/transition.py" beforeDir="false" afterPath="$PROJECT_DIR$/utilities/memory/experimental/transitions.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/utilities/persistence/model.py" beforeDir="false" afterPath="$PROJECT_DIR$/utilities/persistence/model.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/utilities/sampling/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/utilities/sampling/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/utilities/sampling/random_process/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/utilities/sampling/random_process/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/utilities/sampling/random_process/bounded_triangle_sample.py" beforeDir="false" afterPath="$PROJECT_DIR$/utilities/sampling/random_process/bounded_triangle_sample.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/utilities/sampling/set_sampling.py" beforeDir="false" afterPath="$PROJECT_DIR$/utilities/sampling/set_sampling.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/utilities/specifications/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/utilities/specifications/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/utilities/specifications/consise_arch_spec.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/utilities/torch_utilities/torch_utilities.py" beforeDir="false" afterPath="$PROJECT_DIR$/utilities/torch_utilities/torch_utilities.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/utilities/specifications/optimiser_spec.py" beforeDir="false" afterPath="$PROJECT_DIR$/utilities/specifications/optimiser_spec.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/utilities/stopping/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/utilities/stopping/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/utilities/stopping/stopping_key.py" beforeDir="false" afterPath="$PROJECT_DIR$/utilities/stopping/stopping_key.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/utilities/torch_utilities/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/utilities/torch_utilities/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/utilities/torch_utilities/updates/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/utilities/torch_utilities/updates/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/utilities/torch_utilities/updates/advantage_estimation.py" beforeDir="false" afterPath="$PROJECT_DIR$/utilities/torch_utilities/updates/advantage_estimation.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/utilities/torch_utilities/updates/copying.py" beforeDir="false" afterPath="$PROJECT_DIR$/utilities/torch_utilities/updates/copying.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../bootml/manage.py" beforeDir="false" afterPath="$PROJECT_DIR$/../bootml/manage.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../bootml/migrations/README" beforeDir="false" afterPath="$PROJECT_DIR$/../bootml/migrations/README" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../bootml/migrations/env.py" beforeDir="false" afterPath="$PROJECT_DIR$/../bootml/migrations/env.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../bootml/migrations/script.py.mako" beforeDir="false" afterPath="$PROJECT_DIR$/../bootml/migrations/script.py.mako" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/version.py" beforeDir="false" afterPath="$PROJECT_DIR$/version.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../documentation/.idea/documentation.iml" beforeDir="false" afterPath="$PROJECT_DIR$/../documentation/.idea/documentation.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../draugr/.idea/draugr.iml" beforeDir="false" afterPath="$PROJECT_DIR$/../draugr/.idea/draugr.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../envs_neodroid/.idea/envs_neodroid.iml" beforeDir="false" afterPath="$PROJECT_DIR$/../envs_neodroid/.idea/envs_neodroid.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../envs_neodroid/manage.py" beforeDir="false" afterPath="$PROJECT_DIR$/../envs_neodroid/manage.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../envs_neodroid/migrations/README" beforeDir="false" afterPath="$PROJECT_DIR$/../envs_neodroid/migrations/README" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../envs_neodroid/migrations/env.py" beforeDir="false" afterPath="$PROJECT_DIR$/../envs_neodroid/migrations/env.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../envs_neodroid/migrations/script.py.mako" beforeDir="false" afterPath="$PROJECT_DIR$/../envs_neodroid/migrations/script.py.mako" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../neo/.gitattributes" beforeDir="false" afterPath="$PROJECT_DIR$/../neo/.gitattributes" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../neo/.github/CODE_OF_CONDUCT.md" beforeDir="false" afterPath="$PROJECT_DIR$/../neo/.github/CODE_OF_CONDUCT.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../neo/.github/PULL_REQUEST_TEMPLATE.md" beforeDir="false" afterPath="$PROJECT_DIR$/../neo/.github/PULL_REQUEST_TEMPLATE.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../neo/.github/images/flatbuffers.svg" beforeDir="false" afterPath="$PROJECT_DIR$/../neo/.github/images/flatbuffers.svg" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../neo/.github/images/header.png" beforeDir="false" afterPath="$PROJECT_DIR$/../neo/.github/images/header.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../neo/.github/images/neo.png" beforeDir="false" afterPath="$PROJECT_DIR$/../neo/.github/images/neo.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../neo/.github/images/python.svg" beforeDir="false" afterPath="$PROJECT_DIR$/../neo/.github/images/python.svg" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../neo/.github/images/pyzmq.png" beforeDir="false" afterPath="$PROJECT_DIR$/../neo/.github/images/pyzmq.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../neo/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/../neo/.gitignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../neo/.nojekyll" beforeDir="false" afterPath="$PROJECT_DIR$/../neo/.nojekyll" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../neo/KEYWORDS.md" beforeDir="false" afterPath="$PROJECT_DIR$/../neo/KEYWORDS.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../neo/LICENSE.md" beforeDir="false" afterPath="$PROJECT_DIR$/../neo/LICENSE.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../neo/MANIFEST.in" beforeDir="false" afterPath="$PROJECT_DIR$/../neo/MANIFEST.in" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../neo/NeodroidPackage.py" beforeDir="false" afterPath="$PROJECT_DIR$/../neo/NeodroidPackage.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../neo/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/../neo/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../neo/__init__.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../neo/build_and_upload_package.sh" beforeDir="false" afterPath="$PROJECT_DIR$/../neo/build_and_upload_package.sh" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../neo/clean_package.sh" beforeDir="false" afterPath="$PROJECT_DIR$/../neo/clean_package.sh" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../neo/docs/Makefile" beforeDir="false" afterPath="$PROJECT_DIR$/../neo/docs/Makefile" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../neo/docs/make.bat" beforeDir="false" afterPath="$PROJECT_DIR$/../neo/docs/make.bat" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../documentation/Makefile" beforeDir="false" afterPath="$PROJECT_DIR$/../documentation/Makefile" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../documentation/source/abstractions/actor.rst" beforeDir="false" afterPath="$PROJECT_DIR$/../documentation/source/concepts/actor.rst" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../documentation/source/abstractions/agent.rst" beforeDir="false" afterPath="$PROJECT_DIR$/../documentation/source/concepts/agent.rst" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../documentation/source/abstractions/environment_state.rst" beforeDir="false" afterPath="$PROJECT_DIR$/../documentation/source/concepts/environment_state.rst" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../documentation/source/abstractions/images/neodroid_classes.svg" beforeDir="false" afterPath="$PROJECT_DIR$/../documentation/source/concepts/images/neodroid_classes.svg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../documentation/source/abstractions/images/reaction_brainstorm.svg" beforeDir="false" afterPath="$PROJECT_DIR$/../documentation/source/concepts/images/reaction_brainstorm.svg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../documentation/source/abstractions/index.rst" beforeDir="false" afterPath="$PROJECT_DIR$/../documentation/source/concepts/index.rst" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../documentation/source/abstractions/motion.rst" beforeDir="false" afterPath="$PROJECT_DIR$/../documentation/source/concepts/motion.rst" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../documentation/source/abstractions/motor.rst" beforeDir="false" afterPath="$PROJECT_DIR$/../documentation/source/concepts/motor.rst" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../documentation/source/abstractions/observer.rst" beforeDir="false" afterPath="$PROJECT_DIR$/../documentation/source/concepts/observer.rst" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../documentation/source/abstractions/reaction.rst" beforeDir="false" afterPath="$PROJECT_DIR$/../documentation/source/concepts/reaction.rst" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../documentation/source/index.rst" beforeDir="false" afterPath="$PROJECT_DIR$/../documentation/source/index.rst" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../neo/docs/source/conf.py" beforeDir="false" afterPath="$PROJECT_DIR$/../neo/docs/source/conf.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../neo/docs/source/index.rst" beforeDir="false" afterPath="$PROJECT_DIR$/../neo/docs/source/index.rst" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../neo/neodroid/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../neo/neodroid/.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../neo/neodroid/.idea/modules.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../neo/neodroid/.idea/modules.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../neo/neodroid/.idea/neodroid.iml" beforeDir="false" afterPath="$PROJECT_DIR$/../neo/neodroid/.idea/neodroid.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../neo/neodroid/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../neo/neodroid/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../neo/neodroid/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/../neo/neodroid/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../neo/neodroid/environment.py" beforeDir="false" afterPath="$PROJECT_DIR$/../neo/neodroid/environment.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../neo/neodroid/messaging/FBSModels/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/../neo/neodroid/messaging/FBSModels/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../neo/neodroid/messaging/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/../neo/neodroid/messaging/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../neo/neodroid/messaging/fbs_reaction_utilities.py" beforeDir="false" afterPath="$PROJECT_DIR$/../neo/neodroid/messaging/fbs_reaction_utilities.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../neo/neodroid/messaging/message_client.py" beforeDir="false" afterPath="$PROJECT_DIR$/../neo/neodroid/messaging/message_client.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../neo/neodroid/models/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/../neo/neodroid/models/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../neo/neodroid/models/actor.py" beforeDir="false" afterPath="$PROJECT_DIR$/../neo/neodroid/models/actor.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../neo/neodroid/models/configurable.py" beforeDir="false" afterPath="$PROJECT_DIR$/../neo/neodroid/models/configurable.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../neo/neodroid/models/configuration.py" beforeDir="false" afterPath="$PROJECT_DIR$/../neo/neodroid/models/configuration.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../neo/neodroid/models/displayable.py" beforeDir="false" afterPath="$PROJECT_DIR$/../neo/neodroid/models/displayable.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../neo/neodroid/models/environment_description.py" beforeDir="false" afterPath="$PROJECT_DIR$/../neo/neodroid/models/environment_description.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../neo/neodroid/models/environment_state.py" beforeDir="false" afterPath="$PROJECT_DIR$/../neo/neodroid/models/environment_state.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../neo/neodroid/models/motion.py" beforeDir="false" afterPath="$PROJECT_DIR$/../neo/neodroid/models/motion.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../neo/neodroid/models/motor.py" beforeDir="false" afterPath="$PROJECT_DIR$/../neo/neodroid/models/motor.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../neo/neodroid/models/observation.py" beforeDir="false" afterPath="$PROJECT_DIR$/../neo/neodroid/models/observation.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../neo/neodroid/models/reaction.py" beforeDir="false" afterPath="$PROJECT_DIR$/../neo/neodroid/models/reaction.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../neo/neodroid/models/reaction_parameters.py" beforeDir="false" afterPath="$PROJECT_DIR$/../neo/neodroid/models/reaction_parameters.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../neo/neodroid/models/space.py" beforeDir="false" afterPath="$PROJECT_DIR$/../neo/neodroid/models/space.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../neo/neodroid/models/unobservables.py" beforeDir="false" afterPath="$PROJECT_DIR$/../neo/neodroid/models/unobservables.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../neo/neodroid/neodroid_environments.py" beforeDir="false" afterPath="$PROJECT_DIR$/../neo/neodroid/neodroid_environments.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../neo/neodroid/neodroid_utilities/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/../neo/neodroid/neodroid_utilities/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../neo/neodroid/neodroid_utilities/encodings.py" beforeDir="false" afterPath="$PROJECT_DIR$/../neo/neodroid/neodroid_utilities/encodings.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../neo/neodroid/neodroid_utilities/enviroment_process/environment_launcher.py" beforeDir="false" afterPath="$PROJECT_DIR$/../neo/neodroid/neodroid_utilities/enviroment_process/environment_launcher.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../neo/neodroid/neodroid_utilities/environment_interface/action_space.py" beforeDir="false" afterPath="$PROJECT_DIR$/../neo/neodroid/neodroid_utilities/environment_interface/action_space.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../neo/neodroid/neodroid_utilities/environment_interface/observation_space.py" beforeDir="false" afterPath="$PROJECT_DIR$/../neo/neodroid/neodroid_utilities/environment_interface/observation_space.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../neo/neodroid/neodroid_utilities/reaction_factories/multi_reaction_factory.py" beforeDir="false" afterPath="$PROJECT_DIR$/../neo/neodroid/neodroid_utilities/reaction_factories/multi_reaction_factory.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../neo/neodroid/neodroid_utilities/reaction_factories/single_reaction_factory.py" beforeDir="false" afterPath="$PROJECT_DIR$/../neo/neodroid/neodroid_utilities/reaction_factories/single_reaction_factory.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../neo/neodroid/neodroid_utilities/reaction_factories/statics.py" beforeDir="false" afterPath="$PROJECT_DIR$/../neo/neodroid/neodroid_utilities/reaction_factories/statics.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../neo/neodroid/wrappers/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/../neo/neodroid/wrappers/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../neo/neodroid/wrappers/action_encoding_wrappers.py" beforeDir="false" afterPath="$PROJECT_DIR$/../neo/neodroid/wrappers/action_encoding_wrappers.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../neo/neodroid/wrappers/curriculum_wrapper/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/../neo/neodroid/wrappers/curriculum_wrapper/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../neo/neodroid/wrappers/curriculum_wrapper/curriculum_wrapper.py" beforeDir="false" afterPath="$PROJECT_DIR$/../neo/neodroid/wrappers/curriculum_wrapper/curriculum_wrapper.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../neo/neodroid/wrappers/experimental/ale_wrapper/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/../neo/neodroid/wrappers/experimental/ale_wrapper/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../neo/neodroid/wrappers/experimental/ale_wrapper/ale_wrapper.py" beforeDir="false" afterPath="$PROJECT_DIR$/../neo/neodroid/wrappers/experimental/ale_wrapper/ale_wrapper.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../neo/neodroid/wrappers/experimental/flask_api_wrapper/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/../neo/neodroid/wrappers/experimental/flask_api_wrapper/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../neo/neodroid/wrappers/experimental/flask_api_wrapper/flask_api_wrapper.py" beforeDir="false" afterPath="$PROJECT_DIR$/../neo/neodroid/wrappers/experimental/flask_api_wrapper/flask_api_wrapper.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../neo/neodroid/wrappers/experimental/tests/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/../neo/neodroid/wrappers/experimental/tests/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../neo/neodroid/wrappers/experimental/tests/wrappers.py" beforeDir="false" afterPath="$PROJECT_DIR$/../neo/neodroid/wrappers/experimental/tests/wrappers.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../neo/neodroid/wrappers/formal_wrapper/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/../neo/neodroid/wrappers/formal_wrapper/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../neo/neodroid/wrappers/formal_wrapper/formal_wrapper.py" beforeDir="false" afterPath="$PROJECT_DIR$/../neo/neodroid/wrappers/formal_wrapper/formal_wrapper.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../neo/neodroid/wrappers/gym_wrapper/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/../neo/neodroid/wrappers/gym_wrapper/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../neo/neodroid/wrappers/gym_wrapper/gym_wrapper.py" beforeDir="false" afterPath="$PROJECT_DIR$/../neo/neodroid/wrappers/gym_wrapper/gym_wrapper.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../neo/neodroid/wrappers/normalise_actions_wrappers.py" beforeDir="false" afterPath="$PROJECT_DIR$/../neo/neodroid/wrappers/normalise_actions_wrappers.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../neo/neodroid/wrappers/utility_wrappers/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/../neo/neodroid/wrappers/utility_wrappers/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../neo/neodroid/wrappers/utility_wrappers/frame_skipping_wrapper.py" beforeDir="false" afterPath="$PROJECT_DIR$/../neo/neodroid/wrappers/utility_wrappers/frame_skipping_wrapper.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../neo/neodroid/wrappers/utility_wrappers/no_terminal_state_wrapper.py" beforeDir="false" afterPath="$PROJECT_DIR$/../neo/neodroid/wrappers/utility_wrappers/no_terminal_state_wrapper.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../neo/neodroid/wrappers/utility_wrappers/time_limited_wrapper.py" beforeDir="false" afterPath="$PROJECT_DIR$/../neo/neodroid/wrappers/utility_wrappers/time_limited_wrapper.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../neo/samples/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/../neo/samples/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../neo/samples/guiclient/.idea/UnityPythonClient.iml" beforeDir="false" afterPath="$PROJECT_DIR$/../neo/samples/guiclient/.idea/UnityPythonClient.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../neo/samples/guiclient/.idea/inspectionProfiles/profiles_settings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../neo/samples/guiclient/.idea/inspectionProfiles/profiles_settings.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../neo/samples/guiclient/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../neo/samples/guiclient/.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../neo/samples/guiclient/.idea/modules.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../neo/samples/guiclient/.idea/modules.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../neo/samples/guiclient/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../neo/samples/guiclient/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../neo/samples/guiclient/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/../neo/samples/guiclient/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../neo/samples/guiclient/gui.py" beforeDir="false" afterPath="$PROJECT_DIR$/../neo/samples/guiclient/gui.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../neo/samples/guiclient/gui_components/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/../neo/samples/guiclient/gui_components/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../neo/samples/guiclient/gui_components/environment_state_box.py" beforeDir="false" afterPath="$PROJECT_DIR$/../neo/samples/guiclient/gui_components/environment_state_box.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../neo/samples/guiclient/gui_components/motion_view.py" beforeDir="false" afterPath="$PROJECT_DIR$/../neo/samples/guiclient/gui_components/motion_view.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../neo/samples/guiclient/gui_components/motion_view_list.py" beforeDir="false" afterPath="$PROJECT_DIR$/../neo/samples/guiclient/gui_components/motion_view_list.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../neo/samples/guiclient/gui_components/reaction_box.py" beforeDir="false" afterPath="$PROJECT_DIR$/../neo/samples/guiclient/gui_components/reaction_box.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../neo/samples/guiclient/gui_components/status_bar.py" beforeDir="false" afterPath="$PROJECT_DIR$/../neo/samples/guiclient/gui_components/status_bar.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../neo/samples/guiclient/gui_components/utilities.py" beforeDir="false" afterPath="$PROJECT_DIR$/../neo/samples/guiclient/gui_components/utilities.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../neo/samples/guiclient/gui_components/xml_box.py" beforeDir="false" afterPath="$PROJECT_DIR$/../neo/samples/guiclient/gui_components/xml_box.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../neo/samples/guiclient/images/default.png" beforeDir="false" afterPath="$PROJECT_DIR$/../neo/samples/guiclient/images/default.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../neo/samples/guiclient/images/neo.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/../neo/samples/guiclient/images/neo.jpg" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../neo/samples/guiclient/images/neodroid.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/../neo/samples/guiclient/images/neodroid.jpg" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../neo/samples/guiclient/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/../neo/samples/guiclient/main.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../neo/samples/guiclient/utilities.py" beforeDir="false" afterPath="$PROJECT_DIR$/../neo/samples/guiclient/utilities.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../neo/samples/minimal/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/../neo/samples/minimal/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../neo/samples/minimal/action_space_sampling.py" beforeDir="false" afterPath="$PROJECT_DIR$/../neo/samples/minimal/action_space_sampling.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../neo/samples/minimal/curriculum.py" beforeDir="false" afterPath="$PROJECT_DIR$/../neo/samples/minimal/curriculum.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../neo/samples/minimal/image_observation.py" beforeDir="false" afterPath="$PROJECT_DIR$/../neo/samples/minimal/image_observation.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../neo/samples/minimal/multienv_action_space_sampling.py" beforeDir="false" afterPath="$PROJECT_DIR$/../neo/samples/minimal/multienv_action_space_sampling.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../neo/samples/minimal/observation_generator.py" beforeDir="false" afterPath="$PROJECT_DIR$/../neo/samples/minimal/observation_generator.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../neo/samples/minimal/plot_displayable.py" beforeDir="false" afterPath="$PROJECT_DIR$/../neo/samples/minimal/plot_displayable.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../neo/samples/minimal/rigidbody_curriculum.py" beforeDir="false" afterPath="$PROJECT_DIR$/../neo/samples/minimal/rigidbody_curriculum.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../neo/setup.cfg" beforeDir="false" afterPath="$PROJECT_DIR$/../neo/setup.cfg" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../neo/setup.py" beforeDir="false" afterPath="$PROJECT_DIR$/../neo/setup.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../warg/.idea/warg.iml" beforeDir="false" afterPath="$PROJECT_DIR$/../warg/.idea/warg.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../warg/warg/named_ordered_dictionary.py" beforeDir="false" afterPath="$PROJECT_DIR$/../warg/warg/named_ordered_dictionary.py" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/../neo/.idea/" />
     <ignored path="$PROJECT_DIR$/../neo/.vscode/" />
@@ -201,6 +137,7 @@
     <SUITE FILE_PATH="coverage/agent$simple_loop.coverage" NAME="simple-loop Coverage Results" MODIFIED="1502279524548" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/policy$tabular_q_agent.coverage" NAME="tabular_q_agent Coverage Results" MODIFIED="1541424301000" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/agents" />
     <SUITE FILE_PATH="coverage/agent$NavigatorTest.coverage" NAME="NavigatorTest Coverage Results" MODIFIED="1509545539519" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/pim" />
+    <SUITE FILE_PATH="coverage/agent$ppo_agent.coverage" NAME="ppo_agent Coverage Results" MODIFIED="1544014848928" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/policy$fixed_seq.coverage" NAME="fixed_seq Coverage Results" MODIFIED="1541621798732" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/../neo/exclude" />
     <SUITE FILE_PATH="coverage/policy$action_space_sampling.coverage" NAME="action_space_sampling Coverage Results" MODIFIED="1540906182402" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/../neo/samples/minimal" />
     <SUITE FILE_PATH="coverage/policy$ppo_agent.coverage" NAME="ppo_agent Coverage Results" MODIFIED="1543591707967" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
@@ -215,96 +152,63 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="225">
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/docs/source/index.rst">
+          <provider selected="true" editor-type-id="restructured-text-editor" />
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/docs/source/getting_started.rst">
+          <provider selected="true" editor-type-id="restructured-text-editor" />
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/docs/source/concepts.rst">
+          <provider selected="true" editor-type-id="restructured-text-editor" />
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/docs/source/cli.rst">
+          <provider selected="true" editor-type-id="restructured-text-editor" />
+        </entry>
+      </file>
       <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/agents/ppo_agent.py">
+        <entry file="file://$PROJECT_DIR$/docs/Makefile">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="663">
-              <caret line="313" column="54" selection-start-line="313" selection-start-column="54" selection-end-line="313" selection-end-column="54" />
+            <state relative-caret-position="289">
+              <caret line="17" column="69" lean-forward="true" selection-start-line="17" selection-start-column="69" selection-end-line="17" selection-end-column="69" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/docs/source/api/modules.rst">
+          <provider selected="true" editor-type-id="restructured-text-editor" />
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/docs/source/api/agent.rst">
+          <provider selected="true" editor-type-id="restructured-text-editor" />
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/docs/source/api/agent.utilities.rst">
+          <provider selected="true" editor-type-id="restructured-text-editor" />
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/docs/source/api/agent.agents.rst">
+          <provider selected="true" editor-type-id="restructured-text-editor" />
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/utilities/exclude/scrap.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="1122">
+              <caret line="265" selection-start-line="265" selection-end-line="265" />
               <folding>
-                <element signature="e#8164#9905#0" expanded="true" />
-                <element signature="e#15334#17583#0" expanded="true" />
+                <element signature="e#47#76#0" expanded="true" />
               </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/agents/ddpg_agent.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="578">
-              <caret line="63" column="38" selection-start-line="63" selection-start-column="38" selection-end-line="63" selection-end-column="38" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/utilities/architectures/critic.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="357">
-              <caret line="21" column="63" selection-start-line="21" selection-start-column="63" selection-end-line="21" selection-end-column="63" />
-              <folding>
-                <element signature="e#859#1280#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/utilities/torch_utilities/updates/copying.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="170">
-              <caret line="13" column="12" selection-start-line="13" selection-start-column="12" selection-end-line="13" selection-end-column="12" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/agents/dqn_agent.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="17">
-              <caret line="119" column="13" selection-start-line="119" selection-start-column="13" selection-end-line="119" selection-end-column="13" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/utilities/torch_utilities/initialisation/__init__.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="221">
-              <caret line="25" column="4" selection-start-line="25" selection-start-column="4" selection-end-line="25" selection-end-column="4" />
-              <folding>
-                <element signature="e#440#551#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/NeodroidAgentPackage.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state>
-              <folding>
-                <element signature="e#0#36#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/KEYWORDS.md">
-          <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
-            <state split_layout="SPLIT">
-              <first_editor />
-              <second_editor />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/utilities/architectures/actor.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="255">
-              <caret line="18" column="23" selection-start-line="18" selection-start-column="23" selection-end-line="18" selection-end-column="23" />
             </state>
           </provider>
         </entry>
@@ -320,35 +224,36 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>tanh</find>
-      <find>F.tanh</find>
-      <find>save_statistic</find>
-      <find>U.save_statistic</find>
-      <find>NamedOrderedDictionary</find>
-      <find>NamedOrderedDict</find>
-      <find>TrajectoryTraceBuffer</find>
-      <find>clear</find>
-      <find>TrajectoryTrace</find>
-      <find>_trajectory_trace</find>
-      <find>mean</find>
-      <find>deque</find>
-      <find>_hidden_layers</find>
-      <find>_actor_critic</find>
-      <find>self._actor_critic</find>
-      <find>test_environment</find>
-      <find>no_grad</find>
-      <find>unsque</find>
-      <find>test_agent</find>
-      <find>pip</find>
-      <find>mu</find>
-      <find>test_int</find>
-      <find>init_weights</find>
-      <find>U.to_tensor(state, device=self._device)</find>
-      <find>distribtion</find>
-      <find>_optimiser</find>
-      <find>signal</find>
-      <find>train_step_batched</find>
-      <find>_step_i</find>
+      <find>advantage</find>
+      <find>back_trace</find>
+      <find>compute_gae</find>
+      <find>region</find>
+      <find>old</find>
+      <find>_entropy_reg_coef</find>
+      <find>_critic_loss</find>
+      <find>hidden_layers</find>
+      <find>_actor_optimiser_spec</find>
+      <find>OPTIMISER_LEARNING_RATE</find>
+      <find>SURROGATE_CLIP_FUNC</find>
+      <find>LR_FUNC</find>
+      <find>SURROGATE_CLIP</find>
+      <find>_surrogate_clipping_value</find>
+      <find>_gae_tau</find>
+      <find>advantage_estimate</find>
+      <find>back_trace_advantages</find>
+      <find>mean_std_groups</find>
+      <find>compute_returns</find>
+      <find>_update_target_interval</find>
+      <find>_mini_batch_size</find>
+      <find>inner_ppo_update</find>
+      <find>_steps</find>
+      <find>test_signals</find>
+      <find>environments</find>
+      <find>ReplayBuffer</find>
+      <find>@$(SPHINXBUILD) -M $@ &quot;$(SOURCEDIR)&quot; &quot;$(BUILDDIR)&quot; $(SPHINXOPTS) $(O)</find>
+      <find>torchrl</find>
+      <find>say</find>
+      <find>kapoor</find>
     </findStrings>
     <replaceStrings>
       <replace>torch.tanh</replace>
@@ -370,34 +275,52 @@
         <option value="$PROJECT_DIR$/experiments/visual/seek_and_avoid.py" />
         <option value="$PROJECT_DIR$/../warg/warg/named_ordered_dict.py" />
         <option value="$PROJECT_DIR$/../warg/warg/named_ordered_dictionary.py" />
-        <option value="$PROJECT_DIR$/configs/agent_test_configs/test_ddpg_config.py" />
         <option value="$PROJECT_DIR$/utilities/memory/experimental/ReplayBuffer.py" />
         <option value="$PROJECT_DIR$/utilities/memory/experimental/__init__.py" />
         <option value="$PROJECT_DIR$/agents/pg_agent.py" />
         <option value="$PROJECT_DIR$/utilities/memory/transition.py" />
         <option value="$PROJECT_DIR$/utilities/memory/expandable_circular_buffer.py" />
-        <option value="$PROJECT_DIR$/utilities/memory/experimental/scrap.py" />
         <option value="$PROJECT_DIR$/utilities/memory/experimental/transition.py" />
         <option value="$PROJECT_DIR$/utilities/memory/experimental/expandable_circular_buffer.py" />
-        <option value="$PROJECT_DIR$/utilities/memory/experimental/replay_buffer.py" />
         <option value="$PROJECT_DIR$/configs/agent_test_configs/test_dqn_config.py" />
         <option value="$PROJECT_DIR$/utilities/architectures/mlp.py" />
-        <option value="$PROJECT_DIR$/configs/agent_test_configs/test_ppo_config.py" />
         <option value="$PROJECT_DIR$/utilities/architectures/actor_critic.py" />
         <option value="$PROJECT_DIR$/utilities/torch_utilities/updates/copying.py" />
         <option value="$PROJECT_DIR$/agents/dqn_agent.py" />
         <option value="$PROJECT_DIR$/agents/abstract/joint_ac_agent.py" />
-        <option value="$PROJECT_DIR$/agents/ppo_agent.py" />
         <option value="$PROJECT_DIR$/agents/ddpg_agent.py" />
         <option value="$PROJECT_DIR$/utilities/architectures/critic.py" />
+        <option value="$PROJECT_DIR$/configs/agent_test_configs/test_ddpg_config.py" />
+        <option value="$PROJECT_DIR$/utilities/torch_utilities/updates/advantage_estimation.py" />
+        <option value="$PROJECT_DIR$/configs/agent_test_configs/test_ppo_config.py" />
+        <option value="$PROJECT_DIR$/agents/ppo_agent.py" />
+        <option value="$PROJECT_DIR$/utilities/memory/experimental/replay_buffer.py" />
+        <option value="$PROJECT_DIR$/utilities/memory/experimental/scrap.py" />
+        <option value="$PROJECT_DIR$/agents/abstract/ac_agent.py" />
+        <option value="$PROJECT_DIR$/agents/abstract/policy_agent.py" />
+        <option value="$PROJECT_DIR$/docs/make.bat" />
+        <option value="$PROJECT_DIR$/docs/Makefile" />
+        <option value="$PROJECT_DIR$/../documentation/Makefile" />
+        <option value="$PROJECT_DIR$/../neo/docs/source/conf.py" />
+        <option value="$PROJECT_DIR$/docs/source/conf.py" />
+        <option value="$PROJECT_DIR$/../documentation/source/index.rst" />
+        <option value="$PROJECT_DIR$/docs/source/getting_started.rst" />
+        <option value="$PROJECT_DIR$/docs/source/index.rst" />
+        <option value="$PROJECT_DIR$/docs/source/concepts.rst" />
+        <option value="$PROJECT_DIR$/docs/source/api/torchrl.rst" />
+        <option value="$PROJECT_DIR$/docs/source/api/modules.rst" />
+        <option value="$PROJECT_DIR$/docs/source/api/agent.utilities.rst" />
+        <option value="$PROJECT_DIR$/docs/source/api/agent.agents.rst" />
+        <option value="$PROJECT_DIR$/utilities/exclude/scrap.py" />
+        <option value="$PROJECT_DIR$/docs/source/cli.rst" />
       </list>
     </option>
   </component>
   <component name="ProjectFrameBounds" extendedState="6">
-    <option name="x" value="24" />
-    <option name="y" value="25" />
-    <option name="width" value="1256" />
-    <option name="height" value="1391" />
+    <option name="x" value="960" />
+    <option name="y" value="26" />
+    <option name="width" value="934" />
+    <option name="height" value="514" />
   </component>
   <component name="ProjectLevelVcsManager" settingsEditedManually="true">
     <ConfirmationsSetting value="1" id="Add" />
@@ -407,15 +330,92 @@
       <autoscrollFromSource ProjectPane="true" />
       <foldersAlwaysOnTop value="true" />
     </navigator>
-    <panes />
+    <panes>
+      <pane id="ProjectPane">
+        <subPane>
+          <expand>
+            <path>
+              <item name="agent" type="b2602c69:ProjectViewProjectNode" />
+              <item name="agent" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="agent" type="b2602c69:ProjectViewProjectNode" />
+              <item name="agent" type="462c0819:PsiDirectoryNode" />
+              <item name="agents" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="agent" type="b2602c69:ProjectViewProjectNode" />
+              <item name="agent" type="462c0819:PsiDirectoryNode" />
+              <item name="agents" type="462c0819:PsiDirectoryNode" />
+              <item name="abstract" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="agent" type="b2602c69:ProjectViewProjectNode" />
+              <item name="agent" type="462c0819:PsiDirectoryNode" />
+              <item name="docs" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="agent" type="b2602c69:ProjectViewProjectNode" />
+              <item name="agent" type="462c0819:PsiDirectoryNode" />
+              <item name="docs" type="462c0819:PsiDirectoryNode" />
+              <item name="source" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="agent" type="b2602c69:ProjectViewProjectNode" />
+              <item name="agent" type="462c0819:PsiDirectoryNode" />
+              <item name="docs" type="462c0819:PsiDirectoryNode" />
+              <item name="source" type="462c0819:PsiDirectoryNode" />
+              <item name="api" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="agent" type="b2602c69:ProjectViewProjectNode" />
+              <item name="agent" type="462c0819:PsiDirectoryNode" />
+              <item name="utilities" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="agent" type="b2602c69:ProjectViewProjectNode" />
+              <item name="agent" type="462c0819:PsiDirectoryNode" />
+              <item name="utilities" type="462c0819:PsiDirectoryNode" />
+              <item name="exclude" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="agent" type="b2602c69:ProjectViewProjectNode" />
+              <item name="documentation" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="agent" type="b2602c69:ProjectViewProjectNode" />
+              <item name="neo" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="agent" type="b2602c69:ProjectViewProjectNode" />
+              <item name="neo" type="462c0819:PsiDirectoryNode" />
+              <item name="docs" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="agent" type="b2602c69:ProjectViewProjectNode" />
+              <item name="neo" type="462c0819:PsiDirectoryNode" />
+              <item name="docs" type="462c0819:PsiDirectoryNode" />
+              <item name="source" type="462c0819:PsiDirectoryNode" />
+            </path>
+          </expand>
+          <select />
+        </subPane>
+      </pane>
+      <pane id="Scope" />
+    </panes>
   </component>
   <component name="PropertiesComponent">
     <property name="WebServerToolWindowFactoryState" value="false" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/../../torchrl" />
-    <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
+    <property name="add_unversioned_files" value="$PROJECT_DIR$/docs/build/html/index.html" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/docs/source" />
+    <property name="settings.editor.selected.configurable" value="restructured.text.topic" />
   </component>
   <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/docs" />
+    </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/utilities/exclude" />
       <recent name="$PROJECT_DIR$/utilities/memory/experimental" />
       <recent name="$PROJECT_DIR$/../draugr/draugr/statistics_utilities" />
     </key>
@@ -432,7 +432,32 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Python.ppo_agent">
+  <component name="RunManager" selected="JavaScript Debug.index.html">
+    <configuration name="index.html" type="JavascriptDebugType" temporary="true" nameIsGenerated="true" uri="http://localhost:63342/agent/docs/build/html/index.html">
+      <method v="2" />
+    </configuration>
+    <configuration default="true" type="PythonConfigurationType" factoryName="Python">
+      <module name="agent" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="true" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
     <configuration name="named_ordered_dict" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="warg" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -478,15 +503,14 @@
       <method v="2" />
     </configuration>
     <list>
-      <item itemvalue="Python.ddpg_agent" />
       <item itemvalue="Python.ppo_agent" />
-      <item itemvalue="Python.multi_armed_bandit" />
-      <item itemvalue="Python.main" />
       <item itemvalue="Python.pg_agent" />
       <item itemvalue="Python.named_ordered_dict" />
+      <item itemvalue="JavaScript Debug.index.html" />
     </list>
     <recent_temporary>
       <list>
+        <item itemvalue="JavaScript Debug.index.html" />
         <item itemvalue="Python.pg_agent" />
         <item itemvalue="Python.named_ordered_dict" />
       </list>
@@ -512,21 +536,22 @@
       <workItem from="1543574982300" duration="17985000" />
       <workItem from="1543950193474" duration="67000" />
       <workItem from="1543950283253" duration="1691000" />
-      <workItem from="1543996319899" duration="150000" />
+      <workItem from="1543996319899" duration="275000" />
+      <workItem from="1544001278305" duration="13890000" />
+      <workItem from="1544020843622" duration="3198000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="22333000" />
+    <option name="totallyTimeSpent" value="39546000" />
   </component>
   <component name="ToolWindowManager">
-    <frame x="25" y="25" width="1870" height="1030" extended-state="6" />
-    <editor active="true" />
+    <frame x="23" y="-1" width="2514" height="1422" extended-state="6" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="0" sideWeight="0.48767737" visible="true" weight="0.14512596" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" sideWeight="0.48693055" visible="true" weight="0.14436334" />
       <window_info id="Version Control" order="1" sideWeight="0.50049263" side_tool="true" weight="0.17266949" />
       <window_info id="TODO" order="2" sideWeight="0.5005005" side_tool="true" weight="0.17266949" />
-      <window_info active="true" id="Find" order="3" sideWeight="0.5123226" side_tool="true" visible="true" weight="0.14557989" />
+      <window_info id="Find" order="3" sideWeight="0.51306945" side_tool="true" weight="0.14436334" />
       <window_info id="Structure" order="4" side_tool="true" weight="0.25" />
       <window_info id="DB Browser" order="5" />
       <window_info id="Favorites" order="6" side_tool="true" />
@@ -547,10 +572,10 @@
       <window_info anchor="right" id="SciView" order="7" />
       <window_info anchor="right" id="Event Log" order="8" sideWeight="0.50049263" side_tool="true" weight="0.2838983" />
       <window_info anchor="right" id="Terminal" order="9" sideWeight="0.5140845" side_tool="true" weight="0.31885594" />
-      <window_info anchor="right" id="Python Console" order="10" sideWeight="0.5044335" side_tool="true" weight="0.31885594" />
-      <window_info anchor="right" x="0" y="0" width="417" height="830" id="Documentation" order="11" sideWeight="0.5026139" side_tool="true" visible="true" weight="0.30175248" />
-      <window_info anchor="right" id="Run" order="12" sideWeight="0.47647497" weight="0.3187348" />
-      <window_info anchor="right" id="Debug" order="13" sideWeight="0.4973861" visible="true" weight="0.30210868" />
+      <window_info anchor="right" id="Python Console" order="10" sideWeight="0.5033607" side_tool="true" weight="0.30210868" />
+      <window_info anchor="right" x="0" y="0" width="417" height="830" id="Documentation" order="11" sideWeight="0.5033607" side_tool="true" visible="true" weight="0.30210868" />
+      <window_info anchor="right" id="Run" order="12" sideWeight="0.47572815" weight="0.3187348" />
+      <window_info anchor="right" id="Debug" order="13" sideWeight="0.49663928" weight="0.30210868" />
     </layout>
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -561,180 +586,59 @@
       <breakpoints>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/agents/ppo_agent.py</url>
-          <line>621</line>
+          <line>636</line>
           <option name="timeStamp" value="12" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/utilities/architectures/mlp.py</url>
+          <line>51</line>
+          <option name="timeStamp" value="14" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/agents/abstract/ac_agent.py</url>
+          <line>50</line>
+          <option name="timeStamp" value="15" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/README.md">
-      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
-        <state split_layout="SPLIT">
-          <first_editor />
-          <second_editor />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/requirements.txt">
+    <entry file="file://$PROJECT_DIR$/utilities/architectures/mlp.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="289">
-          <caret line="17" column="7" selection-start-line="17" selection-start-column="7" selection-end-line="17" selection-end-column="7" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/../draugr/draugr/draugr_utilities/style_utilities.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="85">
-          <caret line="5" lean-forward="true" selection-start-line="5" selection-end-line="5" />
-          <folding>
-            <element signature="e#73#85#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/../draugr/draugr/statistics_utilities/summary.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="102">
-          <caret line="6" column="21" selection-start-line="6" selection-start-column="21" selection-end-line="6" selection-end-column="21" />
-          <folding>
-            <element signature="e#448#612#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/../draugr/draugr/statistics_utilities/episode_statistics.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="238">
-          <caret line="15" column="44" selection-start-line="15" selection-start-column="44" selection-end-line="15" selection-end-column="44" />
-          <folding>
-            <element signature="e#255#394#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/../draugr/draugr/statistics_utilities/__init__.py">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/../draugr/draugr/draugr_utilities/__init__.py">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/../draugr/draugr/statistics_utilities/statistic_collection.py">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/utilities/persistence/model.py">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/../draugr/draugr/statistics_utilities/statistics.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="119">
-          <caret line="9" column="4" selection-start-line="9" selection-start-column="4" selection-end-line="9" selection-end-column="4" />
-          <folding>
-            <element signature="e#218#657#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/../draugr/draugr/statistics_utilities/statistic_aggregator.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="884">
-          <caret line="157" column="18" selection-start-line="157" selection-start-column="4" selection-end-line="157" selection-end-column="18" />
-          <folding>
-            <element signature="e#47#72#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/experiments/visual/seek_and_avoid.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="476">
-          <caret line="28" column="8" selection-start-line="28" selection-start-column="8" selection-end-line="28" selection-end-column="8" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/../draugr/draugr/draugr.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="850">
-          <caret line="169" column="57" lean-forward="true" selection-start-line="169" selection-start-column="57" selection-end-line="169" selection-end-column="57" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/../warg/warg/named_ordered_dictionary.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="357">
-          <caret line="21" column="28" selection-start-line="21" selection-start-column="28" selection-end-line="21" selection-end-column="28" />
-          <folding>
-            <element signature="e#1851#2182#0" expanded="true" />
-            <element signature="e#2209#2244#0" expanded="true" />
-            <element signature="e#2281#2307#0" expanded="true" />
-            <element signature="e#2350#2376#0" expanded="true" />
-            <element signature="e#2556#2582#0" expanded="true" />
-            <element signature="e#2627#2661#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/configs/agent_test_configs/base_test_config.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="255">
-          <caret line="18" selection-start-line="18" selection-end-line="18" selection-end-column="33" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/utilities/memory/experimental/__init__.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state>
-          <caret column="28" selection-start-column="28" selection-end-column="28" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/utilities/memory/__init__.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="170">
-          <caret line="10" column="49" selection-start-line="10" selection-start-column="49" selection-end-line="10" selection-end-column="49" />
-          <folding>
-            <element signature="e#72#131#0" expanded="true" />
-          </folding>
+        <state relative-caret-position="544">
+          <caret line="51" selection-start-line="51" selection-end-line="51" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/configs/agent_test_configs/test_ddpg_config.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="272">
-          <caret line="19" selection-start-line="19" selection-end-line="19" selection-end-column="32" />
+        <state relative-caret-position="578">
+          <caret line="37" selection-start-line="37" selection-end-line="37" selection-end-column="21" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/agents/pg_agent.py">
+    <entry file="file://$PROJECT_DIR$/experiments/grid_world/grid_world_config.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="427">
-          <caret line="82" column="9" selection-start-line="82" selection-start-column="9" selection-end-line="82" selection-end-column="9" />
+        <state relative-caret-position="714">
+          <caret line="45" column="23" selection-start-line="45" selection-end-line="45" selection-end-column="23" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/utilities/torch_utilities/updates/advantage_estimation.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1088">
+          <caret line="70" column="54" selection-start-line="70" selection-start-column="54" selection-end-line="70" selection-end-column="54" />
           <folding>
-            <element signature="e#47#60#0" expanded="true" />
-            <element signature="e#528#544#0" expanded="true" />
-            <element signature="e#585#1688#0" expanded="true" />
-            <element signature="e#2604#2619#0" expanded="true" />
-            <element signature="e#2676#2708#0" expanded="true" />
-            <element signature="e#2929#3325#0" expanded="true" />
-            <element signature="e#3350#4298#0" expanded="true" />
-            <element signature="e#4336#5122#0" expanded="true" />
-            <element signature="e#5165#5537#0" expanded="true" />
-            <element signature="e#5698#6880#0" expanded="true" />
+            <element signature="e#277#1735#0" expanded="true" />
+            <element signature="e#1827#2179#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/configs/agent_test_configs/test_pg_config.py">
+    <entry file="file://$PROJECT_DIR$/configs/agent_test_configs/test_ppo_config.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="459">
-          <caret line="27" column="18" selection-start-line="27" selection-start-column="18" selection-end-line="27" selection-end-column="18" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/utilities/environment_utilities/wrappers/buffered.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="68">
-          <caret line="4" column="24" selection-start-line="4" selection-start-column="24" selection-end-line="4" selection-end-column="24" />
+        <state relative-caret-position="646">
+          <caret line="45" column="14" selection-start-line="45" selection-start-column="14" selection-end-line="45" selection-end-column="14" />
         </state>
       </provider>
     </entry>
@@ -744,145 +648,99 @@
     <entry file="file://$PROJECT_DIR$/utilities/memory/frontier.py">
       <provider selected="true" editor-type-id="text-editor" />
     </entry>
-    <entry file="file://$PROJECT_DIR$/utilities/architectures/mlp.py">
+    <entry file="file://$PROJECT_DIR$/utilities/memory/experimental/expandable_circular_buffer.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="595">
-          <caret line="51" column="40" selection-start-line="51" selection-start-column="28" selection-end-line="51" selection-end-column="40" />
+        <state relative-caret-position="170">
+          <caret line="10" selection-start-line="10" selection-end-line="10" />
           <folding>
             <element signature="e#47#72#0" expanded="true" />
-            <element signature="e#1724#2177#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/configs/agent_test_configs/test_dqn_config.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="663">
-          <caret line="42" column="23" lean-forward="true" selection-start-line="42" selection-start-column="23" selection-end-line="42" selection-end-column="23" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/utilities/memory/experimental/transition.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="833">
-          <caret line="49" selection-start-line="49" selection-end-line="49" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/utilities/memory/experimental/scrap.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="221">
-          <caret line="16" column="34" selection-start-line="16" selection-start-column="24" selection-end-line="16" selection-end-column="34" />
-          <folding>
-            <element signature="e#4885#5094#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/utilities/memory/experimental/replay_buffer.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="51">
-          <caret line="3" column="16" selection-start-line="3" selection-start-column="16" selection-end-line="3" selection-end-column="16" />
+        <state relative-caret-position="102">
+          <caret line="6" column="15" selection-start-line="6" selection-start-column="15" selection-end-line="6" selection-end-column="15" />
           <folding>
-            <element signature="e#66#103#0" expanded="true" />
-            <element signature="e#132#157#0" expanded="true" />
-            <element signature="e#195#284#0" expanded="true" />
-            <element signature="e#311#335#0" expanded="true" />
-            <element signature="e#376#403#0" expanded="true" />
-            <element signature="e#446#526#0" expanded="true" />
+            <element signature="e#0#13#0" expanded="true" />
+            <element signature="e#160#197#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/utilities/memory/experimental/expandable_circular_buffer.py">
+    <entry file="file://$PROJECT_DIR$/utilities/memory/experimental/transitions.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="68">
-          <caret line="4" column="16" selection-start-line="4" selection-start-column="16" selection-end-line="4" selection-end-column="16" />
-          <folding>
-            <element signature="e#297#367#0" expanded="true" />
-            <element signature="e#397#758#0" expanded="true" />
-            <element signature="e#792#808#0" expanded="true" />
-            <element signature="e#848#1098#0" expanded="true" />
-            <element signature="e#1123#1165#0" expanded="true" />
-            <element signature="e#1192#1264#0" expanded="true" />
-            <element signature="e#1467#1491#0" expanded="true" />
-            <element signature="e#1532#1562#0" expanded="true" />
-            <element signature="e#1605#1688#0" expanded="true" />
-            <element signature="e#1781#1816#0" expanded="true" />
-            <element signature="e#1855#1920#0" expanded="true" />
-          </folding>
+        <state relative-caret-position="782">
+          <caret line="46" selection-start-line="46" selection-end-line="46" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$USER_HOME$/miniconda3/lib/python3.6/site-packages/torch/nn/functional.py" />
-    <entry file="file://$USER_HOME$/miniconda3/lib/python3.6/site-packages/torch/nn/modules/linear.py" />
-    <entry file="file://$USER_HOME$/miniconda3/lib/python3.6/site-packages/torch/nn/modules/module.py" />
-    <entry file="file://$PROJECT_DIR$/agents/abstract/agent.py">
+    <entry file="file://$PROJECT_DIR$/configs/base_config.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="436">
-          <caret line="141" selection-start-line="141" selection-end-line="141" />
+        <state relative-caret-position="697">
+          <caret line="78" selection-start-line="78" selection-end-line="78" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/agents/abstract/ac_agent.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="538">
+          <caret line="42" column="89" selection-start-line="42" selection-start-column="89" selection-end-line="42" selection-end-column="89" />
           <folding>
-            <element signature="e#525#541#0" expanded="true" />
-            <element signature="e#4160#4178#0" expanded="true" />
-            <element signature="e#5388#5962#0" expanded="true" />
-            <element signature="e#5981#5998#0" expanded="true" />
+            <element signature="e#1416#3066#0" expanded="true" />
+            <element signature="e#3085#3100#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$USER_HOME$/miniconda3/lib/python3.6/site-packages/gym/envs/classic_control/pendulum.py" />
-    <entry file="file://$PROJECT_DIR$/configs/agent_test_configs/test_ppo_config.py">
+    <entry file="file://$PROJECT_DIR$/agents/abstract/policy_agent.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="442">
-          <caret line="29" column="29" selection-start-line="29" selection-start-column="29" selection-end-line="29" selection-end-column="29" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/get-pip.py" />
-    <entry file="file://$PROJECT_DIR$/../neo/__init__.py" />
-    <entry file="file://$PROJECT_DIR$/setup.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="799">
-          <caret line="47" lean-forward="true" selection-start-line="47" selection-end-line="47" />
+          <caret line="31" selection-start-line="31" selection-end-line="31" />
           <folding>
-            <element signature="e#78#293#0" expanded="true" />
+            <element signature="e#405#560#0" expanded="true" />
+            <element signature="e#1518#1533#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/version.py">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
-    <entry file="file://$USER_HOME$/miniconda3/lib/python3.6/multiprocessing/connection.py" />
-    <entry file="file://$PROJECT_DIR$/agents/abstract/joint_ac_agent.py" />
-    <entry file="file://$PROJECT_DIR$/utilities/architectures/actor_critic.py" />
-    <entry file="file://$PROJECT_DIR$/utilities/torch_utilities/updates/copying.py">
+    <entry file="file://$PROJECT_DIR$/agents/pg_agent.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="170">
-          <caret line="13" column="12" selection-start-line="13" selection-start-column="12" selection-end-line="13" selection-end-column="12" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/utilities/torch_utilities/initialisation/__init__.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="221">
-          <caret line="25" column="4" selection-start-line="25" selection-start-column="4" selection-end-line="25" selection-end-column="4" />
+        <state relative-caret-position="357">
+          <caret line="27" column="2" selection-start-line="27" selection-start-column="2" selection-end-line="27" selection-end-column="2" />
           <folding>
-            <element signature="e#440#551#0" expanded="true" />
+            <element signature="e#546#599#1" expanded="true" />
+            <element signature="e#603#619#0" expanded="true" />
+            <element signature="e#1826#1844#0" expanded="true" />
+            <element signature="e#2247#2465#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/NeodroidAgentPackage.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state>
+        <state relative-caret-position="357">
+          <caret line="29" selection-start-line="29" selection-end-line="29" />
           <folding>
             <element signature="e#0#36#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/KEYWORDS.md">
+    <entry file="file://$PROJECT_DIR$/../documentation/source/_templates/logo.html">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../documentation/source/concepts/index.rst">
+      <provider selected="true" editor-type-id="restructured-text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../documentation/index.html">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../documentation/requirements.txt">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../documentation/README.md">
       <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
         <state split_layout="SPLIT">
           <first_editor />
@@ -890,45 +748,144 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/utilities/architectures/actor.py">
+    <entry file="file://$PROJECT_DIR$/../documentation/make.bat">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/docs/make.bat">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="255">
-          <caret line="18" column="23" selection-start-line="18" selection-start-column="23" selection-end-line="18" selection-end-column="23" />
+        <state relative-caret-position="187">
+          <caret line="11" column="20" selection-start-line="11" selection-start-column="20" selection-end-line="11" selection-end-column="20" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/agents/dqn_agent.py">
+    <entry file="file://$PROJECT_DIR$/../neo/docs/make.bat">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../documentation/Makefile">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="17">
-          <caret line="119" column="13" selection-start-line="119" selection-start-column="13" selection-end-line="119" selection-end-column="13" />
+        <state relative-caret-position="340">
+          <caret line="20" selection-start-line="20" selection-end-line="20" selection-end-column="71" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/agents/ddpg_agent.py">
+    <entry file="file://$PROJECT_DIR$/../neo/docs/Makefile">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="578">
-          <caret line="63" column="38" selection-start-line="63" selection-start-column="38" selection-end-line="63" selection-end-column="38" />
+        <state relative-caret-position="187">
+          <caret line="11" column="26" selection-start-line="11" selection-start-column="26" selection-end-line="11" selection-end-column="26" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/utilities/architectures/critic.py">
+    <entry file="file://$PROJECT_DIR$/../neo/docs/source/conf.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="357">
-          <caret line="21" column="63" selection-start-line="21" selection-start-column="63" selection-end-line="21" selection-end-column="63" />
+        <state relative-caret-position="-255">
+          <caret line="12" column="61" lean-forward="true" selection-end-line="244" />
           <folding>
-            <element signature="e#859#1280#0" expanded="true" />
+            <element signature="e#5878#7732#0" expanded="true" />
           </folding>
         </state>
       </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/docs/source/conf.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="3587">
+          <caret line="244" lean-forward="true" selection-start-line="244" selection-end-line="244" />
+          <folding>
+            <element signature="e#5884#7750#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../documentation/source/architecture.rst">
+      <provider selected="true" editor-type-id="restructured-text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../documentation/source/concepts/actor.rst">
+      <provider selected="true" editor-type-id="restructured-text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../documentation/source/concepts/agent.rst">
+      <provider selected="true" editor-type-id="restructured-text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../documentation/source/concepts/motor.rst">
+      <provider selected="true" editor-type-id="restructured-text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../documentation/source/conf.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="629">
+          <caret line="37" column="15" selection-start-line="37" selection-start-column="15" selection-end-line="37" selection-end-column="15" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../documentation/source/hypothesis.rst">
+      <provider selected="true" editor-type-id="restructured-text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../documentation/source/index.rst">
+      <provider selected="true" editor-type-id="restructured-text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../documentation/source/project_idea.rst">
+      <provider selected="true" editor-type-id="restructured-text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../documentation/source/relevance.rst">
+      <provider selected="true" editor-type-id="restructured-text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../neo/docs/source/index.rst">
+      <provider selected="true" editor-type-id="restructured-text-editor" />
     </entry>
     <entry file="file://$PROJECT_DIR$/agents/ppo_agent.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="663">
-          <caret line="313" column="54" selection-start-line="313" selection-start-column="54" selection-end-line="313" selection-end-column="54" />
+        <state relative-caret-position="1020">
+          <caret line="72" column="20" selection-start-line="72" selection-start-column="7" selection-end-line="72" selection-end-column="20" />
           <folding>
-            <element signature="e#8164#9905#0" expanded="true" />
-            <element signature="e#15334#17583#0" expanded="true" />
+            <element signature="e#40#67#0" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/docs/source/experiments.rst">
+      <provider selected="true" editor-type-id="restructured-text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/docs/source/index.rst">
+      <provider selected="true" editor-type-id="restructured-text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/docs/source/getting_started.rst">
+      <provider selected="true" editor-type-id="restructured-text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/docs/source/concepts.rst">
+      <provider selected="true" editor-type-id="restructured-text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/docs/source/api/torchrl.runners.rst">
+      <provider selected="true" editor-type-id="restructured-text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/docs/source/api/torchrl.cli.commands.rst">
+      <provider selected="true" editor-type-id="restructured-text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/docs/source/api/agent.utilities.rst">
+      <provider selected="true" editor-type-id="restructured-text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/docs/source/api/modules.rst">
+      <provider selected="true" editor-type-id="restructured-text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/docs/source/api/agent.rst">
+      <provider selected="true" editor-type-id="restructured-text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/docs/source/api/agent.agents.rst">
+      <provider selected="true" editor-type-id="restructured-text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/utilities/exclude/scrap.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1122">
+          <caret line="265" selection-start-line="265" selection-end-line="265" />
+          <folding>
+            <element signature="e#47#76#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/docs/source/cli.rst">
+      <provider selected="true" editor-type-id="restructured-text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/docs/Makefile">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="289">
+          <caret line="17" column="69" lean-forward="true" selection-start-line="17" selection-start-column="69" selection-end-line="17" selection-end-column="69" />
         </state>
       </provider>
     </entry>

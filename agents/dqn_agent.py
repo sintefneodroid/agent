@@ -28,7 +28,7 @@ class DQNAgent(ValueAgent):
   # region Protected
 
   def __defaults__(self) -> None:
-    self._memory_buffer = U.ReplayBuffer3(10000)
+    self._memory_buffer = U.ReplayBuffer(10000)
     # self._memory = U.PrioritisedReplayMemory(config.REPLAY_MEMORY_SIZE)  # Cuda trouble
 
     self._use_cuda = False

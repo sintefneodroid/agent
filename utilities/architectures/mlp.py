@@ -39,9 +39,9 @@ OOOO hidden_layer_size * (Weights,Biases)
                hidden_layer_activation: callable = torch.tanh,
                output_size: Sequence = (2,),
                use_bias: bool = True,
-               auto_build_hidden_layers_if_none = True,
+               auto_build_hidden_layers_if_none=True,
                input_multiplier=8,
-               output_multiplier = 6,
+               output_multiplier=6,
                **kwargs
                ):
     super().__init__(**kwargs)
@@ -58,9 +58,9 @@ OOOO hidden_layer_size * (Weights,Biases)
         h_2_size = int(numpy.sqrt(h_1_size * h_3_size))
 
         hidden_layers = NamedOrderedDictionary(h_1_size,
-                                                      h_2_size,
-                                                      h_3_size
-                                                      ).as_list()
+                                               h_2_size,
+                                               h_3_size
+                                               ).as_list()
       else:
         warn('No input or output size')
 
@@ -82,8 +82,8 @@ OOOO hidden_layer_size * (Weights,Biases)
         previous_layer_size = self._hidden_layers[i - 1]
 
     self._head = nn.Linear(previous_layer_size,
-                          self._output_size,
-                          bias=self._use_bias)
+                           self._output_size,
+                           bias=self._use_bias)
     fan_in_init(self._head.weight)
 
   def forward(self, x, **kwargs):
@@ -100,7 +100,7 @@ OOOO hidden_layer_size * (Weights,Biases)
     #      layer = getattr(self, 'fc' + str(i))
     #      x = F.relu(layer(x))
 
-    val=x
+    val = x
     for i in range(1, self.num_of_layer + 1):
       layer = getattr(self, f'_fc{i}')
       val = layer(val)

@@ -19,7 +19,7 @@ EXPLORATION_EPSILON_DECAY = 400
 INITIAL_OBSERVATION_PERIOD = 0
 LEARNING_FREQUENCY = 1
 REPLAY_MEMORY_SIZE = 10000
-MEMORY = U.ReplayBuffer3(REPLAY_MEMORY_SIZE)
+MEMORY = U.ReplayBuffer(REPLAY_MEMORY_SIZE)
 
 BATCH_SIZE = 128
 DISCOUNT_FACTOR = 0.999
@@ -33,12 +33,11 @@ SYNC_TARGET_MODEL_FREQUENCY = 1000
 VALUE_ARCH = U.MLP
 OPTIMISER_TYPE = torch.optim.RMSprop  # torch.optim.Adam
 
-
 # Architecture
 VALUE_ARCH_PARAMETERS = {
-  'input_size':   None,  # Obtain from environment
-  'hidden_layers':None,
-  'output_size':  None,  # Obtain from environment
-  'hidden_layer_activation':   torch.relu,
-  'use_bias':     True,
+  'input_size':             None,  # Obtain from environment
+  'hidden_layers':          None,
+  'output_size':            None,  # Obtain from environment
+  'hidden_layer_activation':torch.relu,
+  'use_bias':               True,
   }

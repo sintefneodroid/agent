@@ -52,7 +52,7 @@ class TabularQAgent(ValueAgent):
     return super().sample_action(state)
 
   def sample_random_process(self):
-    if hasattr(self._environment.action_space,'signed_one_hot_sample'):
+    if hasattr(self._environment.action_space, 'signed_one_hot_sample'):
       return self._environment.action_space.signed_one_hot_sample()
     else:
       return self._environment.action_space.sample()
@@ -95,10 +95,10 @@ class TabularQAgent(ValueAgent):
 
   def _build(self, **kwargs) -> None:
 
-    if hasattr(self._environment.action_space,'num_binary_actions'):
+    if hasattr(self._environment.action_space, 'num_binary_actions'):
       self._action_n = self._environment.action_space.num_binary_actions
     else:
-      self._action_n =self._environment.action_space.n
+      self._action_n = self._environment.action_space.n
 
     # self._verbose = True
 
@@ -149,7 +149,7 @@ def main():
   agent = TabularQAgent(observation_space=env.observation_space,
                         action_space=env.action_space,
                         environment=env)
-  agent.build(env,device='cpu')
+  agent.build(env, device='cpu')
   agent.train(env)
 
 

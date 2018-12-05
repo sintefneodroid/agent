@@ -2,21 +2,22 @@ from setuptools import find_packages
 
 from version import get_version
 
+
 class NeodroidAgentPackage:
 
   @property
-  def test_dependencies(self)->list:
+  def test_dependencies(self) -> list:
     return [
       'pytest',
       'mock'
       ]
 
   @property
-  def package_name(self)->str:
+  def package_name(self) -> str:
     return 'NeodroidAgent'
 
   @property
-  def url(self)->str:
+  def url(self) -> str:
     return 'https://github.com/sintefneodroid/agent'
 
   @property
@@ -31,7 +32,7 @@ class NeodroidAgentPackage:
   def packages(self):
     return find_packages(
         exclude=[
-          #'neodroid/environment_utilities'
+          # 'neodroid/environment_utilities'
           ]
         )
 
@@ -55,12 +56,12 @@ class NeodroidAgentPackage:
   def package_data(self):
     # data = glob.glob('environment_utilities/mab/**', recursive=True)
     return {
-      #'neodroid':[
-        # *data
-        # 'environment_utilities/mab/**',
-        # 'environment_utilities/mab/**_Data/*',
-        # 'environment_utilities/mab/windows/*'
-        # 'environment_utilities/mab/windows/*_Data/*'
+      # 'neodroid':[
+      # *data
+      # 'environment_utilities/mab/**',
+      # 'environment_utilities/mab/**_Data/*',
+      # 'environment_utilities/mab/windows/*'
+      # 'environment_utilities/mab/windows/*_Data/*'
       #  ]
       }
 
@@ -76,8 +77,8 @@ class NeodroidAgentPackage:
   @property
   def extras(self):
     these_extras = {
-      #'GUI':['kivy'],
-      #'mab':['neodroid-linux-mab; platform_system == "Linux"',
+      # 'GUI':['kivy'],
+      # 'mab':['neodroid-linux-mab; platform_system == "Linux"',
       #       'neodroid-win-mab platform_system == "Windows"']
 
       }

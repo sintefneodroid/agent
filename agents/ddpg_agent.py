@@ -48,7 +48,6 @@ class DDPGAgent(ActorCriticAgent):
     self._random_process = OrnsteinUhlenbeckProcess(theta=0.15,
                                                     sigma=0.2)
 
-
     # self._memory = U.PrioritisedReplayMemory(config.REPLAY_MEMORY_SIZE)  # Cuda trouble
     self._memory_buffer = U.TransitionBuffer(1000000)
 
@@ -63,8 +62,8 @@ class DDPGAgent(ActorCriticAgent):
 
     self._critic_arch = U.DDPGCriticArchitecture
     self._critic_arch_parameters = NamedOrderedDictionary({
-      'input_size':       None,  # Obtain from environment
-      'output_size':      None,  # Obtain from environment
+      'input_size': None,  # Obtain from environment
+      'output_size':None,  # Obtain from environment
       })
 
     self._discount_factor = 0.99
@@ -124,12 +123,12 @@ class DDPGAgent(ActorCriticAgent):
 
     ### Critic ###
     # Compute current Q value, critic takes state and action chosen
-    Q_current = self._critic(states,actions=actions)
+    Q_current = self._critic(states, actions=actions)
     # Compute next Q value based on which action target actor would choose
     # Detach variable from the current graph since we don't want gradients for next Q to propagated
     with torch.no_grad():
       target_actions = self._target_actor(states)
-      next_max_q = self._target_critic(next_states,actions=target_actions).max(1)[0]
+      next_max_q = self._target_critic(next_states, actions=target_actions).max(1)[0]
 
     next_Q_values = non_terminal_mask * next_max_q
 
@@ -173,7 +172,6 @@ class DDPGAgent(ActorCriticAgent):
     loss.backward()
     self._actor_optimiser.step()  # Optimize the actor
 
-
   def _optimise_wrt(self,
                     td_error,
                     **kwargs):
@@ -199,7 +197,6 @@ class DDPGAgent(ActorCriticAgent):
     # self._memory.batch_update(indices, errors.tolist())  # Cuda trouble
 
     return loss
-
 
   def _sample_model(self,
                     state,

@@ -8,6 +8,7 @@ import gym
 import numpy
 
 import draugr
+from warg import NamedOrderedDictionary
 
 from procedures.agent_tests import test_agent_main
 
@@ -16,6 +17,7 @@ __author__ = 'cnheider'
 import torch
 from torch import nn, optim
 from tqdm import tqdm
+import torch.nn.functional as F
 
 import utilities as U
 from agents.abstract.ac_agent import ActorCriticAgent
@@ -34,11 +36,11 @@ class PPOAgent(ActorCriticAgent):
     self._gae_tau = 0.95
     # self._reached_horizon_penalty = -10.
 
-    self._critic_loss = nn.MSELoss
-    self._actor_critic_lr = 3e-4
-    self._entropy_reg_coef = 3e-4
-    self._value_reg_coef = 0.5
-    self._batch_size = 32
+    self._actor_lr = 3e-4
+    self._critic_lr = 3e-4
+    self._entropy_reg_coef = 3e-3
+    self._value_reg_coef = 5e-1
+    self._batch_size = 64
     self._mini_batch_size = 10
     self._initial_observation_period = 0
     self._target_update_tau = 1.0
@@ -47,6 +49,8 @@ class PPOAgent(ActorCriticAgent):
     self._solved_threshold = -200
     self._test_interval = 1000
     self._early_stop = False
+
+    self._ppo_epochs = 4
 
     self._state_type = torch.float
     self._value_type = torch.float
@@ -279,14 +283,15 @@ class PPOAgent(ActorCriticAgent):
 
     return transitions, episode_signal, terminated, state, episode_length
 
-  def back_trace(self, transitions):
+  def back_trace_advantages(self, transitions):
     n_step_summary = U.ValuedTransition(*zip(*transitions))
 
     advantages = U.advantage_estimate(n_step_summary.signal,
                                       n_step_summary.non_terminal,
                                       n_step_summary.value_estimate,
-                                      self._discount_factor,
-                                      tau=self._gae_tau
+                                      discount_factor=self._discount_factor,
+                                      tau=self._gae_tau,
+                                      device=self._device
                                       )
 
     value_estimates = U.to_tensor(n_step_summary.value_estimate, device=self._device)
@@ -322,21 +327,20 @@ class PPOAgent(ActorCriticAgent):
 
     discounted_returns = U.to_tensor(batch.discounted_return, device=self._device)
 
-    action_probs = U.to_tensor(batch.action_prob, device=self._device) \
-      .view(-1, self._output_size[0])
+    action_probs_old = U.to_tensor(batch.action_prob, device=self._device).view(-1, self._output_size[0])
 
     # endregion
 
     advantage = (advantages - advantages.mean()) / (advantages.std() + self._divide_by_zero_safety)
 
-    _, _, action_probs_old, *_ = self._sample_model(states)
+    *_, action_probs_new, distribution = self._sample_model(states)
 
     if discrete:
       actions = U.to_tensor(batch.action, device=self._device).view(-1, self._output_size[0])
-      action_probs = action_probs.gather(1, actions)
       action_probs_old = action_probs_old.gather(1, actions)
+      action_probs_new = action_probs_new.gather(1, actions)
 
-    ratio = (action_probs - action_probs_old).exp()
+    ratio = (action_probs_new - action_probs_old).exp()
     # Generated action probs from (new policy) and (old policy).
     # Values of [0..1] means that actions less likely with the new policy,
     # while values [>1] mean action a more likely now
@@ -350,20 +354,52 @@ class PPOAgent(ActorCriticAgent):
 
     policy_loss = -torch.min(surrogate, surrogate_clipped).mean()
 
-    entropy_loss = U.entropy(action_probs).mean()
+    entropy_loss = distribution.entropy().mean()
 
-    value_error = (value_estimates - discounted_returns).pow(2).mean()
+    # value_error = (value_estimates - discounted_returns).pow(2).mean()
+    value_error = F.mse_loss(value_estimates, discounted_returns)
 
-    collective_cost = policy_loss + value_error * self._value_reg_coef + entropy_loss * self._entropy_reg_coef
+    collective_cost = policy_loss + value_error * self._value_reg_coef - entropy_loss * self._entropy_reg_coef
 
     return collective_cost, policy_loss, value_error
+
+  def evaluate2(self,
+                *,
+                states,
+                actions,
+                log_probs,
+                returns,
+                advantage,
+                **kwargs):
+    action_out, action_log_prob, value_estimate, distribution = self._sample_model(states)
+
+    old_log_probs = log_probs
+    new_log_probs = distribution.log_prob(actions)
+
+    ratio = (new_log_probs - old_log_probs).exp()
+    surrogate = ratio * advantage
+    surrogate_clipped = (torch.clamp(ratio,
+                                     1.0 - self._surrogate_clipping_value,
+                                     1.0 + self._surrogate_clipping_value)
+                         * advantage)
+
+    actor_loss = - torch.min(surrogate, surrogate_clipped).mean()
+    # critic_loss = (value_estimate-returns).pow(2).mean()
+    critic_loss = F.mse_loss(value_estimate, returns)
+
+    entropy = distribution.entropy().mean()
+
+    loss = self._value_reg_coef * critic_loss + actor_loss - entropy + self._entropy_reg_coef
+    return loss, new_log_probs, old_log_probs
 
   def update(self):
 
     returns_ = U.compute_gae(self._last_value_estimate,
                              self._transitions_.signal,
                              self._transitions_.non_terminal,
-                             self._transitions_.value_estimate)
+                             self._transitions_.value_estimate,
+                             discount_factor=self._discount_factor,
+                             tau=self._gae_tau)
 
     returns = torch.cat(returns_).view(-1, 1).detach()
     log_probs = torch.cat(self._transitions_.action_prob).detach()
@@ -373,12 +409,11 @@ class PPOAgent(ActorCriticAgent):
 
     advantage = returns - values
 
-    self.ppo_update(self._mini_batch_size,
-                    states,
-                    actions,
-                    log_probs,
-                    returns,
-                    advantage)
+    self.inner_ppo_update(states,
+                          actions,
+                          log_probs,
+                          returns,
+                          advantage)
 
     if self._rollout_i % self._update_target_interval == 0:
       self.update_target(target_model=self._target_actor,
@@ -395,46 +430,26 @@ class PPOAgent(ActorCriticAgent):
     self._optimise_wrt(collective_cost)
     '''
 
-  def ppo_update(self,
-
-                 mini_batch_size,
-                 states, actions,
-                 log_probs,
-                 returns,
-                 advantages,
-                 ppo_epochs=6
-                 ):
-    mini_batch_gen = self.ppo_mini_batch_iter(mini_batch_size,
+  def inner_ppo_update(self,
+                       states,
+                       actions,
+                       log_probs,
+                       returns,
+                       advantages,
+                       ):
+    mini_batch_gen = self.ppo_mini_batch_iter(self._mini_batch_size,
                                               states,
                                               actions,
                                               log_probs,
                                               returns,
                                               advantages)
-    for _ in range(ppo_epochs):
+    for _ in range(self._ppo_epochs):
       try:
-        (state,
-         action,
-         old_log_probs,
-         return_now,
-         advantage) = mini_batch_gen.__next__()
+        batch = mini_batch_gen.__next__()
       except StopIteration:
         return
 
-      action_out, action_log_prob, value_estimate, distribution = self._sample_model(state)
-      entropy = distribution.entropy().mean()
-      new_log_probs = distribution.log_prob(action)
-
-      ratio = (new_log_probs - old_log_probs).exp()
-      surrogate = ratio * advantage
-      surrogate_clipped = (torch.clamp(ratio,
-                                       1.0 - self._surrogate_clipping_value,
-                                       1.0 + self._surrogate_clipping_value)
-                           * advantage)
-
-      actor_loss = - torch.min(surrogate, surrogate_clipped).mean()
-      critic_loss = (return_now - value_estimate).pow(2).mean()
-
-      loss = self._value_reg_coef * critic_loss + actor_loss - self._entropy_reg_coef * entropy
+      loss, new_log_probs, old_log_probs = self.evaluate2(**batch.as_dict())
 
       self._actor_optimiser.zero_grad()
       self._critic_optimiser.zero_grad()
@@ -448,7 +463,7 @@ class PPOAgent(ActorCriticAgent):
 
   #
   def sample_action(self, state, **kwargs) -> Tuple[Any, Any, Any]:
-    action, action_log_prob, value_estimate,*_ = self._sample_model(state)
+    action, action_log_prob, value_estimate, *_ = self._sample_model(state)
 
     return action, action_log_prob, value_estimate
 
@@ -471,18 +486,19 @@ class PPOAgent(ActorCriticAgent):
         B.set_description(f'Batch {batch_i}, {num_batches} - Rollout {self._rollout_i}')
 
       if render and batch_i % render_frequency == 0:
-        transitions, accumulated_signal, terminated, *_ = self.rollout(
-            initial_state, env, render=render
-            )
+        transitions, accumulated_signal, terminated, *_ = self.rollout(initial_state,
+                                                                       env,
+                                                                       render=render
+                                                                       )
       else:
-        transitions, accumulated_signal, terminated, *_ = self.rollout(
-            initial_state, env
-            )
+        transitions, accumulated_signal, terminated, *_ = self.rollout(initial_state,
+                                                                       env
+                                                                       )
 
       initial_state = env.reset()
 
       if batch_i >= self._initial_observation_period:
-        advantage_memories = self.back_trace(transitions)
+        advantage_memories = self.back_trace_advantages(transitions)
 
         for memory in advantage_memories:
           self._memory_buffer.add(memory)
@@ -539,16 +555,15 @@ class PPOAgent(ActorCriticAgent):
         signal_ = U.to_tensor(signal, device=self._device)
         not_terminated = U.to_tensor(not terminated, device=self._device)
 
-        transitions.append(
-            U.ValuedTransition(state,
-                               action,
-                               action_log_prob,
-                               value_estimate,
-                               signal_,
-                               successor_state,
-                               not_terminated
-                               )
-            )
+        transitions.append(U.ValuedTransition(state,
+                                              action,
+                                              action_log_prob,
+                                              value_estimate,
+                                              signal_,
+                                              successor_state,
+                                              not_terminated
+                                              )
+                           )
 
         state = successor_state
 
@@ -560,7 +575,7 @@ class PPOAgent(ActorCriticAgent):
           test_signal = numpy.mean(test_signals)
           self.stats.test_signal.append(test_signal)
 
-          draugr.terminal_plot(self.stats.signal.values, title='batch_signal', percent_size=(.8, .25))
+          draugr.terminal_plot(self.stats.signal.values, title='batch_signal', percent_size=(.8, .2))
           draugr.terminal_plot(self.stats.test_signal.values, title='test_signal', percent_size=(.8, .3))
 
           if test_signal > self._solved_threshold and self._early_stop:
@@ -569,7 +584,7 @@ class PPOAgent(ActorCriticAgent):
       self.stats.signal.append(self.batch_signal)
 
       # only calculate value of next state for the last step this time
-      *_, self._last_value_estimate ,_ = self._sample_model(successor_state)
+      *_, self._last_value_estimate, _ = self._sample_model(successor_state)
 
       self._transitions_ = U.ValuedTransition(*zip(*transitions))
 
@@ -643,21 +658,21 @@ class PPOAgent(ActorCriticAgent):
     batch_size = actions.size(0)
     for _ in range(batch_size // mini_batch_size):
       rand_ids = numpy.random.randint(0, batch_size, mini_batch_size)
-      yield (states[rand_ids, :],
-             actions[rand_ids, :],
-             log_probs[rand_ids, :],
-             returns[rand_ids, :],
-             advantage[rand_ids, :])
+      yield NamedOrderedDictionary(states=states[rand_ids, :],
+                                   actions=actions[rand_ids, :],
+                                   log_probs=log_probs[rand_ids, :],
+                                   returns=returns[rand_ids, :],
+                                   advantage=advantage[rand_ids, :])
 
 
-def main():
-  # test_agent_main(PPOAgent, C)
-  _agent = PPOAgent()
-
-  num_environments = 1
+if __name__ == '__main__':
   import configs.agent_test_configs.test_ppo_config as C
 
   env_name = C.ENVIRONMENT_NAME
+  _test_env = gym.make(env_name)
+
+  num_environments = 1
+
 
   def make_env(env_nam):
     @wraps(env_nam)
@@ -667,48 +682,8 @@ def main():
 
     return wrapper
 
+
   _environments = [make_env(env_name) for _ in range(num_environments)]
   _environments = U.SubprocVecEnv(_environments)
-
-  _test_env = gym.make(env_name)
-
-  _agent.input_size = _environments.observation_space.shape
-  if len(_agent.input_size) == 0:
-    _agent_input_size = (_environments.observation_space.n,)
-
-  _agent.output_size = _environments.action_space.shape
-  if len(_agent.output_size) == 0:
-    _agent.output_size = (_environments.action_space.n,)
-
-  _agent._maybe_infer_hidden_layers()
-
-  # _agent.build(_test_env,device=_agent.device)
-
-  _agent._actor_critic = U.ActorCritic(
-      input_size=_agent._input_size,
-      output_size=_agent._output_size,
-      hidden_layers=_agent._hidden_layers
-      ).to(_agent.device)
-
-  _agent._actor_critic_target = U.ActorCritic(
-      input_size=_agent._input_size,
-      output_size=_agent._output_size,
-      hidden_layers=_agent._hidden_layers
-      ).to(_agent._device)
-
-  _agent._actor_critic_target = U.copy_state(target=_agent._actor_critic_target, source=_agent._actor_critic)
-
-  _agent._optimiser = optim.Adam(_agent._actor_critic.parameters(), lr=_agent._actor_critic_lr)
-
-  _agent.train(_environments, _test_env)
-
-
-if __name__ == '__main__':
-  # main()
-
-  import configs.agent_test_configs.test_ppo_config as C
-
-  env_name = C.ENVIRONMENT_NAME
-  _test_env = gym.make(env_name)
 
   test_agent_main(PPOAgent, C)

@@ -169,7 +169,7 @@ class CEMAgent(DFOAgent):
         break
 
     time_elapsed = time.time() - training_start_timestamp
-    end_message = f'Training done, time elapsed: {time_elapsed // 60:.0f}m {time_elapsed %60:.0f}s'
+    end_message = f'Training done, time elapsed: {time_elapsed // 60:.0f}m {time_elapsed % 60:.0f}s'
     print('\n{} {} {}\n'.format('-' * 9, end_message, '-' * 9))
 
     return self._policy, stats

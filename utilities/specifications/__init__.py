@@ -4,4 +4,3 @@
 __author__ = 'cnheider'
 
 from .optimiser_spec import *
-

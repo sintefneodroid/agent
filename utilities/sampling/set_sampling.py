@@ -8,7 +8,7 @@ __author__ = 'cnheider'
 import numpy as np
 
 
-def sample(set:iter)-> Any:
+def sample(set: iter) -> Any:
   if len(set):
     idx = np.random.randint(0, len(set))
     return set[idx]

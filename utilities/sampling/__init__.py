@@ -6,6 +6,3 @@ from .random_process import *
 from .snake_space_filling import *
 
 __author__ = 'cnheider'
-
-
-

@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 from warnings import warn
 
-from .transition import Transition, TrajectoryTrace
+from .transitions import Transition, TrajectoryTrace
 
 __author__ = 'cnheider'
 

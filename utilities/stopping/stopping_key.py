@@ -23,7 +23,7 @@ def add_early_stopping_key_combination(callback, key='ctrl+shift+s'):
   # keyboard.add_hotkey(key, callback)
   CALLBACKS.append(callback)
   draugr.sprint(f'\n\nPress any of:\n{COMBINATIONS}\n for early stopping\n', color='red', bold=True,
-           highlight=True)
+                highlight=True)
   print('')
   return keyboard.Listener(on_press=on_press, on_release=on_release)
 

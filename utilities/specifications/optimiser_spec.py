@@ -6,5 +6,3 @@ __author__ = 'cnheider'
 from collections import namedtuple
 
 OptimiserSpecification = namedtuple('OptimiserSpecification', ['constructor', 'kwargs'])
-
-

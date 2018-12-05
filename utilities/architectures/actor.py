@@ -40,6 +40,6 @@ class ContinuousActorArchitecture(MLP):
     self.apply(init_weights)
 
   def forward(self, x, **kwargs):
-    mean = super().forward(x)#.view(-1,1)
-    std = self._log_std.exp()#.expand_as(mean)
+    mean = super().forward(x)  # .view(-1,1)
+    std = self._log_std.exp()  # .expand_as(mean)
     return mean, std

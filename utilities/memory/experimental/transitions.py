@@ -12,8 +12,6 @@ TrajectoryTrace = namedtuple(
       )
     )
 
-
-
 ValuedTransition = namedtuple(
     'ValuedTransition', (
       'state',
@@ -46,4 +44,3 @@ Transition = namedtuple(
       'non_terminal'
       )
     )
-

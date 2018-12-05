@@ -1,17 +1,11 @@
 <component name="ProjectDictionaryState">
   <dictionary name="heider">
     <words>
-      <w>cuda</w>
-      <w>datasets</w>
-      <w>dofs</w>
-      <w>entropies</w>
-      <w>graphviz</w>
-      <w>mkdir</w>
-      <w>pynput</w>
-      <w>trackfolder</w>
-      <w>vargr</w>
-      <w>ytype</w>
-      <w>yyyy</w>
+      <w>cnheider</w>
+      <w>neodroid</w>
+      <w>rollout</w>
+      <w>rollouts</w>
+      <w>tensorise</w>
     </words>
   </dictionary>
 </component>

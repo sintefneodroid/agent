@@ -12,10 +12,10 @@ from configs.base_config import *
 CONFIG_NAME = __name__
 CONFIG_FILE = __file__
 
-#class LearningConfig(object):
+# class LearningConfig(object):
 #  pass
 
-#class EnvironmentConfig(object):
+# class EnvironmentConfig(object):
 #  pass
 
 AGENT_TYPE = TabularQAgent
@@ -29,7 +29,7 @@ ROLLOUTS = 1000000
 INITIAL_OBSERVATION_PERIOD = 0
 LEARNING_FREQUENCY = 1
 REPLAY_MEMORY_SIZE = 10000
-MEMORY = U.ReplayBuffer3(REPLAY_MEMORY_SIZE)
+MEMORY = U.ReplayBuffer(REPLAY_MEMORY_SIZE)
 
 BATCH_SIZE = 128
 DISCOUNT_FACTOR = 0.999
@@ -52,9 +52,9 @@ ENVIRONMENT_NAME = 'grd'
 
 # Architecture
 VALUE_ARCH_PARAMETERS = {
-  'input_size':   None,  # Obtain from environment
-  'hidden_layers':[64, 32, 16],
-  'output_size':  None,  # Obtain from environment
-  'hidden_layer_activation':   F.relu,
-  'use_bias':     True,
+  'input_size':             None,  # Obtain from environment
+  'hidden_layers':          [64, 32, 16],
+  'output_size':            None,  # Obtain from environment
+  'hidden_layer_activation':F.relu,
+  'use_bias':               True,
   }

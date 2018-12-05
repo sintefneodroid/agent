@@ -45,18 +45,16 @@ All value iteration agents should inherit from this class
 
     super().__init__(*args, **kwargs)
 
-
-
-
-
   def _build(self, **kwargs) -> None:
 
     self._actor_arch_parameters['input_size'] = self._input_size
-    if not self._actor_arch_parameters['hidden_layers']:
+    if ('hidden_layers' not in self._actor_arch_parameters or
+        not self._actor_arch_parameters['hidden_layers']):
       self._actor_arch_parameters['hidden_layers'] = self._hidden_layers
     self._actor_arch_parameters['output_size'] = self._output_size
     self._critic_arch_parameters['input_size'] = self._input_size
-    if not self._critic_arch_parameters['hidden_layers']:
+    if ('hidden_layers' not in self._critic_arch_parameters or
+        not self._critic_arch_parameters['hidden_layers']):
       self._critic_arch_parameters['hidden_layers'] = self._hidden_layers
     self._critic_arch_parameters['output_size'] = self._output_size
 
@@ -69,7 +67,7 @@ All value iteration agents should inherit from this class
 
     # Construct the optimizers for actor and critic
     self._actor_optimiser = self._actor_optimiser_spec.constructor(self._actor.parameters(),
-                                                                   **self._critic_optimiser_spec.kwargs
+                                                                   **self._actor_optimiser_spec.kwargs
                                                                    )
     self._critic_optimiser = self._critic_optimiser_spec.constructor(self._critic.parameters(),
                                                                      **self._critic_optimiser_spec.kwargs

@@ -39,11 +39,11 @@ class PGAgent(PolicyAgent):
     self._trajectory_trace = U.TrajectoryTraceBuffer()
 
     self._policy_arch_params = NamedOrderedDictionary({
-      'input_size':   None,  # Obtain from environment
-      'hidden_layers':None,
-      'output_size':  None,  # Obtain from environment
-      'hidden_layer_activation':   torch.relu,
-      'use_bias':     True,
+      'input_size':             None,  # Obtain from environment
+      'hidden_layers':          None,
+      'output_size':            None,  # Obtain from environment
+      'hidden_layer_activation':torch.relu,
+      'use_bias':               True,
       })
 
     self._use_cuda = False
@@ -78,7 +78,6 @@ class PGAgent(PolicyAgent):
                                           lr=self._optimiser_learning_rate,
                                           weight_decay=self._optimiser_weight_decay)
 
-
   def _optimise_wrt(self, loss, **kwargs):
     self.optimiser.zero_grad()
     loss.backward()
@@ -112,12 +111,12 @@ class PGAgent(PolicyAgent):
       action = action_sample.item()
       entropy = distribution.entropy().mean().item()
 
-    return action,log_prob , entropy
+    return action, log_prob, entropy
 
   def sample_continuous_action(self, state):
     model_input = U.to_tensor([state], device=self._device, dtype=self._state_type)
 
-    mean,log_std = self._policy(model_input)
+    mean, log_std = self._policy(model_input)
 
     std = log_std.exp().expand_as(mean)
     distribution = Normal(mean, std)
@@ -127,7 +126,6 @@ class PGAgent(PolicyAgent):
     with torch.no_grad():
       entropy = distribution.entropy().mean().item()
       action = action.item()
-
 
     '''eps = torch.randn(mean.size()).to(self._device)
     # calculate the probability
@@ -214,7 +212,7 @@ class PGAgent(PolicyAgent):
     for t in T:
       action, action_log_probs, entropy, *_ = self.sample_action(state)
 
-      if hasattr(environment,'step'):
+      if hasattr(environment, 'step'):
         state, signal, terminated, info = environment.step(action)
       else:
         info = environment.react(action)
@@ -238,7 +236,7 @@ class PGAgent(PolicyAgent):
     if train:
       self.update()
 
-    return episode_signal, episode_length, episode_entropy/episode_length
+    return episode_signal, episode_length, episode_entropy / episode_length
 
   def infer(self, env, render=True):
 

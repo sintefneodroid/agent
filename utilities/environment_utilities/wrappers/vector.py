@@ -9,9 +9,6 @@ import gym
 import numpy as np
 
 
-
-
-
 def worker(remote, parent_remote, env_fn_wrapper):
   parent_remote.close()
   env = env_fn_wrapper.x()

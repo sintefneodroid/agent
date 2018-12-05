@@ -22,23 +22,23 @@ CONFIG_FILE = __file__
 VERBOSE = False
 USE_LOGGING = True
 
-#class LearningConfig(object):
+# class LearningConfig(object):
 #  pass
 
-#class EnvironmentConfig(object):
+# class EnvironmentConfig(object):
 #  pass
 
-input_size= None  # Obtain from environment
-hidden_layers= None  # Obtain from input and output size
-output_size= None  # Obtain from environment
+input_size = None  # Obtain from environment
+hidden_layers = None  # Obtain from input and output size
+output_size = None  # Obtain from environment
 
 # Architecture
 POLICY_ARCH_PARAMS = NamedOrderedDictionary({
-  'input_size':   input_size,
-  'hidden_layers':hidden_layers,
-  'output_size':  output_size,
-  'hidden_layer_activation':   torch.relu,
-  'use_bias':     True,
+  'input_size':             input_size,
+  'hidden_layers':          hidden_layers,
+  'output_size':            output_size,
+  'hidden_layer_activation':torch.relu,
+  'use_bias':               True,
   })
 POLICY_ARCH = U.CategoricalMLP
 

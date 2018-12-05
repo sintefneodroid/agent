@@ -13,20 +13,20 @@ CONFIG_FILE = __file__
 
 # Architecture
 POLICY_ARCH_PARAMS = {
-  'input_size':   None,  # Obtain from environment
-  'hidden_layer_activation':   torch.tanh,
-  'hidden_layers':[128, 64, 32, 16],
-  'output_size':  None,  # Obtain from environment,
-  'use_bias':     False,
+  'input_size':             None,  # Obtain from environment
+  'hidden_layer_activation':torch.tanh,
+  'hidden_layers':          [128, 64, 32, 16],
+  'output_size':            None,  # Obtain from environment,
+  'use_bias':               False,
   }
 POLICY_ARCH = CategoricalMLP
 
 VALUE_ARCH_PARAMS = {
-  'input_size':   None,  # Obtain from environment
-  'hidden_layer_activation':   torch.tanh,
-  'hidden_layers':[128, 64, 32, 16],
-  'output_size':  None,  # Obtain from environment
-  'use_bias':     False,
+  'input_size':             None,  # Obtain from environment
+  'hidden_layer_activation':torch.tanh,
+  'hidden_layers':          [128, 64, 32, 16],
+  'output_size':            None,  # Obtain from environment
+  'use_bias':               False,
   }
 VALUE_ARCH = MLP
 

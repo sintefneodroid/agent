@@ -76,8 +76,8 @@ def parse_arguments(desc, C):
   add_bool_arg(parser,
                'connect_to_running',
                dest='CONNECT_TO_RUNNING',
-                default=C.CONNECT_TO_RUNNING,
-                help='Connect to already running simulation or start an instance')
+               default=C.CONNECT_TO_RUNNING,
+               help='Connect to already running simulation or start an instance')
   parser.add_argument(
       '--SEED',
       '-S',
