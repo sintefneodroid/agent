@@ -260,7 +260,7 @@ class PGAgent(PolicyAgent):
                          render=False,
                          render_frequency=100,
                          stat_frequency=10,
-                         ):
+                         )->NamedOrderedDictionary:
 
     E = range(1, rollouts)
     E = tqdm(E, f'Episode: {1}', leave=False)
@@ -290,7 +290,7 @@ class PGAgent(PolicyAgent):
       if self._end_training:
         break
 
-    return self._policy, stats
+    return NamedOrderedDictionary(model=self._policy, stats=stats)
   # endregion
 
 

@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+from collections import Iterable
 from itertools import count
 
 import draugr
 
 from configs import get_upper_case_vars_or_protected_of
-from neodroid.wrappers.action_encoding_wrappers import BinaryActionEncodingWrapper
+from neodroid.wrappers.utility_wrappers.action_encoding_wrappers import BinaryActionEncodingWrapper
 
 __author__ = 'cnheider'
 import glob
@@ -35,20 +36,22 @@ def regular_train_agent_procedure(agent_type, config, environment=None):
 
   listener.start()
   try:
-    models, stats = agent.train(environment,
+    training_resume = agent.train(environment,
                                 rollouts=config.ROLLOUTS,
                                 render=config.RENDER_ENVIRONMENT)
   finally:
     listener.stop()
 
   identifier = count()
-  if isinstance(models, list) or isinstance(models, tuple):
-    for model in models:
+  if isinstance(training_resume.model, Iterable):
+    for model in training_resume.model:
       U.save_model(model, config, name=f'{agent.__class__.__name__}-{identifier.__next__()}')
   else:
-    U.save_model(models, config, name=f'{agent.__class__.__name__}-{identifier.__next__()}')
+    U.save_model(training_resume.model, config, name=f'{agent.__class__.__name__}-{identifier.__next__()}')
 
-  stats.save()
+    training_resume.stats.save(project_name=config.PROJECT,
+                               config_name=config.CONFIG_NAME,
+                               directory=config.LOG_DIRECTORY)
 
   environment.close()
 

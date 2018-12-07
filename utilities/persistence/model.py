@@ -18,38 +18,36 @@ def load_latest_model(configuration):
 
 
 def save_model(model, configuration, *, name=''):
-  _model_date = datetime.datetime.now()
+  model_date = datetime.datetime.now()
   prepend = ''
   if len(name) > 0:
     prepend = f'{name}-'
-  _model_name = prepend + \
-                f'{configuration.PROJECT}-' \
-                  f'{configuration.CONFIG_NAME.replace(".", "_")}-' \
-                  f'{_model_date.strftime("%y%m%d%H%M")}.model'
+  model_name = (prepend +
+                f'{configuration.PROJECT}-'
+                f'{configuration.CONFIG_NAME.replace(".", "_")}-'
+                f'{model_date.strftime("%y%m%d%H%M")}.model')
 
-  _model_path = os.path.join(configuration.MODEL_DIRECTORY, _model_name)
+  model_path = os.path.join(configuration.MODEL_DIRECTORY, model_name)
   try:
-    _save(model, _model_path, configuration)
+    save_model_and_configuration(model=model, model_path=model_path, configuration=configuration)
   except FileNotFoundError as e:
     print(e)
     saved = False
     while not saved:
       file_path = input('Enter another file path: ')
-      _model_path = os.path.join(file_path, _model_name)
+      model_path = os.path.join(file_path, model_name)
       try:
-        saved = _save(model, _model_path, configuration)
+        saved = save_model_and_configuration(model=model, model_path=model_path, configuration=configuration)
       except FileNotFoundError as e:
         print(e)
         saved = False
 
-  print(f'Saved model at {_model_path}')
+  print(f'Saved model at {model_path}')
 
 
-def _save(model, model_path, configuration):
+def save_model_and_configuration(*, model, model_path, configuration):
   if model and model_path:
-    torch.save(
-        model.state_dict(), model_path
-        )  # TODO possible to .cpu() copy would be great
+    torch.save(model.state_dict(), model_path)  # TODO possible to .cpu() copy would be great
     save_config(model_path, configuration)
     return True
   return False

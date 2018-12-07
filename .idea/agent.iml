@@ -7,6 +7,8 @@
     <orderEntry type="module" module-name="neo" />
     <orderEntry type="module" module-name="sintefneodroid.github.io" />
     <orderEntry type="module" module-name="documentation" />
+    <orderEntry type="module" module-name="warg" />
+    <orderEntry type="module" module-name="draugr" />
   </component>
   <component name="PyDocumentationSettings">
     <option name="renderExternalDocumentation" value="true" />

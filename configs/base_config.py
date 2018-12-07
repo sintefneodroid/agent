@@ -5,7 +5,7 @@ from pathlib import Path
 
 import torch
 import torch.nn.functional as F
-from warg import NamedOrderedDictionary
+from warg import NamedOrderedDictionary as NOD
 
 import utilities as U
 from agents.pg_agent import PGAgent
@@ -33,7 +33,7 @@ hidden_layers = None  # Obtain from input and output size
 output_size = None  # Obtain from environment
 
 # Architecture
-POLICY_ARCH_PARAMS = NamedOrderedDictionary({
+POLICY_ARCH_PARAMS = NOD({
   'input_size':             input_size,
   'hidden_layers':          hidden_layers,
   'output_size':            output_size,

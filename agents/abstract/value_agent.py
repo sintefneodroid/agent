@@ -102,7 +102,7 @@ All value iteration agents should inherit from this class
       render_frequency=100,
       stat_frequency=100,
       **kwargs
-      ):
+      )->NamedOrderedDictionary:
     '''
       :param _environment:
       :type _environment:
@@ -149,7 +149,7 @@ All value iteration agents should inherit from this class
       if self._end_training:
         break
 
-    return self._value_model, stats
+    return NamedOrderedDictionary(model=self._value_model, stats=stats)
 
   # endregion
 
@@ -174,7 +174,7 @@ All value iteration agents should inherit from this class
 
   # region Protected
 
-  def _train(self, *args, **kwargs):
+  def _train(self, *args, **kwargs) ->NamedOrderedDictionary:
     return self.train_episodically(*args, **kwargs)
 
   # endregion

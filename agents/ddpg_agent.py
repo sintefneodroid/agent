@@ -84,7 +84,7 @@ class DDPGAgent(ActorCriticAgent):
 
     self._end_training = False
 
-    self._batch_size = 60
+    self._batch_size = 64
 
     self._end_training = False
 

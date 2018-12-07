@@ -63,7 +63,7 @@ All policy iteration agents should inherit from this class
 
     self._policy_arch_params['hidden_layers'] = self._hidden_layers
 
-  def _train(self, *args, **kwargs):
+  def _train(self, *args, **kwargs)->NamedOrderedDictionary:
     return self.train_episodically(*args, **kwargs)
 
   # endregion
@@ -75,7 +75,7 @@ All policy iteration agents should inherit from this class
     raise NotImplementedError
 
   @abstractmethod
-  def train_episodically(self, *args, **kwargs):
+  def train_episodically(self, *args, **kwargs) -> NamedOrderedDictionary:
     raise NotImplementedError
 
   # endregion

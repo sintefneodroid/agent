@@ -11,7 +11,7 @@ import time
 import torch
 from tqdm import tqdm
 
-from neodroid.wrappers.action_encoding_wrappers import BinaryActionEncodingCurriculumEnvironment
+from neodroid.wrappers.utility_wrappers.action_encoding_wrappers import BinaryActionEncodingCurriculumEnvironment
 
 tqdm.monitor_interval = 0
 

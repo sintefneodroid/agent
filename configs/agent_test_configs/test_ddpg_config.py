@@ -36,6 +36,7 @@ EVALUATION_FUNCTION = F.smooth_l1_loss
 ACTOR_LEARNING_RATE = 3e-4
 CRITIC_LEARNING_RATE = 3e-3
 Q_WEIGHT_DECAY = 0.01
+BATCH_SIZE = 64
 
 ACTOR_OPTIMISER_SPEC = U.OptimiserSpecification(constructor=OPTIMISER_TYPE,
                                                 kwargs=dict(lr=ACTOR_LEARNING_RATE)
@@ -60,16 +61,17 @@ SIGNAL_CLIPPING = False
 ROLLOUTS = 1000
 
 # Architecture
-ACTOR_ARCH_PARAMETERS = {
+ACTOR_ARCH_PARAMETERS = NOD({
   'input_size':       None,  # Obtain from environment
+  #'hidden_layers' : [256],
   'output_activation':torch.tanh,
   'output_size':      None,  # Obtain from environment
-  }
+  })
 ACTOR_ARCH = U.DDPGActorArchitecture
 
-CRITIC_ARCH_PARAMETERS = {
+CRITIC_ARCH_PARAMETERS = NOD({
   'input_size':       None,  # Obtain from environment
-  'output_activation':torch.tanh,
+  #'hidden_layers' : [256],
   'output_size':      None,  # Obtain from environment
-  }
+  })
 CRITIC_ARCH = U.DDPGCriticArchitecture

@@ -3,6 +3,8 @@
   <component name="VcsDirectoryMappings">
     <mapping directory="" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/../documentation" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../draugr" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/../sintefneodroid.github.io" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../warg" vcs="Git" />
   </component>
 </project>

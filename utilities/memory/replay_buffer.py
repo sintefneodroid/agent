@@ -1,7 +1,7 @@
 import random
-from collections import deque, namedtuple
+from collections import deque
 
-from .transitions import Transition
+from utilities.memory.transitions import Transition
 
 
 class ReplayBuffer(object):

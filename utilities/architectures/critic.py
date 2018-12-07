@@ -17,9 +17,12 @@ class DDPGCriticArchitecture(MLP):
                **kwargs):
     super().__init__(output_size=output_size, **kwargs)
 
+    prev_layer_size = self._input_size
+    if len(self._hidden_layers) > 1:
+      prev_layer_size = self._hidden_layers[-2]
     setattr(self,
             f'_fc{self.num_of_layer}',
-            nn.Linear(self._hidden_layers[-2] + output_size[0],
+            nn.Linear(prev_layer_size + output_size[0],
                       self._hidden_layers[-1]))
 
     self._head = nn.Linear(self._hidden_layers[-1], 1)

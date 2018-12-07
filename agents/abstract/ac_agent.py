@@ -46,17 +46,25 @@ All value iteration agents should inherit from this class
     super().__init__(*args, **kwargs)
 
   def _build(self, **kwargs) -> None:
-
-    self._actor_arch_parameters['input_size'] = self._input_size
+    if ('input_size' not in self._actor_arch_parameters or
+        not self._actor_arch_parameters['input_size']):
+      self._actor_arch_parameters['input_size'] = self._input_size
     if ('hidden_layers' not in self._actor_arch_parameters or
         not self._actor_arch_parameters['hidden_layers']):
       self._actor_arch_parameters['hidden_layers'] = self._hidden_layers
-    self._actor_arch_parameters['output_size'] = self._output_size
-    self._critic_arch_parameters['input_size'] = self._input_size
+    if ('output_size' not in self._actor_arch_parameters or
+        not self._actor_arch_parameters['output_size']):
+      self._actor_arch_parameters['output_size'] = self._output_size
+
+    if ('input_size' not in self._critic_arch_parameters or
+        not self._critic_arch_parameters['input_size']):
+      self._critic_arch_parameters['input_size'] = self._input_size
     if ('hidden_layers' not in self._critic_arch_parameters or
         not self._critic_arch_parameters['hidden_layers']):
       self._critic_arch_parameters['hidden_layers'] = self._hidden_layers
-    self._critic_arch_parameters['output_size'] = self._output_size
+    if ('output_size' not in self._critic_arch_parameters or
+        not self._critic_arch_parameters['output_size']):
+      self._critic_arch_parameters['output_size'] = self._output_size
 
     # Construct actor and critic
     self._actor = self._actor_arch(**self._actor_arch_parameters).to(self._device)

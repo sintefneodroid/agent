@@ -133,17 +133,16 @@ All agent should inherit from this class
 
     self._build(**kwargs)
 
-  def train(self, *args, **kwargs) -> Tuple[Any, Any]:
-
+  def train(self, *args, **kwargs) -> NamedOrderedDictionary:
     training_start_timestamp = time.time()
 
-    res = self._train(*args, **kwargs)
+    named_ordered_dict = self._train(*args, **kwargs)
 
     time_elapsed = time.time() - training_start_timestamp
     end_message = f'Training done, time elapsed: {time_elapsed // 60:.0f}m {time_elapsed % 60:.0f}s'
     print('\n{} {} {}\n'.format('-' * 9, end_message, '-' * 9))
 
-    return res
+    return named_ordered_dict
 
   def set_config_attributes(self, config, **kwargs) -> None:
     if config:
@@ -263,7 +262,7 @@ Tries to infer input and output size from env if either _input_size or _output_s
     raise NotImplementedError
 
   @abstractmethod
-  def _train(self, *args, **kwargs) -> Tuple[Any, Any]:
+  def _train(self, *args, **kwargs) -> NamedOrderedDictionary:
     raise NotImplementedError
 
   # endregion

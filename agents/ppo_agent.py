@@ -37,7 +37,7 @@ class PPOAgent(ActorCriticAgent):
     # self._reached_horizon_penalty = -10.
 
     self._actor_lr = 3e-4
-    self._critic_lr = 3e-4
+    self._critic_lr = 3e-3
     self._entropy_reg_coef = 3e-3
     self._value_reg_coef = 5e-1
     self._batch_size = 64
