@@ -36,36 +36,16 @@ All value iteration agents should inherit from this class
     self._optimiser_type = torch.optim.Adam
 
     self._actor_optimiser_spec = U.OptimiserSpecification(constructor=self._optimiser_type,
-                                                          kwargs=dict(lr=0.0001)
+                                                          kwargs={'lr':3e-4}
                                                           )
     self._critic_optimiser_spec = U.OptimiserSpecification(constructor=self._optimiser_type,
-                                                           kwargs=dict(lr=0.001,
-                                                                       weight_decay=0.01)
+                                                           kwargs={'lr':3e-3,
+                                                                       'weight_decay':3e-2}
                                                            )
 
     super().__init__(*args, **kwargs)
 
   def _build(self, **kwargs) -> None:
-    if ('input_size' not in self._actor_arch_parameters or
-        not self._actor_arch_parameters['input_size']):
-      self._actor_arch_parameters['input_size'] = self._input_size
-    if ('hidden_layers' not in self._actor_arch_parameters or
-        not self._actor_arch_parameters['hidden_layers']):
-      self._actor_arch_parameters['hidden_layers'] = self._hidden_layers
-    if ('output_size' not in self._actor_arch_parameters or
-        not self._actor_arch_parameters['output_size']):
-      self._actor_arch_parameters['output_size'] = self._output_size
-
-    if ('input_size' not in self._critic_arch_parameters or
-        not self._critic_arch_parameters['input_size']):
-      self._critic_arch_parameters['input_size'] = self._input_size
-    if ('hidden_layers' not in self._critic_arch_parameters or
-        not self._critic_arch_parameters['hidden_layers']):
-      self._critic_arch_parameters['hidden_layers'] = self._hidden_layers
-    if ('output_size' not in self._critic_arch_parameters or
-        not self._critic_arch_parameters['output_size']):
-      self._critic_arch_parameters['output_size'] = self._output_size
-
     # Construct actor and critic
     self._actor = self._actor_arch(**self._actor_arch_parameters).to(self._device)
     self._target_actor = self._actor_arch(**self._actor_arch_parameters).to(self._device).eval()
@@ -80,6 +60,33 @@ All value iteration agents should inherit from this class
     self._critic_optimiser = self._critic_optimiser_spec.constructor(self._critic.parameters(),
                                                                      **self._critic_optimiser_spec.kwargs
                                                                      )
+
+  def maybe_infer_sizes(self, env):
+    super().maybe_infer_sizes(env)
+
+    if ('input_size' not in self._actor_arch_parameters or
+        not self._actor_arch_parameters['input_size']):
+      self._actor_arch_parameters['input_size'] = self._input_size
+
+    if ('hidden_layers' not in self._actor_arch_parameters or
+        not self._actor_arch_parameters['hidden_layers']):
+      self._actor_arch_parameters['hidden_layers'] = self._hidden_layers
+
+    if ('output_size' not in self._actor_arch_parameters or
+        not self._actor_arch_parameters['output_size']):
+      self._actor_arch_parameters['output_size'] = self._output_size
+
+    if ('input_size' not in self._critic_arch_parameters or
+        not self._critic_arch_parameters['input_size']):
+      self._critic_arch_parameters['input_size'] = self._input_size
+
+    if ('hidden_layers' not in self._critic_arch_parameters or
+        not self._critic_arch_parameters['hidden_layers']):
+      self._critic_arch_parameters['hidden_layers'] = self._hidden_layers
+
+    if ('output_size' not in self._critic_arch_parameters or
+        not self._critic_arch_parameters['output_size']):
+      self._critic_arch_parameters['output_size'] = self._output_size
 
   # endregion
 

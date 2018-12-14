@@ -5,7 +5,7 @@ import draugr
 __author__ = 'cnheider'
 
 import torch
-# import configs.base_config as C
+
 from tqdm import tqdm
 
 tqdm.monitor_interval = 0
@@ -19,9 +19,9 @@ def train_agent(config, agent):
   neo.seed(config.SEED)
   torch.manual_seed(config.SEED)
 
-  env = neo(
-      environment_name=config.ENVIRONMENT_NAME, connect_to_running=config.CONNECT_TO_RUNNING
-      )
+  env = neo(environment_name=config.ENVIRONMENT_NAME,
+            connect_to_running=config.CONNECT_TO_RUNNING
+            )
   env.seed(config.SEED)
 
   agent.build(env, device)
@@ -30,15 +30,27 @@ def train_agent(config, agent):
 
   listener.start()
   try:
-    _trained_model, running_signals, running_lengths, *training_statistics = agent.train(
-        env, config.ROLLOUTS, render=config.RENDER_ENVIRONMENT
-        )
+    (trained_model,
+     running_signals,
+     running_lengths,
+     *training_statistics) = agent.train(env,
+                                                                                          config.ROLLOUTS,
+                                                                                          render=config.RENDER_ENVIRONMENT
+                                                                                          )
   finally:
     listener.stop()
 
-  draugr.save_statistic(running_signals, 'running_signals', LOG_DIRECTORY=C.LOG_DIRECTORY)
-  draugr.save_statistic(running_lengths, 'running_lengths', LOG_DIRECTORY=C.LOG_DIRECTORY)
-  U.save_model(_trained_model, config)
+  draugr.save_statistic(running_signals,
+                        stat_name='running_signals',
+                        config_name=C.CONFIG_NAME,
+                        project_name=C.PROJECT,
+                        directory=C.LOG_DIRECTORY)
+  draugr.save_statistic(running_lengths,
+                        stat_name='running_lengths',
+                        directory=C.LOG_DIRECTORY,
+                        config_name=C.CONFIG_NAME,
+                        project_name=C.PROJECT)
+  U.save_model(trained_model, config)
 
   env.close()
 

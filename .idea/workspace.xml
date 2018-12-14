@@ -9,24 +9,24 @@
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/agents/abstract/ac_agent.py" beforeDir="false" afterPath="$PROJECT_DIR$/agents/abstract/ac_agent.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/agents/abstract/agent.py" beforeDir="false" afterPath="$PROJECT_DIR$/agents/abstract/agent.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/agents/abstract/policy_agent.py" beforeDir="false" afterPath="$PROJECT_DIR$/agents/abstract/policy_agent.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/agents/abstract/value_agent.py" beforeDir="false" afterPath="$PROJECT_DIR$/agents/abstract/value_agent.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/agents/ddpg_agent.py" beforeDir="false" afterPath="$PROJECT_DIR$/agents/ddpg_agent.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/agents/pg_agent.py" beforeDir="false" afterPath="$PROJECT_DIR$/agents/pg_agent.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/agents/ppo_agent.py" beforeDir="false" afterPath="$PROJECT_DIR$/agents/ppo_agent.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/configs/agent_test_configs/test_ddpg_config.py" beforeDir="false" afterPath="$PROJECT_DIR$/configs/agent_test_configs/test_ddpg_config.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/configs/base_config.py" beforeDir="false" afterPath="$PROJECT_DIR$/configs/base_config.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/experiments/grid_world/regular_grid_world.py" beforeDir="false" afterPath="$PROJECT_DIR$/experiments/grid_world/regular_grid_world.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/procedures/agent_tests.py" beforeDir="false" afterPath="$PROJECT_DIR$/procedures/agent_tests.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/procedures/curriculum_training.py" beforeDir="false" afterPath="$PROJECT_DIR$/procedures/curriculum_training.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build_and_upload_package.sh" beforeDir="false" afterPath="$PROJECT_DIR$/build_and_upload_package.sh" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/clean_generated_files.sh" beforeDir="false" afterPath="$PROJECT_DIR$/clean_generated_files.sh" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/clean_package.sh" beforeDir="false" afterPath="$PROJECT_DIR$/clean_package.sh" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/experiments/continuous/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/experiments/continuous/c2d.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/experiments/continuous/c2d_config.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/experiments/grid_world/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/experiments/grid_world/cnn_grid_world.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/experiments/grid_world/cnn_grid_world_config.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/experiments/grid_world/curriculum_grid_world.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/experiments/grid_world/grid_world_config.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/experiments/grid_world/regular_grid_world.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/experiments/manipulator.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/experiments/segmentation/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/experiments/segmentation/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/experiments/segmentation/unet_segmentation.py" beforeDir="false" afterPath="$PROJECT_DIR$/experiments/segmentation/unet_segmentation.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/experiments/visual/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/experiments/visual/seek_and_avoid.py" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/utilities/architectures/critic.py" beforeDir="false" afterPath="$PROJECT_DIR$/utilities/architectures/critic.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/utilities/architectures/mlp.py" beforeDir="false" afterPath="$PROJECT_DIR$/utilities/architectures/mlp.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/utilities/memory/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/utilities/memory/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/utilities/memory/experimental/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/utilities/memory/experimental/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/utilities/memory/experimental/expandable_circular_buffer.py" beforeDir="false" afterPath="$PROJECT_DIR$/utilities/memory/expandable_circular_buffer.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/utilities/memory/experimental/replay_buffer.py" beforeDir="false" afterPath="$PROJECT_DIR$/utilities/memory/replay_buffer.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/utilities/memory/experimental/transitions.py" beforeDir="false" afterPath="$PROJECT_DIR$/utilities/memory/transitions.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/utilities/persistence/model.py" beforeDir="false" afterPath="$PROJECT_DIR$/utilities/persistence/model.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../documentation/.idea/documentation.iml" beforeDir="false" afterPath="$PROJECT_DIR$/../documentation/.idea/documentation.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../documentation/Makefile" beforeDir="false" afterPath="$PROJECT_DIR$/../documentation/Makefile" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../documentation/source/abstractions/actor.rst" beforeDir="false" afterPath="$PROJECT_DIR$/../documentation/source/concepts/actor.rst" afterDir="false" />
@@ -42,20 +42,17 @@
       <change beforePath="$PROJECT_DIR$/../documentation/source/index.rst" beforeDir="false" afterPath="$PROJECT_DIR$/../documentation/source/index.rst" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../draugr/draugr/statistics_utilities/statistic_aggregator.py" beforeDir="false" afterPath="$PROJECT_DIR$/../draugr/draugr/statistics_utilities/statistic_aggregator.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../draugr/draugr/statistics_utilities/statistic_collection.py" beforeDir="false" afterPath="$PROJECT_DIR$/../draugr/draugr/statistics_utilities/statistic_collection.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../draugr/draugr/statistics_utilities/statistics.py" beforeDir="false" afterPath="$PROJECT_DIR$/../draugr/draugr/statistics_utilities/statistics.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../neo/docs/source/conf.py" beforeDir="false" afterPath="$PROJECT_DIR$/../neo/docs/source/conf.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../neo/neodroid/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/../neo/neodroid/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../neo/neodroid/wrappers/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/../neo/neodroid/wrappers/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../neo/neodroid/wrappers/action_encoding_wrappers.py" beforeDir="false" afterPath="$PROJECT_DIR$/../neo/neodroid/wrappers/utility_wrappers/action_encoding_wrappers.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../neo/neodroid/wrappers/curriculum_wrapper/curriculum_wrapper.py" beforeDir="false" afterPath="$PROJECT_DIR$/../neo/neodroid/wrappers/curriculum_wrapper/curriculum_wrapper.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../neo/neodroid/wrappers/experimental/ale_wrapper/ale_wrapper.py" beforeDir="false" afterPath="$PROJECT_DIR$/../neo/neodroid/wrappers/experimental/ale_wrapper/ale_wrapper.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../neo/neodroid/wrappers/experimental/flask_api_wrapper/flask_api_wrapper.py" beforeDir="false" afterPath="$PROJECT_DIR$/../neo/neodroid/wrappers/experimental/flask_api_wrapper/flask_api_wrapper.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../neo/neodroid/wrappers/formal_wrapper/formal_wrapper.py" beforeDir="false" afterPath="$PROJECT_DIR$/../neo/neodroid/wrappers/formal_wrapper/formal_wrapper.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../neo/neodroid/wrappers/gym_wrapper/gym_wrapper.py" beforeDir="false" afterPath="$PROJECT_DIR$/../neo/neodroid/wrappers/gym_wrapper/gym_wrapper.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../neo/neodroid/wrappers/normalise_actions_wrappers.py" beforeDir="false" afterPath="$PROJECT_DIR$/../neo/neodroid/wrappers/utility_wrappers/normalise_actions_wrappers.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../neo/neodroid/wrappers/observation_wrapper/observation_wrapper.py" beforeDir="false" afterPath="$PROJECT_DIR$/../neo/neodroid/wrappers/observation_wrapper/observation_wrapper.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../neo/neodroid/wrappers/single_environment_wrapper.py" beforeDir="false" afterPath="$PROJECT_DIR$/../neo/neodroid/wrappers/utility_wrappers/single_environment_wrapper.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../neo/neodroid/wrappers/utility_wrappers/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/../neo/neodroid/wrappers/utility_wrappers/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../envs_neodroid/.idea/envs_neodroid.iml" beforeDir="false" afterPath="$PROJECT_DIR$/../envs_neodroid/.idea/envs_neodroid.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../envs_neodroid/manage.py" beforeDir="false" afterPath="$PROJECT_DIR$/../envs_neodroid/manage.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../envs_neodroid/migrations/README" beforeDir="false" afterPath="$PROJECT_DIR$/../envs_neodroid/migrations/README" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../envs_neodroid/migrations/env.py" beforeDir="false" afterPath="$PROJECT_DIR$/../envs_neodroid/migrations/env.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../envs_neodroid/migrations/script.py.mako" beforeDir="false" afterPath="$PROJECT_DIR$/../envs_neodroid/migrations/script.py.mako" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../neo/neodroid/neodroid_utilities/debugging_utilities/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/../neo/neodroid/neodroid_utilities/debugging_utilities/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../neo/neodroid/neodroid_utilities/debugging_utilities/debug_print_return.py" beforeDir="false" afterPath="$PROJECT_DIR$/../neo/neodroid/neodroid_utilities/debugging_utilities/debug_print_return.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../neo/neodroid/neodroid_utilities/reaction_factories/multi_reaction_factory.py" beforeDir="false" afterPath="$PROJECT_DIR$/../neo/neodroid/neodroid_utilities/reaction_factories/multi_reaction_factory.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../neo/neodroid/neodroid_utilities/reaction_factories/single_reaction_factory.py" beforeDir="false" afterPath="$PROJECT_DIR$/../neo/neodroid/neodroid_utilities/reaction_factories/single_reaction_factory.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../sintefneodroid.github.io/external/documentation.html" beforeDir="false" afterPath="$PROJECT_DIR$/../sintefneodroid.github.io/external/documentation.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../warg/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/../warg/requirements.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../warg/warg/named_ordered_dictionary.py" beforeDir="false" afterPath="$PROJECT_DIR$/../warg/warg/named_ordered_dictionary.py" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/../neo/.idea/" />
@@ -89,13 +86,14 @@
     <SUITE FILE_PATH="coverage/policy$multi_armed_bandit.coverage" NAME="multi_armed_bandit Coverage Results" MODIFIED="1542010169937" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/../neo/samples" />
     <SUITE FILE_PATH="coverage/policy$ddpg_agent.coverage" NAME="ddpg_agent Coverage Results" MODIFIED="1542026031306" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/policy$c2d.coverage" NAME="c2d Coverage Results" MODIFIED="1542095117205" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/experiments/continuous" />
-    <SUITE FILE_PATH="coverage/agent$ddpg_agent.coverage" NAME="ddpg_agent Coverage Results" MODIFIED="1544106904149" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/agents" />
+    <SUITE FILE_PATH="coverage/agent$ddpg_agent.coverage" NAME="ddpg_agent Coverage Results" MODIFIED="1544646840883" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/agents" />
     <SUITE FILE_PATH="coverage/policy$actor_critic.coverage" NAME="actor_critic Coverage Results" MODIFIED="1542373343447" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/utilities/architectures" />
     <SUITE FILE_PATH="coverage/policy$statistic_aggregator.coverage" NAME="statistic_aggregator Coverage Results" MODIFIED="1541431373982" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/utilities/statistics_utilities" />
     <SUITE FILE_PATH="coverage/policy$observation_generator.coverage" NAME="observation_generator Coverage Results" MODIFIED="1541161308022" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/../neo/samples/minimal" />
     <SUITE FILE_PATH="coverage/policy$term_plot.coverage" NAME="term_plot Coverage Results" MODIFIED="1541593431797" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/term_plot" />
     <SUITE FILE_PATH="coverage/policy$visualise_pytorch_autograd_graph.coverage" NAME="visualise_pytorch_autograd_graph Coverage Results" MODIFIED="1541593550726" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/utilities/visualisation" />
     <SUITE FILE_PATH="coverage/policy$cli.coverage" NAME="cli Coverage Results" MODIFIED="1540987438158" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/../neo/neodroid" />
+    <SUITE FILE_PATH="coverage/agent$data_iterator.coverage" NAME="data_iterator Coverage Results" MODIFIED="1544646344608" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/../nisse/nisse" />
     <SUITE FILE_PATH="coverage/agent$RCLTrain.coverage" NAME="RCLTrain Coverage Results" MODIFIED="1511456533470" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/RCL" />
     <SUITE FILE_PATH="coverage/policy$named_ordered_dict.coverage" NAME="named_ordered_dict Coverage Results" MODIFIED="1543578916407" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/../warg/warg" />
     <SUITE FILE_PATH="coverage/policy$regular_grid_world.coverage" NAME="regular_grid_world Coverage Results" MODIFIED="1541415444544" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/experiments/grid_world" />
@@ -112,96 +110,135 @@
     <SUITE FILE_PATH="coverage/policy$upload_file.coverage" NAME="upload_file Coverage Results" MODIFIED="1540896086930" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/../bootml/drive_utilities" />
     <SUITE FILE_PATH="coverage/policy$pg_agent.coverage" NAME="pg_agent Coverage Results" MODIFIED="1543585412500" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/agents" />
     <SUITE FILE_PATH="coverage/policy$Flask_____envs_neodroid_app_py_.coverage" NAME="Flask (../envs_neodroid/app.py) Coverage Results" MODIFIED="1542364427021" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
-    <SUITE FILE_PATH="coverage/agent$named_ordered_dict.coverage" NAME="named_ordered_dict Coverage Results" MODIFIED="1544128495655" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/../warg/warg" />
+    <SUITE FILE_PATH="coverage/agent$named_ordered_dict.coverage" NAME="named_ordered_dict Coverage Results" MODIFIED="1544788435656" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/../warg/warg" />
     <SUITE FILE_PATH="coverage/policy$cem_agent.coverage" NAME="cem_agent Coverage Results" MODIFIED="1541532434130" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/agents/experimental" />
     <SUITE FILE_PATH="coverage/policy$gui.coverage" NAME="gui Coverage Results" MODIFIED="1541602505195" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/../neo/samples/guiclient" />
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="225">
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/agents/pg_agent.py">
+        <entry file="file://$PROJECT_DIR$/../warg/warg/named_ordered_dictionary.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1071">
-              <caret line="292" column="4" selection-start-line="292" selection-start-column="4" selection-end-line="292" selection-end-column="33" />
+            <state relative-caret-position="595">
+              <caret line="158" selection-start-line="158" selection-end-line="158" />
               <folding>
-                <element signature="e#603#619#0" expanded="true" />
-                <element signature="e#1826#1844#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/agents/abstract/agent.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1156">
-              <caret line="264" column="62" lean-forward="true" selection-start-line="264" selection-start-column="62" selection-end-line="264" selection-end-column="62" />
-              <folding>
-                <element signature="e#2258#2273#0" expanded="true" />
-                <element signature="e#3168#3516#0" expanded="true" />
-                <element signature="e#7168#7193#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/procedures/curriculum_training.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state>
-              <caret column="22" lean-forward="true" selection-start-column="22" selection-end-column="22" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/../draugr/draugr/statistics_utilities/statistics.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="119">
-              <caret line="9" column="51" selection-start-line="9" selection-start-column="51" selection-end-line="9" selection-end-column="51" />
-              <folding>
-                <element signature="e#212#647#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/procedures/agent_tests.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="714">
-              <caret line="47" column="16" selection-start-line="47" selection-start-column="16" selection-end-line="47" selection-end-column="16" />
-              <folding>
-                <element signature="e#47#79#0" expanded="true" />
-                <element signature="e#1574#2073#0" expanded="true" />
+                <element signature="e#48#79#0" expanded="true" />
+                <element signature="e#2203#2566#0" expanded="true" />
+                <element signature="e#3446#3898#0" expanded="true" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/utilities/persistence/model.py">
+        <entry file="file://$PROJECT_DIR$/../warg/requirements.txt">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="153">
-              <caret line="19" column="4" selection-start-line="19" selection-start-column="4" selection-end-line="19" selection-end-column="4" />
+            <state relative-caret-position="34">
+              <caret line="2" column="7" selection-start-line="2" selection-start-column="7" selection-end-line="2" selection-end-column="7" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/../warg/warg/auto_nod_return.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="221">
+              <caret line="13" column="39" lean-forward="true" selection-start-line="13" selection-start-column="39" selection-end-line="13" selection-end-column="39" />
               <folding>
-                <element signature="e#437#1339#0" expanded="true" />
+                <element signature="e#0#36#0" expanded="true" />
+                <element signature="e#29#196#0" expanded="true" />
+                <element signature="e#271#385#0" expanded="true" />
+                <element signature="e#482#515#0" expanded="true" />
+                <element signature="e#67#75#0" expanded="true" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/agents/abstract/value_agent.py">
+        <entry file="file://$USER_HOME$/miniconda3/lib/python3.6/site-packages/sorcery/core.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1428">
-              <caret line="177" column="11" selection-start-line="177" selection-start-column="11" selection-end-line="177" selection-end-column="11" />
+            <state relative-caret-position="884">
+              <caret line="331" selection-start-line="331" selection-end-line="331" />
               <folding>
-                <element signature="e#424#439#0" expanded="true" />
-                <element signature="e#2576#4158#0" expanded="true" />
+                <element signature="e#7323#7882#0" expanded="true" />
               </folding>
             </state>
           </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$USER_HOME$/miniconda3/lib/python3.6/site-packages/sorcery/spells.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="436">
+              <caret line="281" selection-start-line="281" selection-end-line="281" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/../neo/neodroid/neodroid_utilities/debugging_utilities/debug_func.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="85">
+              <caret line="10" column="10" lean-forward="true" selection-start-line="10" selection-start-column="10" selection-end-line="10" selection-end-column="10" />
+              <folding>
+                <element signature="e#47#81#0" expanded="true" />
+                <element signature="e#221#465#0" expanded="true" />
+                <element signature="e#404#447#0" expanded="true" />
+                <element signature="e#492#646#0" expanded="true" />
+                <element signature="e#713#822#0" expanded="true" />
+                <element signature="e#901#934#0" expanded="true" />
+                <element signature="e#1104#1115#0" expanded="true" />
+                <element signature="e#1148#1159#0" expanded="true" />
+                <element signature="e#1295#1307#0" expanded="true" />
+                <element signature="e#1340#1352#0" expanded="true" />
+                <element signature="e#1391#1406#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/../neo/neodroid/neodroid_utilities/debugging_utilities/d.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="765">
+              <caret line="45" column="19" selection-start-line="45" selection-start-column="19" selection-end-line="45" selection-end-column="19" />
+              <folding>
+                <element signature="e#72#90#0" expanded="true" />
+                <element signature="e#207#316#0" expanded="true" />
+                <element signature="e#363#604#0" expanded="true" />
+                <element signature="e#656#857#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/../neo/neodroid/neodroid_utilities/reaction_factories/multi_reaction_factory.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="204">
+              <caret line="12" column="10" selection-start-line="12" selection-start-column="10" selection-end-line="12" selection-end-column="10" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/../neo/neodroid/neodroid_utilities/logger.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="2193">
+              <caret line="301" column="45" lean-forward="true" selection-start-line="301" selection-start-column="45" selection-end-line="301" selection-end-column="45" />
+              <folding>
+                <element signature="e#7181#7237#0" expanded="true" />
+                <element signature="e#7258#7527#0" expanded="true" />
+                <element signature="e#7359#7497#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/../neo/neodroid/neodroid_utilities/__init__.py">
+          <provider selected="true" editor-type-id="text-editor" />
         </entry>
       </file>
     </leaf>
@@ -215,13 +252,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>_gae_tau</find>
-      <find>advantage_estimate</find>
-      <find>back_trace_advantages</find>
-      <find>mean_std_groups</find>
-      <find>compute_returns</find>
-      <find>_update_target_interval</find>
-      <find>_mini_batch_size</find>
       <find>inner_ppo_update</find>
       <find>_steps</find>
       <find>test_signals</find>
@@ -245,6 +275,13 @@
       <find>**stats</find>
       <find>NamedOrderedDictionary</find>
       <find>return NamedOrderedDictionary</find>
+      <find>warg</find>
+      <find>data</find>
+      <find>cls</find>
+      <find>debug</find>
+      <find>decorator</find>
+      <find>@print</find>
+      <find>print_return</find>
     </findStrings>
     <replaceStrings>
       <replace>torch.tanh</replace>
@@ -253,42 +290,18 @@
       <replace>NamedOrderedDictionary</replace>
       <replace>mean</replace>
       <replace>str_parameter</replace>
+      <replace>__dict__</replace>
+      <replace>print_return_value</replace>
     </replaceStrings>
   </component>
   <component name="Git.Settings">
-    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/../warg" />
   </component>
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/utilities/memory/experimental/transition.py" />
-        <option value="$PROJECT_DIR$/utilities/memory/experimental/expandable_circular_buffer.py" />
-        <option value="$PROJECT_DIR$/utilities/architectures/actor_critic.py" />
-        <option value="$PROJECT_DIR$/utilities/torch_utilities/updates/copying.py" />
-        <option value="$PROJECT_DIR$/agents/abstract/joint_ac_agent.py" />
-        <option value="$PROJECT_DIR$/utilities/torch_utilities/updates/advantage_estimation.py" />
-        <option value="$PROJECT_DIR$/configs/agent_test_configs/test_ppo_config.py" />
-        <option value="$PROJECT_DIR$/utilities/memory/experimental/replay_buffer.py" />
-        <option value="$PROJECT_DIR$/utilities/memory/experimental/scrap.py" />
-        <option value="$PROJECT_DIR$/docs/make.bat" />
-        <option value="$PROJECT_DIR$/docs/Makefile" />
-        <option value="$PROJECT_DIR$/../documentation/Makefile" />
-        <option value="$PROJECT_DIR$/../neo/docs/source/conf.py" />
-        <option value="$PROJECT_DIR$/docs/source/conf.py" />
-        <option value="$PROJECT_DIR$/../documentation/source/index.rst" />
-        <option value="$PROJECT_DIR$/docs/source/getting_started.rst" />
-        <option value="$PROJECT_DIR$/docs/source/index.rst" />
-        <option value="$PROJECT_DIR$/docs/source/concepts.rst" />
-        <option value="$PROJECT_DIR$/docs/source/api/torchrl.rst" />
-        <option value="$PROJECT_DIR$/docs/source/api/modules.rst" />
-        <option value="$PROJECT_DIR$/docs/source/api/agent.utilities.rst" />
-        <option value="$PROJECT_DIR$/docs/source/api/agent.agents.rst" />
-        <option value="$PROJECT_DIR$/docs/source/cli.rst" />
-        <option value="$PROJECT_DIR$/agents/ddpg_agent.py" />
         <option value="$PROJECT_DIR$/agents/ppo_agent.py" />
         <option value="$PROJECT_DIR$/configs/base_config.py" />
-        <option value="$PROJECT_DIR$/agents/abstract/ac_agent.py" />
-        <option value="$PROJECT_DIR$/utilities/architectures/critic.py" />
         <option value="$PROJECT_DIR$/configs/agent_test_configs/test_ddpg_config.py" />
         <option value="$PROJECT_DIR$/utilities/architectures/mlp.py" />
         <option value="$PROJECT_DIR$/experiments/grid_world/grid_world_config.py" />
@@ -303,15 +316,41 @@
         <option value="$PROJECT_DIR$/configs/agent_test_configs/test_dqn_config.py" />
         <option value="$PROJECT_DIR$/agents/dqn_agent.py" />
         <option value="$PROJECT_DIR$/utilities/persistence/model.py" />
-        <option value="$PROJECT_DIR$/../warg/warg/named_ordered_dictionary.py" />
         <option value="$PROJECT_DIR$/agents/pg_agent.py" />
         <option value="$PROJECT_DIR$/agents/abstract/value_agent.py" />
         <option value="$PROJECT_DIR$/agents/abstract/policy_agent.py" />
-        <option value="$PROJECT_DIR$/agents/abstract/agent.py" />
-        <option value="$PROJECT_DIR$/../draugr/draugr/statistics_utilities/statistic_collection.py" />
         <option value="$PROJECT_DIR$/../draugr/draugr/statistics_utilities/statistics.py" />
-        <option value="$PROJECT_DIR$/../draugr/draugr/statistics_utilities/statistic_aggregator.py" />
         <option value="$PROJECT_DIR$/procedures/agent_tests.py" />
+        <option value="$PROJECT_DIR$/../sintefneodroid.github.io/external/documentation.html" />
+        <option value="$PROJECT_DIR$/../draugr/draugr/statistics_utilities/statistic_aggregator.py" />
+        <option value="$PROJECT_DIR$/../draugr/draugr/statistics_utilities/statistic_collection.py" />
+        <option value="$PROJECT_DIR$/../nisse/setup.py" />
+        <option value="$PROJECT_DIR$/../nisse/NissePackage.py" />
+        <option value="$PROJECT_DIR$/../nisse/README.md" />
+        <option value="$PROJECT_DIR$/../nisse/nisse/__init__.py" />
+        <option value="$PROJECT_DIR$/experiments/classification/mnist/center_loss.py" />
+        <option value="$PROJECT_DIR$/experiments/segmentation/__init__.py" />
+        <option value="$PROJECT_DIR$/experiments/segmentation/unet_segmentation.py" />
+        <option value="$PROJECT_DIR$/experiments/rl/continuous/c2d.py" />
+        <option value="$PROJECT_DIR$/experiments/reconstruction/auto_encoding.py" />
+        <option value="$PROJECT_DIR$/experiments/rl/manipulator.py" />
+        <option value="$PROJECT_DIR$/experiments/rl/grid_world/cnn_grid_world.py" />
+        <option value="$PROJECT_DIR$/experiments/rl/grid_world/regular_grid_world.py" />
+        <option value="$PROJECT_DIR$/experiments/rl/seek_and_avoid.py" />
+        <option value="$PROJECT_DIR$/experiments/rl/grid_world/curriculum_grid_world.py" />
+        <option value="$PROJECT_DIR$/experiments/rl/grid_world/grid_world_config.py" />
+        <option value="$PROJECT_DIR$/build_and_upload_package.sh" />
+        <option value="$PROJECT_DIR$/utilities/architectures/critic.py" />
+        <option value="$PROJECT_DIR$/agents/ddpg_agent.py" />
+        <option value="$PROJECT_DIR$/agents/abstract/agent.py" />
+        <option value="$PROJECT_DIR$/agents/abstract/ac_agent.py" />
+        <option value="$PROJECT_DIR$/../nisse/nisse/data_iterator.py" />
+        <option value="$PROJECT_DIR$/../neo/neodroid/neodroid_utilities/debugging_utilities/debug_print_return.py" />
+        <option value="$PROJECT_DIR$/../neo/neodroid/neodroid_utilities/debugging_utilities/d.py" />
+        <option value="$PROJECT_DIR$/../neo/neodroid/neodroid_utilities/debugging_utilities/debug_func.py" />
+        <option value="$PROJECT_DIR$/../warg/requirements.txt" />
+        <option value="$PROJECT_DIR$/../warg/warg/named_ordered_dictionary.py" />
+        <option value="$PROJECT_DIR$/../warg/warg/auto_nod_return.py" />
       </list>
     </option>
   </component>
@@ -340,13 +379,13 @@
             <path>
               <item name="agent" type="b2602c69:ProjectViewProjectNode" />
               <item name="agent" type="462c0819:PsiDirectoryNode" />
-              <item name="agents" type="462c0819:PsiDirectoryNode" />
+              <item name="experiments" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="agent" type="b2602c69:ProjectViewProjectNode" />
               <item name="agent" type="462c0819:PsiDirectoryNode" />
-              <item name="agents" type="462c0819:PsiDirectoryNode" />
-              <item name="abstract" type="462c0819:PsiDirectoryNode" />
+              <item name="experiments" type="462c0819:PsiDirectoryNode" />
+              <item name="rl" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="agent" type="b2602c69:ProjectViewProjectNode" />
@@ -356,27 +395,92 @@
             <path>
               <item name="agent" type="b2602c69:ProjectViewProjectNode" />
               <item name="agent" type="462c0819:PsiDirectoryNode" />
-              <item name="tests" type="462c0819:PsiDirectoryNode" />
+              <item name="utilities" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="agent" type="b2602c69:ProjectViewProjectNode" />
               <item name="agent" type="462c0819:PsiDirectoryNode" />
               <item name="utilities" type="462c0819:PsiDirectoryNode" />
+              <item name="architectures" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="agent" type="b2602c69:ProjectViewProjectNode" />
-              <item name="draugr" type="462c0819:PsiDirectoryNode" />
+              <item name="agent" type="462c0819:PsiDirectoryNode" />
+              <item name="utilities" type="462c0819:PsiDirectoryNode" />
+              <item name="exceptions" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="agent" type="b2602c69:ProjectViewProjectNode" />
-              <item name="draugr" type="462c0819:PsiDirectoryNode" />
-              <item name="draugr" type="462c0819:PsiDirectoryNode" />
+              <item name="neo" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="agent" type="b2602c69:ProjectViewProjectNode" />
-              <item name="draugr" type="462c0819:PsiDirectoryNode" />
-              <item name="draugr" type="462c0819:PsiDirectoryNode" />
-              <item name="statistics_utilities" type="462c0819:PsiDirectoryNode" />
+              <item name="neo" type="462c0819:PsiDirectoryNode" />
+              <item name="neodroid" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="agent" type="b2602c69:ProjectViewProjectNode" />
+              <item name="neo" type="462c0819:PsiDirectoryNode" />
+              <item name="neodroid" type="462c0819:PsiDirectoryNode" />
+              <item name="neodroid_utilities" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="agent" type="b2602c69:ProjectViewProjectNode" />
+              <item name="neo" type="462c0819:PsiDirectoryNode" />
+              <item name="neodroid" type="462c0819:PsiDirectoryNode" />
+              <item name="neodroid_utilities" type="462c0819:PsiDirectoryNode" />
+              <item name="debugging_utilities" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="agent" type="b2602c69:ProjectViewProjectNode" />
+              <item name="neo" type="462c0819:PsiDirectoryNode" />
+              <item name="neodroid" type="462c0819:PsiDirectoryNode" />
+              <item name="neodroid_utilities" type="462c0819:PsiDirectoryNode" />
+              <item name="download_utilities" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="agent" type="b2602c69:ProjectViewProjectNode" />
+              <item name="neo" type="462c0819:PsiDirectoryNode" />
+              <item name="neodroid" type="462c0819:PsiDirectoryNode" />
+              <item name="neodroid_utilities" type="462c0819:PsiDirectoryNode" />
+              <item name="enviroment_process" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="agent" type="b2602c69:ProjectViewProjectNode" />
+              <item name="neo" type="462c0819:PsiDirectoryNode" />
+              <item name="neodroid" type="462c0819:PsiDirectoryNode" />
+              <item name="neodroid_utilities" type="462c0819:PsiDirectoryNode" />
+              <item name="environment_interface" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="agent" type="b2602c69:ProjectViewProjectNode" />
+              <item name="neo" type="462c0819:PsiDirectoryNode" />
+              <item name="neodroid" type="462c0819:PsiDirectoryNode" />
+              <item name="neodroid_utilities" type="462c0819:PsiDirectoryNode" />
+              <item name="exceptions" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="agent" type="b2602c69:ProjectViewProjectNode" />
+              <item name="neo" type="462c0819:PsiDirectoryNode" />
+              <item name="neodroid" type="462c0819:PsiDirectoryNode" />
+              <item name="neodroid_utilities" type="462c0819:PsiDirectoryNode" />
+              <item name="messaging_utilities" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="agent" type="b2602c69:ProjectViewProjectNode" />
+              <item name="neo" type="462c0819:PsiDirectoryNode" />
+              <item name="neodroid" type="462c0819:PsiDirectoryNode" />
+              <item name="neodroid_utilities" type="462c0819:PsiDirectoryNode" />
+              <item name="reaction_factories" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="agent" type="b2602c69:ProjectViewProjectNode" />
+              <item name="nisse" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="agent" type="b2602c69:ProjectViewProjectNode" />
+              <item name="nisse" type="462c0819:PsiDirectoryNode" />
+              <item name="nisse" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="agent" type="b2602c69:ProjectViewProjectNode" />
@@ -413,7 +517,22 @@
               <item name="agent" type="b2602c69:ProjectViewProjectNode" />
               <item name="External Libraries" type="cb654da1:ExternalLibrariesNode" />
               <item name="&lt; Python 3.6 Conda &gt;" type="70bed36:NamedLibraryElementNode" />
+              <item name="python3.6" type="462c0819:PsiDirectoryNode" />
               <item name="site-packages" type="462c0819:PsiDirectoryNode" />
+              <item name="sorcery" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="agent" type="b2602c69:ProjectViewProjectNode" />
+              <item name="External Libraries" type="cb654da1:ExternalLibrariesNode" />
+              <item name="&lt; Python 3.6 Conda &gt;" type="70bed36:NamedLibraryElementNode" />
+              <item name="site-packages" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="agent" type="b2602c69:ProjectViewProjectNode" />
+              <item name="External Libraries" type="cb654da1:ExternalLibrariesNode" />
+              <item name="&lt; Python 3.6 Conda &gt;" type="70bed36:NamedLibraryElementNode" />
+              <item name="site-packages" type="462c0819:PsiDirectoryNode" />
+              <item name="sorcery" type="462c0819:PsiDirectoryNode" />
             </path>
           </expand>
           <select />
@@ -425,18 +544,22 @@
   <component name="PropertiesComponent">
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="add_unversioned_files" value="$PROJECT_DIR$/docs/build/html/index.html" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/../draugr" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../nisse" />
     <property name="settings.editor.selected.configurable" value="restructured.text.topic" />
   </component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/../nisse/warg" />
       <recent name="$PROJECT_DIR$/../neo/neodroid/wrappers/utility_wrappers" />
       <recent name="$PROJECT_DIR$/utilities/memory" />
       <recent name="$PROJECT_DIR$/utilities/exclude" />
       <recent name="$PROJECT_DIR$/utilities/memory/experimental" />
-      <recent name="$PROJECT_DIR$/../draugr/draugr/statistics_utilities" />
     </key>
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/experiments/classification/mnist" />
+      <recent name="$PROJECT_DIR$/experiments/classification" />
+      <recent name="$PROJECT_DIR$/experiments/rl" />
+      <recent name="$PROJECT_DIR$/.." />
       <recent name="$PROJECT_DIR$/docs" />
     </key>
   </component>
@@ -452,10 +575,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Python.named_ordered_dict">
-    <configuration name="index.html" type="JavascriptDebugType" temporary="true" nameIsGenerated="true" uri="http://localhost:63342/agent/docs/build/html/index.html">
-      <method v="2" />
-    </configuration>
+  <component name="RunManager" selected="Python.auto_nod_return">
     <configuration default="true" type="PythonConfigurationType" factoryName="Python">
       <module name="agent" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -470,6 +590,47 @@
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
       <option name="SCRIPT_NAME" value="" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="true" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="auto_nod_return" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <module name="warg" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/../warg/warg" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/../warg/warg/auto_nod_return.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="true" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="data_iterator" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <module name="nisse" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/../nisse/nisse" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/../nisse/nisse/data_iterator.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="true" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -500,6 +661,25 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
+    <configuration name="debug_func" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <module name="neo" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/../neo/neodroid/neodroid_utilities/debugging_utilities" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/../neo/neodroid/neodroid_utilities/debugging_utilities/debug_func.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="true" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
     <configuration name="named_ordered_dict" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="warg" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -522,41 +702,21 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="pg_agent" type="PythonConfigurationType" factoryName="Python" temporary="true">
-      <module name="agent" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/agents" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/agents/pg_agent.py" />
-      <option name="PARAMETERS" value="-no-render -no-cuda -skip" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
-    </configuration>
     <list>
-      <item itemvalue="JavaScript Debug.index.html" />
       <item itemvalue="Python.ppo_agent" />
-      <item itemvalue="Python.pg_agent" />
       <item itemvalue="Python.named_ordered_dict" />
       <item itemvalue="Python.ddpg_agent" />
+      <item itemvalue="Python.data_iterator" />
+      <item itemvalue="Python.debug_func" />
+      <item itemvalue="Python.auto_nod_return" />
     </list>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.auto_nod_return" />
         <item itemvalue="Python.named_ordered_dict" />
+        <item itemvalue="Python.debug_func" />
+        <item itemvalue="Python.data_iterator" />
         <item itemvalue="Python.ddpg_agent" />
-        <item itemvalue="JavaScript Debug.index.html" />
-        <item itemvalue="Python.pg_agent" />
       </list>
     </recent_temporary>
   </component>
@@ -585,20 +745,28 @@
       <workItem from="1544020843622" duration="4557000" />
       <workItem from="1544080472621" duration="3000" />
       <workItem from="1544086775998" duration="1398000" />
-      <workItem from="1544099290403" duration="10984000" />
+      <workItem from="1544099290403" duration="12747000" />
+      <workItem from="1544425684120" duration="8326000" />
+      <workItem from="1544439858430" duration="1225000" />
+      <workItem from="1544443002173" duration="3855000" />
+      <workItem from="1544534158257" duration="1196000" />
+      <workItem from="1544535951224" duration="626000" />
+      <workItem from="1544640779197" duration="7388000" />
+      <workItem from="1544783864346" duration="4632000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="53290000" />
+    <option name="totallyTimeSpent" value="82301000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="23" y="-1" width="2514" height="1422" extended-state="6" />
+    <editor active="true" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="0" sideWeight="0.48618373" visible="true" weight="0.14436334" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" sideWeight="0.48469007" visible="true" weight="0.14436334" />
       <window_info id="Version Control" order="1" sideWeight="0.50049263" side_tool="true" weight="0.17266949" />
       <window_info id="TODO" order="2" sideWeight="0.5005005" side_tool="true" weight="0.17266949" />
-      <window_info id="Find" order="3" sideWeight="0.5138163" side_tool="true" visible="true" weight="0.14436334" />
+      <window_info id="Find" order="3" sideWeight="0.51530993" side_tool="true" visible="true" weight="0.14436334" />
       <window_info id="Structure" order="4" side_tool="true" weight="0.25" />
       <window_info id="DB Browser" order="5" />
       <window_info id="Favorites" order="6" side_tool="true" />
@@ -618,11 +786,11 @@
       <window_info anchor="right" id="Coverage" order="6" sideWeight="0.31710914" side_tool="true" weight="0.23782468" />
       <window_info anchor="right" id="SciView" order="7" />
       <window_info anchor="right" id="Event Log" order="8" sideWeight="0.50049263" side_tool="true" weight="0.2838983" />
-      <window_info anchor="right" id="Terminal" order="9" sideWeight="0.50410753" side_tool="true" weight="0.30210868" />
-      <window_info anchor="right" id="Python Console" order="10" sideWeight="0.50410753" side_tool="true" weight="0.30210868" />
-      <window_info anchor="right" x="0" y="0" width="417" height="830" id="Documentation" order="11" sideWeight="0.5265123" side_tool="true" visible="true" weight="0.3187348" />
-      <window_info anchor="right" id="Run" order="12" sideWeight="0.47348768" visible="true" weight="0.3187348" />
-      <window_info anchor="right" id="Debug" order="13" sideWeight="0.49589247" weight="0.30210868" />
+      <window_info anchor="right" id="Terminal" order="9" sideWeight="0.5048544" side_tool="true" weight="0.43592864" />
+      <window_info anchor="right" id="Python Console" order="10" sideWeight="0.52949965" side_tool="true" visible="true" weight="0.3187348" />
+      <window_info anchor="right" x="0" y="0" width="417" height="830" id="Documentation" order="11" sideWeight="0.52949965" side_tool="true" weight="0.3187348" />
+      <window_info anchor="right" id="Run" order="12" sideWeight="0.47050038" visible="true" weight="0.3187348" />
+      <window_info anchor="right" id="Debug" order="13" sideWeight="0.49290514" weight="0.43592864" />
     </layout>
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -638,428 +806,415 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/agents/abstract/ac_agent.py</url>
+          <line>49</line>
+          <option name="timeStamp" value="24" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/utilities/architectures/mlp.py</url>
           <line>48</line>
-          <option name="timeStamp" value="21" />
+          <option name="timeStamp" value="25" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/docs/Makefile">
+    <entry file="file://$PROJECT_DIR$/experiments/classification/mnist/__init__.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="289">
-          <caret line="17" column="69" selection-start-line="17" selection-start-column="69" selection-end-line="17" selection-end-column="69" />
+        <state relative-caret-position="51">
+          <caret line="3" lean-forward="true" selection-start-line="3" selection-end-line="3" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/docs/build/html/index.html">
+    <entry file="file://$PROJECT_DIR$/experiments/rl/continuous/c2d_config.py">
       <provider selected="true" editor-type-id="text-editor" />
     </entry>
-    <entry file="file://$PROJECT_DIR$/../neo/docs/build/html/index.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="527">
-          <caret line="31" column="40" selection-start-line="31" selection-start-column="40" selection-end-line="31" selection-end-column="40" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/docs/source/api/modules.rst">
-      <provider selected="true" editor-type-id="restructured-text-editor" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/docs/source/api/agent.rst">
-      <provider selected="true" editor-type-id="restructured-text-editor" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/docs/source/api/agent.utilities.rst">
-      <provider selected="true" editor-type-id="restructured-text-editor" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/docs/source/api/agent.agents.rst">
-      <provider selected="true" editor-type-id="restructured-text-editor" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/configs/reference/__init__.py">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/configs/agent_test_configs/base_test_config.py">
+    <entry file="file://$PROJECT_DIR$/experiments/rl/grid_world/regular_grid_world.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="102">
-          <caret line="9" column="19" lean-forward="true" selection-start-line="9" selection-start-column="19" selection-end-line="9" selection-end-column="19" />
+          <caret line="8" column="12" selection-start-line="8" selection-start-column="12" selection-end-line="8" selection-end-column="12" />
+          <folding>
+            <element signature="e#343#1426#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/experiments/rl/grid_world/grid_world_config.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="153">
+          <caret line="12" column="22" selection-start-line="12" selection-start-column="22" selection-end-line="12" selection-end-column="22" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/experiments/classification/mnist/center_loss.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="272">
+          <caret line="30" column="65" selection-start-line="30" selection-start-column="65" selection-end-line="30" selection-end-column="65" />
+          <folding>
+            <element signature="e#0#12#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/experiments/reconstruction/auto_encoding.py">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/experiments/rl/manipulator.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="816">
+          <caret line="48" column="24" selection-start-line="48" selection-start-column="24" selection-end-line="48" selection-end-column="24" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/experiments/rl/seek_and_avoid.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="119">
+          <caret line="7" selection-start-line="7" selection-end-line="7" />
+          <folding>
+            <element signature="e#310#1123#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/experiments/rl/grid_world/curriculum_grid_world.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="765">
+          <caret line="45" column="24" selection-start-line="45" selection-start-column="24" selection-end-line="45" selection-end-column="24" />
+          <folding>
+            <element signature="e#47#60#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/experiments/rl/grid_world/cnn_grid_world_config.py">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/experiments/segmentation/unet_segmentation.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="493">
+          <caret line="29" column="4" selection-start-line="29" selection-start-column="4" selection-end-line="29" selection-end-column="4" />
+          <folding>
+            <element signature="e#47#60#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/experiments/rl/continuous/c2d.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="765">
+          <caret line="45" column="24" selection-start-line="45" selection-start-column="24" selection-end-line="45" selection-end-column="24" />
+          <folding>
+            <element signature="e#47#60#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/experiments/rl/grid_world/cnn_grid_world.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="306">
+          <caret line="19" column="27" selection-start-line="19" selection-start-column="27" selection-end-line="19" selection-end-column="27" />
+          <folding>
+            <element signature="e#47#60#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/build_and_upload_package.sh">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="119">
+          <caret line="7" column="18" selection-start-line="7" selection-start-column="18" selection-end-line="7" selection-end-column="18" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/clean_generated_files.sh">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/clean_package.sh">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/agents/ppo_agent.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="816">
+          <caret line="668" column="37" selection-start-line="668" selection-start-column="37" selection-end-line="668" selection-end-column="37" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/configs/agent_test_configs/test_ppo_config.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="952">
-          <caret line="74" column="21" lean-forward="true" selection-start-line="74" selection-start-column="21" selection-end-line="74" selection-end-column="21" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/configs/agent_test_configs/test_ddpg_config.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1003">
-          <caret line="65" column="3" selection-start-line="65" selection-start-column="3" selection-end-line="65" selection-end-column="3" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/utilities/architectures/actor.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="187">
-          <caret line="14" column="91" lean-forward="true" selection-start-line="14" selection-start-column="91" selection-end-line="14" selection-end-column="91" />
-          <folding>
-            <element signature="e#334#546#0" expanded="true" />
-            <element signature="e#586#700#0" expanded="true" />
-            <element signature="e#802#959#0" expanded="true" />
-            <element signature="e#999#1110#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/utilities/architectures/critic.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="272">
-          <caret line="16" column="25" lean-forward="true" selection-start-line="16" selection-start-column="25" selection-end-line="16" selection-end-column="25" />
-          <folding>
-            <element signature="e#329#859#0" expanded="true" />
-            <element signature="e#967#1389#0" expanded="true" />
-          </folding>
+        <state relative-caret-position="918">
+          <caret line="66" column="3" lean-forward="true" selection-start-line="66" selection-start-column="3" selection-end-line="66" selection-end-column="3" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/configs/base_config.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="17">
-          <caret line="35" column="24" selection-start-line="35" selection-start-column="24" selection-end-line="35" selection-end-column="24" />
-          <folding>
-            <element signature="e#47#56#0" expanded="true" />
-          </folding>
+        <state relative-caret-position="119">
+          <caret line="7" column="35" selection-start-line="7" selection-start-column="35" selection-end-line="7" selection-end-column="35" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/utilities/architectures/mlp.py">
+    <entry file="file://$USER_HOME$/miniconda3/lib/python3.6/site-packages/torch/nn/functional.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="255">
-          <caret line="43" column="34" lean-forward="true" selection-start-line="43" selection-start-column="34" selection-end-line="43" selection-end-column="34" />
-          <folding>
-            <element signature="e#1219#2658#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/experiments/grid_world/grid_world_config.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="476">
-          <caret line="31" column="23" selection-start-line="31" selection-start-column="11" selection-end-line="31" selection-end-column="23" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/experiments/continuous/c2d_config.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="374">
-          <caret line="25" column="11" selection-start-line="25" selection-start-column="11" selection-end-line="25" selection-end-column="11" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/utilities/memory/replay_buffer.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="51">
-          <caret line="6" column="6" selection-start-line="6" selection-start-column="6" selection-end-line="6" selection-end-column="6" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/experiments/segmentation/unet_segmentation.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="51">
-          <caret line="3" column="45" selection-start-line="3" selection-start-column="45" selection-end-line="3" selection-end-column="45" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/utilities/memory/__init__.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="170">
-          <caret line="10" column="28" selection-start-line="10" selection-start-column="28" selection-end-line="10" selection-end-column="28" />
-          <folding>
-            <element signature="e#72#115#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/utilities/memory/experimental/__init__.py">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/utilities/memory/transitions.py">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/../neo/neodroid/__init__.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="85">
-          <caret line="13" selection-start-line="13" selection-end-line="13" />
-          <folding>
-            <element signature="e#287#308#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/../neo/neodroid/wrappers/utility_wrappers/normalise_actions_wrappers.py">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/../neo/neodroid/wrappers/__init__.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="153">
-          <caret line="9" column="31" selection-start-line="9" selection-start-column="31" selection-end-line="9" selection-end-column="31" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/../neo/neodroid/wrappers/utility_wrappers/__init__.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="187">
-          <caret line="11" column="3" selection-start-line="11" selection-start-column="3" selection-end-line="11" selection-end-column="3" />
-          <folding>
-            <element signature="e#0#398#2" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/../neo/samples/example_algorithms/ucb1.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="102">
-          <caret line="8" column="10" selection-start-line="8" selection-start-column="10" selection-end-line="8" selection-end-column="10" />
-          <folding>
-            <element signature="e#1135#1279#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/../neo/neodroid/wrappers/utility_wrappers/action_encoding_wrappers.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="34">
-          <caret line="2" lean-forward="true" selection-start-line="2" selection-end-line="2" />
-          <folding>
-            <element signature="e#47#60#0" expanded="true" />
-            <element signature="e#435#563#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/../neo/neodroid/wrappers/utility_wrappers/single_environment_wrapper.py">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/experiments/grid_world/cnn_grid_world_config.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="357">
-          <caret line="24" column="23" selection-start-line="24" selection-start-column="11" selection-end-line="24" selection-end-column="23" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/utilities/exclude/scrap.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="663">
-          <caret line="72" column="6" selection-start-line="72" selection-start-column="6" selection-end-line="72" selection-end-column="6" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/configs/agent_test_configs/test_dqn_config.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="306">
-          <caret line="21" column="11" selection-start-line="21" selection-start-column="11" selection-end-line="21" selection-end-column="11" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/experiments/grid_world/regular_grid_world.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="493">
-          <caret line="34" column="37" lean-forward="true" selection-start-line="34" selection-start-column="37" selection-end-line="34" selection-end-column="37" />
-          <folding>
-            <element signature="e#47#60#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/agents/abstract/imitation_agent.py">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
-    <entry file="file://$USER_HOME$/miniconda3/lib/python3.6/site-packages/draugr/statistics_utilities/statistic_collection.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="527">
-          <caret line="60" column="34" selection-start-line="60" selection-start-column="34" selection-end-line="60" selection-end-column="34" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/../warg/warg/named_ordered_dictionary.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-374">
-          <caret line="2" column="32" selection-start-line="2" selection-start-column="32" selection-end-line="2" selection-end-column="32" />
-          <folding>
-            <element signature="e#2154#2516#0" expanded="true" />
-            <element signature="e#2787#2813#0" expanded="true" />
-            <element signature="e#2850#2876#0" expanded="true" />
-            <element signature="e#2919#2945#0" expanded="true" />
-            <element signature="e#2969#2996#0" expanded="true" />
-            <element signature="e#3034#3062#0" expanded="true" />
-            <element signature="e#3090#3153#0" expanded="true" />
-            <element signature="e#3181#3283#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/agents/ppo_agent.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="459">
-          <caret line="39" column="26" selection-start-line="39" selection-start-column="26" selection-end-line="39" selection-end-column="26" />
-          <folding>
-            <element signature="e#40#67#0" expanded="true" />
-          </folding>
+        <state relative-caret-position="215">
+          <caret line="1010" column="8" lean-forward="true" selection-start-line="1010" selection-start-column="8" selection-end-line="1010" selection-end-column="8" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/agents/ddpg_agent.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1071">
-          <caret line="287" column="13" selection-start-line="287" selection-start-column="13" selection-end-line="287" selection-end-column="13" />
-          <folding>
-            <element signature="e#1342#2951#0" expanded="true" />
-            <element signature="e#3042#4582#0" expanded="true" />
-            <element signature="e#4608#5288#0" expanded="true" />
-            <element signature="e#5691#5695#0" expanded="true" />
-            <element signature="e#5833#6241#0" expanded="true" />
-            <element signature="e#6453#6959#0" expanded="true" />
-            <element signature="e#7139#8015#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/agents/dqn_agent.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-51">
-          <caret line="30" column="26" selection-start-line="30" selection-start-column="26" selection-end-line="30" selection-end-column="26" />
-          <folding>
-            <element signature="e#47#64#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/tests/__init__.py">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/agents/pg_agent.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1071">
-          <caret line="292" column="4" selection-start-line="292" selection-start-column="4" selection-end-line="292" selection-end-column="33" />
-          <folding>
-            <element signature="e#603#619#0" expanded="true" />
-            <element signature="e#1826#1844#0" expanded="true" />
-          </folding>
+        <state relative-caret-position="425">
+          <caret line="101" column="21" lean-forward="true" selection-start-line="101" selection-start-column="21" selection-end-line="101" selection-end-column="21" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/agents/abstract/agent.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1156">
-          <caret line="264" column="62" lean-forward="true" selection-start-line="264" selection-start-column="62" selection-end-line="264" selection-end-column="62" />
+        <state relative-caret-position="1258">
+          <caret line="261" column="6" selection-start-line="261" selection-start-column="6" selection-end-line="261" selection-end-column="6" />
           <folding>
+            <element signature="e#525#541#0" expanded="true" />
+            <element signature="e#648#1135#0" expanded="true" />
+            <element signature="e#1678#2239#0" expanded="true" />
             <element signature="e#2258#2273#0" expanded="true" />
-            <element signature="e#3168#3516#0" expanded="true" />
-            <element signature="e#7168#7193#0" expanded="true" />
+            <element signature="e#2940#3015#0" expanded="true" />
+            <element signature="e#4152#4170#0" expanded="true" />
+            <element signature="e#4414#4493#0" expanded="true" />
+            <element signature="e#4431#5411#0" expanded="true" />
+            <element signature="e#6954#6979#0" expanded="true" />
           </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/agents/abstract/ac_agent.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="952">
-          <caret line="132" column="2" lean-forward="true" selection-start-line="132" selection-start-column="2" selection-end-line="132" selection-end-column="2" />
-          <folding>
-            <element signature="e#376#392#0" expanded="true" />
-            <element signature="e#437#1371#0" expanded="true" />
-            <element signature="e#1415#3536#0" expanded="true" />
-            <element signature="e#5195#5213#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/agents/abstract/value_agent.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1428">
-          <caret line="177" column="11" selection-start-line="177" selection-start-column="11" selection-end-line="177" selection-end-column="11" />
-          <folding>
-            <element signature="e#424#439#0" expanded="true" />
-            <element signature="e#2576#4158#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/../draugr/draugr/statistics_utilities/statistics.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="119">
-          <caret line="9" column="51" selection-start-line="9" selection-start-column="51" selection-end-line="9" selection-end-column="51" />
-          <folding>
-            <element signature="e#212#647#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/../draugr/draugr/statistics_utilities/statistic_aggregator.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="85">
-          <caret line="7" column="22" lean-forward="true" selection-start-line="7" selection-start-column="22" selection-end-line="7" selection-end-column="22" />
-          <folding>
-            <element signature="e#4142#4283#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/../draugr/draugr/statistics_utilities/statistic_collection.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="918">
-          <caret line="74" column="27" selection-start-line="74" selection-start-column="27" selection-end-line="74" selection-end-column="27" />
-          <folding>
-            <element signature="e#317#592#0" expanded="true" />
-            <element signature="e#1214#1325#0" expanded="true" />
-            <element signature="e#1455#1477#0" expanded="true" />
-            <element signature="e#1505#1527#0" expanded="true" />
-            <element signature="e#1585#1611#0" expanded="true" />
-            <element signature="e#1574#1601#0" expanded="true" />
-            <element signature="e#1639#1667#0" expanded="true" />
-            <element signature="e#1552#1582#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/agents/abstract/policy_agent.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="561">
-          <caret line="66" column="51" lean-forward="true" selection-start-line="66" selection-start-column="51" selection-end-line="66" selection-end-column="51" />
-          <folding>
-            <element signature="e#581#596#0" expanded="true" />
-            <element signature="e#623#652#0" expanded="true" />
-            <element signature="e#1524#1571#0" expanded="true" />
-            <element signature="e#1590#1607#0" expanded="true" />
-            <element signature="e#1766#1791#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/procedures/curriculum_training.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state>
-          <caret column="22" lean-forward="true" selection-start-column="22" selection-end-column="22" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/procedures/agent_tests.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="714">
-          <caret line="47" column="16" selection-start-line="47" selection-start-column="16" selection-end-line="47" selection-end-column="16" />
+        <state relative-caret-position="425">
+          <caret line="31" column="8" selection-start-line="31" selection-start-column="8" selection-end-line="31" selection-end-column="8" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/agents/abstract/ac_agent.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="323">
+          <caret line="47" column="37" selection-start-line="47" selection-start-column="37" selection-end-line="47" selection-end-column="37" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/configs/agent_test_configs/test_ddpg_config.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1139">
+          <caret line="70" selection-start-line="70" selection-end-line="70" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/utilities/architectures/critic.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state>
+          <caret column="22" selection-start-column="22" selection-end-column="22" />
           <folding>
-            <element signature="e#47#79#0" expanded="true" />
-            <element signature="e#1574#2073#0" expanded="true" />
+            <element signature="e#47#74#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/utilities/persistence/model.py">
+    <entry file="file://$PROJECT_DIR$/utilities/architectures/actor.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="153">
-          <caret line="19" column="4" selection-start-line="19" selection-start-column="4" selection-end-line="19" selection-end-column="4" />
+        <state relative-caret-position="306">
+          <caret line="21" column="25" selection-start-line="21" selection-start-column="25" selection-end-line="21" selection-end-column="25" />
           <folding>
-            <element signature="e#437#1339#0" expanded="true" />
+            <element signature="e#586#700#0" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/utilities/architectures/architecture.py">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/utilities/architectures/mlp.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="493">
+          <caret line="48" selection-start-line="48" selection-end-line="48" />
+          <folding>
+            <element signature="e#2700#3205#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/miniconda3/lib/python3.6/typing.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="11016">
+          <caret line="1849" column="10" selection-start-line="1849" selection-start-column="10" selection-end-line="1849" selection-end-column="10" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../nisse/nisse/data_iterator.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="136">
+          <caret line="8" column="27" selection-start-line="8" selection-start-column="27" selection-end-line="8" selection-end-column="27" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../neo/neodroid/messaging/message_client.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="799">
+          <caret line="78" column="28" lean-forward="true" selection-start-line="78" selection-start-column="28" selection-end-line="78" selection-end-column="28" />
+          <folding>
+            <element signature="e#392#839#0" expanded="true" />
+            <element signature="e#1753#2392#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../neo/neodroid/environment.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-221" />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../neo/neodroid/networking_environment.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="578">
+          <caret line="92" column="36" lean-forward="true" selection-start-line="92" selection-start-column="36" selection-end-line="92" selection-end-column="36" />
+          <folding>
+            <element signature="e#2873#2967#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../neo/neodroid/neodroid_utilities/debugging_utilities/__init__.py">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../neo/neodroid/neodroid_utilities/exceptions/exceptions.py">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../neo/neodroid/neodroid_utilities/transformations/action_transformations.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state>
+          <folding>
+            <element signature="e#46#213#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/utilities/environment_utilities/__init__.py">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../neo/neodroid/neodroid_utilities/encodings.py">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../neo/neodroid/neodroid_utilities/__init__.py">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../neo/neodroid/neodroid_utilities/logger.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="2193">
+          <caret line="301" column="45" lean-forward="true" selection-start-line="301" selection-start-column="45" selection-end-line="301" selection-end-column="45" />
+          <folding>
+            <element signature="e#7181#7237#0" expanded="true" />
+            <element signature="e#7258#7527#0" expanded="true" />
+            <element signature="e#7359#7497#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../neo/neodroid/neodroid_utilities/reaction_factories/multi_reaction_factory.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="204">
+          <caret line="12" column="10" selection-start-line="12" selection-start-column="10" selection-end-line="12" selection-end-column="10" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../neo/neodroid/neodroid_utilities/debugging_utilities/d.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="765">
+          <caret line="45" column="19" selection-start-line="45" selection-start-column="19" selection-end-line="45" selection-end-column="19" />
+          <folding>
+            <element signature="e#72#90#0" expanded="true" />
+            <element signature="e#207#316#0" expanded="true" />
+            <element signature="e#363#604#0" expanded="true" />
+            <element signature="e#656#857#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../neo/.nojekyll">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../neo/neodroid/neodroid_utilities/debugging_utilities/debug_print_return.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="204">
+          <caret line="12" lean-forward="true" selection-start-line="12" selection-end-line="12" />
+          <folding>
+            <element signature="e#75#267#0" expanded="true" />
+            <element signature="e#120#250#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../neo/neodroid/neodroid_utilities/debugging_utilities/debug_func.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="85">
+          <caret line="10" column="10" lean-forward="true" selection-start-line="10" selection-start-column="10" selection-end-line="10" selection-end-column="10" />
+          <folding>
+            <element signature="e#47#81#0" expanded="true" />
+            <element signature="e#221#465#0" expanded="true" />
+            <element signature="e#404#447#0" expanded="true" />
+            <element signature="e#492#646#0" expanded="true" />
+            <element signature="e#713#822#0" expanded="true" />
+            <element signature="e#901#934#0" expanded="true" />
+            <element signature="e#1104#1115#0" expanded="true" />
+            <element signature="e#1148#1159#0" expanded="true" />
+            <element signature="e#1295#1307#0" expanded="true" />
+            <element signature="e#1340#1352#0" expanded="true" />
+            <element signature="e#1391#1406#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/miniconda3/lib/python3.6/site-packages/sorcery/spells.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="436">
+          <caret line="281" selection-start-line="281" selection-end-line="281" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/miniconda3/lib/python3.6/site-packages/sorcery/core.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="884">
+          <caret line="331" selection-start-line="331" selection-end-line="331" />
+          <folding>
+            <element signature="e#7323#7882#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../warg/warg/named_ordered_dictionary.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="595">
+          <caret line="158" selection-start-line="158" selection-end-line="158" />
+          <folding>
+            <element signature="e#48#79#0" expanded="true" />
+            <element signature="e#2203#2566#0" expanded="true" />
+            <element signature="e#3446#3898#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../warg/warg/auto_nod_return.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="221">
+          <caret line="13" column="39" lean-forward="true" selection-start-line="13" selection-start-column="39" selection-end-line="13" selection-end-column="39" />
+          <folding>
+            <element signature="e#0#36#0" expanded="true" />
+            <element signature="e#29#196#0" expanded="true" />
+            <element signature="e#271#385#0" expanded="true" />
+            <element signature="e#482#515#0" expanded="true" />
+            <element signature="e#67#75#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../warg/requirements.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="34">
+          <caret line="2" column="7" selection-start-line="2" selection-start-column="7" selection-end-line="2" selection-end-column="7" />
         </state>
       </provider>
     </entry>

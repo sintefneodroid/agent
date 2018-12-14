@@ -12,12 +12,6 @@ from configs.base_config import *
 CONFIG_NAME = __name__
 CONFIG_FILE = __file__
 
-# class LearningConfig(object):
-#  pass
-
-# class EnvironmentConfig(object):
-#  pass
-
 AGENT_TYPE = TabularQAgent
 
 # Exploration

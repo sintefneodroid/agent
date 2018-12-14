@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 import draugr
-from neodroid.wrappers import BinaryActionEncodingWrapper
+from neodroid.wrappers.utility_wrappers.action_encoding_wrappers import BinaryActionEncodingWrapper
 
 __author__ = 'cnheider'
 
@@ -27,19 +27,23 @@ def train_agent(config, agent):
 
   listener.start()
   try:
-    _trained_model, running_signals, running_lengths, *training_statistics = agent.train(env, config.ROLLOUTS,
+    trained_model, running_signals, running_lengths, *training_statistics = agent.train(env, config.ROLLOUTS,
                                                                                          render=config.RENDER_ENVIRONMENT)
   except ValueError:
     running_signals = None
     running_lengths = None
-    _trained_model = None
+    trained_model = None
     print('Training procedure did not return as excepted')
   finally:
     listener.stop()
 
-  draugr.save_statistic(running_signals, 'running_signals', LOG_DIRECTORY=C.LOG_DIRECTORY)
-  draugr.save_statistic(running_lengths, 'running_lengths', LOG_DIRECTORY=C.LOG_DIRECTORY)
-  U.save_model(_trained_model, config)
+  draugr.save_statistic(running_signals, stat_name='running_signals', config_name=C.CONFIG_NAME,
+                        project_name=C.PROJECT ,
+                        directory=C.LOG_DIRECTORY)
+  draugr.save_statistic(running_lengths, stat_name='running_lengths', directory=C.LOG_DIRECTORY,
+                        config_name=C.CONFIG_NAME,
+                        project_name=C.PROJECT )
+  U.save_model(trained_model, config)
 
   env.close()
 

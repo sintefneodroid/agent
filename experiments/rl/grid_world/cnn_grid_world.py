@@ -1,14 +1,12 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 import draugr
+from neodroid.wrappers.utility_wrappers.action_encoding_wrappers import BinaryActionEncodingWrapper
 
 __author__ = 'cnheider'
 
 import torch
-# import configs.base_config as C
 from tqdm import tqdm
-
-import neodroid.wrappers as neo
 
 tqdm.monitor_interval = 0
 
@@ -19,8 +17,8 @@ def train_agent(config, agent):
   device = torch.device('cuda' if config.USE_CUDA else 'cpu')
   torch.manual_seed(config.SEED)
 
-  env = neo.SingleEnvironmentWrapper(environment_name=config.ENVIRONMENT_NAME,
-                                     connect_to_running=config.CONNECT_TO_RUNNING)
+  env = BinaryActionEncodingWrapper(environment_name=config.ENVIRONMENT_NAME,
+                                    connect_to_running=config.CONNECT_TO_RUNNING)
   env.seed(config.SEED)
 
   agent.build(env, device)
@@ -29,24 +27,34 @@ def train_agent(config, agent):
 
   listener.start()
   try:
-    _trained_model, running_signals, running_lengths, *training_statistics = agent.train(env, config.ROLLOUTS,
+    (trained_model, running_signals, running_lengths, *training_statistics) = agent.train(env,
+                                                                                         config.ROLLOUTS,
                                                                                          render=config.RENDER_ENVIRONMENT)
+  except ValueError:
+    running_signals = None
+    running_lengths = None
+    trained_model = None
+    print('Training procedure did not return as excepted')
   finally:
     listener.stop()
 
-  draugr.save_statistic(running_signals, 'running_signals', LOG_DIRECTORY=C.LOG_DIRECTORY)
-  draugr.save_statistic(running_lengths, 'running_lengths', LOG_DIRECTORY=C.LOG_DIRECTORY)
-  U.save_model(_trained_model, config)
+  draugr.save_statistic(running_signals, stat_name='running_signals', config_name=C.CONFIG_NAME,
+                        project_name=C.PROJECT ,
+                        directory=C.LOG_DIRECTORY)
+  draugr.save_statistic(running_lengths, stat_name='running_lengths', directory=C.LOG_DIRECTORY,
+                        config_name=C.CONFIG_NAME,
+                        project_name=C.PROJECT )
+  U.save_model(trained_model, config)
 
   env.close()
 
 
 if __name__ == '__main__':
-  import experiments.continuous.c2d_config as C
+  import experiments.grid_world.cnn_grid_world_config as C
 
   from configs.arguments import parse_arguments, get_upper_case_vars_or_protected_of
 
-  args = parse_arguments('C2D', C)
+  args = parse_arguments('Regular small grid world experiment', C)
 
   for key, arg in args.__dict__.items():
     setattr(C, key, arg)

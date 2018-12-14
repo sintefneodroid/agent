@@ -127,11 +127,10 @@ All agent should inherit from this class
 
   def build(self, env, device, **kwargs) -> None:
     self._environment = env
-    self._maybe_infer_input_output_sizes(env)
-    self._maybe_infer_hidden_layers()
+    self.maybe_infer_sizes(self._environment)
     self._device = device
-
     self._build(**kwargs)
+
 
   def train(self, *args, **kwargs) -> NamedOrderedDictionary:
     training_start_timestamp = time.time()
@@ -182,7 +181,13 @@ All agent should inherit from this class
     else:
       raise HasNoEnvError
 
-  def _maybe_infer_input_output_sizes(self, env, *args, **kwargs) -> None:
+  def maybe_infer_sizes(self, env) -> None:
+    self._maybe_infer_input_output_sizes(env)
+    self._maybe_infer_hidden_layers()
+
+
+  def _maybe_infer_input_output_sizes(self, env) -> None:
+
     '''
 Tries to infer input and output size from env if either _input_size or _output_size, is None or -1 (int)
 
