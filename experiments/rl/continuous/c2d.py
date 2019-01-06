@@ -18,7 +18,7 @@ def train_agent(config, agent):
   torch.manual_seed(config.SEED)
 
   env = SingleEnvironmentWrapper(environment_name=config.ENVIRONMENT_NAME,
-                                     connect_to_running=config.CONNECT_TO_RUNNING)
+                                 connect_to_running=config.CONNECT_TO_RUNNING)
   env.seed(config.SEED)
 
   agent.build(env, device)
@@ -30,29 +30,27 @@ def train_agent(config, agent):
     (trained_model,
      running_signals,
      running_lengths,
-     *training_statistics) = agent.train(env,
-                                                                                         config.ROLLOUTS,
-                                                                                         render=config.RENDER_ENVIRONMENT)
+     *training_statistics) = agent.train(env, config.ROLLOUTS, render=config.RENDER_ENVIRONMENT)
   finally:
     listener.stop()
 
   draugr.save_statistic(running_signals,
                         stat_name='running_signals',
                         config_name=C.CONFIG_NAME,
-                        project_name=C.PROJECT ,
+                        project_name=C.PROJECT,
                         directory=C.LOG_DIRECTORY)
   draugr.save_statistic(running_lengths,
                         stat_name='running_lengths',
                         directory=C.LOG_DIRECTORY,
                         config_name=C.CONFIG_NAME,
-                        project_name=C.PROJECT )
+                        project_name=C.PROJECT)
   U.save_model(trained_model, config)
 
   env.close()
 
 
 if __name__ == '__main__':
-  import experiments.continuous.c2d_config as C
+  import experiments.rl.continuous.c2d_config as C
 
   from configs.arguments import parse_arguments, get_upper_case_vars_or_protected_of
 

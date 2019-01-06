@@ -135,13 +135,13 @@ All agent should inherit from this class
   def train(self, *args, **kwargs) -> NamedOrderedDictionary:
     training_start_timestamp = time.time()
 
-    named_ordered_dict = self._train(*args, **kwargs)
+    training = self._train(*args, **kwargs)
 
     time_elapsed = time.time() - training_start_timestamp
     end_message = f'Training done, time elapsed: {time_elapsed // 60:.0f}m {time_elapsed % 60:.0f}s'
     print('\n{} {} {}\n'.format('-' * 9, end_message, '-' * 9))
 
-    return named_ordered_dict
+    return training
 
   def set_config_attributes(self, config, **kwargs) -> None:
     if config:

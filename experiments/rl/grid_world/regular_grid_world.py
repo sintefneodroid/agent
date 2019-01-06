@@ -32,7 +32,7 @@ def train_agent(config, agent):
      running_signals,
      running_lengths,
      *training_statistics) = agent.train(env,
-                                         trials=config.ROLLOUTS,
+                                         rollouts=config.ROLLOUTS,
                                          render=config.RENDER_ENVIRONMENT)
   except ValueError:
     running_signals = None
@@ -54,7 +54,7 @@ def train_agent(config, agent):
 
 
 if __name__ == '__main__':
-  import experiments.grid_world.grid_world_config as C
+  import experiments.rl.grid_world.grid_world_config as C
 
   from configs.arguments import parse_arguments, get_upper_case_vars_or_protected_of
 
