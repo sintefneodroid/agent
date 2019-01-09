@@ -15,5 +15,6 @@ Neodroid
 visdom
 pynput
 draugr
+warg
 graphviz
 Box2D

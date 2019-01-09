@@ -99,7 +99,7 @@ class RandomAgent(Agent):
     T = tqdm(T, f'Rollout #{self._rollout_i}', leave=False)
 
     for t in T:
-      action = self.sample_action(state)
+      action = int(self.sample_action(state)[0])
 
       state, signal, terminated, info = environment.step(action=action)
       episode_signal += signal
@@ -129,6 +129,6 @@ if __name__ == '__main__':
   import configs.agent_test_configs.test_pg_config as C
 
   C.CONNECT_TO_RUNNING = False
-  C.ENVIRONMENT_NAME = 'grd'
+  C.ENVIRONMENT_NAME = 'mab'
 
   test_agent_main(RandomAgent, C)

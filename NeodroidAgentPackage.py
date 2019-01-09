@@ -13,6 +13,12 @@ class NeodroidAgentPackage:
       ]
 
   @property
+  def setup_dependencies(self) -> list:
+    return [
+      'pytest-runner'
+      ]
+
+  @property
   def package_name(self) -> str:
     return 'NeodroidAgent'
 
@@ -70,7 +76,12 @@ class NeodroidAgentPackage:
     return {
       'console_scripts':[
         # "name_of_executable = module.with:function_to_execute"
+        'neodroid-rnd = agents.baselines.tabular_q_agent:main',
+        'neodroid-tab = agents.baselines.random_agent:main',
         'neodroid-ppo = agents.ppo_agent:main',
+        'neodroid-dqn = agents.dqn_agent:main',
+        'neodroid-pg = agents.pg_agent:main',
+        'neodroid-dppg = agents.dppg_agent:main'
         ]
       }
 

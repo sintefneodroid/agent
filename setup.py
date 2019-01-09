@@ -42,6 +42,7 @@ if __name__ == '__main__':
       long_description_content_type=neo_agent_pkg.readme_type,
       long_description=neo_agent_pkg.readme,
       tests_require=neo_agent_pkg.test_dependencies,
+      setup_requires=pkg.setup_dependencies,
       include_package_data=True,
       python_requires='>=3'
       )
