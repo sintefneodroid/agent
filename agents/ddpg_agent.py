@@ -209,8 +209,8 @@ class DDPGAgent(ActorCriticAgent):
     with torch.no_grad():
       action = self._actor(state)
 
-    # action_out = action.to('cpu').numpy()[0]
-    action_out = action.item()
+    action_out = action.to('cpu').numpy()[0]
+    #action_out = action.item()
 
     # Add action space noise for exploration, alternative is parameter space noise
     noise = self._random_process.sample()

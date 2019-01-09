@@ -134,7 +134,7 @@ class TabularQAgent(ValueAgent):
       ep_r, steps = self.rollout(obs, env)
       obs = env.reset()
       obs = str(obs)
-      print('episode done', ep_r, obs, steps, self._eps_threshold)
+      #print('episode done', ep_r, obs, steps, self._eps_threshold)
       r += ep_r
       s += steps
       # print(self._q_table)
