@@ -35,12 +35,12 @@ VALUE_ARCH = U.CNN
 OPTIMISER_TYPE = torch.optim.RMSprop  # torch.optim.Adam
 
 # Architecture
-VALUE_ARCH_PARAMETERS = {
-  'input_size':             None,  # Obtain from environment
-  'input_channels':         None,
-  'hidden_layers':          [64, 32, 16],
-  'output_size':            None,  # Obtain from environment
-  'output_channels':        None,
-  'hidden_layer_activation':F.relu,
-  'use_bias':               True,
-  }
+VALUE_ARCH_PARAMETERS = NOD(
+    input_size=None,  # Obtain from environment
+    input_channels=None,
+    hidden_layers=[64, 32, 16],
+    output_size=None,  # Obtain from environment
+    output_channels=None,
+    hidden_layer_activation=F.relu,
+    use_bias=True
+    )

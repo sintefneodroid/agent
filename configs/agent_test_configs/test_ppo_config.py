@@ -59,21 +59,21 @@ SURROGATE_CLIP_FUNC = lambda a:SURROGATE_CLIPPING_VALUE * (
 
 ACTOR_LR = 3e-3
 # Architecture
-ACTOR_ARCH_PARAMETERS = {
+ACTOR_ARCH_PARAMETERS = NOD(**{
   'input_size':             None,  # Obtain from environment
   'hidden_layers':          [256],
   'hidden_layer_activation':torch.relu,
   'output_size':            None,  # Obtain from environment
-  }
+  })
 ACTOR_ARCH = U.ContinuousActorArchitecture
 
 CRITIC_LR = 3e-3
-CRITIC_ARCH_PARAMETERS = {
+CRITIC_ARCH_PARAMETERS = NOD(**{
   'input_size':             None,  # Obtain from environment
   'hidden_layers':          [256],
   'hidden_layer_activation':torch.relu,
   'output_size':            None,  # Obtain from environment
-  }
+  })
 CRITIC_ARCH = U.MLP
 
 ACTOR_LEARNING_RATE = 3e-4

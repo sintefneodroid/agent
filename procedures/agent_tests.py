@@ -4,9 +4,9 @@ from collections import Iterable
 from itertools import count
 
 import draugr
-from neodroid.wrappers.action_encoding_wrappers import BinaryActionEncodingWrapper
 
 from configs import get_upper_case_vars_or_protected_of
+from neodroid.wrappers.utility_wrappers.action_encoding_wrappers import BinaryActionEncodingWrapper
 
 __author__ = 'cnheider'
 import glob

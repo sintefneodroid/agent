@@ -34,10 +34,10 @@ VALUE_ARCH = U.MLP
 OPTIMISER_TYPE = torch.optim.RMSprop  # torch.optim.Adam
 
 # Architecture
-VALUE_ARCH_PARAMETERS = {
+VALUE_ARCH_PARAMETERS = NOD(**{
   'input_size':             None,  # Obtain from environment
   'hidden_layers':          None,
   'output_size':            None,  # Obtain from environment
   'hidden_layer_activation':torch.relu,
   'use_bias':               True,
-  }
+  })

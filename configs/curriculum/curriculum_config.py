@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+from warg import NOD
+
 __author__ = 'cnheider'
 '''
 Description: Config for training
@@ -12,22 +14,22 @@ CONFIG_NAME = __name__
 CONFIG_FILE = __file__
 
 # Architecture
-POLICY_ARCH_PARAMS = {
+POLICY_ARCH_PARAMS = NOD(**{
   'input_size':             None,  # Obtain from environment
   'hidden_layer_activation':torch.tanh,
   'hidden_layers':          [128, 64, 32, 16],
   'output_size':            None,  # Obtain from environment,
   'use_bias':               False,
-  }
+  })
 POLICY_ARCH = CategoricalMLP
 
-VALUE_ARCH_PARAMS = {
+VALUE_ARCH_PARAMS = NOD(**{
   'input_size':             None,  # Obtain from environment
   'hidden_layer_activation':torch.tanh,
   'hidden_layers':          [128, 64, 32, 16],
   'output_size':            None,  # Obtain from environment
   'use_bias':               False,
-  }
+  })
 VALUE_ARCH = MLP
 
 # Optimiser

@@ -5,7 +5,7 @@ from pathlib import Path
 
 import torch
 import torch.nn.functional as F
-from warg import NamedOrderedDictionary as NOD
+from warg import NOD
 
 import utilities as U
 from agents.pg_agent import PGAgent
@@ -33,13 +33,13 @@ hidden_layers = None  # Obtain from input and output size
 output_size = None  # Obtain from environment
 
 # Architecture
-POLICY_ARCH_PARAMS = NOD({
-  'input_size':             input_size,
-  'hidden_layers':          hidden_layers,
-  'output_size':            output_size,
-  'hidden_layer_activation':torch.relu,
-  'use_bias':               True,
-  })
+POLICY_ARCH_PARAMS = NOD(
+    input_size=input_size,
+    hidden_layers=hidden_layers,
+    output_size=output_size,
+    hidden_layer_activation=torch.relu,
+    use_bias=True
+    )
 POLICY_ARCH = U.CategoricalMLP
 
 AGENT_TYPE = PGAgent

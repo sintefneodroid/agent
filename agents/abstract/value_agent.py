@@ -32,7 +32,7 @@ All value iteration agents should inherit from this class
     self._eps_decay = 0
     self._initial_observation_period = 0
 
-    self._value_arch_parameters = None
+    self._value_arch_parameters = {}
     self._value_arch = None
     self._value_model = None
 

@@ -10,6 +10,7 @@ from agents.abstract.agent import Agent
 from procedures.agent_tests import test_agent_main
 
 
+
 class RandomAgent(Agent):
 
   # region Private
@@ -101,7 +102,7 @@ class RandomAgent(Agent):
     for t in T:
       action = int(self.sample_action(state)[0])
 
-      state, signal, terminated, info = environment.step(action=action)
+      state, signal, terminated, info = environment.step(action)
       episode_signal += signal
 
       if render:
@@ -126,9 +127,15 @@ class RandomAgent(Agent):
 
 
 if __name__ == '__main__':
-  import configs.agent_test_configs.test_pg_config as C
 
-  C.CONNECT_TO_RUNNING = False
-  C.ENVIRONMENT_NAME = 'mab'
 
-  test_agent_main(RandomAgent, C)
+  def main():
+    import neodroid.wrappers.gym_wrapper as neo
+    env = neo.NeodroidGymWrapper(environment_name='mab')
+    agent = RandomAgent(observation_space=env.observation_space,
+                          action_space=env.action_space,
+                          environment=env)
+    agent.build(env, device='cpu')
+    agent.train(env)
+
+  main()

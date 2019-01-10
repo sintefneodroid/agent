@@ -1,9 +1,11 @@
+import typing
 from collections import defaultdict
 from itertools import count
 from typing import Any, Tuple
 
 import gym
 import numpy as np
+
 
 from agents.abstract.value_agent import ValueAgent
 
@@ -88,6 +90,8 @@ class TabularQAgent(ValueAgent):
   # region Protected
 
   def _sample_model(self, state, *args, **kwargs) -> Any:
+    if isinstance(state,typing.Collection) and len(state)==0:
+      return [0]
     return np.argmax(self._q_table[state])
 
   def _optimise_wrt(self, error, *args, **kwargs) -> None:
@@ -142,16 +146,27 @@ class TabularQAgent(ValueAgent):
     return r, s
 
 
-def main():
-  # env = PuddleWorld(
-  #   world_file_path='/home/heider/Neodroid/agent/draugr_utilities/exclude/saved_maps/PuddleWorldA.dat')
-  env = gym.make('FrozenLake-v0')
-  agent = TabularQAgent(observation_space=env.observation_space,
-                        action_space=env.action_space,
-                        environment=env)
-  agent.build(env, device='cpu')
-  agent.train(env)
 
 
 if __name__ == '__main__':
-  main()
+  def main():
+    # env = PuddleWorld(
+    #   world_file_path='/home/heider/Neodroid/agent/draugr_utilities/exclude/saved_maps/PuddleWorldA.dat')
+    env = gym.make('FrozenLake-v0')
+    agent = TabularQAgent(observation_space=env.observation_space,
+                          action_space=env.action_space,
+                          environment=env)
+    agent.build(env, device='cpu')
+    agent.train(env)
+
+  def main2():
+    import neodroid.wrappers.gym_wrapper as neo
+    env = neo.NeodroidGymWrapper(environment_name='mab')
+    agent = TabularQAgent(observation_space=env.observation_space,
+                          action_space=env.action_space,
+                          environment=env)
+    agent.build(env, device='cpu')
+    agent.train(env)
+
+
+  main2()

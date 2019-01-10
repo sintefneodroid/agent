@@ -61,7 +61,7 @@ SIGNAL_CLIPPING = False
 ROLLOUTS = 1000
 
 # Architecture
-ACTOR_ARCH_PARAMETERS = NOD({
+ACTOR_ARCH_PARAMETERS = NOD(**{
   'input_size':       None,  # Obtain from environment
   #'hidden_layers' : [256],
   'output_activation':torch.tanh,
@@ -69,7 +69,7 @@ ACTOR_ARCH_PARAMETERS = NOD({
   })
 ACTOR_ARCH = U.DDPGActorArchitecture
 
-CRITIC_ARCH_PARAMETERS = NOD({
+CRITIC_ARCH_PARAMETERS = NOD(**{
   'input_size':       None,  # Obtain from environment
   #'hidden_layers' : [256],
   'output_size':      None,  # Obtain from environment

@@ -19,11 +19,11 @@ OPTIMISER_LEARNING_RATE = 1e-4
 PG_ENTROPY_REG = 1e-4
 
 # Architecture
-POLICY_ARCH_PARAMS = {
-  'input_size':             None,  # Obtain from environment
-  'hidden_layer_activation':F.leaky_relu,
-  'hidden_layers':          [128, 64, 32, 16],
-  'output_size':            None,  # Obtain from environment
-  'use_bias':               True,
-  }
+POLICY_ARCH_PARAMS = NOD(
+    input_size=None,  # Obtain from environment
+    hidden_layer_activation=F.leaky_relu,
+    hidden_layers=[128, 64, 32, 16],
+    output_size=None,  # Obtain from environment
+    use_bias=True
+    )
 POLICY_ARCH = U.CategoricalCNN

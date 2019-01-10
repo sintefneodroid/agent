@@ -104,6 +104,7 @@ class DDPGAgent(ActorCriticAgent):
                ):
     '''
 
+    :param batch:
 :type kwargs: object
 '''
     (state_batch,

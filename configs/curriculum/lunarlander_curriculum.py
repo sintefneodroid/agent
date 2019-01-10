@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-from typing import Dict, List, Union
+
+from warg import NOD
 
 __author__ = 'cnheider'
 
-CURRICULUM: Dict[str, Dict[str, Union[float, Dict[str, Union[List[float], int]]]]] = {
+CURRICULUM = NOD(**{
   'level1':{
     'when_reward':  0.5,
     'configurables':{
@@ -23,10 +24,10 @@ CURRICULUM: Dict[str, Dict[str, Union[float, Dict[str, Union[List[float], int]]]
       'WallColorVariation':[0.5, 0.5, 0.5], 'StartBoundaryRadius':3
       },
     },
-  }
+  })
 
-CURRICULUM2: Dict[str, Dict[str, Union[float, Dict[str, int]]]] = {
+CURRICULUM2 = NOD(**{
   'level1':{'when_reward':0.95, 'configurables':{'Difficulty':1}},
   'level2':{'when_reward':0.95, 'configurables':{'Difficulty':2}},
   'level3':{'when_reward':0.95, 'configurables':{'Difficulty':3}},
-  }
+  })
