@@ -3,7 +3,7 @@
 from warnings import warn
 
 import draugr
-from warg import NamedOrderedDictionary
+from warg import NOD
 
 from neodroid import EnvironmentState
 from procedures.agent_tests import test_agent_main
@@ -37,7 +37,7 @@ class PGAgent(PolicyAgent):
     self._evaluation_function = torch.nn.CrossEntropyLoss()
     self._trajectory_trace = U.TrajectoryTraceBuffer()
 
-    self._policy_arch_params = NamedOrderedDictionary({
+    self._policy_arch_params = NOD(**{
       'input_size':             None,  # Obtain from environment
       'hidden_layers':          None,
       'output_size':            None,  # Obtain from environment
@@ -259,7 +259,7 @@ class PGAgent(PolicyAgent):
                          render=False,
                          render_frequency=100,
                          stat_frequency=10,
-                         )->NamedOrderedDictionary:
+                         )->NOD:
 
     E = range(1, rollouts)
     E = tqdm(E, f'Episode: {1}', leave=False)
@@ -289,11 +289,14 @@ class PGAgent(PolicyAgent):
       if self._end_training:
         break
 
-    return NamedOrderedDictionary(model=self._policy, stats=stats)
+    return NOD(model=self._policy, stats=stats)
   # endregion
 
 
-if __name__ == '__main__':
+def main():
   import configs.agent_test_configs.test_pg_config as C
 
   test_agent_main(PGAgent, C)
+
+if __name__ == '__main__':
+  main()

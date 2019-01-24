@@ -274,10 +274,10 @@ def test_cnn_dqn_agent(config):
 
   episode_durations = []
 
-  agent = DQNAgent(C)
+  agent = DQNAgent(config)
   agent.build(env, device)
 
-  episodes = tqdm(range(C.ROLLOUTS), leave=False)
+  episodes = tqdm(range(config.ROLLOUTS), leave=False)
   for episode_i in episodes:
     episodes.set_description(f'Episode:{episode_i}')
     env.reset()
@@ -315,11 +315,14 @@ def test_cnn_dqn_agent(config):
   plt.ioff()
   plt.show()
 
-
-if __name__ == '__main__':
+def main():
   import configs.agent_test_configs.test_dqn_config as C
 
   # import configs.cnn_dqn_config as C
 
   test_agent_main(DQNAgent, C)
   # test_cnn_dqn_agent(C)
+
+
+if __name__ == '__main__':
+  main()

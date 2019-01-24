@@ -105,7 +105,7 @@ All value iteration agents should inherit from this class
       )->NamedOrderedDictionary:
     '''
       :param _environment:
-      :type _environment:
+      :type _environment:,0
       :param rollouts:
       :type rollouts:
       :param render:

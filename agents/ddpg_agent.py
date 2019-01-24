@@ -289,8 +289,11 @@ def test_ddpg_agent(config):
   U.save_model(actor_model, config, name='actor')
   U.save_model(critic_model, config, name='critic')
 
-
-if __name__ == '__main__':
+def main():
   import configs.agent_test_configs.test_ddpg_config as C
 
   test_agent_main(DDPGAgent, C)
+
+
+if __name__ == '__main__':
+  main()

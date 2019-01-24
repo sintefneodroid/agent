@@ -1,21 +1,18 @@
 #!/usr/local/bin/python
 # coding: utf-8
-from functools import wraps
 from itertools import count
 from typing import Any, Tuple
 
-import gym
-import numpy
-
 import draugr
-from warg import NamedOrderedDictionary
+import numpy
+from warg import NOD
 
-from procedures.agent_tests import test_agent_main
+from procedures.agent_tests import mp_train_agent_procedure, test_agent_main
 
 __author__ = 'cnheider'
 
 import torch
-from torch import nn, optim
+from torch import nn
 from tqdm import tqdm
 import torch.nn.functional as F
 
@@ -521,20 +518,23 @@ class PPOAgent(ActorCriticAgent):
 
   def train_step_batched(self,
                          environments,
+                         test_envs,
                          *,
                          num_steps=40,
                          rollouts=1000000,
-                         render=True,
-                         num_test_env=1
+                         render=True
                          ):
-    self.stats = draugr.StatisticCollection(stats=('signal', 'test_signal', 'entropy'))
+    stats = draugr.StatisticCollection(stats=('batch_signal', 'test_signal', 'entropy'))
 
     state = environments.reset()
 
-    S = tqdm(range(rollouts), leave=False).__iter__()
+    num_test_env = len(test_envs)
+
+    S = tqdm(range(rollouts), leave=False)
+    S_ = S.__iter__()
     while self._step_i < rollouts and not self._end_training:
 
-      self.batch_signal = 0
+      batch_signal = 0
 
       transitions = []
 
@@ -542,14 +542,14 @@ class PPOAgent(ActorCriticAgent):
 
       state = U.to_tensor(state, device=self._device)
 
-      I = tqdm(range(num_steps), leave=False).__iter__()
+      I = tqdm(range(num_steps), leave=False)
       for _ in I:
 
         action, action_log_prob, value_estimate = self.sample_action(state)
 
         a = action.to('cpu').numpy()[0]
         successor_state, signal, terminated, _ = environments.step(a)
-        self.batch_signal += signal
+        batch_signal += signal
 
         successor_state = U.to_tensor(successor_state, device=self._device)
         signal_ = U.to_tensor(signal, device=self._device)
@@ -568,20 +568,19 @@ class PPOAgent(ActorCriticAgent):
         state = successor_state
 
         self._step_i += 1
-        S.__next__()
+        S_.__next__()
 
         if self._step_i % self._test_interval == 0:
-          test_signals = [self.test_agent(_test_env, render=render) for _ in range(num_test_env)]
+          test_signals = [self.test_agent(test_envs, render=render) for _ in range(num_test_env)]
           test_signal = numpy.mean(test_signals)
-          self.stats.test_signal.append(test_signal)
+          stats.test_signal.append(test_signal)
 
-          draugr.terminal_plot(self.stats.signal.values, title='batch_signal', percent_size=(.8, .2))
-          draugr.terminal_plot(self.stats.test_signal.values, title='test_signal', percent_size=(.8, .3))
+          draugr.styled_terminal_plot_stats_shared_x(stats, printer=S.write)
 
           if test_signal > self._solved_threshold and self._early_stop:
             self._end_training = True
 
-      self.stats.signal.append(self.batch_signal)
+        stats.batch_signal.append(batch_signal)
 
       # only calculate value of next state for the last step this time
       *_, self._last_value_estimate, _ = self._sample_model(successor_state)
@@ -658,32 +657,18 @@ class PPOAgent(ActorCriticAgent):
     batch_size = actions.size(0)
     for _ in range(batch_size // mini_batch_size):
       rand_ids = numpy.random.randint(0, batch_size, mini_batch_size)
-      yield NamedOrderedDictionary(states=states[rand_ids, :],
-                                   actions=actions[rand_ids, :],
-                                   log_probs=log_probs[rand_ids, :],
-                                   returns=returns[rand_ids, :],
-                                   advantage=advantage[rand_ids, :])
+      yield NOD(states=states[rand_ids, :],
+                actions=actions[rand_ids, :],
+                log_probs=log_probs[rand_ids, :],
+                returns=returns[rand_ids, :],
+                advantage=advantage[rand_ids, :])
+
+
+def main():
+  import configs.agent_test_configs.test_ppo_config as C
+
+  test_agent_main(PPOAgent, C, training_procedure=mp_train_agent_procedure)
 
 
 if __name__ == '__main__':
-  import configs.agent_test_configs.test_ppo_config as C
-
-  env_name = C.ENVIRONMENT_NAME
-  _test_env = gym.make(env_name)
-
-  num_environments = 1
-
-
-  def make_env(env_nam):
-    @wraps(env_nam)
-    def wrapper():
-      env = gym.make(env_nam)
-      return env
-
-    return wrapper
-
-
-  _environments = [make_env(env_name) for _ in range(num_environments)]
-  _environments = U.SubprocVecEnv(_environments)
-
-  test_agent_main(PPOAgent, C)
+  main()

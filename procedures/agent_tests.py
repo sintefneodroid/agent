@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 from collections import Iterable
+from functools import wraps
 from itertools import count
 
 import draugr
@@ -17,13 +18,21 @@ import utilities as U
 import gym
 
 
-def regular_train_agent_procedure(agent_type, config, environment=None):
-  if not environment:
-    if '-v' in config.ENVIRONMENT_NAME:
-      environment = gym.make(config.ENVIRONMENT_NAME)
-    else:
-      environment = BinaryActionEncodingWrapper(name=config.ENVIRONMENT_NAME,
-                                                connect_to_running=config.CONNECT_TO_RUNNING)
+def regular_train_agent_procedure(agent_type,
+                                  config,
+                                  environment=None):
+
+  if not config.CONNECT_TO_RUNNING:
+    if not environment:
+      if '-v' in config.ENVIRONMENT_NAME:
+        environment = gym.make(config.ENVIRONMENT_NAME)
+      else:
+        environment = BinaryActionEncodingWrapper(name=config.ENVIRONMENT_NAME,
+                                                  connect_to_running=config.CONNECT_TO_RUNNING)
+  else:
+    environment = BinaryActionEncodingWrapper(name=config.ENVIRONMENT_NAME,
+                                              connect_to_running=config.CONNECT_TO_RUNNING)
+
 
   U.set_seeds(config.SEED)
   environment.seed(config.SEED)
@@ -37,8 +46,8 @@ def regular_train_agent_procedure(agent_type, config, environment=None):
   listener.start()
   try:
     training_resume = agent.train(environment,
-                                rollouts=config.ROLLOUTS,
-                                render=config.RENDER_ENVIRONMENT)
+                                  rollouts=config.ROLLOUTS,
+                                  render=config.RENDER_ENVIRONMENT)
   finally:
     listener.stop()
 
@@ -54,6 +63,65 @@ def regular_train_agent_procedure(agent_type, config, environment=None):
                                directory=config.LOG_DIRECTORY)
 
   environment.close()
+
+
+def mp_train_agent_procedure(agent_type,
+                             config,
+                             environments=None,
+                             test_env=None):
+  test_env = gym.make(config.ENVIRONMENT_NAME)
+
+  if not environments:
+    if '-v' in config.ENVIRONMENT_NAME:
+      # environment = gym.make(config.ENVIRONMENT_NAME)
+
+      num_environments = 1
+
+      def make_env(env_nam):
+        @wraps(env_nam)
+        def wrapper():
+          env = gym.make(env_nam)
+          return env
+
+        return wrapper
+
+      environments = [make_env(config.ENVIRONMENT_NAME) for _ in range(num_environments)]
+      environments = U.SubprocVecEnv(environments)
+
+    else:
+      environments = BinaryActionEncodingWrapper(name=config.ENVIRONMENT_NAME,
+                                                 connect_to_running=config.CONNECT_TO_RUNNING)
+
+  U.set_seeds(config.SEED)
+  environments.seed(config.SEED)
+
+  agent = agent_type(config)
+  device = torch.device('cuda' if config.USE_CUDA else 'cpu')
+  agent.build(environments, device)
+
+  listener = U.add_early_stopping_key_combination(agent.stop_training)
+
+  listener.start()
+  try:
+    training_resume = agent.train(environments,
+                                  test_env,
+                                  rollouts=config.ROLLOUTS,
+                                  render=config.RENDER_ENVIRONMENT)
+  finally:
+    listener.stop()
+
+  identifier = count()
+  if isinstance(training_resume.model, Iterable):
+    for model in training_resume.model:
+      U.save_model(model, config, name=f'{agent.__class__.__name__}-{identifier.__next__()}')
+  else:
+    U.save_model(training_resume.model, config, name=f'{agent.__class__.__name__}-{identifier.__next__()}')
+
+    training_resume.stats.save(project_name=config.PROJECT,
+                               config_name=config.CONFIG_NAME,
+                               directory=config.LOG_DIRECTORY)
+
+  environments.close()
 
 
 def test_agent_not_used():
@@ -79,7 +147,9 @@ def test_agent_not_used():
   _agent.infer(_environment)
 
 
-def test_agent_main(agent, config, training_procedure=regular_train_agent_procedure):
+def test_agent_main(agent,
+                    config,
+                    training_procedure=regular_train_agent_procedure):
   from configs.arguments import parse_arguments
 
   args = parse_arguments(f'{type(agent)}', config)
