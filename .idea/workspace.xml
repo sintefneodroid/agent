@@ -2,14 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="a003de5b-3d1d-4f9e-ac23-33e84a510ee8" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/dictionaries/heider.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dictionaries/heider.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/agent.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/agent.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/agents/abstract/agent.py" beforeDir="false" afterPath="$PROJECT_DIR$/agents/abstract/agent.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/agents/baselines/tabular_q_agent.py" beforeDir="false" afterPath="$PROJECT_DIR$/agents/baselines/tabular_q_agent.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/agents/ddpg_agent.py" beforeDir="false" afterPath="$PROJECT_DIR$/agents/ddpg_agent.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/experiments/rl/continuous/c2d.py" beforeDir="false" afterPath="$PROJECT_DIR$/experiments/rl/continuous/c2d.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/experiments/rl/grid_world/grid_world_config.py" beforeDir="false" afterPath="$PROJECT_DIR$/experiments/rl/grid_world/grid_world_config.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/experiments/rl/grid_world/regular_grid_world.py" beforeDir="false" afterPath="$PROJECT_DIR$/experiments/rl/grid_world/regular_grid_world.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../documentation/.idea/documentation.iml" beforeDir="false" afterPath="$PROJECT_DIR$/../documentation/.idea/documentation.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../documentation/Makefile" beforeDir="false" afterPath="$PROJECT_DIR$/../documentation/Makefile" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../documentation/source/abstractions/actor.rst" beforeDir="false" afterPath="$PROJECT_DIR$/../documentation/source/concepts/actor.rst" afterDir="false" />
@@ -23,18 +17,8 @@
       <change beforePath="$PROJECT_DIR$/../documentation/source/abstractions/observer.rst" beforeDir="false" afterPath="$PROJECT_DIR$/../documentation/source/concepts/observer.rst" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../documentation/source/abstractions/reaction.rst" beforeDir="false" afterPath="$PROJECT_DIR$/../documentation/source/concepts/reaction.rst" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../documentation/source/index.rst" beforeDir="false" afterPath="$PROJECT_DIR$/../documentation/source/index.rst" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../draugr/build_and_upload_package.sh" beforeDir="false" afterPath="$PROJECT_DIR$/../draugr/build_and_upload_package.sh" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../draugr/draugr/draugr.py" beforeDir="false" afterPath="$PROJECT_DIR$/../draugr/draugr/draugr.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../envs_neodroid/app.py" beforeDir="false" afterPath="$PROJECT_DIR$/../envs_neodroid/app.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../envs_neodroid/static/style.css" beforeDir="false" afterPath="$PROJECT_DIR$/../envs_neodroid/static/style.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../envs_neodroid/templates/base_layout.html" beforeDir="false" afterPath="$PROJECT_DIR$/../envs_neodroid/templates/base_layout.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../envs_neodroid/templates/detail.html" beforeDir="false" afterPath="$PROJECT_DIR$/../envs_neodroid/templates/detail.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../envs_neodroid/templates/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/../envs_neodroid/templates/index.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../envs_neodroid/templates/list_env.html" beforeDir="false" afterPath="$PROJECT_DIR$/../envs_neodroid/templates/list_env.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../neo/samples/example_algorithms/multi_armed_bandit.py" beforeDir="false" afterPath="$PROJECT_DIR$/../neo/samples/example_algorithms/multi_armed_bandit.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../nisse/.idea/nisse.iml" beforeDir="false" afterPath="$PROJECT_DIR$/../nisse/.idea/nisse.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../nisse/nisse/data_iterator.py" beforeDir="false" afterPath="$PROJECT_DIR$/../nisse/nisse/data_iterator.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../sintefneodroid.github.io/external/documentation.html" beforeDir="false" afterPath="$PROJECT_DIR$/../sintefneodroid.github.io/external/documentation.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../warg/warg/named_ordered_dictionary.py" beforeDir="false" afterPath="$PROJECT_DIR$/../warg/warg/named_ordered_dictionary.py" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/../neo/.idea/" />
     <ignored path="$PROJECT_DIR$/../neo/.vscode/" />
@@ -100,88 +84,111 @@
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="225">
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/../neo/neodroid/cli.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="68">
-              <caret line="4" column="11" selection-start-line="4" selection-start-column="11" selection-end-line="4" selection-end-column="11" />
-            </state>
-          </provider>
+        <entry file="file://$PROJECT_DIR$/../neo/samples/minimal/__init__.py">
+          <provider selected="true" editor-type-id="text-editor" />
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/../neo/samples/example_algorithms/multi_armed_bandit.py">
+        <entry file="file://$PROJECT_DIR$/../neo/NeodroidPackage.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="170">
-              <caret line="12" column="50" selection-start-line="12" selection-start-column="50" selection-end-line="12" selection-end-column="50" />
+            <state relative-caret-position="408">
+              <caret line="35" column="11" selection-start-line="35" selection-start-column="11" selection-end-line="35" selection-end-column="11" />
               <folding>
-                <element signature="e#47#57#0" expanded="true" />
+                <element signature="e#0#36#0" expanded="true" />
+                <element signature="e#1382#1836#0" expanded="true" />
               </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/../draugr/draugr/draugr.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1156">
-              <caret line="68" column="18" selection-start-line="68" selection-start-column="18" selection-end-line="68" selection-end-column="18" />
             </state>
           </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/../envs_neodroid/templates/list_env.html">
+        <entry file="file://$PROJECT_DIR$/../neo/samples/minimal/keyboard_input.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="136">
-              <caret line="8" column="14" lean-forward="true" selection-start-line="8" selection-start-column="14" selection-end-line="8" selection-end-column="14" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/../envs_neodroid/templates/back_button.html">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="119">
-              <caret line="9" column="14" selection-start-line="9" selection-start-column="14" selection-end-line="9" selection-end-column="14" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/../envs_neodroid/app.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="374">
-              <caret line="41" column="54" selection-start-line="41" selection-start-column="54" selection-end-line="41" selection-end-column="54" />
+            <state relative-caret-position="459">
+              <caret line="27" lean-forward="true" selection-start-line="27" selection-end-line="27" />
               <folding>
-                <element signature="e#616#927#0" expanded="true" />
+                <element signature="e#198#206#0" expanded="true" />
+                <element signature="e#223#231#0" expanded="true" />
+                <element signature="e#248#256#0" expanded="true" />
+                <element signature="e#274#282#0" expanded="true" />
+                <element signature="e#300#314#0" expanded="true" />
+                <element signature="e#727#874#0" expanded="true" />
+                <element signature="e#898#1292#0" expanded="true" />
+                <element signature="e#1318#1385#0" expanded="true" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/../envs_neodroid/templates/index.html">
+        <entry file="file://$PROJECT_DIR$/../neo/samples/minimal/aav.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="272">
-              <caret line="16" column="31" selection-start-line="16" selection-start-column="31" selection-end-line="16" selection-end-column="50" />
+            <state relative-caret-position="276">
+              <caret line="20" selection-end-line="151" />
+              <folding>
+                <element signature="e#47#57#0" expanded="true" />
+                <element signature="e#387#458#0" expanded="true" />
+                <element signature="e#692#1742#0" expanded="true" />
+                <element signature="e#1992#3841#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/../envs_neodroid/templates/base_layout.html">
+        <entry file="file://$PROJECT_DIR$/../neo/samples/minimal/image_observation.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="68">
-              <caret line="4" column="39" selection-start-line="4" selection-start-column="39" selection-end-line="4" selection-end-column="39" />
+            <state relative-caret-position="459">
+              <caret line="27" column="60" selection-start-line="27" selection-start-column="60" selection-end-line="27" selection-end-column="60" />
+              <folding>
+                <element signature="e#47#57#0" expanded="true" />
+                <element signature="e#399#470#0" expanded="true" />
+                <element signature="e#640#1987#0" expanded="true" />
+                <element signature="e#2004#3849#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/../envs_neodroid/templates/detail.html">
+        <entry file="file://$PROJECT_DIR$/../neo/samples/minimal/dmr.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="34">
-              <caret line="2" selection-start-line="2" selection-end-line="4" selection-end-column="14" />
+            <state relative-caret-position="357">
+              <caret line="27" column="61" selection-start-line="27" selection-start-column="61" selection-end-line="27" selection-end-column="61" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/../neo/neodroid/wrappers/gym_wrapper/gym_wrapper.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="187">
+              <caret line="15" column="33" selection-start-line="15" selection-start-column="33" selection-end-line="15" selection-end-column="33" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/../neo/neodroid/wrappers/utility_wrappers/single_environment_wrapper.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="429">
+              <caret line="35" column="52" selection-start-line="35" selection-start-column="52" selection-end-line="35" selection-end-column="52" />
+              <folding>
+                <element signature="e#2148#2319#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/../neo/neodroid/neodroid_utilities/environment_interface/neodroid_camera.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="38">
+              <caret line="8" column="4" selection-start-line="8" selection-start-column="4" selection-end-line="8" selection-end-column="4" />
+              <folding>
+                <element signature="e#47#68#0" expanded="true" />
+                <element signature="e#147#2032#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -231,12 +238,12 @@
       <find>singleenviro</find>
       <find>type(</find>
       <find>episode done</find>
-      <find>print</find>
       <find>terminalplot</find>
       <find>get_terminal_size</find>
       <find>skip</find>
       <find>cleaned</find>
       <find>terminal_size</find>
+      <find>print</find>
     </findStrings>
     <replaceStrings>
       <replace>torch.tanh</replace>
@@ -250,18 +257,11 @@
     </replaceStrings>
   </component>
   <component name="Git.Settings">
-    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/../envs_neodroid" />
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/../neo" />
   </component>
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/experiments/classification/mnist/center_loss.py" />
-        <option value="$PROJECT_DIR$/experiments/segmentation/__init__.py" />
-        <option value="$PROJECT_DIR$/experiments/segmentation/unet_segmentation.py" />
-        <option value="$PROJECT_DIR$/experiments/reconstruction/auto_encoding.py" />
-        <option value="$PROJECT_DIR$/experiments/rl/manipulator.py" />
-        <option value="$PROJECT_DIR$/experiments/rl/grid_world/cnn_grid_world.py" />
-        <option value="$PROJECT_DIR$/experiments/rl/seek_and_avoid.py" />
         <option value="$PROJECT_DIR$/experiments/rl/grid_world/curriculum_grid_world.py" />
         <option value="$PROJECT_DIR$/build_and_upload_package.sh" />
         <option value="$PROJECT_DIR$/utilities/architectures/critic.py" />
@@ -306,6 +306,13 @@
         <option value="$PROJECT_DIR$/../envs_neodroid/static/style.css" />
         <option value="$PROJECT_DIR$/../envs_neodroid/app.py" />
         <option value="$PROJECT_DIR$/../envs_neodroid/templates/list_env.html" />
+        <option value="$PROJECT_DIR$/.travis.yml" />
+        <option value="$PROJECT_DIR$/../neo/samples/minimal/camera_observation.py" />
+        <option value="$PROJECT_DIR$/../neo/neodroid/neodroid_utilities/environment_interface/neodroid_camera.py" />
+        <option value="$PROJECT_DIR$/../neo/samples/minimal/aav.py" />
+        <option value="$PROJECT_DIR$/../neo/samples/minimal/image_observation.py" />
+        <option value="$PROJECT_DIR$/../neo/samples/minimal/dmr.py" />
+        <option value="$PROJECT_DIR$/../neo/NeodroidPackage.py" />
       </list>
     </option>
   </component>
@@ -324,6 +331,7 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
+      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -333,30 +341,60 @@
             </path>
             <path>
               <item name="agent" type="b2602c69:ProjectViewProjectNode" />
-              <item name="draugr" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="agent" type="b2602c69:ProjectViewProjectNode" />
-              <item name="draugr" type="462c0819:PsiDirectoryNode" />
-              <item name="draugr" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="agent" type="b2602c69:ProjectViewProjectNode" />
-              <item name="envs_neodroid" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="agent" type="b2602c69:ProjectViewProjectNode" />
-              <item name="envs_neodroid" type="462c0819:PsiDirectoryNode" />
-              <item name="static" type="462c0819:PsiDirectoryNode" />
+              <item name="documentation" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="agent" type="b2602c69:ProjectViewProjectNode" />
               <item name="neo" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="agent" type="b2602c69:ProjectViewProjectNode" />
+              <item name="neo" type="462c0819:PsiDirectoryNode" />
+              <item name="neodroid" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="agent" type="b2602c69:ProjectViewProjectNode" />
+              <item name="neo" type="462c0819:PsiDirectoryNode" />
+              <item name="neodroid" type="462c0819:PsiDirectoryNode" />
+              <item name="neodroid_utilities" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="agent" type="b2602c69:ProjectViewProjectNode" />
+              <item name="neo" type="462c0819:PsiDirectoryNode" />
+              <item name="neodroid" type="462c0819:PsiDirectoryNode" />
+              <item name="neodroid_utilities" type="462c0819:PsiDirectoryNode" />
+              <item name="environment_interface" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="agent" type="b2602c69:ProjectViewProjectNode" />
+              <item name="neo" type="462c0819:PsiDirectoryNode" />
+              <item name="neodroid" type="462c0819:PsiDirectoryNode" />
+              <item name="wrappers" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="agent" type="b2602c69:ProjectViewProjectNode" />
+              <item name="neo" type="462c0819:PsiDirectoryNode" />
+              <item name="neodroid" type="462c0819:PsiDirectoryNode" />
+              <item name="wrappers" type="462c0819:PsiDirectoryNode" />
+              <item name="gym_wrapper" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="agent" type="b2602c69:ProjectViewProjectNode" />
+              <item name="neo" type="462c0819:PsiDirectoryNode" />
+              <item name="neodroid" type="462c0819:PsiDirectoryNode" />
+              <item name="wrappers" type="462c0819:PsiDirectoryNode" />
+              <item name="utility_wrappers" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="agent" type="b2602c69:ProjectViewProjectNode" />
               <item name="neo" type="462c0819:PsiDirectoryNode" />
               <item name="samples" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="agent" type="b2602c69:ProjectViewProjectNode" />
+              <item name="neo" type="462c0819:PsiDirectoryNode" />
+              <item name="samples" type="462c0819:PsiDirectoryNode" />
+              <item name="minimal" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="agent" type="b2602c69:ProjectViewProjectNode" />
@@ -379,7 +417,6 @@
           <select />
         </subPane>
       </pane>
-      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -388,15 +425,15 @@
     <property name="add_unversioned_files" value="$PROJECT_DIR$/docs/build/html/index.html" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$/../../rlkit" />
     <property name="restartRequiresConfirmation" value="false" />
-    <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PythonContentEntriesConfigurable" />
+    <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
   </component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/../neo/samples/minimal" />
+      <recent name="$PROJECT_DIR$/../documentation" />
+      <recent name="$PROJECT_DIR$" />
+      <recent name="$PROJECT_DIR$/../envs_neodroid" />
       <recent name="$PROJECT_DIR$/../envs_neodroid/templates" />
-      <recent name="$PROJECT_DIR$/experiments/classification/mnist" />
-      <recent name="$PROJECT_DIR$/experiments/classification" />
-      <recent name="$PROJECT_DIR$/experiments/rl" />
-      <recent name="$PROJECT_DIR$/.." />
     </key>
     <key name="MoveFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/../nisse/warg" />
@@ -603,20 +640,22 @@
       <workItem from="1545296653405" duration="596000" />
       <workItem from="1545384132685" duration="25110000" />
       <workItem from="1546502776177" duration="7000" />
+      <workItem from="1547061136851" duration="1687000" />
+      <workItem from="1547624644667" duration="4123000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="124859000" />
+    <option name="totallyTimeSpent" value="130669000" />
   </component>
   <component name="ToolWindowManager">
-    <frame x="23" y="-1" width="2514" height="1422" extended-state="6" />
+    <frame x="23" y="-1" width="2514" height="1421" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="0" sideWeight="0.4831964" visible="true" weight="0.14436334" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" sideWeight="0.48281017" visible="true" weight="0.14436334" />
       <window_info id="Version Control" order="1" sideWeight="0.50049263" side_tool="true" weight="0.17266949" />
       <window_info id="TODO" order="2" sideWeight="0.5005005" side_tool="true" weight="0.17266949" />
-      <window_info id="Find" order="3" sideWeight="0.5160568" side_tool="true" weight="0.14436334" />
+      <window_info id="Find" order="3" sideWeight="0.51718986" side_tool="true" visible="true" weight="0.14436334" />
       <window_info id="Structure" order="4" side_tool="true" weight="0.25" />
       <window_info id="DB Browser" order="5" />
       <window_info id="Favorites" order="6" side_tool="true" />
@@ -637,9 +676,9 @@
       <window_info anchor="right" id="SciView" order="7" />
       <window_info anchor="right" id="Event Log" order="8" sideWeight="0.50049263" side_tool="true" weight="0.2838983" />
       <window_info anchor="right" id="Terminal" order="9" sideWeight="0.5317401" side_tool="true" weight="0.41403082" />
-      <window_info anchor="right" id="Python Console" order="10" sideWeight="0.5324869" side_tool="true" weight="0.41403082" />
-      <window_info anchor="right" x="0" y="0" width="417" height="830" id="Documentation" order="11" sideWeight="0.5324869" side_tool="true" visible="true" weight="0.41403082" />
-      <window_info anchor="right" id="Run" order="12" sideWeight="0.46751305" visible="true" weight="0.41403082" />
+      <window_info anchor="right" id="Python Console" order="10" sideWeight="0.5324869" side_tool="true" visible="true" weight="0.41403082" />
+      <window_info anchor="right" x="0" y="0" width="417" height="830" id="Documentation" order="11" sideWeight="0.5324869" side_tool="true" weight="0.41403082" />
+      <window_info anchor="right" id="Run" order="12" sideWeight="0.46751305" weight="0.41403082" />
       <window_info anchor="right" id="Debug" order="13" sideWeight="0.49215832" weight="0.43592864" />
     </layout>
   </component>
@@ -666,99 +705,13 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/../neo/neodroid/neodroid_utilities/reaction_factories/single_reaction_factory.py</url>
-          <line>21</line>
+          <line>23</line>
           <option name="timeStamp" value="28" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/experiments/rl/manipulator.py">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
-    <entry file="file://$APPLICATION_HOME_DIR$/helpers/pydev/_pydev_bundle/pydev_import_hook.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="221">
-          <caret line="20" selection-start-line="20" selection-end-line="20" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$USER_HOME$/miniconda3/lib/python3.6/site-packages/torch/nn/modules/module.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="436">
-          <caret line="476" selection-start-line="476" selection-end-line="476" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/utilities/architectures/critic.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="850">
-          <caret line="50" selection-start-line="50" selection-end-line="50" />
-          <folding>
-            <element signature="e#47#74#0" expanded="true" />
-            <element signature="e#330#840#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/agents/abstract/ac_agent.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1037">
-          <caret line="189" selection-start-line="189" selection-end-line="189" />
-          <folding>
-            <element signature="e#376#392#0" expanded="true" />
-            <element signature="e#5341#5389#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/experiments/rl/continuous/c2d_config.py">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
-    <entry file="file://$APPLICATION_HOME_DIR$/helpers/pydev/_pydev_imps/_pydev_execfile.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="289">
-          <caret line="17" selection-start-line="17" selection-end-line="17" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/experiments/rl/continuous/c2d.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1071">
-          <caret line="67" column="26" selection-start-line="67" selection-start-column="26" selection-end-line="67" selection-end-column="26" />
-          <folding>
-            <element signature="e#307#1623#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/experiments/rl/grid_world/curriculum_grid_world.py">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/../neo/neodroid/wrappers/utility_wrappers/single_environment_wrapper.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="306">
-          <caret line="23" column="23" lean-forward="true" selection-start-line="23" selection-start-column="23" selection-end-line="23" selection-end-column="23" />
-          <folding>
-            <element signature="e#521#1282#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/../neo/samples/minimal/action_space_sampling.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="425">
-          <caret line="25" column="27" selection-start-line="25" selection-start-column="27" selection-end-line="25" selection-end-column="27" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/../neo/neodroid/neodroid_utilities/reaction_factories/single_reaction_factory.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="340">
-          <caret line="21" selection-start-line="21" selection-end-line="21" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/../neo/samples/example_algorithms/ucb1.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="119">
@@ -1046,6 +999,20 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/.travis.yml" />
+    <entry file="file://$PROJECT_DIR$/../envs_neodroid/templates/list_env.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="136">
+          <caret line="8" column="14" selection-start-line="8" selection-start-column="14" selection-end-line="8" selection-end-column="14" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../neo/.nojekyll">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../envs_neodroid/.nojekyll">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
     <entry file="file://$PROJECT_DIR$/../envs_neodroid/templates/back_button.html">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="119">
@@ -1091,10 +1058,95 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/../envs_neodroid/templates/list_env.html">
+    <entry file="file://$PROJECT_DIR$/../neo/neodroid/wrappers/gym_wrapper/gym_wrapper.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="136">
-          <caret line="8" column="14" lean-forward="true" selection-start-line="8" selection-start-column="14" selection-end-line="8" selection-end-column="14" />
+        <state relative-caret-position="187">
+          <caret line="15" column="33" selection-start-line="15" selection-start-column="33" selection-end-line="15" selection-end-column="33" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../neo/samples/minimal/__init__.py">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../neo/neodroid/neodroid_utilities/environment_interface/neodroid_camera.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="38">
+          <caret line="8" column="4" selection-start-line="8" selection-start-column="4" selection-end-line="8" selection-end-column="4" />
+          <folding>
+            <element signature="e#47#68#0" expanded="true" />
+            <element signature="e#147#2032#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../neo/neodroid/wrappers/utility_wrappers/single_environment_wrapper.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="429">
+          <caret line="35" column="52" selection-start-line="35" selection-start-column="52" selection-end-line="35" selection-end-column="52" />
+          <folding>
+            <element signature="e#2148#2319#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../neo/samples/minimal/aav.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="276">
+          <caret line="20" selection-end-line="151" />
+          <folding>
+            <element signature="e#47#57#0" expanded="true" />
+            <element signature="e#387#458#0" expanded="true" />
+            <element signature="e#692#1742#0" expanded="true" />
+            <element signature="e#1992#3841#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../neo/samples/minimal/image_observation.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="459">
+          <caret line="27" column="60" selection-start-line="27" selection-start-column="60" selection-end-line="27" selection-end-column="60" />
+          <folding>
+            <element signature="e#47#57#0" expanded="true" />
+            <element signature="e#399#470#0" expanded="true" />
+            <element signature="e#640#1987#0" expanded="true" />
+            <element signature="e#2004#3849#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../neo/samples/minimal/dmr.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="357">
+          <caret line="27" column="61" selection-start-line="27" selection-start-column="61" selection-end-line="27" selection-end-column="61" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../neo/NeodroidPackage.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="408">
+          <caret line="35" column="11" selection-start-line="35" selection-start-column="11" selection-end-line="35" selection-end-column="11" />
+          <folding>
+            <element signature="e#0#36#0" expanded="true" />
+            <element signature="e#1382#1836#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../neo/samples/minimal/keyboard_input.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="459">
+          <caret line="27" lean-forward="true" selection-start-line="27" selection-end-line="27" />
+          <folding>
+            <element signature="e#198#206#0" expanded="true" />
+            <element signature="e#223#231#0" expanded="true" />
+            <element signature="e#248#256#0" expanded="true" />
+            <element signature="e#274#282#0" expanded="true" />
+            <element signature="e#300#314#0" expanded="true" />
+            <element signature="e#727#874#0" expanded="true" />
+            <element signature="e#898#1292#0" expanded="true" />
+            <element signature="e#1318#1385#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
