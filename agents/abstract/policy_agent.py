@@ -10,10 +10,10 @@ __author__ = 'cnheider'
 import torch
 
 import utilities as U
-from agents.abstract.agent import Agent
+from agents.abstract.torch_agent import TorchAgent
 
 
-class PolicyAgent(Agent):
+class PolicyAgent(TorchAgent):
   '''
 All policy iteration agents should inherit from this class
 '''

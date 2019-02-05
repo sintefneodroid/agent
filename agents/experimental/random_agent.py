@@ -6,12 +6,12 @@ import draugr
 from tqdm import tqdm
 
 import utilities as U
-from agents.abstract.agent import Agent
+from agents.abstract.torch_agent import TorchAgent
 from procedures.agent_tests import test_agent_main
 
 
 
-class RandomAgent(Agent):
+class RandomAgent(TorchAgent):
 
   # region Private
 

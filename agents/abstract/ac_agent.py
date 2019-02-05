@@ -10,11 +10,11 @@ __author__ = 'cnheider'
 import torch
 
 import utilities as U
-from agents.abstract.agent import Agent
+from agents.abstract.torch_agent import TorchAgent
 import numpy as np
 
 
-class ActorCriticAgent(Agent):
+class ActorCriticAgent(TorchAgent):
   '''
 All value iteration agents should inherit from this class
 '''

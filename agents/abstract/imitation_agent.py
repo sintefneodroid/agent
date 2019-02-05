@@ -3,10 +3,10 @@
 from abc import ABC
 
 __author__ = 'cnheider'
-from agents.abstract.agent import Agent
+from agents.abstract.torch_agent import TorchAgent
 
 
-class ImitationAgent(Agent, ABC):
+class ImitationAgent(TorchAgent, ABC):
 
   # region Private
 

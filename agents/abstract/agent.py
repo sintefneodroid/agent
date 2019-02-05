@@ -29,16 +29,17 @@ All agent should inherit from this class
 
   # region Private
 
-  def __init__(self, config=None, environment=None, use_cuda=False, verbose=False, *args, **kwargs):
+  def __init__(self, config=None,
+               environment=None,
+               verbose=False,
+               *args,
+               **kwargs):
+    self._input_size = None
+    self._output_size = None
     self._step_i = 0
     self._rollout_i = 0
     self._end_training = False
-    self._input_size = None
-    self._hidden_layers = None
-    self._output_size = None
     self._divide_by_zero_safety = 1e-10
-    self._use_cuda = use_cuda
-    self._device = torch.device('cuda:0' if torch.cuda.is_available() and self._use_cuda else 'cpu')
     self._environment = environment
 
     self._verbose = verbose
@@ -149,10 +150,6 @@ All agent should inherit from this class
       self.__check_for_duplicates_in_args(**config_vars)
       self.__parse_set_attr(**config_vars)
     self.__parse_set_attr(**kwargs)
-
-  @property
-  def device(self):
-    return self._device
 
   @property
   def input_size(self):

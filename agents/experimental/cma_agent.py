@@ -6,7 +6,7 @@ import draugr
 from tqdm import tqdm
 
 import utilities as U
-from agents.abstract.agent import Agent
+from agents.abstract.torch_agent import TorchAgent
 from agents.abstract.evo_agent import EVOAgent
 from procedures.agent_tests import test_agent_main
 

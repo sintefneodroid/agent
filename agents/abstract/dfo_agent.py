@@ -3,10 +3,10 @@
 from abc import ABC
 
 __author__ = 'cnheider'
-from agents.abstract.agent import Agent
+from agents.abstract.torch_agent import TorchAgent
 
 
-class DFOAgent(Agent, ABC):
+class DFOAgent(TorchAgent, ABC):
   '''
   derivative free optimization (DFO)
   '''

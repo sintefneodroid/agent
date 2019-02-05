@@ -16,10 +16,10 @@ import numpy as np
 import torch
 
 import utilities as U
-from agents.abstract.agent import Agent
+from agents.abstract.torch_agent import TorchAgent
 
 
-class ValueAgent(Agent):
+class ValueAgent(TorchAgent):
   '''
 All value iteration agents should inherit from this class
 '''
