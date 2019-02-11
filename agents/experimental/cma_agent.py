@@ -87,37 +87,6 @@ class CMAAgent(EVOAgent):
   def evaluate(self, batch, *args, **kwargs) -> Any:
     pass
 
-  def rollout(self, initial_state, environment, *, train=True, render=False, **kwargs) -> Any:
-    if train:
-      self._rollout_i += 1
-
-    episode_signal = 0
-    episode_length = 0
-
-    state = initial_state
-
-    T = count(1)
-    T = tqdm(T, f'Rollout #{self._rollout_i}', leave=False)
-
-    for t in T:
-      action = int(self.sample_action(state)[0])
-
-
-      (state, signal, terminated, info) = environment.step(action=action)
-      episode_signal += signal
-
-      if render:
-        environment.render()
-
-      if terminated:
-        episode_length = t
-        break
-
-    if train:
-      self.update()
-
-    return episode_signal, episode_length
-
   def load(self, *args, **kwargs) -> None:
     pass
 

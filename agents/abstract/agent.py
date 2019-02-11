@@ -2,16 +2,15 @@
 # -*- coding: utf-8 -*-
 import time
 from itertools import count
-from typing import Any, Tuple
+from typing import Any
 from warnings import warn
 
-import numpy
-import torch
-from tqdm import tqdm
-
 import draugr
-from configs import get_upper_case_vars_or_protected_of
+import numpy
+from tqdm import tqdm
 from warg import NamedOrderedDictionary
+
+from configs import get_upper_case_vars_or_protected_of
 
 tqdm.monitor_interval = 0
 
@@ -132,7 +131,6 @@ All agent should inherit from this class
     self._device = device
     self._build(**kwargs)
 
-
   def train(self, *args, **kwargs) -> NamedOrderedDictionary:
     training_start_timestamp = time.time()
 
@@ -182,7 +180,6 @@ All agent should inherit from this class
     self._maybe_infer_input_output_sizes(env)
     self._maybe_infer_hidden_layers()
 
-
   def _maybe_infer_input_output_sizes(self, env) -> None:
 
     '''
@@ -195,7 +192,10 @@ Tries to infer input and output size from env if either _input_size or _output_s
 
     if self._input_size is None or self._input_size == -1:
       self._input_size = env.observation_space.shape
-    draugr.sprint(f'\nobservation dimensions: {self._input_size}\n', color='green', bold=True, highlight=True)
+    draugr.sprint(f'\nobservation dimensions: {self._input_size}\n'
+                  f'observation_space:\n{env.observation_space}\n',
+                  color='green', bold=True,
+                  highlight=True)
 
     if self._output_size is None or self._output_size == -1:
       if hasattr(env.action_space, 'num_binary_actions'):
@@ -204,7 +204,9 @@ Tries to infer input and output size from env if either _input_size or _output_s
         self._output_size = env.action_space.shape
       else:
         self._output_size = [env.action_space.n]
-    draugr.sprint(f'\naction dimensions: {self._output_size}\n', color='green', bold=True, highlight=True)
+    draugr.sprint(f'\naction dimensions: {self._output_size}\n'
+                  f'action_space:\n{env.action_space}\n',
+                  color='yellow', bold=True, highlight=True)
 
   def _maybe_infer_hidden_layers(self,
                                  input_multiplier=8,

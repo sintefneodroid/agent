@@ -81,7 +81,9 @@ class NeodroidAgentPackage:
         'neodroid-ppo = agents.ppo_agent:main',
         'neodroid-dqn = agents.dqn_agent:main',
         'neodroid-pg = agents.pg_agent:main',
-        'neodroid-dppg = agents.dppg_agent:main'
+        'neodroid-dppg = agents.dppg_agent:main',
+        'neodroid-cma = agents.experimental.cma_agent:main'
+        #'neodroid-evo = agents.evo_agent:main'
         ]
       }
 
