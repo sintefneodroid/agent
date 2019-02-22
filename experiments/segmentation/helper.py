@@ -34,16 +34,16 @@ def plot_errors(results_dict, title):
   plt.show()
 
 
-def masks_to_color_img(masks):
+def masks_to_color_img(masks, threshold=0.01):
   colors = np.asarray(
-      [(201, 58, 64), (242, 207, 1), (0, 152, 75), (101, 172, 228), (56, 34, 132), (160, 194, 56)])
+      [(201, 58, 64), (242, 207, 1)])
 
   colorimg = np.ones((masks.shape[1], masks.shape[2], 3), dtype=np.float32) * 255
   channels, height, width = masks.shape
 
   for y in range(height):
     for x in range(width):
-      selected_colors = colors[masks[:, y, x] > 0.5]
+      selected_colors = colors[masks[:, y, x] > threshold]
 
       if len(selected_colors) > 0:
         colorimg[y, x, :] = np.mean(selected_colors, axis=0)

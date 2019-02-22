@@ -6,11 +6,11 @@ from collections import defaultdict
 
 import torchvision.transforms as T
 from PIL import Image
+from neodroid.wrappers.observation_wrapper.observation_wrapper import ObservationWrapper
 
 from experiments.segmentation import helper
 from experiments.segmentation.loss import calc_loss
 from experiments.segmentation.unet import UNet
-from neodroid.wrappers.observation_wrapper.observation_wrapper import ObservationWrapper
 
 __author__ = 'cnheider'
 
@@ -19,24 +19,43 @@ import torch.optim as optim
 from torch.optim import lr_scheduler
 from tqdm import tqdm
 import numpy as np
+import matplotlib.pyplot as plt
 
 tqdm.monitor_interval = 0
 
 resize = T.Compose([
-  #T.ToPILImage(),
-                   # T.Resize(40, interpolation=Image.CUBIC),
-                    T.ToTensor()])
+  # T.ToPILImage(),
+  # T.Resize(40, interpolation=Image.CUBIC),
+  T.ToTensor()])
 
 
-def train_model(model, optimizer, scheduler, batch_size=8, num_epochs=25, device='cpu'):
+def train_model(model, optimizer, scheduler, batch_size=6, num_updates=25000, device='cpu'):
   def data_loader(device):
     while True:
       a = []
       b = []
       while len(a) < batch_size:
-        a.append(transform(np.array(Image.open(env.observer('RGBCameraObserver').observation_value))))
-        b.append(transform(np.array(Image.open(env.observer('MatId').observation_value))))
-      yield torch.Tensor(a).to(device), torch.Tensor(b).to(device)
+        env.observe()
+        obs = env.observer('MaterialIdSegmentationCameraObserver').observation_value
+        # obs2 = env.observer("MaterialIdSegmentationSegmentationObserver").observation_value
+        # blue plastic: RGBA(0.078, 0.000, 0.851, 1.000)
+        # material0: RGBA(0.651, 0.004, 0.349, 1.000)
+        obs1 = env.observer('RGBCameraObserver').observation_value
+        a_a = np.array(Image.open(obs1).convert("RGB"))
+        a.append(transform(a_a))
+        b_a = np.array(Image.open(obs).convert("RGB"))
+
+        b_a_red = np.zeros(b_a.shape[:-1])
+        b_a_blue = np.zeros(b_a.shape[:-1])
+
+        reddish = b_a[:, :, 0] > 50
+        blueish = b_a[:, :, 2] > 10
+        b_a_red[reddish] = 1
+        b_a_blue[blueish] = 1
+        b_a_blue[reddish] = 0
+
+        b.append(np.asarray([b_a_red, b_a_blue]))
+      yield torch.FloatTensor(a).to(device), torch.FloatTensor(b).to(device)
 
   def print_metrics(metrics, epoch_samples, phase):
     outputs = []
@@ -46,34 +65,31 @@ def train_model(model, optimizer, scheduler, batch_size=8, num_epochs=25, device
     print(f"{phase}: {', '.join(outputs)}")
 
   def reverse_transform(inp):
-    inp = inp.numpy().transpose((1, 2, 0))
-    inp = np.clip(inp, 0, 1)
-    inp = (inp * 255).astype(np.uint8)
-
+    inp = inp.transpose((1,2,0))
+    inp = inp * 255.0
+    inp = np.clip(inp,0,255).astype(np.uint8)
     return inp
 
   def transform(inp):
-    inp = inp.transpose()
-    inp = np.clip(inp, 0, 1)
-    inp = (inp /255).astype(np.uint8)
-
+    inp = inp / 255.0
+    inp = np.clip(inp,0,1)
+    inp = inp.transpose((2,0,1))
     return inp
 
   best_model_wts = copy.deepcopy(model.state_dict())
   best_loss = 1e10
 
-  for epoch in range(num_epochs):
-    print(f'Epoch {epoch}/{num_epochs - 1}')
-    print('-' * 10)
+  d_l = iter(data_loader(device))
 
-    since = time.time()
+  since = time.time()
 
+  for epoch in range(num_updates):
     # Each epoch has a training and validation phase
     for phase in ['train', 'val']:
       if phase == 'train':
         scheduler.step()
-        for param_group in optimizer.param_groups:
-          print("LR", param_group['lr'])
+        #for param_group in optimizer.param_groups:
+        #  print("LR", param_group['lr'])
 
         model.train()  # Set model to training mode
       else:
@@ -82,19 +98,19 @@ def train_model(model, optimizer, scheduler, batch_size=8, num_epochs=25, device
       metrics = defaultdict(float)
       epoch_samples = 0
 
-      for inputs, labels in data_loader(device):
-        optimizer.zero_grad()
+      inputs, labels = next(d_l)
+      optimizer.zero_grad()
 
-        with torch.set_grad_enabled(phase == 'train'):
-          outputs = model(inputs)
-          loss = calc_loss(outputs, labels, metrics)
+      with torch.set_grad_enabled(phase == 'train'):
+        outputs = model(inputs)
+        loss = calc_loss(outputs, labels, metrics)
 
-          if phase == 'train':  # backward + optimize only if in training phase
-            loss.backward()
-            optimizer.step()
+        if phase == 'train':  # backward + optimize only if in training phase
+          loss.backward()
+          optimizer.step()
 
-        # statistics
-        epoch_samples += inputs.size(0)
+      # statistics
+      epoch_samples += inputs.size(0)
 
       print_metrics(metrics, epoch_samples, phase)
       epoch_loss = metrics['loss'] / epoch_samples
@@ -105,27 +121,31 @@ def train_model(model, optimizer, scheduler, batch_size=8, num_epochs=25, device
         best_loss = epoch_loss
         best_model_wts = copy.deepcopy(model.state_dict())
 
-    time_elapsed = time.time() - since
-    print(f'{time_elapsed // 60:.0f}m {time_elapsed % 60:.0f}s')
-    print(f'Best val loss: {best_loss:4f}')
+    if epoch_loss< 0.97:
+      break
 
-    model.load_state_dict(best_model_wts)  # load best model weights
+  time_elapsed = time.time() - since
+  print(f'{time_elapsed // 60:.0f}m {time_elapsed % 60:.0f}s')
+  print(f'Best val loss: {best_loss:4f}')
 
-    model.eval()  # Set model to evaluate mode
+  model.load_state_dict(best_model_wts)  # load best model weights
 
-    inputs, labels = next(iter(data_loader(device)))
+  model.eval()  # Set model to evaluate mode
 
-    pred = model(inputs).data.cpu().numpy()
+  inputs, labels = next(d_l)
 
-    input_images_rgb = [reverse_transform(x) for x in inputs.cpu()]
+  pred = model(inputs).data.cpu().numpy()
 
-    # Map each channel (i.e. class) to each color
-    target_masks_rgb = [helper.masks_to_color_img(x) for x in labels.cpu().numpy()]
-    pred_rgb = [helper.masks_to_color_img(x) for x in pred]
+  input_images_rgb = [reverse_transform(x) for x in inputs.cpu().numpy()]
 
-    helper.plot_side_by_side([input_images_rgb, target_masks_rgb, pred_rgb])
+  l = labels.cpu().numpy()
+  target_masks_rgb = [helper.masks_to_color_img(x) for x in l]  # Map each channel (i.e. class) to each color
+  pred_rgb = [helper.masks_to_color_img(x) for x in pred]
 
-    return model
+  helper.plot_side_by_side([input_images_rgb, target_masks_rgb, pred_rgb])
+  plt.show()
+
+  return model
 
 
 if __name__ == '__main__':
@@ -139,14 +159,14 @@ if __name__ == '__main__':
   # _agent = C.AGENT_TYPE(C)
   device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
-  model = UNet(3, depth=2, merge_mode='concat')
+  model = UNet(2, depth=4, merge_mode='concat')
   model = model.to(device)
 
   optimizer_ft = optim.Adam(model.parameters(), lr=1e-4)
   exp_lr_scheduler = lr_scheduler.StepLR(optimizer_ft, step_size=25, gamma=0.1)
 
   try:
-    train_model(model, optimizer_ft, exp_lr_scheduler,device=device)
+    train_model(model, optimizer_ft, exp_lr_scheduler, device=device)
   except KeyboardInterrupt:
     print('Stopping')
 

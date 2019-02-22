@@ -5,8 +5,8 @@ from collections import OrderedDict
 from torch.nn import init
 import numpy as np
 
-def conv3x3(in_channels, out_channels, stride=1, 
-            padding=1, bias=True, groups=1):    
+def conv3x3(in_channels, out_channels, stride=1,
+            padding=1, bias=True, groups=1):
     return nn.Conv2d(
         in_channels,
         out_channels,
@@ -58,8 +58,8 @@ class DownConv(nn.Module):
             self.pool = nn.MaxPool2d(kernel_size=2, stride=2)
 
     def forward(self, x):
-        x = F.relu(self.conv1(x))
-        x = F.relu(self.conv2(x))
+        x = torch.relu(self.conv1(x))
+        x = torch.relu(self.conv2(x))
         before_pool = x
         if self.pooling:
             x = self.pool(x)
@@ -71,7 +71,7 @@ class UpConv(nn.Module):
     A helper Module that performs 2 convolutions and 1 UpConvolution.
     A ReLU activation follows each convolution.
     """
-    def __init__(self, in_channels, out_channels, 
+    def __init__(self, in_channels, out_channels,
                  merge_mode='concat', up_mode='transpose'):
         super(UpConv, self).__init__()
 
@@ -80,7 +80,7 @@ class UpConv(nn.Module):
         self.merge_mode = merge_mode
         self.up_mode = up_mode
 
-        self.upconv = upconv2x2(self.in_channels, self.out_channels, 
+        self.upconv = upconv2x2(self.in_channels, self.out_channels,
             mode=self.up_mode)
 
         if self.merge_mode == 'concat':
@@ -103,8 +103,8 @@ class UpConv(nn.Module):
             x = torch.cat((from_up, from_down), 1)
         else:
             x = from_up + from_down
-        x = F.relu(self.conv1(x))
-        x = F.relu(self.conv2(x))
+        x = torch.relu(self.conv1(x))
+        x = torch.relu(self.conv2(x))
         return x
 
 
@@ -129,15 +129,15 @@ class UNet(nn.Module):
         the tranpose convolution (specified by upmode='transpose')
     """
 
-    def __init__(self, num_classes, in_channels=3, depth=5, 
-                 start_filts=64, up_mode='transpose', 
+    def __init__(self, num_classes, in_channels=3, depth=5,
+                 start_filts=64, up_mode='transpose',
                  merge_mode='concat'):
         """
         Arguments:
             in_channels: int, number of channels in the input tensor.
                 Default is 3 for RGB images.
             depth: int, number of MaxPools in the U-Net.
-            start_filts: int, number of convolutional filters for the 
+            start_filts: int, number of convolutional filters for the
                 first conv.
             up_mode: string, type of upconvolution. Choices: 'transpose'
                 for transpose convolution or 'upsample' for nearest neighbour
@@ -151,7 +151,7 @@ class UNet(nn.Module):
             raise ValueError("\"{}\" is not a valid mode for "
                              "upsampling. Only \"transpose\" and "
                              "\"upsample\" are allowed.".format(up_mode))
-    
+
         if merge_mode in ('concat', 'add'):
             self.merge_mode = merge_mode
         else:
@@ -205,8 +205,8 @@ class UNet(nn.Module):
     @staticmethod
     def weight_init(m):
         if isinstance(m, nn.Conv2d):
-            init.xavier_normal(m.weight)
-            init.constant(m.bias, 0)
+            init.xavier_normal_(m.weight)
+            init.constant_(m.bias, 0)
 
 
     def reset_params(self):
@@ -216,7 +216,7 @@ class UNet(nn.Module):
 
     def forward(self, x):
         encoder_outs = []
-         
+
         # encoder pathway, save outputs for merging
         for i, module in enumerate(self.down_convs):
             x, before_pool = module(x)
@@ -225,7 +225,7 @@ class UNet(nn.Module):
         for i, module in enumerate(self.up_convs):
             before_pool = encoder_outs[-(i+2)]
             x = module(before_pool, x)
-        
+
         # No softmax is used. This means you need to use
         # nn.CrossEntropyLoss is your training script,
         # as this module includes a softmax already.
@@ -243,4 +243,3 @@ if __name__ == "__main__":
     print(im.shape)
     plt.imshow(im[0].transpose(2, 0))
     plt.show()
-    print('what')
