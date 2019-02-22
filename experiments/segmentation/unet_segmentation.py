@@ -1,74 +1,155 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-import draugr
-from neodroid.wrappers.utility_wrappers.action_encoding_wrappers import BinaryActionEncodingWrapper
+import copy
+import time
+from collections import defaultdict
+
+import torchvision.transforms as T
+from PIL import Image
+
+from experiments.segmentation import helper
+from experiments.segmentation.loss import calc_loss
+from experiments.segmentation.unet import UNet
+from neodroid.wrappers.observation_wrapper.observation_wrapper import ObservationWrapper
 
 __author__ = 'cnheider'
 
 import torch
+import torch.optim as optim
+from torch.optim import lr_scheduler
 from tqdm import tqdm
+import numpy as np
 
 tqdm.monitor_interval = 0
 
-import utilities as U
+resize = T.Compose([
+  #T.ToPILImage(),
+                   # T.Resize(40, interpolation=Image.CUBIC),
+                    T.ToTensor()])
 
 
-def train_agent(config, agent):
-  device = torch.device('cuda' if config.USE_CUDA else 'cpu')
-  torch.manual_seed(config.SEED)
+def train_model(model, optimizer, scheduler, batch_size=8, num_epochs=25, device='cpu'):
+  def data_loader(device):
+    while True:
+      a = []
+      b = []
+      while len(a) < batch_size:
+        a.append(transform(np.array(Image.open(env.observer('RGBCameraObserver').observation_value))))
+        b.append(transform(np.array(Image.open(env.observer('MatId').observation_value))))
+      yield torch.Tensor(a).to(device), torch.Tensor(b).to(device)
 
-  env = BinaryActionEncodingWrapper(environment_name=config.ENVIRONMENT_NAME,
-                                    connect_to_running=config.CONNECT_TO_RUNNING)
-  env.seed(config.SEED)
+  def print_metrics(metrics, epoch_samples, phase):
+    outputs = []
+    for k in metrics.keys():
+      outputs.append(f"{k}: {metrics[k] / epoch_samples:4f}")
 
-  agent.build(env, device)
+    print(f"{phase}: {', '.join(outputs)}")
 
-  listener = U.add_early_stopping_key_combination(agent.stop_training)
+  def reverse_transform(inp):
+    inp = inp.numpy().transpose((1, 2, 0))
+    inp = np.clip(inp, 0, 1)
+    inp = (inp * 255).astype(np.uint8)
 
-  listener.start()
-  try:
-    trained_model, running_signals, running_lengths, *training_statistics = agent.train(env, config.ROLLOUTS,
-                                                                                         render=config.RENDER_ENVIRONMENT)
-  except ValueError:
-    running_signals = None
-    running_lengths = None
-    trained_model = None
-    print('Training procedure did not return as excepted')
-  finally:
-    listener.stop()
+    return inp
 
-  draugr.save_statistic(running_signals, stat_name='running_signals', config_name=C.CONFIG_NAME,
-                        project_name=C.PROJECT ,
-                        directory=C.LOG_DIRECTORY)
-  draugr.save_statistic(running_lengths, stat_name='running_lengths', directory=C.LOG_DIRECTORY,
-                        config_name=C.CONFIG_NAME,
-                        project_name=C.PROJECT )
-  U.save_model(trained_model, config)
+  def transform(inp):
+    inp = inp.transpose()
+    inp = np.clip(inp, 0, 1)
+    inp = (inp /255).astype(np.uint8)
 
-  env.close()
+    return inp
+
+  best_model_wts = copy.deepcopy(model.state_dict())
+  best_loss = 1e10
+
+  for epoch in range(num_epochs):
+    print(f'Epoch {epoch}/{num_epochs - 1}')
+    print('-' * 10)
+
+    since = time.time()
+
+    # Each epoch has a training and validation phase
+    for phase in ['train', 'val']:
+      if phase == 'train':
+        scheduler.step()
+        for param_group in optimizer.param_groups:
+          print("LR", param_group['lr'])
+
+        model.train()  # Set model to training mode
+      else:
+        model.eval()  # Set model to evaluate mode
+
+      metrics = defaultdict(float)
+      epoch_samples = 0
+
+      for inputs, labels in data_loader(device):
+        optimizer.zero_grad()
+
+        with torch.set_grad_enabled(phase == 'train'):
+          outputs = model(inputs)
+          loss = calc_loss(outputs, labels, metrics)
+
+          if phase == 'train':  # backward + optimize only if in training phase
+            loss.backward()
+            optimizer.step()
+
+        # statistics
+        epoch_samples += inputs.size(0)
+
+      print_metrics(metrics, epoch_samples, phase)
+      epoch_loss = metrics['loss'] / epoch_samples
+
+      # deep copy the model
+      if phase == 'val' and epoch_loss < best_loss:
+        print("saving best model")
+        best_loss = epoch_loss
+        best_model_wts = copy.deepcopy(model.state_dict())
+
+    time_elapsed = time.time() - since
+    print(f'{time_elapsed // 60:.0f}m {time_elapsed % 60:.0f}s')
+    print(f'Best val loss: {best_loss:4f}')
+
+    model.load_state_dict(best_model_wts)  # load best model weights
+
+    model.eval()  # Set model to evaluate mode
+
+    inputs, labels = next(iter(data_loader(device)))
+
+    pred = model(inputs).data.cpu().numpy()
+
+    input_images_rgb = [reverse_transform(x) for x in inputs.cpu()]
+
+    # Map each channel (i.e. class) to each color
+    target_masks_rgb = [helper.masks_to_color_img(x) for x in labels.cpu().numpy()]
+    pred_rgb = [helper.masks_to_color_img(x) for x in pred]
+
+    helper.plot_side_by_side([input_images_rgb, target_masks_rgb, pred_rgb])
+
+    return model
 
 
 if __name__ == '__main__':
-  import experiments.grid_world.cnn_grid_world_config as C
 
-  from configs.arguments import parse_arguments, get_upper_case_vars_or_protected_of
+  torch.manual_seed(2)
 
-  args = parse_arguments('Regular small grid world experiment', C)
+  env = ObservationWrapper(environment_name="",
+                           connect_to_running=True)
+  env.seed(3)
 
-  for key, arg in args.__dict__.items():
-    setattr(C, key, arg)
+  # _agent = C.AGENT_TYPE(C)
+  device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
-  draugr.sprint(f'\nUsing config: {C}\n', highlight=True, color='yellow')
-  if not args.skip_confirmation:
-    for key, arg in get_upper_case_vars_or_protected_of(C).items():
-      print(f'{key} = {arg}')
-    input('\nPress Enter to begin... ')
+  model = UNet(3, depth=2, merge_mode='concat')
+  model = model.to(device)
 
-  _agent = C.AGENT_TYPE(C)
+  optimizer_ft = optim.Adam(model.parameters(), lr=1e-4)
+  exp_lr_scheduler = lr_scheduler.StepLR(optimizer_ft, step_size=25, gamma=0.1)
 
   try:
-    train_agent(C, _agent)
+    train_model(model, optimizer_ft, exp_lr_scheduler,device=device)
   except KeyboardInterrupt:
     print('Stopping')
 
   torch.cuda.empty_cache()
+
+  env.close()
