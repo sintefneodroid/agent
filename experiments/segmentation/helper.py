@@ -34,7 +34,7 @@ def plot_errors(results_dict, title):
   plt.show()
 
 
-def masks_to_color_img(masks, threshold=0.01):
+def masks_to_color_img(masks,  threshold = 0.01):
   colors = np.asarray(
       [(201, 58, 64), (242, 207, 1)])
 

@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 import copy
+import os
+import sys
 import time
 from collections import defaultdict
 
@@ -9,8 +11,8 @@ from PIL import Image
 from neodroid.wrappers.observation_wrapper.observation_wrapper import ObservationWrapper
 
 from experiments.segmentation import helper
-from experiments.segmentation.loss import calc_loss
-from experiments.segmentation.unet import UNet
+from experiments.segmentation.loss import calculate_loss
+from experiments.segmentation.unet.unet import UNet
 
 __author__ = 'cnheider'
 
@@ -29,7 +31,7 @@ resize = T.Compose([
   T.ToTensor()])
 
 
-def train_model(model, optimizer, scheduler, batch_size=6, num_updates=25000, device='cpu'):
+def train_model(model, optimizer, scheduler, batch_size=12, num_updates=25000, device='cpu'):
   def data_loader(device):
     while True:
       a = []
@@ -83,46 +85,55 @@ def train_model(model, optimizer, scheduler, batch_size=6, num_updates=25000, de
 
   since = time.time()
 
-  for epoch in range(num_updates):
-    # Each epoch has a training and validation phase
-    for phase in ['train', 'val']:
-      if phase == 'train':
-        scheduler.step()
-        #for param_group in optimizer.param_groups:
-        #  print("LR", param_group['lr'])
+  try:
+    for epoch in range(num_updates):
+      # Each epoch has a training and validation phase
+      for phase in ['train', 'val']:
+        if phase == 'train':
+          scheduler.step()
+          for param_group in optimizer.param_groups:
+            print("LR", param_group['lr'])
 
-        model.train()  # Set model to training mode
-      else:
-        model.eval()  # Set model to evaluate mode
+          model.train()  # Set model to training mode
+        else:
+          model.eval()  # Set model to evaluate mode
 
-      metrics = defaultdict(float)
-      epoch_samples = 0
+        metrics = defaultdict(float)
+        epoch_samples = 0
 
-      inputs, labels = next(d_l)
-      optimizer.zero_grad()
+        inputs, labels = next(d_l)
+        optimizer.zero_grad()
 
-      with torch.set_grad_enabled(phase == 'train'):
-        outputs = model(inputs)
-        loss = calc_loss(outputs, labels, metrics)
+        with torch.set_grad_enabled(phase == 'train'):
+          outputs = model(inputs)
+          loss,metrics_out = calculate_loss(outputs, labels, original=inputs).as_list()
+          metrics['bce'] += metrics_out['bce']
+          metrics['dice'] += metrics_out['dice']
+          metrics['loss'] += metrics_out['loss']
 
-        if phase == 'train':  # backward + optimize only if in training phase
-          loss.backward()
-          optimizer.step()
+          if phase == 'train':  # backward + optimize only if in training phase
+            loss.backward()
+            optimizer.step()
 
-      # statistics
-      epoch_samples += inputs.size(0)
+        # statistics
+        epoch_samples += inputs.size(0)
 
-      print_metrics(metrics, epoch_samples, phase)
-      epoch_loss = metrics['loss'] / epoch_samples
+        print_metrics(metrics, epoch_samples, phase)
+        epoch_loss = metrics['loss'] / epoch_samples
 
-      # deep copy the model
-      if phase == 'val' and epoch_loss < best_loss:
-        print("saving best model")
-        best_loss = epoch_loss
-        best_model_wts = copy.deepcopy(model.state_dict())
+        # deep copy the model
+        if phase == 'val' and epoch_loss < best_loss:
+          print("saving best model")
+          best_loss = epoch_loss
+          best_model_wts = copy.deepcopy(model.state_dict())
 
-    if epoch_loss< 0.97:
-      break
+      if epoch_loss< 0.1:
+        pass
+        #break
+  except KeyboardInterrupt:
+    torch.save(model.state_dict(), 'INTERRUPTED.pth')
+    print('Saved interrupt')
+
 
   time_elapsed = time.time() - since
   print(f'{time_elapsed // 60:.0f}m {time_elapsed % 60:.0f}s')
@@ -159,17 +170,24 @@ if __name__ == '__main__':
   # _agent = C.AGENT_TYPE(C)
   device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
-  model = UNet(2, depth=4, merge_mode='concat')
+  model = UNet(2, depth=3, merge_mode='concat')
   model = model.to(device)
 
-  optimizer_ft = optim.Adam(model.parameters(), lr=1e-4)
-  exp_lr_scheduler = lr_scheduler.StepLR(optimizer_ft, step_size=25, gamma=0.1)
+  batch_size = 12
+
+  optimizer_ft = optim.Adam(model.parameters(), lr=1e-3)
+  exp_lr_scheduler = lr_scheduler.StepLR(optimizer_ft, step_size=int(200//batch_size)+4, gamma=0.1)
 
   try:
-    train_model(model, optimizer_ft, exp_lr_scheduler, device=device)
+    train_model(model, optimizer_ft, exp_lr_scheduler,batch_size=batch_size, device=device)
   except KeyboardInterrupt:
     print('Stopping')
-
-  torch.cuda.empty_cache()
-
-  env.close()
+  finally:
+    torch.cuda.empty_cache()
+    env.close()
+    '''
+    try:
+      sys.exit(0)
+    except SystemExit:
+      os._exit(0)
+    '''
