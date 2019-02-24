@@ -8,7 +8,7 @@ from experiments.segmentation.unet.down_convolution import DownConvolution
 from experiments.segmentation.unet.up_convolution import UpConvolution
 
 
-class UNet(nn.Module):
+class AEUNet(nn.Module):
   """
   `UNet` class is based on https://arxiv.org/abs/1505.04597
   Contextual spatial information (from the decoding, expansive pathway) about an input tensor is merged with
@@ -28,21 +28,20 @@ class UNet(nn.Module):
 
   def __init__(self,
                out_channels,
+               *,
                in_channels=3,
                depth=5,
-               start_filts=64,
-               up_mode='transpose',
+               start_filters=64,
+               up_mode='upsample',
                merge_mode='concat'):
     '''
     Arguments:
         in_channels: int, number of channels in the input tensor.
             Default is 3 for RGB images.
         depth: int, number of MaxPools in the U-Net.
-        start_filts: int, number of convolutional filters for the
-            first conv.
-        up_mode: string, type of upconvolution. Choices: 'transpose'
-            for transpose convolution or 'upsample' for nearest neighbour
-            upsampling.
+        start_filters: int, number of convolutional filters for the            first conv.
+        up_mode: string, type of upconvolution. Choices: 'transpose' for transpose convolution or 'upsample' for nearest neighbour upsampling.
+        merge_mode:'concat'
     '''
     super().__init__()
 
@@ -66,37 +65,47 @@ class UNet(nn.Module):
 
     self.out_channels = out_channels
     self.in_channels = in_channels
-    self.start_filts = start_filts
+    self.start_filters = start_filters
     self.depth = depth
 
-    self.down_convs = []
-    self.up_convs = []
+    self.down_convolutions = []
+    self.up_convolutions_ae = []
+    self.up_convolutions_seg = []
 
     outs = None
 
     # create the encoder pathway and add to a list
     for i in range(depth):
       ins = self.in_channels if i == 0 else outs
-      outs = self.start_filts * (2 ** i)
+      outs = self.start_filters * (2 ** i)
       pooling = True if i < depth - 1 else False
 
       down_conv = DownConvolution(ins, outs, pooling=pooling)
-      self.down_convs.append(down_conv)
+      self.down_convolutions.append(down_conv)
 
-    # create the decoder pathway and add to a list
-    # - careful! decoding only requires depth-1 blocks
+    outs_ae=outs
+    # create the decoder pathway and add to a list - careful! decoding only requires depth-1 blocks
     for i in range(depth - 1):
-      ins = outs
-      outs = ins // 2
-      up_conv = UpConvolution(ins, outs, up_mode=up_mode,
-                              merge_mode=merge_mode)
-      self.up_convs.append(up_conv)
+      ins = outs_ae
+      outs_ae = ins // 2
+      up_conv = UpConvolution(ins, outs_ae, up_mode=up_mode, merge_mode=merge_mode)
+      self.up_convolutions_ae.append(up_conv)
 
-    self.conv_final = conv1x1(outs, self.out_channels)
+    outs_seg=outs
+    # create the decoder pathway and add to a list - careful! decoding only requires depth-1 blocks
+    for i in range(depth - 1):
+      ins = outs_seg
+      outs_seg = ins // 2
+      up_conv = UpConvolution(ins, outs_seg, up_mode=up_mode, merge_mode=merge_mode)
+      self.up_convolutions_seg.append(up_conv)
+
+    self.conv_final_ae = conv1x1(outs_ae, self.in_channels)
+    self.conv_final_seg = conv1x1(outs_seg, self.out_channels)
 
     # add the list of modules to current module
-    self.down_convs = nn.ModuleList(self.down_convs)
-    self.up_convs = nn.ModuleList(self.up_convs)
+    self.down_convolutions = nn.ModuleList(self.down_convolutions)
+    self.up_convolutions_ae = nn.ModuleList(self.up_convolutions_ae)
+    self.up_convolutions_seg = nn.ModuleList(self.up_convolutions_seg)
 
     self.reset_params()
 
@@ -104,7 +113,7 @@ class UNet(nn.Module):
   def weight_init(m):
     if isinstance(m, nn.Conv2d):
       init.xavier_normal_(m.weight)
-      init.constant_(m.bias, 0.1)
+      init.constant_(m.bias, 0)
 
   def reset_params(self):
     for i, m in enumerate(self.modules()):
@@ -113,27 +122,29 @@ class UNet(nn.Module):
   def forward(self, x):
     encoder_outs = []
 
-    # encoder pathway, save outputs for merging
-    for i, module in enumerate(self.down_convs):
+    for i, module in enumerate(self.down_convolutions):     # encoder pathway, save outputs for merging
       x, before_pool = module(x)
       encoder_outs.append(before_pool)
 
-    for i, module in enumerate(self.up_convs):
+    x_ae = x
+    x_seg = x
+    for i, module in enumerate(self.up_convolutions_seg):
       before_pool = encoder_outs[-(i + 2)]
-      x = module(before_pool, x)
+      x_seg = module(before_pool, x_seg)
 
-    # No softmax is used. This means you need to use
-    # nn.CrossEntropyLoss is your training script,
-    # as this module includes a softmax already.
-    x = self.conv_final(x)
-    x = torch.sigmoid(x)
-    return x
+    for i, module in enumerate(self.up_convolutions_ae):
+      before_pool = encoder_outs[-(i + 2)]
+      x_ae = module(before_pool, x_ae)
+
+    x_seg = self.conv_final_seg(x_seg)
+    x_ae = self.conv_final_ae(x_ae)
+    return x_seg, x_ae
 
 
 if __name__ == "__main__":
-  model = UNet(3, depth=2, merge_mode='concat')
+  model = AEUNet(3, depth=2, merge_mode='concat')
   x = torch.FloatTensor(np.random.random((1, 3, 320, 320)))
-  out = model(x)
+  out,_ = model(x)
   loss = torch.sum(out)
   loss.backward()
   import matplotlib.pyplot as plt

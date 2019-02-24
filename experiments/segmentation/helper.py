@@ -23,7 +23,7 @@ def plot_side_by_side(img_arrays):
 def plot_errors(results_dict, title):
   markers = itertools.cycle(('+', 'x', 'o'))
 
-  plt.title('{}'.format(title))
+  plt.title(f'{title}')
 
   for label, result in sorted(results_dict.items()):
     plt.plot(result, marker=next(markers), label=label)
@@ -34,18 +34,14 @@ def plot_errors(results_dict, title):
   plt.show()
 
 
-def masks_to_color_img(masks,  threshold = 0.01):
-  colors = np.asarray(
-      [(201, 58, 64), (242, 207, 1)])
-
-  colorimg = np.ones((masks.shape[1], masks.shape[2], 3), dtype=np.float32) * 255
-  channels, height, width = masks.shape
+def masks_to_color_img(masks):
+  height, width, mask_channels = masks.shape
+  color_channels = 3
+  color_image = np.zeros((height, width, color_channels), dtype=np.uint8)*255
 
   for y in range(height):
     for x in range(width):
-      selected_colors = colors[masks[:, y, x] > threshold]
+      for mc in range(mask_channels):
+        color_image[y, x, mc % color_channels] = masks[y, x, mc]
 
-      if len(selected_colors) > 0:
-        colorimg[y, x, :] = np.mean(selected_colors, axis=0)
-
-  return colorimg.astype(np.uint8)
+  return color_image.astype(np.uint8)
