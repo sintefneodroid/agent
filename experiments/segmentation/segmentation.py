@@ -8,9 +8,13 @@ import warg
 from PIL import Image
 from experiments.segmentation import helper
 from experiments.segmentation.losses.accum import calculate_accum_loss
+from experiments.segmentation.models.segnet_arch import SegNetArch
 from experiments.segmentation.unet.aeunet import AEUNet
 from experiments.segmentation.unet.unet_small import UNetSmall
-from neodroid.wrappers.observation_wrapper.observation_wrapper import ObservationWrapper
+from neodroid.wrappers.observation_wrapper.observation_wrapper import (CameraObservationWrapper, 
+  neodroid_batch_data_iterator)
+
+from utilities import reverse_channel_transform
 
 __author__ = 'cnheider'
 
@@ -23,21 +27,6 @@ import matplotlib.pyplot as plt
 
 tqdm.monitor_interval = 0
 interrupted_path= 'INTERRUPTED_BEST.pth'
-
-
-def reverse_transform(inp):
-  inp = inp.transpose((1, 2, 0))
-  inp = inp * 255.0
-  inp = np.clip(inp, 0, 255).astype(np.uint8)
-  return inp
-
-
-def transform(inp):
-  inp = inp / 255.0
-  inp = np.clip(inp, 0, 1)
-  inp = inp.transpose((2, 0, 1))
-  return inp
-
 
 def get_str(metrics, phase):
   outputs = []
@@ -111,25 +100,26 @@ def test_model(model, data_iterator):
   l = labels.cpu().numpy()
   inputs = inputs.cpu().numpy()
 
-  input_images_rgb = [reverse_transform(x) for x in inputs]
-  target_masks_rgb = [helper.masks_to_color_img(reverse_transform(x)) for x in l]
-  pred_rgb = [helper.masks_to_color_img(reverse_transform(x)) for x in pred]
-  pred_recon = [reverse_transform(x) for x in recon]
+  input_images_rgb = [reverse_channel_transform(x) for x in inputs]
+  target_masks_rgb = [helper.masks_to_color_img(reverse_channel_transform(x)) for x in l]
+  pred_rgb = [helper.masks_to_color_img(reverse_channel_transform(x)) for x in pred]
+  pred_recon = [reverse_channel_transform(x) for x in recon]
 
   helper.plot_side_by_side([input_images_rgb, target_masks_rgb, pred_rgb, pred_recon])
   plt.show()
 
 
+
 def main():
-  env = ObservationWrapper(environment_name="",
-                           connect_to_running=True)
+  env = CameraObservationWrapper()
   torch.manual_seed(2)
   env.seed(3)
 
   device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
-  #aeu_model = AEUNet(3, start_filters=16, depth=5)
-  aeu_model = UNetSmall(3)
+  aeu_model = AEUNet(3, start_filters=16, depth=5)
+  #aeu_model = UNetSmall(3)
+  #aeu_model = SegNetArch(3)
   aeu_model = aeu_model.to(device)
 
   batch_size = 12
@@ -137,37 +127,7 @@ def main():
   optimizer_ft = optim.Adam(aeu_model.parameters(), lr=1e-4)
   exp_lr_scheduler = lr_scheduler.StepLR(optimizer_ft, step_size=int(400 // batch_size) + 4, gamma=0.1)
 
-  def data_loader(device):
-    while True:
-      predictors = []
-      responses = []
-      while len(predictors) < batch_size:
-        env.observe()
-        seg_obs = env.observer('LayerSegmentationCameraObserver').observation_value
-        # obs2 = env.observer("LayerSegmentationSegmentationObserver").observation_value
-
-        rgb_obs = env.observer('RGBCameraObserver').observation_value
-        rgb_arr = np.array(Image.open(rgb_obs).convert("RGB"))
-        predictors.append(transform(rgb_arr))
-
-        seg_arr = np.array(Image.open(seg_obs).convert("RGB"))
-
-        red_mask = np.zeros(seg_arr.shape[:-1])
-        green_mask = np.zeros(seg_arr.shape[:-1])
-        blue_mask = np.zeros(seg_arr.shape[:-1])
-
-        reddish = seg_arr[:, :, 0] > 50
-        greenish = seg_arr[:, :, 1] > 50
-        blueish = seg_arr[:, :, 2] > 50
-
-        red_mask[reddish] = 1
-        green_mask[greenish] = 1
-        blue_mask[blueish] = 1
-
-        responses.append(np.asarray([red_mask, blue_mask, green_mask]))
-      yield torch.FloatTensor(predictors).to(device), torch.FloatTensor(responses).to(device)
-
-  d_l = iter(data_loader(device))
+  d_l = iter(neodroid_batch_data_iterator(env,device,batch_size))
 
   args = argparse.ArgumentParser()
   args.add_argument('-i', action='store_false')

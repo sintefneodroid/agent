@@ -19,7 +19,7 @@ def upconv2x2(in_channels, out_channels, mode='transpose'):
                               stride=2)
   else:
     # out_channels is always going to be the same as in_channels
-    return nn.Sequential(nn.Upsample(mode='bilinear', scale_factor=2),
+    return nn.Sequential(nn.Upsample(mode='bilinear', scale_factor=2,align_corners=True),
                          conv1x1(in_channels, out_channels))
 
 

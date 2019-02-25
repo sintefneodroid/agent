@@ -3,6 +3,7 @@
     <words>
       <w>augmentor</w>
       <w>cnheider</w>
+      <w>conv</w>
       <w>cuda</w>
       <w>displayables</w>
       <w>figlet</w>
@@ -14,6 +15,9 @@
       <w>screenshot</w>
       <w>tablename</w>
       <w>tensorise</w>
+      <w>unpool</w>
+      <w>unpooled</w>
+      <w>unpooling</w>
     </words>
   </dictionary>
 </component>

@@ -50,6 +50,8 @@ def transform_screen(screen, device):
   return resize(screen).unsqueeze(0).to(device)
 
 
+
+
 if __name__ == '__main__':
   import gym
 
