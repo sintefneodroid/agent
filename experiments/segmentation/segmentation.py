@@ -9,6 +9,7 @@ from PIL import Image
 from experiments.segmentation import helper
 from experiments.segmentation.losses.accum import calculate_accum_loss
 from experiments.segmentation.unet.aeunet import AEUNet
+from experiments.segmentation.unet.unet_small import UNetSmall
 from neodroid.wrappers.observation_wrapper.observation_wrapper import ObservationWrapper
 
 __author__ = 'cnheider'
@@ -127,7 +128,8 @@ def main():
 
   device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
-  aeu_model = AEUNet(3, start_filters=16, depth=5)
+  #aeu_model = AEUNet(3, start_filters=16, depth=5)
+  aeu_model = UNetSmall(3)
   aeu_model = aeu_model.to(device)
 
   batch_size = 12
