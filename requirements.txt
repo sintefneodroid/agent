@@ -14,7 +14,7 @@ torch==1.0.1.post2
 Neodroid==0.4.20190308091915
 visdom==0.1.8.8
 pynput==1.4
-draugr
+draugr==0.1.20190124092423
 warg
 graphviz
 Box2D
