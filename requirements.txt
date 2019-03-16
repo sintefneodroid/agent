@@ -3,7 +3,7 @@ six==1.12.0
 scipy==1.2.1
 scikit-image==0.14.2
 seaborn==0.9.0
-pandas
+pandas==0.24.2
 tqdm
 gym
 Pillow
