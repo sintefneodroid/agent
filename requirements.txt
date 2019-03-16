@@ -8,7 +8,7 @@ tqdm==4.31.1
 gym==0.12.0
 Pillow==5.4.1
 numpy==1.16.2
-matplotlib
+matplotlib==3.0.3
 torchvision
 torch
 Neodroid
