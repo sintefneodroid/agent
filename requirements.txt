@@ -1,7 +1,7 @@
 IPython==7.3.0
 six==1.12.0
 scipy==1.2.1
-scikit-image
+scikit-image==0.14.2
 seaborn
 pandas
 tqdm
