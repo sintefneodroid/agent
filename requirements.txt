@@ -11,7 +11,7 @@ numpy==1.16.2
 matplotlib==3.0.3
 torchvision==0.2.2.post3
 torch==1.0.1.post2
-Neodroid
+Neodroid==0.4.20190308091915
 visdom
 pynput
 draugr
