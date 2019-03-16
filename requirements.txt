@@ -10,7 +10,7 @@ Pillow==5.4.1
 numpy==1.16.2
 matplotlib==3.0.3
 torchvision==0.2.2.post3
-torch
+torch==1.0.1.post2
 Neodroid
 visdom
 pynput
