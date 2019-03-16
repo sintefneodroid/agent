@@ -1,4 +1,4 @@
-IPython
+IPython==7.3.0
 six
 scipy
 scikit-image
