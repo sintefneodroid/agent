@@ -1,6 +1,6 @@
 IPython==7.3.0
 six==1.12.0
-scipy
+scipy==1.2.1
 scikit-image
 seaborn
 pandas
