@@ -6,7 +6,7 @@ import draugr
 from warg import NOD
 
 from neodroid import EnvironmentState
-from procedures.agent_tests import test_agent_main
+from procedures.agent_tests import agent_test_main
 
 __author__ = 'cnheider'
 
@@ -294,9 +294,9 @@ class PGAgent(PolicyAgent):
 
 
 def main():
-  import configs.agent_test_configs.test_pg_config as C
+  import configs.agent_test_configs.pg_test_config as C
 
-  test_agent_main(PGAgent, C)
+  agent_test_main(PGAgent, C)
 
 if __name__ == '__main__':
   main()

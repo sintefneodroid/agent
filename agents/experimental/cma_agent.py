@@ -8,7 +8,7 @@ from tqdm import tqdm
 import utilities as U
 from agents.abstract.torch_agent import TorchAgent
 from agents.abstract.evo_agent import EVOAgent
-from procedures.agent_tests import test_agent_main
+from procedures.agent_tests import agent_test_main
 
 
 class CMAAgent(EVOAgent):
@@ -97,9 +97,9 @@ class CMAAgent(EVOAgent):
 
 
 if __name__ == '__main__':
-  import configs.agent_test_configs.test_pg_config as C
+  import configs.agent_test_configs.pg_test_config as C
 
   C.CONNECT_TO_RUNNING = False
   C.ENVIRONMENT_NAME = 'mab'
 
-  test_agent_main(CMAAgent, C)
+  agent_test_main(CMAAgent, C)

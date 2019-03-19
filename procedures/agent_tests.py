@@ -124,12 +124,12 @@ def mp_train_agent_procedure(agent_type,
   environments.close()
 
 
-def test_agent_gym():
+def agent_test_gym():
   '''
 
 '''
 
-  import configs.agent_test_configs.test_pg_config as C
+  import configs.agent_test_configs.pg_test_config as C
   from agents.pg_agent import PGAgent
 
   _environment = gym.make(C.ENVIRONMENT_NAME)
@@ -147,9 +147,12 @@ def test_agent_gym():
   _agent.infer(_environment)
 
 
-def test_agent_main(agent,
+def agent_test_main(agent,
                     config,
                     training_procedure=regular_train_agent_procedure):
+  '''
+
+'''
   from configs.arguments import parse_arguments
 
   args = parse_arguments(f'{type(agent)}', config)
@@ -180,7 +183,7 @@ def test_agent_main(agent,
 
 
 if __name__ == '__main__':
-  import configs.agent_test_configs.test_pg_config as C
+  import configs.agent_test_configs.pg_test_config as C
   from agents.pg_agent import PGAgent
 
   env = BinaryActionEncodingWrapper(name=C.ENVIRONMENT_NAME,

@@ -3,7 +3,7 @@
 import matplotlib
 from warg import NamedOrderedDictionary
 
-from procedures.agent_tests import test_agent_main
+from procedures.agent_tests import agent_test_main
 from utilities.transformation.extraction import get_screen
 from utilities.visualisation.experimental.statistics_plot import plot_durations
 
@@ -316,11 +316,11 @@ def test_cnn_dqn_agent(config):
   plt.show()
 
 def main():
-  import configs.agent_test_configs.test_dqn_config as C
+  import configs.agent_test_configs.dqn_test_config as C
 
   # import configs.cnn_dqn_config as C
 
-  test_agent_main(DQNAgent, C)
+  agent_test_main(DQNAgent, C)
   # test_cnn_dqn_agent(C)
 
 

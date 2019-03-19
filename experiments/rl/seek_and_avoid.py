@@ -52,7 +52,7 @@ def train_agent(config, agent):
 
 
 if __name__ == '__main__':
-  import configs.agent_test_configs.test_ddpg_config as C
+  import configs.agent_test_configs.ddpg_test_config as C
 
   from configs.arguments import parse_arguments, get_upper_case_vars_or_protected_of
 

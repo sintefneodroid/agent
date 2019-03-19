@@ -7,7 +7,7 @@ import draugr
 import numpy
 from warg import NOD
 
-from procedures.agent_tests import mp_train_agent_procedure, test_agent_main, regular_train_agent_procedure
+from procedures.agent_tests import mp_train_agent_procedure, agent_test_main, regular_train_agent_procedure
 
 __author__ = 'cnheider'
 
@@ -665,9 +665,9 @@ class PPOAgent(ActorCriticAgent):
 
 
 def main():
-  import configs.agent_test_configs.test_ppo_config as C
+  import configs.agent_test_configs.ppo_test_config as C
 
-  test_agent_main(PPOAgent, C, training_procedure=mp_train_agent_procedure)
+  agent_test_main(PPOAgent, C, training_procedure=mp_train_agent_procedure)
 
 
 if __name__ == '__main__':

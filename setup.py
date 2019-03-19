@@ -40,7 +40,7 @@ if __name__ == '__main__':
         classifiers=pkg.classifiers,
         long_description_content_type=pkg.readme_type,
         long_description=pkg.readme,
-        tests_require=pkg.test_dependencies,
+        tests_require=pkg.dependencies_testing,
         setup_requires=pkg.setup_dependencies,
         include_package_data=True,
         python_requires='>=3'

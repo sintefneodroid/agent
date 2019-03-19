@@ -4,7 +4,7 @@ import draugr
 from warg import NamedOrderedDictionary
 
 from neodroid import EnvironmentState
-from procedures.agent_tests import test_agent_main
+from procedures.agent_tests import agent_test_main
 
 __author__ = 'cnheider'
 from itertools import count
@@ -290,9 +290,9 @@ def test_ddpg_agent(config):
   U.save_model(critic_model, config, name='critic')
 
 def main():
-  import configs.agent_test_configs.test_ddpg_config as C
+  import configs.agent_test_configs.ddpg_test_config as C
 
-  test_agent_main(DDPGAgent, C)
+  agent_test_main(DDPGAgent, C)
 
 
 if __name__ == '__main__':

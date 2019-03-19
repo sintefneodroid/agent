@@ -7,7 +7,7 @@ from tqdm import tqdm
 
 import utilities as U
 from agents.abstract.torch_agent import TorchAgent
-from procedures.agent_tests import test_agent_main
+from procedures.agent_tests import agent_test_main
 
 
 

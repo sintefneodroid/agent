@@ -6,7 +6,7 @@ from version import get_version
 class NeodroidAgentPackage:
 
   @property
-  def test_dependencies(self) -> list:
+  def dependencies_testing(self) -> list:
     return [
       'pytest',
       'mock'
