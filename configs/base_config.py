@@ -45,7 +45,7 @@ POLICY_ARCH = U.CategoricalMLP
 AGENT_TYPE = PGAgent
 
 # Environment Related Parameters
-CONNECT_TO_RUNNING = True
+CONNECT_TO_RUNNING = False
 RENDER_ENVIRONMENT = False
 ENVIRONMENT_NAME = 'grd'
 SOLVED_REWARD = 0.9

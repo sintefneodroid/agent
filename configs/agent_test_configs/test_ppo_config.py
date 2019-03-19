@@ -15,6 +15,7 @@ CONFIG_NAME = __name__
 CONFIG_FILE = __file__
 
 ENVIRONMENT_NAME = 'Pendulum-v0'
+CONNECT_TO_RUNNING =False
 
 # Optimiser
 OPTIMISER_TYPE = torch.optim.Adam

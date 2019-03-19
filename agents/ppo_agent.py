@@ -7,7 +7,7 @@ import draugr
 import numpy
 from warg import NOD
 
-from procedures.agent_tests import mp_train_agent_procedure, test_agent_main
+from procedures.agent_tests import mp_train_agent_procedure, test_agent_main, regular_train_agent_procedure
 
 __author__ = 'cnheider'
 
@@ -518,7 +518,7 @@ class PPOAgent(ActorCriticAgent):
 
   def train_step_batched(self,
                          environments,
-                         test_envs,
+                         test_environments,
                          *,
                          num_steps=40,
                          rollouts=1000000,
@@ -528,7 +528,7 @@ class PPOAgent(ActorCriticAgent):
 
     state = environments.reset()
 
-    num_test_env = len(test_envs)
+    num_test_env = len(test_environments)
 
     S = tqdm(range(rollouts), leave=False)
     S_ = S.__iter__()
@@ -571,7 +571,7 @@ class PPOAgent(ActorCriticAgent):
         S_.__next__()
 
         if self._step_i % self._test_interval == 0:
-          test_signals = [self.test_agent(test_envs, render=render) for _ in range(num_test_env)]
+          test_signals = [self.test_agent(test_environments, render=render) for _ in range(num_test_env)]
           test_signal = numpy.mean(test_signals)
           stats.test_signal.append(test_signal)
 

@@ -257,7 +257,7 @@ class DDPGAgent(ActorCriticAgent):
       if self._end_training:
         break
 
-    return (self._actor, self._critic), stats
+    return NamedOrderedDictionary(model=(self._actor, self._critic),stats=stats)
 
 
 def test_ddpg_agent(config):

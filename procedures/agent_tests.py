@@ -68,8 +68,8 @@ def regular_train_agent_procedure(agent_type,
 def mp_train_agent_procedure(agent_type,
                              config,
                              environments=None,
-                             test_env=None):
-  test_env = gym.make(config.ENVIRONMENT_NAME)
+                             test_environments=None):
+  test_environments = [gym.make(config.ENVIRONMENT_NAME)]
 
   if not environments:
     if '-v' in config.ENVIRONMENT_NAME:
@@ -104,7 +104,7 @@ def mp_train_agent_procedure(agent_type,
   listener.start()
   try:
     training_resume = agent.train(environments,
-                                  test_env,
+                                  test_environments,
                                   rollouts=config.ROLLOUTS,
                                   render=config.RENDER_ENVIRONMENT)
   finally:
@@ -124,7 +124,7 @@ def mp_train_agent_procedure(agent_type,
   environments.close()
 
 
-def test_agent_not_used():
+def test_agent_gym():
   '''
 
 '''
