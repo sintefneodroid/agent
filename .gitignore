@@ -16,7 +16,7 @@ venv/
 *.db
 
 *.log
-#.idea
+.idea
 
 # Byte-compiled / optimized / DLL files
 *$py.class
