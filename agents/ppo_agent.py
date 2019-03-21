@@ -54,9 +54,9 @@ class PPOAgent(ActorCriticAgent):
     self._action_type = torch.long
 
     # params for epsilon greedy
-    self._epsilon_start = 0.99
-    self._epsilon_end = 0.05
-    self._epsilon_decay = 500
+    self._exploration_epsilon_start = 0.99
+    self._exploration_epsilon_end = 0.05
+    self._exploration_epsilon_decay = 10000
 
     self._use_cuda = False
 

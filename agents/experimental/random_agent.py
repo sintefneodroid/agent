@@ -135,7 +135,7 @@ if __name__ == '__main__':
     agent = RandomAgent(observation_space=env.observation_space,
                           action_space=env.action_space,
                           environment=env)
-    agent.build(env, device='cpu')
+    agent.build(env)
     agent.train(env)
 
   main()

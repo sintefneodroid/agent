@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 import time
 from itertools import count
+from pathlib import Path
 from typing import Any
 from warnings import warn
 
@@ -40,6 +41,7 @@ All agent should inherit from this class
     self._end_training = False
     self._divide_by_zero_safety = 1e-10
     self._environment = environment
+    self._base_log_dir = Path.home() / 'Models' / 'Neodroid' / str(int(time.time()))
 
     self._verbose = verbose
 
@@ -125,10 +127,9 @@ All agent should inherit from this class
   def stop_training(self) -> None:
     self._end_training = True
 
-  def build(self, env, device, **kwargs) -> None:
+  def build(self, env,  **kwargs) -> None:
     self._environment = env
     self.maybe_infer_sizes(self._environment)
-    self._device = device
     self._build(**kwargs)
 
   def train(self, *args, **kwargs) -> NamedOrderedDictionary:

@@ -15,7 +15,6 @@ import utilities as U
 
 
 def train_agent(config, agent):
-  device = torch.device('cuda' if config.USE_CUDA else 'cpu')
   neo.seed(config.SEED)
   torch.manual_seed(config.SEED)
 
@@ -24,7 +23,7 @@ def train_agent(config, agent):
             )
   env.seed(config.SEED)
 
-  agent.build(env, device)
+  agent.build(env)
 
   listener = U.add_early_stopping_key_combination(agent.stop_training)
 

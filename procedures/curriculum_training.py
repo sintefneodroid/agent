@@ -53,9 +53,8 @@ def main(config, agent, full_state_evaluation_frequency=2):
   env = BinaryActionEncodingCurriculumEnvironment(
       name=config.ENVIRONMENT_NAME, connect_to_running=config.CONNECT_TO_RUNNING
       )
-  device = torch.device('cuda' if config.USE_CUDA else 'cpu')
 
-  _agent.build(env, device)
+  _agent.build(env)
 
   l_star = C.RANDOM_MOTION_HORIZON
   training_start_timestamp = time.time()

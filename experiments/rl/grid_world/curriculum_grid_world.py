@@ -13,14 +13,14 @@ import utilities as U
 
 
 def train_agent(config, agent):
-  device = torch.device('cuda' if config.USE_CUDA else 'cpu')
+
   torch.manual_seed(config.SEED)
 
   env = BinaryActionEncodingWrapper(environment_name=config.ENVIRONMENT_NAME,
                                     connect_to_running=config.CONNECT_TO_RUNNING)
   env.seed(config.SEED)
 
-  agent.build(env, device)
+  agent.build(env)
 
   listener = U.add_early_stopping_key_combination(agent.stop_training)
 
@@ -52,7 +52,7 @@ def train_agent(config, agent):
 
 
 if __name__ == '__main__':
-  import experiments.grid_world.grid_world_config as C
+  import experiments.rl.grid_world.grid_world_config as C
 
   from configs.arguments import parse_arguments, get_upper_case_vars_or_protected_of
 

@@ -27,9 +27,6 @@ class TabularQAgent(ValueAgent):
     self._discount_factor = .95
 
     self._initial_observation_period = 0
-    self._eps_start = 0.99
-    self._eps_decay = 666
-    self._eps_end = 0.01
 
   # endregion
 
@@ -220,7 +217,7 @@ if __name__ == '__main__':
     agent = TabularQAgent(observation_space=env.observation_space,
                           action_space=env.action_space,
                           environment=env)
-    agent.build(env, device='cpu')
+    agent.build(env)
     agent.train(env)
 
 
@@ -230,7 +227,7 @@ if __name__ == '__main__':
     agent = TabularQAgent(observation_space=env.observation_space,
                           action_space=env.action_space,
                           environment=env)
-    agent.build(env, device='cpu')
+    agent.build(env)
     agent.train(env)
 
 

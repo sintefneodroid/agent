@@ -14,14 +14,13 @@ import utilities as U
 
 
 def train_agent(config, agent):
-  device = torch.device('cuda' if config.USE_CUDA else 'cpu')
   torch.manual_seed(config.SEED)
 
   env = BinaryActionEncodingWrapper(environment_name=config.ENVIRONMENT_NAME,
                                     connect_to_running=config.CONNECT_TO_RUNNING)
   env.seed(config.SEED)
 
-  agent.build(env, device)
+  agent.build(env)
 
   listener = U.add_early_stopping_key_combination(agent.stop_training)
 

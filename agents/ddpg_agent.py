@@ -75,9 +75,9 @@ class DDPGAgent(ActorCriticAgent):
     self._value_type = torch.float
     self._action_type = torch.float
 
-    self._epsilon_start = 0.9
-    self._epsilon_end = 0.05
-    self._epsilon_decay = 35000
+    self._exploration_epsilon_start = 0.9
+    self._exploration_epsilon_end = 0.05
+    self._exploration_epsilon_decay = 10000
 
     self._early_stopping_condition = None
     self._optimiser = None
@@ -267,14 +267,12 @@ def test_ddpg_agent(config):
 '''
   import gym
 
-  device = torch.device('cuda' if config.USE_CUDA else 'cpu')
-
   env = gym.make(config.ENVIRONMENT_NAME)
   # env = NormaliseActionsWrapper(env)
   # env = neo.make('satellite',connect_to_running=False)
 
   agent = DDPGAgent(config)
-  agent.build(env, device)
+  agent.build(env)
   listener = U.add_early_stopping_key_combination(agent.stop_training)
 
   listener.start()

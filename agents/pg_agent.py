@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+import time
 from warnings import warn
 
 import draugr
@@ -18,6 +19,7 @@ from torch.distributions import Categorical, Normal
 from tqdm import tqdm
 
 import utilities as U
+import tensorboardX as tx
 from agents.abstract.policy_agent import PolicyAgent
 
 tqdm.monitor_interval = 0
@@ -71,9 +73,9 @@ class PGAgent(PolicyAgent):
   # region Protected
 
   def _build(self, **kwargs) -> None:
-    self._policy = self._policy_arch(**(self._policy_arch_params)).to(self._device)
+    self._policy_model = self._policy_arch(**(self._policy_arch_params)).to(self._device)
 
-    self.optimiser = self._optimiser_type(self._policy.parameters(),
+    self.optimiser = self._optimiser_type(self._policy_model.parameters(),
                                           lr=self._optimiser_learning_rate,
                                           weight_decay=self._optimiser_weight_decay)
 
@@ -81,7 +83,7 @@ class PGAgent(PolicyAgent):
     self.optimiser.zero_grad()
     loss.backward()
     if self._grad_clip:
-      for params in self._policy.parameters():
+      for params in self._policy_model.parameters():
         params.grad.data.clamp_(self._grad_clip_low, self._grad_clip_high)
     self.optimiser.step()
 
@@ -101,7 +103,7 @@ class PGAgent(PolicyAgent):
   def sample_discrete_action(self, state):
     state_var = U.to_tensor([state], device=self._device, dtype=self._state_type)
 
-    probs = self._policy(state_var)
+    probs = self._policy_model(state_var)
 
     distribution = Categorical(logits=probs)
     action_sample = distribution.sample()
@@ -115,7 +117,7 @@ class PGAgent(PolicyAgent):
   def sample_continuous_action(self, state):
     model_input = U.to_tensor([state], device=self._device, dtype=self._state_type)
 
-    mean, log_std = self._policy(model_input)
+    mean, log_std = self._policy_model(model_input)
 
     std = log_std.exp().expand_as(mean)
     distribution = Normal(mean, std)
@@ -264,6 +266,36 @@ class PGAgent(PolicyAgent):
     E = range(1, rollouts)
     E = tqdm(E, f'Episode: {1}', leave=False)
 
+    with tx.writer.SummaryWriter(str(self._base_log_dir/('session'+str(int(time.time())))))as stats:
+
+      for episode_i in E:
+        initial_state = env.reset()
+
+        if render and episode_i % render_frequency == 0:
+          signal, dur, entropy, *extras = self.rollout(initial_state, env, render=render)
+        else:
+          signal, dur, entropy, *extras = self.rollout(initial_state, env)
+
+        stats.add_scalar('duration',dur,episode_i)
+        stats.add_scalar('signal',signal,episode_i)
+        stats.add_scalar('entropy',entropy,episode_i)
+
+        if self._end_training:
+          break
+
+    return NOD(model=self._policy_model)
+
+  def train_episodically_old(self,
+                         env,
+                         rollouts=2000,
+                         render=False,
+                         render_frequency=100,
+                         stat_frequency=10,
+                         )->NOD:
+
+    E = range(1, rollouts)
+    E = tqdm(E, f'Episode: {1}', leave=False)
+
     stats = draugr.StatisticCollection(stats=('signal', 'duration', 'entropy'))
 
     for episode_i in E:
@@ -289,7 +321,7 @@ class PGAgent(PolicyAgent):
       if self._end_training:
         break
 
-    return NOD(model=self._policy, stats=stats)
+    return NOD(model=self._policy_model, stats=stats)
   # endregion
 
 

@@ -38,8 +38,7 @@ def regular_train_agent_procedure(agent_type,
   environment.seed(config.SEED)
 
   agent = agent_type(config)
-  device = torch.device('cuda' if config.USE_CUDA else 'cpu')
-  agent.build(environment, device)
+  agent.build(environment)
 
   listener = U.add_early_stopping_key_combination(agent.stop_training)
 
@@ -96,8 +95,7 @@ def mp_train_agent_procedure(agent_type,
   environments.seed(config.SEED)
 
   agent = agent_type(config)
-  device = torch.device('cuda' if config.USE_CUDA else 'cpu')
-  agent.build(environments, device)
+  agent.build(environments)
 
   listener = U.add_early_stopping_key_combination(agent.stop_training)
 
@@ -138,10 +136,8 @@ def agent_test_gym():
   _list_of_files = glob.glob(str(C.MODEL_DIRECTORY) + '/*.model')
   _latest_model = max(_list_of_files, key=os.path.getctime)
 
-  device = torch.device('cuda' if C.USE_CUDA else 'cpu')
-
   _agent = PGAgent(C)
-  _agent.build(_environment, device)
+  _agent.build(_environment)
   _agent.load(_latest_model, evaluation=True)
 
   _agent.infer(_environment)

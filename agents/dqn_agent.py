@@ -59,10 +59,6 @@ class DQNAgent(ValueAgent):
     self._clamp_gradient = False
     self._signal_clipping = True
 
-    self._eps_start = 1.0
-    self._eps_end = 0.02
-    self._eps_decay = 400
-
     self._early_stopping_condition = None
     self._target_value_model = None
 
@@ -261,8 +257,6 @@ class DQNAgent(ValueAgent):
 def test_cnn_dqn_agent(config):
   import gym
 
-  device = torch.device('cuda' if config.USE_CUDA else 'cpu')
-
   env = gym.make(config.ENVIRONMENT_NAME).unwrapped
   env.seed(config.SEED)
 
@@ -275,14 +269,14 @@ def test_cnn_dqn_agent(config):
   episode_durations = []
 
   agent = DQNAgent(config)
-  agent.build(env, device)
+  agent.build(env)
 
   episodes = tqdm(range(config.ROLLOUTS), leave=False)
   for episode_i in episodes:
     episodes.set_description(f'Episode:{episode_i}')
     env.reset()
-    last_screen = U.transform_screen(get_screen(env), device)
-    current_screen = U.transform_screen(get_screen(env), device)
+    last_screen = U.transform_screen(get_screen(env), agent.device)
+    current_screen = U.transform_screen(get_screen(env), agent.device)
     state = current_screen - last_screen
 
     rollout = tqdm(count(), leave=False)
@@ -291,7 +285,7 @@ def test_cnn_dqn_agent(config):
       action, (_, signal, terminated, *_) = agent.step(state, env)
 
       last_screen = current_screen
-      current_screen = U.transform_screen(get_screen(env), device)
+      current_screen = U.transform_screen(get_screen(env), agent.device)
 
       successor_state = None
       if not terminated:
