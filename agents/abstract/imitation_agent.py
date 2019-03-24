@@ -39,7 +39,7 @@ class ImitationAgent(TorchAgent, ABC):
 
   # region Protected
 
-  def _build(self, **kwargs) -> None:
+  def __build__(self, **kwargs) -> None:
     pass
 
   def __defaults__(self) -> None:

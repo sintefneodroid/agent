@@ -11,15 +11,15 @@ class ConfigObject(object):
 
 
 def to_lower_properties(C_dict):
-  if not type(C_dict) is dict:
+  if not isinstance(C_dict, dict):
     C_dict = to_dict(C_dict)
 
   a = ConfigObject()
 
   for (k, v) in C_dict.items():
-    assert type(k) is str
+    assert isinstance(k,str)
     lowered = k.lower()
-    if type(v) is PosixPath or type(v) is Path:
+    if isinstance(v,(PosixPath, Path)):
       setattr(a, lowered, str(v))
     else:
       setattr(a, lowered, v)

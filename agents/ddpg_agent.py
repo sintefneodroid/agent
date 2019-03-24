@@ -237,7 +237,7 @@ class DDPGAgent(ActorCriticAgent):
 
     for episode_i in E:
       state = env.reset()
-      if type(state) is EnvironmentState:
+      if isinstance(state, EnvironmentState):
         state = state.observables
       self._random_process.reset()
 

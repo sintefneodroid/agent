@@ -45,7 +45,7 @@ All value iteration agents should inherit from this class
 
     super().__init__(*args, **kwargs)
 
-  def _build(self, **kwargs) -> None:
+  def __build__(self, **kwargs) -> None:
     # Construct actor and critic
     self._actor = self._actor_arch(**self._actor_arch_parameters).to(self._device)
     self._target_actor = self._actor_arch(**self._actor_arch_parameters).to(self._device).eval()
@@ -61,12 +61,12 @@ All value iteration agents should inherit from this class
                                                                      **self._critic_optimiser_spec.kwargs
                                                                      )
 
-  def maybe_infer_sizes(self, env):
-    super().maybe_infer_sizes(env)
+  def __maybe_infer_sizes(self, env):
+    super().__maybe_infer_sizes(env)
 
     if ('input_size' not in self._actor_arch_parameters or
         not self._actor_arch_parameters['input_size']):
-      self._actor_arch_parameters['input_size'] = self._input_size
+      self._actor_arch_parameters['input_size'] = self._observation_size
 
     if ('hidden_layers' not in self._actor_arch_parameters or
         not self._actor_arch_parameters['hidden_layers']):
@@ -74,11 +74,11 @@ All value iteration agents should inherit from this class
 
     if ('output_size' not in self._actor_arch_parameters or
         not self._actor_arch_parameters['output_size']):
-      self._actor_arch_parameters['output_size'] = self._output_size
+      self._actor_arch_parameters['output_size'] = self._action_size
 
     if ('input_size' not in self._critic_arch_parameters or
         not self._critic_arch_parameters['input_size']):
-      self._critic_arch_parameters['input_size'] = self._input_size
+      self._critic_arch_parameters['input_size'] = self._observation_size
 
     if ('hidden_layers' not in self._critic_arch_parameters or
         not self._critic_arch_parameters['hidden_layers']):
@@ -86,7 +86,7 @@ All value iteration agents should inherit from this class
 
     if ('output_size' not in self._critic_arch_parameters or
         not self._critic_arch_parameters['output_size']):
-      self._critic_arch_parameters['output_size'] = self._output_size
+      self._critic_arch_parameters['output_size'] = self._action_size
 
   # endregion
 
@@ -102,7 +102,7 @@ All value iteration agents should inherit from this class
            **kwargs):
     print('loading latest model: ' + model_path)
 
-    self._build(**kwargs)
+    self.__build__(**kwargs)
 
     self._actor.load_state_dict(torch.load(f'actor-{model_path}'))
     self._critic.load_state_dict(torch.load(f'critic-{model_path}'))

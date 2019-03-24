@@ -6,8 +6,9 @@ from warnings import warn
 import draugr
 from warg import NOD
 
-from neodroid import EnvironmentState
-from procedures.agent_tests import agent_test_main
+from neodroid.models import EnvironmentState
+from procedures.agent_tests import agent_test_main, mp_train_agent_procedure
+from utilities.specifications.training_resume import TR
 
 __author__ = 'cnheider'
 
@@ -72,7 +73,7 @@ class PGAgent(PolicyAgent):
 
   # region Protected
 
-  def _build(self, **kwargs) -> None:
+  def __build__(self, **kwargs) -> None:
     self._policy_model = self._policy_arch(**(self._policy_arch_params)).to(self._device)
 
     self.optimiser = self._optimiser_type(self._policy_model.parameters(),
@@ -104,13 +105,13 @@ class PGAgent(PolicyAgent):
     state_var = U.to_tensor([state], device=self._device, dtype=self._state_type)
 
     probs = self._policy_model(state_var)
-
     distribution = Categorical(logits=probs)
     action_sample = distribution.sample()
     log_prob = distribution.log_prob(action_sample)
     with torch.no_grad():
-      action = action_sample.item()
-      entropy = distribution.entropy().mean().item()
+
+      action = action_sample.to('cpu').numpy()[0]
+      entropy = distribution.entropy()#.mean()
 
     return action, log_prob, entropy
 
@@ -125,8 +126,8 @@ class PGAgent(PolicyAgent):
     log_prob = distribution.log_prob(action)
 
     with torch.no_grad():
-      entropy = distribution.entropy().mean().item()
-      action = action.item()
+      entropy = distribution.entropy()#.mean()
+      action = action.to('cpu').numpy()[0]
 
     '''eps = torch.randn(mean.size()).to(self._device)
     # calculate the probability
@@ -202,7 +203,7 @@ class PGAgent(PolicyAgent):
     episode_length = 0
     episode_entropy = 0
 
-    if type(initial_state) is EnvironmentState:
+    if isinstance(initial_state, EnvironmentState):
       state = initial_state.observables
     else:
       state = initial_state
@@ -230,7 +231,7 @@ class PGAgent(PolicyAgent):
       if render:
         environment.render()
 
-      if terminated:
+      if terminated.all():
         episode_length = t
         break
 
@@ -257,16 +258,18 @@ class PGAgent(PolicyAgent):
 
   def train_episodically(self,
                          env,
+                         test_env,
+                         *,
                          rollouts=2000,
                          render=False,
                          render_frequency=100,
                          stat_frequency=10,
-                         )->NOD:
+                         ) -> TR:
 
     E = range(1, rollouts)
     E = tqdm(E, f'Episode: {1}', leave=False)
 
-    with tx.writer.SummaryWriter(str(self._base_log_dir/('session'+str(int(time.time())))))as stats:
+    with tx.writer.SummaryWriter(str(self._base_log_dir / ('session' + str(int(time.time())))))as stats:
 
       for episode_i in E:
         initial_state = env.reset()
@@ -276,22 +279,24 @@ class PGAgent(PolicyAgent):
         else:
           signal, dur, entropy, *extras = self.rollout(initial_state, env)
 
-        stats.add_scalar('duration',dur,episode_i)
-        stats.add_scalar('signal',signal,episode_i)
-        stats.add_scalar('entropy',entropy,episode_i)
+        stats.add_scalar('duration', dur, episode_i)
+        stats.add_scalar('signal', signal.mean(), episode_i)
+        stats.add_scalar('entropy', entropy.mean(), episode_i)
 
         if self._end_training:
           break
 
-    return NOD(model=self._policy_model)
+    return TR(self._policy_model,None)
 
   def train_episodically_old(self,
-                         env,
-                         rollouts=2000,
-                         render=False,
-                         render_frequency=100,
-                         stat_frequency=10,
-                         )->NOD:
+                             env,
+                             test_env,
+                             *,
+                             rollouts=2000,
+                             render=False,
+                             render_frequency=100,
+                             stat_frequency=10,
+                             ) -> TR:
 
     E = range(1, rollouts)
     E = tqdm(E, f'Episode: {1}', leave=False)
@@ -328,7 +333,8 @@ class PGAgent(PolicyAgent):
 def main():
   import configs.agent_test_configs.pg_test_config as C
 
-  agent_test_main(PGAgent, C)
+  agent_test_main(PGAgent, C, training_procedure=mp_train_agent_procedure)
+
 
 if __name__ == '__main__':
   main()

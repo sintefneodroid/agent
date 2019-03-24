@@ -55,7 +55,7 @@ All value iteration agents should inherit from this class
     return self.sample_random_process()
 
   def sample_random_process(self):
-    sample = np.random.choice(self._output_size[0])
+    sample = np.random.choice(self._action_size[0])
     return sample
 
   def build(self, env, **kwargs):
@@ -226,8 +226,8 @@ All value iteration agents should inherit from this class
   def _maybe_infer_input_output_sizes(self, env, **kwargs):
     super()._maybe_infer_input_output_sizes(env)
 
-    self._value_arch_parameters['input_size'] = self._input_size
-    self._value_arch_parameters['output_size'] = self._output_size
+    self._value_arch_parameters['input_size'] = self._observation_size
+    self._value_arch_parameters['output_size'] = self._action_size
 
   def _maybe_infer_hidden_layers(self, **kwargs):
     super()._maybe_infer_hidden_layers()

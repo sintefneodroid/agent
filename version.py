@@ -19,7 +19,7 @@ def get_version():
     # Most git tags are prefixed with 'v' (example: v1.2.3) this is
     # never desirable for artifact repositories, so we strip the
     # leading 'v' if it's present.
-    version = version[1:] if type(version) is str and version.startswith('v') else version
+    version = version[1:] if isinstance(version,str) and version.startswith('v') else version
   else:
     # Default version is an ISO8601 compiliant datetime. PyPI doesn't allow
     # the colon ':' character in its versions, and time is required to allow

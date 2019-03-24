@@ -92,7 +92,7 @@ OOOO hidden_layer_size * (Weights,Biases)
 :param x:
 :return output:
 '''
-    assert type(x) is Tensor
+    assert isinstance(x, Tensor)
 
     # if hasattr(self, 'num_of_layer'): # Safer but slower
     #  for i in range(1, self.num_of_layer + 1):
@@ -152,7 +152,7 @@ class MultiHeadedMLP(MLP):
       head = getattr(self, f'subhead{str(i)}')
       sub_res = head(x_s)
 
-      # if type(sub_res) is not list:
+      # if not isinstance(sub_res, list):
       #  sub_res = [sub_res]
 
       output.append(sub_res)

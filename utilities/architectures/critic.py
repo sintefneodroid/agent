@@ -39,8 +39,8 @@ class DDPGCriticArchitecture(MLP):
               *,
               actions,
               **kwargs):
-    assert type(x) is Tensor
-    assert type(actions) is Tensor
+    assert isinstance(x,Tensor)
+    assert isinstance(actions,Tensor)
 
     for i in range(1, self.num_of_layer):  # Not top-inclusive
       layer = getattr(self, f'_fc{i}')

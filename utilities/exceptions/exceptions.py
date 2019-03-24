@@ -12,3 +12,9 @@ class HasNoEnvError(Exception):
   def __init__(self):
     msg = 'Agent has no env assigned'
     Exception.__init__(self, msg)
+
+
+class NoTrainingProcedure(Exception):
+  def __init__(self):
+    msg = 'No TrainingProcedure'
+    Exception.__init__(self, msg)

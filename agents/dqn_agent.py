@@ -69,7 +69,7 @@ class DQNAgent(ValueAgent):
     self._optimiser_epsilon = 1e-02
     self._optimiser_momentum = 0.0
 
-  def _build(self, **kwargs) -> None:
+  def __build__(self, **kwargs) -> None:
 
     self._value_model = self._value_arch(**self._value_arch_parameters).to(self._device)
 
@@ -120,7 +120,7 @@ class DQNAgent(ValueAgent):
 '''
     states = U.to_tensor(batch.state,
                          dtype=self._state_type,
-                         device=self._device).view(-1, *self._input_size)
+                         device=self._device).view(-1, *self._observation_size)
 
     action_indices = U.to_tensor(batch.action,
                                  dtype=self._action_type,
@@ -137,7 +137,7 @@ class DQNAgent(ValueAgent):
            non_terminal_mask]
     non_terminal_successors = U.to_tensor(nts,
                                           dtype=self._state_type,
-                                          device=self._device).view(-1, *self._input_size)
+                                          device=self._device).view(-1, *self._observation_size)
 
     if not len(non_terminal_successors) > 0:
       return 0  # Nothing to be learned, all states are terminal

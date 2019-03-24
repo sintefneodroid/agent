@@ -3,11 +3,10 @@
 from itertools import count
 from typing import Any, Tuple
 
-import draugr
 import numpy
 from warg import NOD
 
-from procedures.agent_tests import mp_train_agent_procedure, agent_test_main, regular_train_agent_procedure
+from procedures.agent_tests import agent_test_main, mp_train_agent_procedure
 
 __author__ = 'cnheider'
 
@@ -316,7 +315,7 @@ class PPOAgent(ActorCriticAgent):
   def evaluate(self, batch, discrete=False, **kwargs):
     # region Tensorise
 
-    states = U.to_tensor(batch.state, device=self._device).view(-1, self._input_size[0])
+    states = U.to_tensor(batch.state, device=self._device).view(-1, self._observation_size[0])
 
     value_estimates = U.to_tensor(batch.value_estimate, device=self._device)
 
@@ -324,7 +323,7 @@ class PPOAgent(ActorCriticAgent):
 
     discounted_returns = U.to_tensor(batch.discounted_return, device=self._device)
 
-    action_probs_old = U.to_tensor(batch.action_prob, device=self._device).view(-1, self._output_size[0])
+    action_probs_old = U.to_tensor(batch.action_prob, device=self._device).view(-1, self._action_size[0])
 
     # endregion
 
@@ -333,7 +332,7 @@ class PPOAgent(ActorCriticAgent):
     *_, action_probs_new, distribution = self._sample_model(states)
 
     if discrete:
-      actions = U.to_tensor(batch.action, device=self._device).view(-1, self._output_size[0])
+      actions = U.to_tensor(batch.action, device=self._device).view(-1, self._action_size[0])
       action_probs_old = action_probs_old.gather(1, actions)
       action_probs_new = action_probs_new.gather(1, actions)
 
@@ -398,10 +397,11 @@ class PPOAgent(ActorCriticAgent):
                              discount_factor=self._discount_factor,
                              tau=self._gae_tau)
 
-    returns = torch.cat(returns_).view(-1, 1).detach()
+
+    returns = torch.cat(returns_).detach()
     log_probs = torch.cat(self._transitions_.action_prob).detach()
     values = torch.cat(self._transitions_.value_estimate).detach()
-    states = torch.cat(self._transitions_.state).view(-1, self._input_size[0])
+    states = torch.cat(self._transitions_.state).view(-1, self._observation_size[0])
     actions = torch.cat(self._transitions_.action)
 
     advantage = returns - values
@@ -520,15 +520,13 @@ class PPOAgent(ActorCriticAgent):
                          environments,
                          test_environments,
                          *,
-                         num_steps=40,
+                         num_steps=200,
                          rollouts=1000000,
                          render=True
                          ):
-    stats = draugr.StatisticCollection(stats=('batch_signal', 'test_signal', 'entropy'))
+    # stats = draugr.StatisticCollection(stats=('batch_signal', 'test_signal', 'entropy'))
 
     state = environments.reset()
-
-    num_test_env = len(test_environments)
 
     S = tqdm(range(rollouts), leave=False)
     S_ = S.__iter__()
@@ -547,13 +545,13 @@ class PPOAgent(ActorCriticAgent):
 
         action, action_log_prob, value_estimate = self.sample_action(state)
 
-        a = action.to('cpu').numpy()[0]
+        a = action.to('cpu').numpy()
         successor_state, signal, terminated, _ = environments.step(a)
         batch_signal += signal
 
         successor_state = U.to_tensor(successor_state, device=self._device)
         signal_ = U.to_tensor(signal, device=self._device)
-        not_terminated = U.to_tensor(not terminated, device=self._device)
+        not_terminated = U.to_tensor([not t for t in terminated], device=self._device)
 
         transitions.append(U.ValuedTransition(state,
                                               action,
@@ -571,16 +569,16 @@ class PPOAgent(ActorCriticAgent):
         S_.__next__()
 
         if self._step_i % self._test_interval == 0:
-          test_signals = [self.test_agent(test_environments, render=render) for _ in range(num_test_env)]
+          test_signals = self.test_agent(test_environments, render=render)
           test_signal = numpy.mean(test_signals)
-          stats.test_signal.append(test_signal)
+          # stats.test_signal.append(test_signal)
 
-          draugr.styled_terminal_plot_stats_shared_x(stats, printer=S.write)
+          # draugr.styled_terminal_plot_stats_shared_x(stats, printer=S.write)
 
           if test_signal > self._solved_threshold and self._early_stop:
             self._end_training = True
 
-        stats.batch_signal.append(batch_signal)
+        # stats.batch_signal.append(batch_signal)
 
       # only calculate value of next state for the last step this time
       *_, self._last_value_estimate, _ = self._sample_model(successor_state)
@@ -636,14 +634,15 @@ class PPOAgent(ActorCriticAgent):
     terminal = False
     total_signal = 0
     while not terminal:
-      state = U.to_tensor(state, device=self._device).unsqueeze(0)
+      state = U.to_tensor(state, device=self._device)
       with torch.no_grad():
         action, *_ = self.sample_action(state)
       next_state, signal, terminal, *_ = test_environment.step(action)
+      terminal = terminal.all()
       state = next_state
       if render:
         test_environment.render()
-      total_signal += signal.item()
+      total_signal += signal.mean()
     return total_signal
 
   @staticmethod

@@ -12,6 +12,7 @@ from tqdm import tqdm
 from warg import NamedOrderedDictionary
 
 from configs import get_upper_case_vars_or_protected_of
+from utilities.specifications.training_resume import TrainingResume
 
 tqdm.monitor_interval = 0
 
@@ -20,6 +21,7 @@ from utilities.exceptions.exceptions import HasNoEnvError
 __author__ = 'cnheider'
 
 from abc import ABC, abstractmethod
+
 
 
 class Agent(ABC):
@@ -34,8 +36,8 @@ All agent should inherit from this class
                verbose=False,
                *args,
                **kwargs):
-    self._input_size = None
-    self._output_size = None
+    self._observation_size = None
+    self._action_size = None
     self._step_i = 0
     self._rollout_i = 0
     self._end_training = False
@@ -62,6 +64,9 @@ All agent should inherit from this class
       return self
     else:
       raise HasNoEnvError
+
+  def __repr__(self):
+    return f'{self.__class__.__name__}'
 
   def __parse_set_attr(self, **kwargs) -> None:
     for k, v in kwargs.items():
@@ -129,17 +134,17 @@ All agent should inherit from this class
 
   def build(self, env,  **kwargs) -> None:
     self._environment = env
-    self.maybe_infer_sizes(self._environment)
-    self._build(**kwargs)
+    self.__maybe_infer_sizes(self._environment)
+    self.__build__(**kwargs)
 
-  def train(self, *args, **kwargs) -> NamedOrderedDictionary:
+  def train(self, env, test_env, **kwargs) -> TrainingResume:
     training_start_timestamp = time.time()
 
-    training = self._train(*args, **kwargs)
+    training = self._train(env, test_env, **kwargs)
 
     time_elapsed = time.time() - training_start_timestamp
     end_message = f'Training done, time elapsed: {time_elapsed // 60:.0f}m {time_elapsed % 60:.0f}s'
-    print('\n{} {} {}\n'.format('-' * 9, end_message, '-' * 9))
+    print(f'\n{"-" * 9} {end_message} {"-" * 9}\n')
 
     return training
 
@@ -152,19 +157,19 @@ All agent should inherit from this class
 
   @property
   def input_size(self):
-    return self._input_size
+    return self._observation_size
 
   @input_size.setter
   def input_size(self, input_size):
-    self._input_size = input_size
+    self._observation_size = input_size
 
   @property
   def output_size(self):
-    return self._output_size
+    return self._action_size
 
   @output_size.setter
   def output_size(self, output_size):
-    self._output_size = output_size
+    self._action_size = output_size
 
   # endregion
 
@@ -177,7 +182,7 @@ All agent should inherit from this class
     else:
       raise HasNoEnvError
 
-  def maybe_infer_sizes(self, env) -> None:
+  def __maybe_infer_sizes(self, env) -> None:
     self._maybe_infer_input_output_sizes(env)
     self._maybe_infer_hidden_layers()
 
@@ -191,21 +196,21 @@ Tries to infer input and output size from env if either _input_size or _output_s
     self._observation_space = env.observation_space
     self._action_space = env.action_space
 
-    if self._input_size is None or self._input_size == -1:
-      self._input_size = env.observation_space.shape
-    draugr.sprint(f'\nobservation dimensions: {self._input_size}\n'
+    if self._observation_size is None or self._observation_size == -1:
+      self._observation_size = env.observation_space.shape
+    draugr.sprint(f'\nobservation dimensions: {self._observation_size}\n'
                   f'observation_space:\n{env.observation_space}\n',
                   color='green', bold=True,
                   highlight=True)
 
-    if self._output_size is None or self._output_size == -1:
+    if self._action_size is None or self._action_size == -1:
       if hasattr(env.action_space, 'num_binary_actions'):
-        self._output_size = [env.action_space.num_binary_actions]
+        self._action_size = [env.action_space.num_binary_actions]
       elif len(env.action_space.shape) >= 1:
-        self._output_size = env.action_space.shape
+        self._action_size = env.action_space.shape
       else:
-        self._output_size = [env.action_space.n]
-    draugr.sprint(f'\naction dimensions: {self._output_size}\n'
+        self._action_size = [env.action_space.n]
+    draugr.sprint(f'\naction dimensions: {self._action_size}\n'
                   f'action_space:\n{env.action_space}\n',
                   color='yellow', bold=True, highlight=True)
 
@@ -213,10 +218,10 @@ Tries to infer input and output size from env if either _input_size or _output_s
                                  input_multiplier=8,
                                  output_multiplier=6):
     if self._hidden_layers is None or self._hidden_layers == -1:
-      if self._input_size and self._output_size:
+      if self._observation_size and self._action_size:
 
-        h_1_size = int(self._input_size[0] * input_multiplier)
-        h_3_size = int(self._output_size[0] * output_multiplier)
+        h_1_size = int(self._observation_size[0] * input_multiplier)
+        h_3_size = int(self._action_size[0] * output_multiplier)
 
         h_2_size = int(numpy.sqrt(h_1_size * h_3_size))
         self._hidden_layers = NamedOrderedDictionary([h_1_size,
@@ -259,7 +264,7 @@ Tries to infer input and output size from env if either _input_size or _output_s
     raise NotImplementedError
 
   @abstractmethod
-  def _build(self, **kwargs) -> None:
+  def __build__(self, **kwargs) -> None:
     raise NotImplementedError
 
   @abstractmethod
@@ -267,7 +272,7 @@ Tries to infer input and output size from env if either _input_size or _output_s
     raise NotImplementedError
 
   @abstractmethod
-  def _train(self, *args, **kwargs) -> NamedOrderedDictionary:
+  def _train(self, *args, **kwargs) -> TrainingResume:
     raise NotImplementedError
 
   # endregion

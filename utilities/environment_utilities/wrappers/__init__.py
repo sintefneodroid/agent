@@ -6,4 +6,4 @@ from .buffered import *
 from .clipped import *
 from .noisy import *
 from .skip import *
-from .vector import *
+from .multiple_environments_wrapper import *

@@ -45,7 +45,7 @@ class TabularQAgent(ValueAgent):
     pass
 
   def sample_action(self, state, **kwargs):
-    if type(state) is not str:
+    if not isinstance(state, str):
       state = str(state)
 
     return super().sample_action(state)
@@ -108,7 +108,7 @@ class TabularQAgent(ValueAgent):
                     **kwargs) -> None:
     pass
 
-  def _build(self, **kwargs) -> None:
+  def __build__(self, **kwargs) -> None:
 
     if hasattr(self._environment.action_space, 'num_binary_actions'):
       self._action_n = self._environment.action_space.num_binary_actions

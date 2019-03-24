@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+from neodroid.models import ReactionParameters, Reaction, Displayable, Configuration
 
 __author__ = 'cnheider'
 import random
@@ -7,8 +8,6 @@ from types import coroutine
 
 import numpy as np
 from tqdm import tqdm
-
-from neodroid import Configuration, Displayable, Reaction, ReactionParameters
 
 
 @coroutine
