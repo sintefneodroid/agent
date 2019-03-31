@@ -5,6 +5,7 @@ from collections import Iterable
 from itertools import count
 
 import draugr
+from trolls.multiple_environments_wrapper import make_env, SubProcessEnvironments
 
 from configs import get_upper_case_vars_or_protected_of
 from neodroid.wrappers.utility_wrappers.action_encoding_wrappers import BinaryActionEncodingWrapper
@@ -27,7 +28,7 @@ class TrainingProcedure(abc.ABC):
     pass
 
 
-class regular_train_agent_procedure():
+class regular_train_agent_procedure(TrainingProcedure):
 
   def __call__(self,
                agent_type,
@@ -56,6 +57,7 @@ class regular_train_agent_procedure():
     listener.start()
     try:
       training_resume = agent.train(environment,
+                                    environment,
                                     rollouts=config.ROLLOUTS,
                                     render=config.RENDER_ENVIRONMENT)
     finally:
@@ -75,28 +77,31 @@ class regular_train_agent_procedure():
     environment.close()
 
 
-class mp_train_agent_procedure(TrainingProcedure):
+class parallel_train_agent_procedure(TrainingProcedure):
   def __init__(self,
                *,
                environments=None,
                test_environments=None,
-               default_num_train_envs=9,
-               default_num_test_envs=0,
+               default_num_train_envs=4,
+               default_num_test_envs=1,
+               auto_reset_on_terminal=False,
                **kwargs):
     super().__init__(**kwargs)
     self.environments = environments
     self.test_environments = test_environments
     self.default_num_train_envs = default_num_train_envs
     self.default_num_test_envs = default_num_test_envs
+    self.auto_reset_on_terminal = auto_reset_on_terminal
 
   def __call__(self, agent_type, config):
     if not self.environments:
       if '-v' in config.ENVIRONMENT_NAME:
 
         if self.default_num_train_envs > 0:
-          self.environments = [U.make_env(config.ENVIRONMENT_NAME) for _ in
+          self.environments = [make_env(config.ENVIRONMENT_NAME) for _ in
                                range(self.default_num_train_envs)]
-          self.environments = U.SubProcessEnvironments(self.environments)
+          self.environments = SubProcessEnvironments(self.environments,
+                                                       auto_reset_on_terminal=self.auto_reset_on_terminal)
 
       else:
         self.environments = BinaryActionEncodingWrapper(name=config.ENVIRONMENT_NAME,
@@ -105,9 +110,9 @@ class mp_train_agent_procedure(TrainingProcedure):
       if '-v' in config.ENVIRONMENT_NAME:
 
         if self.default_num_test_envs > 0:
-          self.test_environments = [U.make_env(config.ENVIRONMENT_NAME) for _ in
+          self.test_environments = [make_env(config.ENVIRONMENT_NAME) for _ in
                                     range(self.default_num_test_envs)]
-          self.test_environments = U.SubProcessEnvironments(self.test_environments)
+          self.test_environments = SubProcessEnvironments(self.test_environments)
 
       else:
         self.test_environments = BinaryActionEncodingWrapper(name=config.ENVIRONMENT_NAME,
@@ -171,6 +176,7 @@ class agent_test_gym(TrainingProcedure):
 
 def agent_test_main(agent,
                     config,
+                    *,
                     training_procedure=regular_train_agent_procedure):
   '''
 

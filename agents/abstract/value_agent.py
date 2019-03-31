@@ -9,6 +9,9 @@ import draugr
 from tqdm import tqdm
 from warg import NamedOrderedDictionary
 
+from agents.abstract.agent import Agent
+from utilities.specifications.training_resume import TR
+
 __author__ = 'cnheider'
 
 import math
@@ -55,7 +58,7 @@ All value iteration agents should inherit from this class
     return self.sample_random_process()
 
   def sample_random_process(self):
-    sample = np.random.choice(self._action_size[0])
+    sample = np.random.choice(self._output_size[0])
     return sample
 
   def build(self, env, **kwargs):
@@ -66,7 +69,7 @@ All value iteration agents should inherit from this class
 
       model = copy.deepcopy(self._value_model)
       model.to('cpu')
-      writer.add_graph(model, dummy_in, True)
+      writer.add_graph(model, dummy_in, verbose=self._verbose)
 
   def epsilon_random(self, steps_taken):
     '''
@@ -107,13 +110,14 @@ All value iteration agents should inherit from this class
 
   def train_episodically(self,
                          _environment,
+                         _test_environment,
                          *,
                          rollouts=1000,
                          render=False,
                          render_frequency=100,
                          stat_frequency=100,
                          **kwargs
-                         ) -> NamedOrderedDictionary:
+                         ) -> TR:
     '''
       :param _environment:
       :type _environment:,0
@@ -139,8 +143,7 @@ All value iteration agents should inherit from this class
         if render and episode_i % render_frequency == 0:
           signal, dur, td_error, *extras = self.rollout(initial_state,
                                                         _environment,
-                                                        render=render
-                                                        )
+                                                        render=render)
         else:
           signal, dur, td_error, *extras = self.rollout(initial_state, _environment)
 
@@ -152,7 +155,7 @@ All value iteration agents should inherit from this class
         if self._end_training:
           break
 
-    return NamedOrderedDictionary(model=self._value_model)
+    return TR(self._value_model,None)
 
   def train_episodically_old(self,
                              _environment,
@@ -226,8 +229,8 @@ All value iteration agents should inherit from this class
   def _maybe_infer_input_output_sizes(self, env, **kwargs):
     super()._maybe_infer_input_output_sizes(env)
 
-    self._value_arch_parameters['input_size'] = self._observation_size
-    self._value_arch_parameters['output_size'] = self._action_size
+    self._value_arch_parameters['input_size'] = self._input_size
+    self._value_arch_parameters['output_size'] = self._output_size
 
   def _maybe_infer_hidden_layers(self, **kwargs):
     super()._maybe_infer_hidden_layers()
@@ -236,7 +239,7 @@ All value iteration agents should inherit from this class
 
   # region Protected
 
-  def _train(self, *args, **kwargs) -> NamedOrderedDictionary:
+  def _train(self, *args, **kwargs) -> TR:
     return self.train_episodically(*args, **kwargs)
 
   # endregion

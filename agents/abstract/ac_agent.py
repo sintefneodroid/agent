@@ -31,7 +31,7 @@ All value iteration agents should inherit from this class
     self._signal_clipping = False
     self._action_clipping = False
 
-    self._memory_buffer = U.ExpandableCircularBuffer()
+    self._memory_buffer = U.TransitionBuffer()
 
     self._optimiser_type = torch.optim.Adam
 
@@ -39,13 +39,14 @@ All value iteration agents should inherit from this class
                                                           kwargs={'lr':3e-4}
                                                           )
     self._critic_optimiser_spec = U.OptimiserSpecification(constructor=self._optimiser_type,
-                                                           kwargs={'lr':3e-3,
-                                                                       'weight_decay':3e-2}
+                                                           kwargs={'lr':          3e-3,
+                                                                   'weight_decay':3e-2
+                                                                   }
                                                            )
 
     super().__init__(*args, **kwargs)
 
-  def __build__(self, **kwargs) -> None:
+  def _build(self, **kwargs) -> None:
     # Construct actor and critic
     self._actor = self._actor_arch(**self._actor_arch_parameters).to(self._device)
     self._target_actor = self._actor_arch(**self._actor_arch_parameters).to(self._device).eval()
@@ -61,12 +62,12 @@ All value iteration agents should inherit from this class
                                                                      **self._critic_optimiser_spec.kwargs
                                                                      )
 
-  def __maybe_infer_sizes(self, env):
-    super().__maybe_infer_sizes(env)
+  def _maybe_infer_sizes(self, env):
+    super()._maybe_infer_sizes(env)
 
     if ('input_size' not in self._actor_arch_parameters or
         not self._actor_arch_parameters['input_size']):
-      self._actor_arch_parameters['input_size'] = self._observation_size
+      self._actor_arch_parameters['input_size'] = self._input_size
 
     if ('hidden_layers' not in self._actor_arch_parameters or
         not self._actor_arch_parameters['hidden_layers']):
@@ -74,11 +75,11 @@ All value iteration agents should inherit from this class
 
     if ('output_size' not in self._actor_arch_parameters or
         not self._actor_arch_parameters['output_size']):
-      self._actor_arch_parameters['output_size'] = self._action_size
+      self._actor_arch_parameters['output_size'] = self._output_size
 
     if ('input_size' not in self._critic_arch_parameters or
         not self._critic_arch_parameters['input_size']):
-      self._critic_arch_parameters['input_size'] = self._observation_size
+      self._critic_arch_parameters['input_size'] = self._input_size
 
     if ('hidden_layers' not in self._critic_arch_parameters or
         not self._critic_arch_parameters['hidden_layers']):
@@ -86,7 +87,7 @@ All value iteration agents should inherit from this class
 
     if ('output_size' not in self._critic_arch_parameters or
         not self._critic_arch_parameters['output_size']):
-      self._critic_arch_parameters['output_size'] = self._action_size
+      self._critic_arch_parameters['output_size'] = self._output_size
 
   # endregion
 
@@ -102,7 +103,7 @@ All value iteration agents should inherit from this class
            **kwargs):
     print('loading latest model: ' + model_path)
 
-    self.__build__(**kwargs)
+    self._build(**kwargs)
 
     self._actor.load_state_dict(torch.load(f'actor-{model_path}'))
     self._critic.load_state_dict(torch.load(f'critic-{model_path}'))
@@ -179,18 +180,20 @@ All value iteration agents should inherit from this class
       if self._signal_clipping:
         signal = np.clip(signal, -1.0, 1.0)
 
-      self._memory_buffer.add_transition(state,
-                                         action,
-                                         signal,
-                                         successor_state,
-                                         not terminated
-                                         )
+      if train:
+        self._memory_buffer.add_transition(state,
+                                           action,
+                                           signal,
+                                           successor_state,
+                                           [not t for t in terminated]
+                                           )
       state = successor_state
 
-      self.update()
+      if train:
+        self.update()
       episode_signal += signal
 
-      if terminated:
+      if terminated.all():
         episode_length = t
         break
 

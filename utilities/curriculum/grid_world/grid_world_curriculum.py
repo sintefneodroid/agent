@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-from neodroid.models import ReactionParameters, Reaction, Displayable, Configuration
+from neodroid.models import Configuration, Displayable, Reaction, ReactionParameters
 
 __author__ = 'cnheider'
 import random
@@ -13,9 +13,9 @@ from tqdm import tqdm
 @coroutine
 def grid_world_sample_entire_configuration_space(environment):
   if environment:
-    actor_x_conf = environment.description.configurable('ActorTransformX_Configurable')
-    # actor_y_conf = environment.description.configurable('ActorTransformY_')
-    actor_z_conf = environment.description.configurable('ActorTransformZ_Configurable')
+    actor_x_conf = environment.description.configurable('Vertical')
+    # actor_y_conf = environment.description.configurable('Orthogonal')
+    actor_z_conf = environment.description.configurable('Horizontal')
     x_space = actor_x_conf.configurable_space
     # y_space = actor_y_conf.configurable_space
     z_space = actor_z_conf.configurable_space
@@ -23,9 +23,9 @@ def grid_world_sample_entire_configuration_space(environment):
       for z in np.linspace(z_space.min_value, z_space.max_value, z_space.discrete_steps):
         # for y in np.linspace(y_space.min_value, y_space.max_value, y_space.discrete_steps):
         initial_configuration = [
-          Configuration('ActorTransformX_Configurable', x),
-          # Configuration('ActorTransformY_', y),
-          Configuration('ActorTransformZ_Configurable', z),
+          Configuration('Vertical', x),
+          # Configuration('Orthogonal', y),
+          Configuration('Horizontal', z),
           ]
 
         yield initial_configuration
@@ -36,9 +36,9 @@ def grid_world_sample_entire_configuration_space(environment):
 def grid_world_random_sample_uniformly_entire_configuration_space(environment):
   if environment:
     initial_configurations = []
-    actor_x_conf = environment.description.configurable('ActorTransformX_Configurable')
-    # actor_y_conf = environment.description.configurable('ActorTransformY_')
-    actor_z_conf = environment.description.configurable('ActorTransformZ_Configurable')
+    actor_x_conf = environment.description.configurable('Vertical')
+    # actor_y_conf = environment.description.configurable('Orthogonal')
+    actor_z_conf = environment.description.configurable('Horizontal')
     x_space = actor_x_conf.configurable_space
     # y_space = actor_y_conf.configurable_space
     z_space = actor_z_conf.configurable_space
@@ -46,9 +46,9 @@ def grid_world_random_sample_uniformly_entire_configuration_space(environment):
       for z in np.linspace(z_space.min_value, z_space.max_value, z_space.discrete_steps):
         # for y in np.linspace(y_space.min_value, y_space.max_value, y_space.discrete_steps):
         initial_configuration = [
-          Configuration('ActorTransformX_Configurable', x),
-          # Configuration('ActorTransformY_', y),
-          Configuration('ActorTransformZ_Configurable', z),
+          Configuration('Vertical', x),
+          # Configuration('Orthogonal', y),
+          Configuration('Horizontal', z),
           ]
         initial_configurations.append(initial_configuration)
 
@@ -57,31 +57,40 @@ def grid_world_random_sample_uniformly_entire_configuration_space(environment):
   return
 
 
-def estimate_entire_state_space(env, agent, C, statistics, save_snapshot,
-                                displayer_name='FullEvaluationPlotDisplayer'):
+def estimate_entire_state_space(env,
+                                agent,
+                                C,
+                                *,
+                                save_snapshot,
+                                statistics=None,
+                                displayer_name='ScatterPlot'):
   actor_configurations = []
   success_estimates = []
   displayables = []
   for configuration in grid_world_sample_entire_configuration_space(env):
-    configure_params = ReactionParameters(
-        terminable=True,
-        episode_count=False,
-        reset=True,
-        configure=True,
-        )
+    configure_params = ReactionParameters(terminable=True,
+                                          episode_count=False,
+                                          reset=True,
+                                          configure=True,
+                                          )
 
-    conf_reaction = Reaction(
-        parameters=configure_params,
-        configurations=configuration,
-        displayables=displayables
-        )
+    conf_reaction = Reaction(parameters=configure_params,
+                             configurations=configuration,
+                             displayables=displayables
+                             )
 
     displayables = [Displayable(displayer_name, (success_estimates, actor_configurations))]
 
     env.reset()
     state_ob, info = env.configure(conf_reaction)
     if not info.terminated:
-      est, _, _ = estimate_value(info, env, agent, C, statistics, save_snapshot=save_snapshot, train=False)
+      est, _, _ = estimate_value(info,
+                                 env,
+                                 agent,
+                                 C,
+                                 save_snapshot=save_snapshot,
+                                 statistics=statistics,
+                                 train=False)
       # TODO: Use a rollout of only policy sampled actions with no random sampling (effects like epsilon
       # exploration)
 
@@ -93,9 +102,7 @@ def estimate_entire_state_space(env, agent, C, statistics, save_snapshot,
       success_estimates.append(est)
 
   displayables = [Displayable(displayer_name, (success_estimates, actor_configurations))]
-  conf_reaction = Reaction(
-      displayables=displayables
-      )
+  conf_reaction = Reaction(displayables=displayables)
   _ = env.configure(conf_reaction)
 
 
@@ -103,17 +110,16 @@ _episode_i = 0
 _step_i = 0
 
 
-def estimate_value(candidate, env, agent, C, statistics, save_snapshot, keep_stats=True, train=False):
+def estimate_value(candidate, env, agent, C, *, save_snapshot=False, statistics=None, train=False):
   global _step_i, _episode_i
 
   rollout_signals = 0
   rollout_session = range(1, C.CANDIDATE_ROLLOUTS + 1)
   rollout_session = tqdm(rollout_session, leave=False)
   for j in rollout_session:
-    rollout_session.set_description(
-        f'Candidate rollout #{j} of {C.CANDIDATE_ROLLOUTS} | '
-        f'Est: {rollout_signals / C.CANDIDATE_ROLLOUTS}'
-        )
+    rollout_session.set_description(f'Candidate rollout #{j} of {C.CANDIDATE_ROLLOUTS} | '
+                                    f'Est: {rollout_signals / C.CANDIDATE_ROLLOUTS}'
+                                    )
     state_ob, _ = env.configure(state=candidate)
 
     signals, steps, *stats = agent.rollout(state_ob, env, train=train)
@@ -123,15 +129,14 @@ def estimate_value(candidate, env, agent, C, statistics, save_snapshot, keep_sta
       _step_i += steps
       _episode_i += 1
 
-    if keep_stats:
+    if statistics:
       statistics.signals.append(signals)
       statistics.lengths.append(steps)
       statistics.entropies.append(stats[0])
 
     if _episode_i % C.SAVE_MODEL_INTERVAL == 0:
       pass
-      # if keep_stats:
-      #  save_snapshot()
+      # save_snapshot()
 
   return rollout_signals / C.CANDIDATE_ROLLOUTS, _episode_i, _step_i
 
@@ -140,7 +145,7 @@ actor_configurations = []
 success_estimates = []
 
 
-def display_actor_configuration(env, candidate, frontier_displayer_name='FrontierPlotDisplayer'):
+def display_actor_configuration(env, candidate, frontier_displayer_name='ScatterPlot2'):
   actor_configuration = get_actor_configuration(env, candidate)
   vec3 = (actor_configuration[0], 0,
           actor_configuration[1])
@@ -154,13 +159,13 @@ def display_actor_configuration(env, candidate, frontier_displayer_name='Frontie
 def get_initial_configuration(environment):
   state = environment.describe()
   if environment:
-    goal_pos_x = environment.description.configurable('GoalTransformX_Configurable').configurable_value
+    goal_pos_x = environment.description.configurable('GoalX').configurable_value
     # goal_pos_y = environment.description.configurable('GoalTransformY_').configurable_value
-    goal_pos_z = environment.description.configurable('GoalTransformZ_Configurable').configurable_value
+    goal_pos_z = environment.description.configurable('GoalZ').configurable_value
     initial_configuration = [
-      Configuration('ActorTransformX_Configurable', goal_pos_x),
+      Configuration('Vertical', goal_pos_x),
       # Configuration('ActorTransformY_', goal_pos_y),
-      Configuration('ActorTransformZ_Configurable', goal_pos_z),
+      Configuration('Horizontal', goal_pos_z),
       ]
     return initial_configuration
 
@@ -169,7 +174,7 @@ def get_actor_configuration(environment, candidate):
   state_ob, _ = environment.configure(state=candidate)
   # state = environment.describe()
   if environment:
-    goal_pos_x = environment.description.configurable('ActorTransformX_Configurable').configurable_value
-    # goal_pos_y = environment.description.configurable('ActorTransformY_').configurable_value
-    goal_pos_z = environment.description.configurable('ActorTransformZ_Configurable').configurable_value
+    goal_pos_x = environment.description.configurable('Vertical').configurable_value
+    # goal_pos_y = environment.description.configurable('GoalY').configurable_value
+    goal_pos_z = environment.description.configurable('Horizontal').configurable_value
     return goal_pos_x, goal_pos_z

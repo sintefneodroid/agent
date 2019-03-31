@@ -7,7 +7,7 @@ import draugr
 from warg import NOD
 
 from neodroid.models import EnvironmentState
-from procedures.agent_tests import agent_test_main, mp_train_agent_procedure
+from procedures.agent_tests import agent_test_main, parallel_train_agent_procedure
 from utilities.specifications.training_resume import TR
 
 __author__ = 'cnheider'
@@ -73,7 +73,7 @@ class PGAgent(PolicyAgent):
 
   # region Protected
 
-  def __build__(self, **kwargs) -> None:
+  def _build(self, **kwargs) -> None:
     self._policy_model = self._policy_arch(**(self._policy_arch_params)).to(self._device)
 
     self.optimiser = self._optimiser_type(self._policy_model.parameters(),
@@ -231,7 +231,7 @@ class PGAgent(PolicyAgent):
       if render:
         environment.render()
 
-      if terminated.all():
+      if np.array(terminated).all():
         episode_length = t
         break
 
@@ -333,7 +333,7 @@ class PGAgent(PolicyAgent):
 def main():
   import configs.agent_test_configs.pg_test_config as C
 
-  agent_test_main(PGAgent, C, training_procedure=mp_train_agent_procedure)
+  agent_test_main(PGAgent, C, training_procedure=parallel_train_agent_procedure)
 
 
 if __name__ == '__main__':

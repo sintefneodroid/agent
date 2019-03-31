@@ -108,7 +108,7 @@ class TabularQAgent(ValueAgent):
                     **kwargs) -> None:
     pass
 
-  def __build__(self, **kwargs) -> None:
+  def _build(self, **kwargs) -> None:
 
     if hasattr(self._environment.action_space, 'num_binary_actions'):
       self._action_n = self._environment.action_space.num_binary_actions

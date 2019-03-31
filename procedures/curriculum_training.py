@@ -11,7 +11,8 @@ import time
 import torch
 from tqdm import tqdm
 
-from neodroid.wrappers.utility_wrappers.action_encoding_wrappers import BinaryActionEncodingCurriculumEnvironment
+from neodroid.wrappers.utility_wrappers.action_encoding_wrappers import \
+  BinaryActionEncodingCurriculumEnvironment
 
 tqdm.monitor_interval = 0
 
@@ -22,7 +23,7 @@ import utilities as U
 torch.manual_seed(C.SEED)
 # neo.seed(C.SEED)
 
-stats = draugr.StatisticCollection(
+'''stats = draugr.StatisticCollection(
     stats={
       'signals',
       'lengths',
@@ -32,6 +33,7 @@ stats = draugr.StatisticCollection(
     measures={
       'variance',
       'mean'})
+'''
 
 _keep_stats = False
 _plot_stats = False
@@ -43,16 +45,16 @@ _random_process = None
 
 def save_snapshot():
   _agent.save(C)
-  stats.save(**configs.to_dict(C))
+  # stats.save(**configs.to_dict(C))
 
 
 def main(config, agent, full_state_evaluation_frequency=2):
   _episode_i = 0
   _step_i = 0
 
-  env = BinaryActionEncodingCurriculumEnvironment(
-      name=config.ENVIRONMENT_NAME, connect_to_running=config.CONNECT_TO_RUNNING
-      )
+  env = BinaryActionEncodingCurriculumEnvironment(name=config.ENVIRONMENT_NAME,
+                                                  connect_to_running=config.CONNECT_TO_RUNNING
+                                                  )
 
   _agent.build(env)
 
@@ -60,9 +62,10 @@ def main(config, agent, full_state_evaluation_frequency=2):
   training_start_timestamp = time.time()
 
   initial_configuration = U.get_initial_configuration(env)
-  S_prev = env.generate_trajectory_from_configuration(
-      initial_configuration, l_star, random_process=_random_process
-      )
+  S_prev = env.generate_trajectory_from_configuration(initial_configuration,
+                                                      l_star,
+                                                      random_process=_random_process
+                                                      )
   train_session = range(1, config.ROLLOUTS + 1)
   train_session = tqdm(train_session, leave=False)
 
@@ -70,53 +73,62 @@ def main(config, agent, full_state_evaluation_frequency=2):
     if not env.is_connected:
       break
 
-    S_i = []
-    S_c = []
+    S_initial = []
+    S_candidate = []
 
     fixed_point = True
 
     if i % full_state_evaluation_frequency == 0:
-      U.estimate_entire_state_space(env, agent, C, stats, save_snapshot=save_snapshot)
+      U.estimate_entire_state_space(env,
+                                    agent,
+                                    C,
+                                    # statistics=None,
+                                    save_snapshot=save_snapshot)
 
     num_candidates = tqdm(range(1, C.CANDIDATE_SET_SIZE + 1), leave=False)
     for c in num_candidates:
       if _plot_stats:
-        draugr.terminal_plot_stats_shared_x(stats, printer=train_session.write)
-        train_session.set_description(
-            f'Steps: {_step_i:9.0f} | Ent: {stats.entropies.calc_moving_average():.2f}'
-            )
-        num_candidates.set_description(
-            f'Candidate #{c} of {C.CANDIDATE_SET_SIZE} | '
-            f'FP: {fixed_point} | L: {l_star} | S_i: {len(S_i)}'
-            )
+        # draugr.terminal_plot_stats_shared_x(stats, printer=train_session.write)
+        train_session.set_description(f'Steps: {_step_i:9.0f}'
+                                      # f' | Ent: {stats.entropies.calc_moving_average():.2f}'
+                                      )
+        num_candidates.set_description(f'Candidate #{c} of {C.CANDIDATE_SET_SIZE} | '
+                                       f'FP: {fixed_point} | L: {l_star} | S_i: {len(S_initial)}'
+                                       )
 
       seed = U.sample(S_prev)
-      S_c.extend(
-          env.generate_trajectory_from_state(
-              seed, l_star, random_process=_random_process
-              )
-          )
+      S_candidate.extend(env.generate_trajectory_from_state(seed,
+                                                    l_star,
+                                                    random_process=_random_process
+                                                    )
+                 )
 
-      candidate = U.sample(S_c)
+      candidate = U.sample(S_candidate)
 
       U.display_actor_configuration(env, candidate)
 
-      est, _episode_i, _step_i = U.estimate_value(candidate, env, agent, C, stats,
-                                                  save_snapshot=save_snapshot, train=True)
+      est, _episode_i, _step_i = U.estimate_value(candidate,
+                                                  env,
+                                                  agent,
+                                                  C,
+                                                  save_snapshot=save_snapshot,
+                                                  # statistics=stats,
+                                                  train=True)
 
       if C.LOW <= est <= C.HIGH:
-        S_i.append(candidate)
+        S_initial.append(candidate)
         l_star = C.RANDOM_MOTION_HORIZON
         fixed_point = False
       elif _keep_seed_if_not_replaced:
-        S_i.append(seed)
+        S_initial.append(seed)
     if fixed_point:
-      S_i = env.generate_trajectory_from_configuration(
-          initial_configuration, l_star, random_process=_random_process
-          )
+      S_initial = env.generate_trajectory_from_configuration(initial_configuration,
+                                                       l_star,
+                                                       random_process=_random_process
+                                                       )
       l_star += 1
 
-    S_prev = S_i
+    S_prev = S_initial
 
   time_elapsed = time.time() - training_start_timestamp
   message = f'Training done, time elapsed: {time_elapsed // 60:.0f}m {time_elapsed % 60:.0f}s'

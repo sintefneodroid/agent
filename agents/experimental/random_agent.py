@@ -22,7 +22,7 @@ class RandomAgent(TorchAgent):
 
   # region Protected
 
-  def __build__(self, **kwargs) -> None:
+  def _build(self, **kwargs) -> None:
     pass
 
   def _optimise_wrt(self, error, *args, **kwargs) -> None:

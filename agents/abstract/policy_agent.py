@@ -40,7 +40,7 @@ All policy iteration agents should inherit from this class
 
       model = copy.deepcopy(self._policy_model)
       model.to('cpu')
-      writer.add_graph(model,dummy_in,True)
+      writer.add_graph(model,dummy_in,verbose=self._verbose)
 
   # endregion
 
@@ -66,8 +66,8 @@ All policy iteration agents should inherit from this class
   def _maybe_infer_input_output_sizes(self, env, **kwargs):
     super()._maybe_infer_input_output_sizes(env)
 
-    self._policy_arch_params['input_size'] = self._observation_size
-    self._policy_arch_params['output_size'] = self._action_size
+    self._policy_arch_params['input_size'] = self._input_size
+    self._policy_arch_params['output_size'] = self._output_size
 
   def _maybe_infer_hidden_layers(self, **kwargs):
     super()._maybe_infer_hidden_layers()

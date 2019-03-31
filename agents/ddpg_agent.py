@@ -1,13 +1,12 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-import draugr
 from warg import NamedOrderedDictionary
 
-from neodroid import EnvironmentState
-from procedures.agent_tests import agent_test_main
+from neodroid.models import EnvironmentState
+from procedures.agent_tests import agent_test_main, parallel_train_agent_procedure
+from utilities.specifications.training_resume import TR
 
 __author__ = 'cnheider'
-from itertools import count
 
 import numpy as np
 import torch
@@ -112,15 +111,21 @@ class DDPGAgent(ActorCriticAgent):
      signal_batch,
      next_state_batch,
      non_terminal_batch) = batch
-    states = U.to_tensor(state_batch, device=self._device, dtype=self._state_type) \
-      .view(-1, self._input_size[0])
-    next_states = U.to_tensor(next_state_batch, device=self._device, dtype=self._state_type) \
-      .view(-1, self._input_size[0])
-    actions = U.to_tensor(action_batch, device=self._device, dtype=self._action_type) \
-      .view(-1, self._output_size[0])
-    signals = U.to_tensor(signal_batch, device=self._device, dtype=self._value_type)
-
-    non_terminal_mask = U.to_tensor(non_terminal_batch, device=self._device, dtype=self._value_type)
+    states = U.to_tensor(state_batch,
+                         device=self._device,
+                         dtype=self._state_type).view(-1, self._input_size[0])
+    next_states = U.to_tensor(next_state_batch,
+                              device=self._device,
+                              dtype=self._state_type).view(-1, self._input_size[0])
+    actions = U.to_tensor(action_batch,
+                          device=self._device,
+                          dtype=self._action_type).view(-1, self._output_size[0])
+    signals = U.to_tensor(signal_batch,
+                          device=self._device,
+                          dtype=self._value_type).view(-1, 1)
+    non_terminal_mask = U.to_tensor(non_terminal_batch,
+                                    device=self._device,
+                                    dtype=self._value_type).view(-1, 1)
 
     ### Critic ###
     # Compute current Q value, critic takes state and action chosen
@@ -129,7 +134,7 @@ class DDPGAgent(ActorCriticAgent):
     # Detach variable from the current graph since we don't want gradients for next Q to propagated
     with torch.no_grad():
       target_actions = self._target_actor(states)
-      next_max_q = self._target_critic(next_states, actions=target_actions).max(1)[0]
+      next_max_q = self._target_critic(next_states, actions=target_actions)
 
     next_Q_values = non_terminal_mask * next_max_q
 
@@ -211,7 +216,7 @@ class DDPGAgent(ActorCriticAgent):
       action = self._actor(state)
 
     action_out = action.to('cpu').numpy()[0]
-    #action_out = action.item()
+    # action_out = action.item()
 
     # Add action space noise for exploration, alternative is parameter space noise
     noise = self._random_process.sample()
@@ -224,13 +229,15 @@ class DDPGAgent(ActorCriticAgent):
 
   def _train(self,
              env,
+             test_env,
+             *,
              rollouts=1000,
              render=False,
              render_frequency=10,
              stat_frequency=10
              ):
 
-    stats = draugr.StatisticCollection(stats=('signal', 'duration'))
+    # stats = draugr.StatisticCollection(stats=('signal', 'duration'))
 
     E = range(1, rollouts)
     E = tqdm(E, desc='', leave=False)
@@ -242,22 +249,23 @@ class DDPGAgent(ActorCriticAgent):
       self._random_process.reset()
 
       if episode_i % stat_frequency == 0:
-        draugr.styled_terminal_plot_stats_shared_x(stats, printer=E.write)
+        # draugr.styled_terminal_plot_stats_shared_x(stats, printer=E.write)
         E.set_description(f'Epi: {episode_i}, '
-                          f'Sig: {stats.signal[-1]:.3f}'
+                          # f'Sig: {stats.signal[-1]:.3f}'
                           )
 
-      if render and episode_i % render_frequency == 0:
-        signal, dur, *rollout_stats = self.rollout(state, env, render=render)
-      else:
-        signal, dur, *rollout_stats = self.rollout(state, env)
+      signal, dur, *rollout_stats = self.rollout(state, env)
 
-      stats.append(signal, dur)
+      if render and episode_i % render_frequency == 0:
+        state = test_env.reset()
+        signal, dur, *rollout_stats = self.rollout(state, test_env, render=render, train=False)
+
+      # stats.append(signal, dur)
 
       if self._end_training:
         break
 
-    return NamedOrderedDictionary(model=(self._actor, self._critic),stats=stats)
+    return TR((self._actor, self._critic), None)
 
 
 def test_ddpg_agent(config):
@@ -287,10 +295,14 @@ def test_ddpg_agent(config):
   U.save_model(actor_model, config, name='actor')
   U.save_model(critic_model, config, name='critic')
 
+
 def main():
   import configs.agent_test_configs.ddpg_test_config as C
 
-  agent_test_main(DDPGAgent, C)
+  agent_test_main(DDPGAgent,
+                  C,
+                  training_procedure=parallel_train_agent_procedure(
+                      auto_reset_on_terminal=True))
 
 
 if __name__ == '__main__':

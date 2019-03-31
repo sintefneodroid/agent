@@ -6,7 +6,7 @@ from typing import Any, Tuple
 import numpy
 from warg import NOD
 
-from procedures.agent_tests import agent_test_main, mp_train_agent_procedure
+from procedures.agent_tests import agent_test_main, parallel_train_agent_procedure
 
 __author__ = 'cnheider'
 
@@ -315,7 +315,7 @@ class PPOAgent(ActorCriticAgent):
   def evaluate(self, batch, discrete=False, **kwargs):
     # region Tensorise
 
-    states = U.to_tensor(batch.state, device=self._device).view(-1, self._observation_size[0])
+    states = U.to_tensor(batch.state, device=self._device).view(-1, self._input_size[0])
 
     value_estimates = U.to_tensor(batch.value_estimate, device=self._device)
 
@@ -323,7 +323,7 @@ class PPOAgent(ActorCriticAgent):
 
     discounted_returns = U.to_tensor(batch.discounted_return, device=self._device)
 
-    action_probs_old = U.to_tensor(batch.action_prob, device=self._device).view(-1, self._action_size[0])
+    action_probs_old = U.to_tensor(batch.action_prob, device=self._device).view(-1, self._output_size[0])
 
     # endregion
 
@@ -332,7 +332,7 @@ class PPOAgent(ActorCriticAgent):
     *_, action_probs_new, distribution = self._sample_model(states)
 
     if discrete:
-      actions = U.to_tensor(batch.action, device=self._device).view(-1, self._action_size[0])
+      actions = U.to_tensor(batch.action, device=self._device).view(-1, self._output_size[0])
       action_probs_old = action_probs_old.gather(1, actions)
       action_probs_new = action_probs_new.gather(1, actions)
 
@@ -401,7 +401,7 @@ class PPOAgent(ActorCriticAgent):
     returns = torch.cat(returns_).detach()
     log_probs = torch.cat(self._transitions_.action_prob).detach()
     values = torch.cat(self._transitions_.value_estimate).detach()
-    states = torch.cat(self._transitions_.state).view(-1, self._observation_size[0])
+    states = torch.cat(self._transitions_.state).view(-1, self._input_size[0])
     actions = torch.cat(self._transitions_.action)
 
     advantage = returns - values
@@ -568,7 +568,7 @@ class PPOAgent(ActorCriticAgent):
         self._step_i += 1
         S_.__next__()
 
-        if self._step_i % self._test_interval == 0:
+        if self._step_i % self._test_interval == 0 and test_environments:
           test_signals = self.test_agent(test_environments, render=render)
           test_signal = numpy.mean(test_signals)
           # stats.test_signal.append(test_signal)
@@ -666,7 +666,8 @@ class PPOAgent(ActorCriticAgent):
 def main():
   import configs.agent_test_configs.ppo_test_config as C
 
-  agent_test_main(PPOAgent, C, training_procedure=mp_train_agent_procedure)
+  agent_test_main(PPOAgent, C, training_procedure=parallel_train_agent_procedure(
+      auto_reset_on_terminal=True,default_num_train_envs=1))
 
 
 if __name__ == '__main__':
