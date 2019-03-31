@@ -7,7 +7,6 @@ from itertools import count
 import numpy as np
 
 import neodroid.wrappers.curriculum_wrapper as neo
-from neodroid import Configuration
 
 random_motion_horizon = 5
 initial_states_to_generate = 100

@@ -4,6 +4,11 @@ import draugr
 
 import configs
 from agents.pg_agent import PGAgent
+from procedures.curriculum.grid_world import (get_initial_configuration_from_goal,
+                                              estimate_entire_state_space,
+                                              display_actor_configurations,
+                                              estimate_value,
+                                              )
 
 __author__ = 'cnheider'
 import time
@@ -48,7 +53,7 @@ def save_snapshot():
   # stats.save(**configs.to_dict(C))
 
 
-def main(config, agent, full_state_evaluation_frequency=2):
+def main(config, agent, full_state_evaluation_frequency=20):
   _episode_i = 0
   _step_i = 0
 
@@ -58,14 +63,16 @@ def main(config, agent, full_state_evaluation_frequency=2):
 
   _agent.build(env)
 
-  l_star = C.RANDOM_MOTION_HORIZON
+  random_motion_length = C.RANDOM_MOTION_HORIZON
   training_start_timestamp = time.time()
 
-  initial_configuration = U.get_initial_configuration(env)
+  initial_configuration = get_initial_configuration_from_goal(env)
+  print('Generating initial state from goal configuration')
   S_prev = env.generate_trajectory_from_configuration(initial_configuration,
-                                                      l_star,
+                                                      random_motion_length,
                                                       random_process=_random_process
                                                       )
+
   train_session = range(1, config.ROLLOUTS + 1)
   train_session = tqdm(train_session, leave=False)
 
@@ -79,7 +86,8 @@ def main(config, agent, full_state_evaluation_frequency=2):
     fixed_point = True
 
     if i % full_state_evaluation_frequency == 0:
-      U.estimate_entire_state_space(env,
+      print('Estimating entire state space')
+      estimate_entire_state_space(env,
                                     agent,
                                     C,
                                     # statistics=None,
@@ -93,21 +101,23 @@ def main(config, agent, full_state_evaluation_frequency=2):
                                       # f' | Ent: {stats.entropies.calc_moving_average():.2f}'
                                       )
         num_candidates.set_description(f'Candidate #{c} of {C.CANDIDATE_SET_SIZE} | '
-                                       f'FP: {fixed_point} | L: {l_star} | S_i: {len(S_initial)}'
+                                       f'FP: {fixed_point} | '
+                                       f'L: {random_motion_length} | '
+                                       f'S_i: {len(S_initial)}'
                                        )
 
       seed = U.sample(S_prev)
       S_candidate.extend(env.generate_trajectory_from_state(seed,
-                                                    l_star,
-                                                    random_process=_random_process
-                                                    )
-                 )
+                                                            random_motion_length,
+                                                            random_process=_random_process
+                                                            )
+                         )
 
       candidate = U.sample(S_candidate)
 
-      U.display_actor_configuration(env, candidate)
 
-      est, _episode_i, _step_i = U.estimate_value(candidate,
+
+      est, _episode_i, _step_i = estimate_value(candidate,
                                                   env,
                                                   agent,
                                                   C,
@@ -117,16 +127,21 @@ def main(config, agent, full_state_evaluation_frequency=2):
 
       if C.LOW <= est <= C.HIGH:
         S_initial.append(candidate)
-        l_star = C.RANDOM_MOTION_HORIZON
+        random_motion_length = C.RANDOM_MOTION_HORIZON
         fixed_point = False
       elif _keep_seed_if_not_replaced:
         S_initial.append(seed)
+
+    display_actor_configurations(env, S_candidate)
+
     if fixed_point:
+      print('Reached fixed point')
+      print('Generating initial state from goal configuration')
       S_initial = env.generate_trajectory_from_configuration(initial_configuration,
-                                                       l_star,
-                                                       random_process=_random_process
-                                                       )
-      l_star += 1
+                                                             random_motion_length,
+                                                             random_process=_random_process
+                                                             )
+      random_motion_length += 1
 
     S_prev = S_initial
 

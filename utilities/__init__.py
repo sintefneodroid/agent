@@ -12,7 +12,6 @@ from .stopping import *
 from .transformation import *
 
 from .sampling import *
-from .curriculum import *
 from .visualisation import *
 
 from .torch_utilities import *

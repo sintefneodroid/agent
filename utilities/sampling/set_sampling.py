@@ -9,6 +9,7 @@ import numpy as np
 
 
 def sample(set: iter) -> Any:
-  if len(set):
-    idx = np.random.randint(0, len(set))
-    return set[idx]
+  a = list(set)
+  if len(a):
+    idx = np.random.randint(0, len(a))
+    return a[idx]

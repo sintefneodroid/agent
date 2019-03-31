@@ -141,32 +141,34 @@ def estimate_value(candidate, env, agent, C, *, save_snapshot=False, statistics=
   return rollout_signals / C.CANDIDATE_ROLLOUTS, _episode_i, _step_i
 
 
-actor_configurations = []
-success_estimates = []
 
 
-def display_actor_configuration(env, candidate, frontier_displayer_name='ScatterPlot2'):
-  actor_configuration = get_actor_configuration(env, candidate)
-  vec3 = (actor_configuration[0], 0,
-          actor_configuration[1])
-  actor_configurations.append(vec3)
-  est = 1
-  success_estimates.append(est)
-  frontier_displayable = [Displayable(frontier_displayer_name, (success_estimates, actor_configurations))]
+
+
+def display_actor_configurations(env, candidates, frontier_displayer_name='ScatterPlot2'):
+  actor_configurations = []
+  for candidate in candidates:
+    actor_configuration = get_actor_configuration(env, candidate)
+    vec3 = (actor_configuration[0],
+            0,
+            actor_configuration[1])
+    actor_configurations.append(vec3)
+  frontier_displayable = [Displayable(frontier_displayer_name,
+                                      ([1]*len(actor_configuration),
+                                      actor_configurations))]
   state_ob, info = env.display(frontier_displayable)
 
 
-def get_initial_configuration(environment):
+def get_initial_configuration_from_goal(environment):
   state = environment.describe()
   if environment:
     goal_pos_x = environment.description.configurable('GoalX').configurable_value
-    # goal_pos_y = environment.description.configurable('GoalTransformY_').configurable_value
+    # goal_pos_y = environment.description.configurable('GoalY').configurable_value
     goal_pos_z = environment.description.configurable('GoalZ').configurable_value
-    initial_configuration = [
-      Configuration('Vertical', goal_pos_x),
-      # Configuration('ActorTransformY_', goal_pos_y),
-      Configuration('Horizontal', goal_pos_z),
-      ]
+    initial_configuration = (Configuration('Vertical', goal_pos_x),
+                             # Configuration('Orthogonal', goal_pos_y),
+                             Configuration('Horizontal', goal_pos_z),
+                             )
     return initial_configuration
 
 
