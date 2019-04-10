@@ -18,3 +18,8 @@ class NoTrainingProcedure(Exception):
   def __init__(self):
     msg = 'No TrainingProcedure'
     Exception.__init__(self, msg)
+
+class NoTrajectoryException(Exception):
+  def __init__(self):
+    msg = 'No Trajectory Available'
+    Exception.__init__(self, msg)

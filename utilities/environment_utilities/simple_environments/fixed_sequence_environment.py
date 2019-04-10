@@ -3,7 +3,7 @@ from gym import Env
 from gym.spaces import Discrete
 
 
-class FixedSequenceEnv(Env):
+class FixedSequenceEnvironment(Env):
   def __init__(self,
                n_actions=10,
                seed=0,
@@ -44,10 +44,10 @@ class FixedSequenceEnv(Env):
 
 
 if __name__ == '__main__':
-  env = FixedSequenceEnv()
+  env = FixedSequenceEnvironment()
   obs = env.reset()
   for t in range(100000):
     obs, signal, term, info = env.step(env.np_random.randint(0, env.action_space.n - 1))
-    print(signal)
+    print(obs,signal,term)
     if term:
       obs = env.reset()

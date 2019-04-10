@@ -69,7 +69,7 @@ class TabularQAgent(ValueAgent):
     for t in count():
       action = self.sample_action(obs)
 
-      next_obs, signal, terminal, _ = environment.step(action)
+      next_obs, signal, terminal, _ = environment.act(action)
 
       next_obs = str(next_obs)
 
@@ -124,7 +124,7 @@ class TabularQAgent(ValueAgent):
 
   def _train(self,
              env,
-             rollouts=100000,
+             rollouts=100,
              *args,
              **kwargs) -> Tuple[Any, Any]:
     model, *stats = self.train_episodically(env, rollouts=rollouts)
@@ -137,7 +137,7 @@ class TabularQAgent(ValueAgent):
       self,
       env,
       *,
-      rollouts=100000,
+      rollouts=1000,
       render=False,
       render_frequency=100,
       stat_frequency=10,
@@ -187,7 +187,7 @@ if __name__ == '__main__':
           else:
             action = np.argmax(q_table[state])
 
-          next_state, reward, done, info = env.step(action)
+          next_state, reward, done, info = env.act(action)
 
           next_max = np.max(q_table[next_state])
 

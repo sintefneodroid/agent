@@ -19,7 +19,7 @@ class SkipEnv(gym.Wrapper):
     info = {}
 
     for i in range(0, self.skip):
-      obs, signal, terminal, info = self.env.step(action)
+      obs, signal, terminal, info = self.env.act(action)
       total_signal += signal
       info['steps'] = i + 1
       if terminal:

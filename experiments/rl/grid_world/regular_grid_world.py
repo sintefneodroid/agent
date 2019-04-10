@@ -31,6 +31,7 @@ def train_agent(config, agent):
      running_signals,
      running_lengths,
      *training_statistics) = agent.train(env,
+                                         env,
                                          rollouts=config.ROLLOUTS,
                                          render=config.RENDER_ENVIRONMENT)
   except ValueError:

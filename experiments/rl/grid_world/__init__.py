@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-from neodroid import Displayable
+from neodroid.models import Displayable
 
 __author__ = 'cnheider'
 

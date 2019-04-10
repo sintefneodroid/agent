@@ -4,7 +4,6 @@ import copy
 from abc import abstractmethod
 from typing import Any
 
-from torch.autograd import Variable
 from warg import NamedOrderedDictionary
 
 __author__ = 'cnheider'
@@ -18,12 +17,18 @@ import tensorboardX as tx
 
 class PolicyAgent(TorchAgent):
   '''
-All policy iteration agents should inherit from this class
-'''
+  All policy iteration agents should inherit from this class
+  '''
 
   # region Private
 
   def __init__(self, *args, **kwargs):
+    '''
+
+
+    :param args:
+    :param kwargs:
+    '''
     self._policy_arch = None
     self._policy_arch_params = None
     self._policy_model = None
@@ -34,13 +39,14 @@ All policy iteration agents should inherit from this class
 
   def build(self, env, **kwargs):
     super().build(env, **kwargs)
+    '''
     with tx.SummaryWriter(str(self._base_log_dir))as writer:
-      dummy_in = torch.rand(
-          1, *self._observation_space.shape)
+      dummy_in = torch.rand(1, *self._observation_space.shape)
 
       model = copy.deepcopy(self._policy_model)
       model.to('cpu')
-      writer.add_graph(model,dummy_in,verbose=self._verbose)
+      writer.add_graph(model, dummy_in, verbose=self._verbose)
+    '''
 
   # endregion
 

@@ -8,7 +8,7 @@ import draugr
 from trolls.multiple_environments_wrapper import make_env, SubProcessEnvironments
 
 from configs import get_upper_case_vars_or_protected_of
-from neodroid.wrappers.utility_wrappers.action_encoding_wrappers import BinaryActionEncodingWrapper
+from neodroid.wrappers.utility_wrappers.action_encoding_wrappers import BinaryActionEncodingWrapper,NeodroidWrapper
 from utilities.exceptions.exceptions import NoTrainingProcedure
 
 __author__ = 'cnheider'
@@ -33,12 +33,13 @@ class regular_train_agent_procedure(TrainingProcedure):
   def __call__(self,
                agent_type,
                config,
-               environment=None):
+               environment=None,
+               save=False):
 
     if not config.CONNECT_TO_RUNNING:
       if not environment:
         if '-v' in config.ENVIRONMENT_NAME:
-          environment = gym.make(config.ENVIRONMENT_NAME)
+          environment = NeodroidWrapper(gym.make(config.ENVIRONMENT_NAME))
         else:
           environment = BinaryActionEncodingWrapper(name=config.ENVIRONMENT_NAME,
                                                     connect_to_running=config.CONNECT_TO_RUNNING)
@@ -57,22 +58,24 @@ class regular_train_agent_procedure(TrainingProcedure):
     listener.start()
     try:
       training_resume = agent.train(environment,
-                                    environment,
+                                    test_env=environment,
                                     rollouts=config.ROLLOUTS,
                                     render=config.RENDER_ENVIRONMENT)
     finally:
       listener.stop()
 
-    identifier = count()
-    if isinstance(training_resume.model, Iterable):
-      for model in training_resume.model:
-        U.save_model(model, config, name=f'{agent.__class__.__name__}-{identifier.__next__()}')
-    else:
-      U.save_model(training_resume.model, config, name=f'{agent.__class__.__name__}-{identifier.__next__()}')
+    if save:
+      identifier = count()
+      if isinstance(training_resume.models, Iterable):
+        for model in training_resume.models:
+          U.save_model(model, config, name=f'{agent.__class__.__name__}-{identifier.__next__()}')
+      else:
+        U.save_model(training_resume.models, config, name=f'{agent.__class__.__name__}-{identifier.__next__()}')
 
-      training_resume.stats.save(project_name=config.PROJECT,
-                                 config_name=config.CONFIG_NAME,
-                                 directory=config.LOG_DIRECTORY)
+      if training_resume.stats:
+        training_resume.stats.save(project_name=config.PROJECT,
+                                   config_name=config.CONFIG_NAME,
+                                   directory=config.LOG_DIRECTORY)
 
     environment.close()
 
@@ -93,15 +96,15 @@ class parallel_train_agent_procedure(TrainingProcedure):
     self.default_num_test_envs = default_num_test_envs
     self.auto_reset_on_terminal = auto_reset_on_terminal
 
-  def __call__(self, agent_type, config):
+  def __call__(self, agent_type, config,save=False):
     if not self.environments:
       if '-v' in config.ENVIRONMENT_NAME:
 
         if self.default_num_train_envs > 0:
           self.environments = [make_env(config.ENVIRONMENT_NAME) for _ in
                                range(self.default_num_train_envs)]
-          self.environments = SubProcessEnvironments(self.environments,
-                                                       auto_reset_on_terminal=self.auto_reset_on_terminal)
+          self.environments = NeodroidWrapper(SubProcessEnvironments(self.environments,
+                                                       auto_reset_on_terminal=self.auto_reset_on_terminal))
 
       else:
         self.environments = BinaryActionEncodingWrapper(name=config.ENVIRONMENT_NAME,
@@ -112,7 +115,7 @@ class parallel_train_agent_procedure(TrainingProcedure):
         if self.default_num_test_envs > 0:
           self.test_environments = [make_env(config.ENVIRONMENT_NAME) for _ in
                                     range(self.default_num_test_envs)]
-          self.test_environments = SubProcessEnvironments(self.test_environments)
+          self.test_environments = NeodroidWrapper(SubProcessEnvironments(self.test_environments))
 
       else:
         self.test_environments = BinaryActionEncodingWrapper(name=config.ENVIRONMENT_NAME,
@@ -135,18 +138,19 @@ class parallel_train_agent_procedure(TrainingProcedure):
     finally:
       listener.stop()
 
-    if isinstance(training_resume.models, Iterable):
-      for identifier, model in enumerate(training_resume.models):
-        U.save_model(model, config, name=f'{agent}-{identifier}')
-    else:
-      U.save_model(training_resume.models,
-                   config,
-                   name=f'{agent}-0')
+    if save:
+      if isinstance(training_resume.models, Iterable):
+        for identifier, model in enumerate(training_resume.models):
+          U.save_model(model, config, name=f'{agent}-{identifier}')
+      else:
+        U.save_model(training_resume.models,
+                     config,
+                     name=f'{agent}-0')
 
-      if 'stats' in training_resume:
-        training_resume.stats.save(project_name=config.PROJECT,
-                                   config_name=config.CONFIG_NAME,
-                                   directory=config.LOG_DIRECTORY)
+        if 'stats' in training_resume:
+          training_resume.stats.save(project_name=config.PROJECT,
+                                     config_name=config.CONFIG_NAME,
+                                     directory=config.LOG_DIRECTORY)
 
     self.environments.close()
     self.test_environments.close()
@@ -177,7 +181,9 @@ class agent_test_gym(TrainingProcedure):
 def agent_test_main(agent,
                     config,
                     *,
-                    training_procedure=regular_train_agent_procedure):
+                    training_procedure=regular_train_agent_procedure,
+                    parse_args=True,
+                    save=False):
   '''
 
 '''
@@ -188,27 +194,28 @@ def agent_test_main(agent,
   elif isinstance(training_procedure, type):
     training_procedure = training_procedure()
 
-  args = parse_arguments(f'{type(agent)}', config)
-  args_dict = args.__dict__
+  if parse_args:
+    args = parse_arguments(f'{type(agent)}', config)
+    args_dict = args.__dict__
 
-  if 'CONFIG' in args_dict.keys() and args_dict['CONFIG']:
-    import importlib.util
-    spec = importlib.util.spec_from_file_location('overloaded.config', args_dict['CONFIG'])
-    config = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(config)
-  else:
-    for key, arg in args_dict.items():
-      if key != 'CONFIG':
-        setattr(config, key, arg)
+    if 'CONFIG' in args_dict.keys() and args_dict['CONFIG']:
+      import importlib.util
+      spec = importlib.util.spec_from_file_location('overloaded.config', args_dict['CONFIG'])
+      config = importlib.util.module_from_spec(spec)
+      spec.loader.exec_module(config)
+    else:
+      for key, arg in args_dict.items():
+        if key != 'CONFIG':
+          setattr(config, key, arg)
 
-  draugr.sprint(f'\nUsing config: {config}\n', highlight=True, color='yellow')
-  if not args.skip_confirmation:
-    for key, arg in get_upper_case_vars_or_protected_of(config).items():
-      print(f'{key} = {arg}')
-    input('\nPress Enter to begin... ')
+    draugr.sprint(f'\nUsing config: {config}\n', highlight=True, color='yellow')
+    if not args.skip_confirmation:
+      for key, arg in get_upper_case_vars_or_protected_of(config).items():
+        print(f'{key} = {arg}')
+      input('\nPress Enter to begin... ')
 
   try:
-    training_procedure(agent, config)
+    training_procedure(agent, config, save=save)
   except KeyboardInterrupt:
     print('Stopping')
 

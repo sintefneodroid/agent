@@ -59,7 +59,7 @@ All value iteration agents should inherit from this class
 
   def sample_random_process(self):
     sample = np.random.choice(self._output_size[0])
-    return sample
+    return np.array([sample])
 
   def build(self, env, **kwargs):
     super().build(env, **kwargs)
@@ -119,6 +119,7 @@ All value iteration agents should inherit from this class
                          **kwargs
                          ) -> TR:
     '''
+      :param _test_environment:
       :param _environment:
       :type _environment:,0
       :param rollouts:
@@ -155,7 +156,7 @@ All value iteration agents should inherit from this class
         if self._end_training:
           break
 
-    return TR(self._value_model,None)
+    return TR(self._value_model, None)
 
   def train_episodically_old(self,
                              _environment,

@@ -5,40 +5,42 @@ __author__ = 'cnheider'
 import numpy as np
 
 
-class ContextualBandit(object):
+class ContextualBanditEnvironment(object):
 
-  def __init__(self):
-    self.state = 0
-    # List out our bandits. Currently arms 4, 2, and 1 (respectively) are the most optimal.
-    self.bandits = np.array([[0.2, 0, -0.0, -5], [0.1, -5, 1, 0.25], [-5, 5, 5, 5]])
+  def __init__(self, seed=0):
+
+    self.np_random = np.random.RandomState()
+    self.np_random.seed(seed)
+
+    self.bandits = np.array([[0.8, 0.0, 0.0, 0.9],
+                             [0.6, 0.0, 1.0, 0.2],
+                             [0.6, 0.0, 0.0, 0.5]
+                             ])
     self.num_bandits = self.bandits.shape[0]
     self.num_actions = self.bandits.shape[1]
 
-  def get_bandit(self):
-    self.state = np.random.randint(
-        0, len(self.bandits)
-        )  # Returns a random state for each episode.
+  def update_state(self):
+    self.state = self.np_random.randint(0,
+                                        len(self.bandits)
+                                        )
     return self.state
 
-  def pull_arm(self, action):
-    # Get a random number.
-    bandit = self.bandits[self.state, action]
-    result = np.random.randn(1)
-    if result > bandit:
-      # return a positive signal.
-      return 1
-    else:
-      # return a negative signal.
-      return -1
+  def reset(self):
+    return self.update_state()
 
-# cBandit = contextual_bandit()
-# while i < total_episodes:
-#   s = cBandit.getBandit()  # Get a state from the environment.
-#
-#   # Choose either a random action or one from our network.
-#   if np.random.rand(1) < e:
-#     action = np.random.randint(cBandit.num_actions)
-#   else:
-#     action = sess.run(myAgent.chosen_action, feed_dict={myAgent.state_in: [s]})
-#
-#   signal = cBandit.pullArm(action)  # Get our signal for taking an action given a bandit.
+  def act(self, action):
+    threshold = self.bandits[self.state, action]
+    result = self.np_random.random_sample()
+    if result > threshold:
+      return self.update_state(), 1, False, None
+    else:
+      return self.update_state(), -1, False, None
+
+
+if __name__ == '__main__':
+  env = ContextualBanditEnvironment()
+  state = env.reset()
+  for i in range(10000):
+    action = np.random.randint(env.num_actions)
+    state, signal, *_ = env.act(action)  # Get our signal for taking an action given a bandit.
+    print(state, action, signal)

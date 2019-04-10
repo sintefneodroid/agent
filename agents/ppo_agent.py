@@ -6,7 +6,8 @@ from typing import Any, Tuple
 import numpy
 from warg import NOD
 
-from procedures.agent_tests import agent_test_main, parallel_train_agent_procedure
+from procedures.train_agent import agent_test_main
+from utilities.specifications.training_resume import TR
 
 __author__ = 'cnheider'
 
@@ -45,6 +46,7 @@ class PPOAgent(ActorCriticAgent):
     self._solved_threshold = -200
     self._test_interval = 1000
     self._early_stop = False
+    self._rollouts = 10
 
     self._ppo_epochs = 4
 
@@ -196,7 +198,7 @@ class PPOAgent(ActorCriticAgent):
       action = dist.sample()
       action_prob = dist.log_prob(action)
 
-      next_state, signal, terminated, _ = environment.step(action)
+      next_state, signal, terminated, _ = environment.react(action)
 
       if render and self._rollout_i % render_frequency == 0:
         environment.render()
@@ -206,15 +208,14 @@ class PPOAgent(ActorCriticAgent):
         successor_state = next_state
 
       transitions.append(
-          U.ValuedTransition(
-              state,
-              action,
-              action_prob,
-              value_estimates,
-              signal,
-              successor_state,
-              not terminated,
-              )
+          U.ValuedTransition(state,
+                             action,
+                             action_prob,
+                             value_estimates,
+                             signal,
+                             successor_state,
+                             not terminated,
+                             )
           )
 
       state = next_state
@@ -230,7 +231,8 @@ class PPOAgent(ActorCriticAgent):
   def rollout(self,
               initial_state,
               environment,
-              render=False, train=True,
+              render=False,
+              train=True,
               **kwargs):
     self._rollout_i += 1
 
@@ -249,7 +251,7 @@ class PPOAgent(ActorCriticAgent):
       action = dist.sample()
       action_prob = dist.log_prob(action)
 
-      next_state, signal, terminated, _ = environment.step(action)
+      next_state, signal, terminated, _ = environment.react(action)
 
       if render:
         environment.render()
@@ -259,15 +261,14 @@ class PPOAgent(ActorCriticAgent):
         successor_state = next_state
 
       transitions.append(
-          U.ValuedTransition(
-              state,
-              action,
-              action_prob,
-              value_estimates,
-              signal,
-              successor_state,
-              not terminated,
-              )
+          U.ValuedTransition(state,
+                             action,
+                             action_prob,
+                             value_estimates,
+                             signal,
+                             successor_state,
+                             not terminated,
+                             )
           )
       state = next_state
 
@@ -390,6 +391,7 @@ class PPOAgent(ActorCriticAgent):
 
   def update(self):
 
+
     returns_ = U.compute_gae(self._last_value_estimate,
                              self._transitions_.signal,
                              self._transitions_.non_terminal,
@@ -397,8 +399,7 @@ class PPOAgent(ActorCriticAgent):
                              discount_factor=self._discount_factor,
                              tau=self._gae_tau)
 
-
-    returns = torch.cat(returns_).detach()
+    returns = torch.cat(returns_).view(-1, 1).detach()
     log_probs = torch.cat(self._transitions_.action_prob).detach()
     values = torch.cat(self._transitions_.value_estimate).detach()
     states = torch.cat(self._transitions_.state).view(-1, self._input_size[0])
@@ -426,6 +427,8 @@ class PPOAgent(ActorCriticAgent):
 
     self._optimise_wrt(collective_cost)
     '''
+
+
 
   def inner_ppo_update(self,
                        states,
@@ -467,9 +470,9 @@ class PPOAgent(ActorCriticAgent):
   #
   def train_episodically(self,
                          env,
-                         num_batches=10000,
+                         rollouts=10,
                          render=False,
-                         render_frequency=100,
+                         render_frequency=1000,
                          stat_frequency=10,
                          **kwargs):
 
@@ -477,10 +480,13 @@ class PPOAgent(ActorCriticAgent):
 
     initial_state = env.reset()
 
-    B = tqdm(range(1, num_batches + 1), f'Batch {0}, {num_batches} - Rollout {self._rollout_i}', leave=False)
+    B = tqdm(range(1, rollouts + 1), f'Batch {0}, {rollouts} - Rollout {self._rollout_i}', leave=False)
     for batch_i in B:
+      if self._end_training or batch_i > rollouts:
+        break
+
       if batch_i % stat_frequency == 0:
-        B.set_description(f'Batch {batch_i}, {num_batches} - Rollout {self._rollout_i}')
+        B.set_description(f'Batch {batch_i}, {rollouts} - Rollout {self._rollout_i}')
 
       if render and batch_i % render_frequency == 0:
         transitions, accumulated_signal, terminated, *_ = self.rollout(initial_state,
@@ -521,16 +527,18 @@ class PPOAgent(ActorCriticAgent):
                          test_environments,
                          *,
                          num_steps=200,
-                         rollouts=1000000,
-                         render=True
+                         rollouts=10,
+                         render=False
                          ):
     # stats = draugr.StatisticCollection(stats=('batch_signal', 'test_signal', 'entropy'))
 
     state = environments.reset()
 
     S = tqdm(range(rollouts), leave=False)
-    S_ = S.__iter__()
-    while self._step_i < rollouts and not self._end_training:
+    for i in S:
+      S.set_description(f'Rollout {i}')
+      if self._end_training:
+        break
 
       batch_signal = 0
 
@@ -546,12 +554,14 @@ class PPOAgent(ActorCriticAgent):
         action, action_log_prob, value_estimate = self.sample_action(state)
 
         a = action.to('cpu').numpy()
-        successor_state, signal, terminated, _ = environments.step(a)
+        info = environments.react(a)
+        successor_state, signal, terminated = info.observables, info.signal, info.terminated
+
         batch_signal += signal
 
         successor_state = U.to_tensor(successor_state, device=self._device)
         signal_ = U.to_tensor(signal, device=self._device)
-        not_terminated = U.to_tensor([not t for t in terminated], device=self._device)
+        not_terminated = U.to_tensor(not terminated, device=self._device)
 
         transitions.append(U.ValuedTransition(state,
                                               action,
@@ -566,11 +576,11 @@ class PPOAgent(ActorCriticAgent):
         state = successor_state
 
         self._step_i += 1
-        S_.__next__()
 
         if self._step_i % self._test_interval == 0 and test_environments:
           test_signals = self.test_agent(test_environments, render=render)
-          test_signal = numpy.mean(test_signals)
+          test_signal = test_signals
+          # test_signal = numpy.mean(test_signals)
           # stats.test_signal.append(test_signal)
 
           # draugr.styled_terminal_plot_stats_shared_x(stats, printer=S.write)
@@ -580,14 +590,17 @@ class PPOAgent(ActorCriticAgent):
 
         # stats.batch_signal.append(batch_signal)
 
+
       # only calculate value of next state for the last step this time
       *_, self._last_value_estimate, _ = self._sample_model(successor_state)
 
       self._transitions_ = U.ValuedTransition(*zip(*transitions))
 
-      self.update()
+      if len(self._transitions_)>100:
+        self.update()
 
-    return self._actor, self._critic, []
+
+    return TR((self._actor, self._critic), None)
 
   def old_batched_training(self):
     '''
@@ -632,18 +645,23 @@ class PPOAgent(ActorCriticAgent):
     if render:
       test_environment.render()
     terminal = False
-    total_signal = 0
+    out_signal = 0
     while not terminal:
       state = U.to_tensor(state, device=self._device)
       with torch.no_grad():
         action, *_ = self.sample_action(state)
-      next_state, signal, terminal, *_ = test_environment.step(action)
-      terminal = terminal.all()
+        info = test_environment.react(action)
+
+        next_state, signal, terminal = info.observables, info.signal, info.terminated
+
+      # terminal = terminal.all()
       state = next_state
       if render:
         test_environment.render()
-      total_signal += signal.mean()
-    return total_signal
+
+      out_signal = signal
+      # out_signal += signal.mean()
+    return out_signal
 
   @staticmethod
   def ppo_mini_batch_iter(mini_batch_size: int,
@@ -663,12 +681,26 @@ class PPOAgent(ActorCriticAgent):
                 advantage=advantage[rand_ids, :])
 
 
-def main():
+def ppo_test(rollouts=None):
   import configs.agent_test_configs.ppo_test_config as C
 
-  agent_test_main(PPOAgent, C, training_procedure=parallel_train_agent_procedure(
-      auto_reset_on_terminal=True,default_num_train_envs=1))
+  if rollouts:
+    C.ROLLOUTS = rollouts
+
+  '''
+  agent_test_main(PPOAgent,
+                  C,
+                  training_procedure=parallel_train_agent_procedure(
+                      auto_reset_on_terminal=True,
+                      default_num_train_envs=1),
+                  parse_args=False)
+  '''
+
+  agent_test_main(PPOAgent,
+                  C,
+                  parse_args=False
+                  )
 
 
 if __name__ == '__main__':
-  main()
+  ppo_test()

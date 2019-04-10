@@ -121,7 +121,7 @@ All agent should inherit from this class
         F.set_description(f'Frame {frame_i}')
 
         action = self.sample_action(state)
-        state, signal, terminated, info = environment.step(action)
+        state, signal, terminated, info = environment.act(action)
         if render:
           environment.render()
 
@@ -196,25 +196,33 @@ Tries to infer input and output size from env if either _input_size or _output_s
     self._action_space = env.action_space
 
     if self._input_size is None or self._input_size == -1:
-      self._input_size = env.observation_space.shape
+      if len(env.observation_space.shape) >= 1:
+       self._input_size = env.observation_space.shape
+      else:
+        self._input_size = (env.observation_space.n,1)
+
+    if self._output_size is None or self._output_size == -1:
+      if hasattr(env.action_space, 'num_binary_actions'):
+        self._output_size = (env.action_space.num_binary_actions,1)
+      elif len(env.action_space.shape) >= 1:
+        self._output_size = env.action_space.shape
+      else:
+        self._output_size = (env.action_space.n,1)
+
+    # region print
+
     draugr.sprint(f'\nobservation dimensions: {self._input_size}\n'
                   f'observation_space:\n{env.observation_space}\n',
                   color='green',
                   bold=True,
                   highlight=True)
 
-    if self._output_size is None or self._output_size == -1:
-      if hasattr(env.action_space, 'num_binary_actions'):
-        self._output_size = [env.action_space.num_binary_actions]
-      elif len(env.action_space.shape) >= 1:
-        self._output_size = env.action_space.shape
-      else:
-        self._output_size = [env.action_space.n]
     draugr.sprint(f'\naction dimensions: {self._output_size}\n'
                   f'action_space:\n{env.action_space}\n',
                   color='yellow',
                   bold=True,
                   highlight=True)
+    # endregion
 
   def _maybe_infer_hidden_layers(self,
                                  input_multiplier=8,
@@ -278,3 +286,4 @@ Tries to infer input and output size from env if either _input_size or _output_s
     raise NotImplementedError
 
   # endregion
+

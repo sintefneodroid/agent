@@ -8,7 +8,7 @@ from tqdm import tqdm
 import utilities as U
 from agents.abstract.torch_agent import TorchAgent
 from agents.abstract.evo_agent import EVOAgent
-from procedures.agent_tests import agent_test_main
+from procedures.train_agent import agent_test_main
 
 
 class CMAAgent(EVOAgent):

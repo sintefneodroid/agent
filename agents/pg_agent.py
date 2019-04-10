@@ -4,10 +4,11 @@ import time
 from warnings import warn
 
 import draugr
+from neodroid.models import EnvironmentState
 from warg import NOD
 
-from neodroid.models import EnvironmentState
-from procedures.agent_tests import agent_test_main, parallel_train_agent_procedure
+from procedures.train_agent import agent_test_main, parallel_train_agent_procedure
+from utilities.exceptions.exceptions import NoTrajectoryException
 from utilities.specifications.training_resume import TR
 
 __author__ = 'cnheider'
@@ -29,6 +30,8 @@ tqdm.monitor_interval = 0
 class PGAgent(PolicyAgent):
   '''
   REINFORCE, Vanilla Policy Gradient method
+
+  See method __defaults__ for default parameters
   '''
 
   # region Private
@@ -96,6 +99,7 @@ class PGAgent(PolicyAgent):
     return self._sample_model(state)
 
   def _sample_model(self, state, *args, **kwargs):
+
     if self._discrete:
       return self.sample_discrete_action(state)
 
@@ -109,9 +113,8 @@ class PGAgent(PolicyAgent):
     action_sample = distribution.sample()
     log_prob = distribution.log_prob(action_sample)
     with torch.no_grad():
-
-      action = action_sample.to('cpu').numpy()[0]
-      entropy = distribution.entropy()#.mean()
+      action = action_sample.to('cpu').numpy()
+      entropy = distribution.entropy()
 
     return action, log_prob, entropy
 
@@ -126,8 +129,8 @@ class PGAgent(PolicyAgent):
     log_prob = distribution.log_prob(action)
 
     with torch.no_grad():
-      entropy = distribution.entropy()#.mean()
-      action = action.to('cpu').numpy()[0]
+      entropy = distribution.entropy()  # .mean()
+      action = action.to('cpu').numpy()
 
     '''eps = torch.randn(mean.size()).to(self._device)
     # calculate the probability
@@ -150,15 +153,18 @@ class PGAgent(PolicyAgent):
     return action, log_prob, entropy
 
   def evaluate(self, **kwargs):
-    R = 0
-    policy_loss = []
-    signals = []
+    if not len(self._trajectory_trace) > 0:
+      raise NoTrajectoryException
 
     trajectory = self._trajectory_trace.retrieve_trajectory()
     t_signals = trajectory.signal
     log_probs = trajectory.log_prob
     entropies = trajectory.entropy
     self._trajectory_trace.clear()
+
+    R = 0
+    policy_loss = []
+    signals = []
 
     for r in t_signals[::-1]:
       R = r + self._discount_factor * R
@@ -169,7 +175,7 @@ class PGAgent(PolicyAgent):
     if signals.shape[0] > 1:
       stddev = signals.std()
       signals = (signals - signals.mean()) / (stddev + self._divide_by_zero_safety)
-    else:
+    elif signals.shape[0] == 0:
       warn(f'No signals received, got signals.shape[0]:{signals.shape[0]}')
 
     for log_prob, signal, entropy in zip(log_probs, signals, entropies):
@@ -179,6 +185,14 @@ class PGAgent(PolicyAgent):
     return loss
 
   def update(self, *args, **kwargs):
+    '''
+
+    :param args:
+    :param kwargs:
+
+    :returns:
+    '''
+
     error = self.evaluate()
 
     if error is not None:
@@ -193,9 +207,27 @@ class PGAgent(PolicyAgent):
   def rollout(self,
               initial_state,
               environment,
-              render=False,
-              train=True,
+              render: bool = False,
+              train: bool = True,
+              max_length: int = None,
               **kwargs):
+    '''Perform a single rollout until termination in environment
+
+    :type max_length: int
+    :param max_length:
+    :type train: bool
+    :type render: bool
+    :param initial_state: The initial state observation in the environment
+    :param environment: The environment the agent interacts with
+    :param render: Whether to render environment interaction
+    :param train: Whether the agent should use the rollout to update its model
+    :param kwargs:
+    :return:
+      -episode_signal (:py:class:`float`) - first output
+      -episode_length-
+      -average_episode_entropy-
+    '''
+
     if train:
       self._rollout_i += 1
 
@@ -214,11 +246,8 @@ class PGAgent(PolicyAgent):
     for t in T:
       action, action_log_probs, entropy, *_ = self.sample_action(state)
 
-      if hasattr(environment, 'step'):
-        state, signal, terminated, info = environment.step(action)
-      else:
-        info = environment.react(action)
-        state, signal, terminated = info.observables, info.signal, info.terminated
+      info = environment.react(action)
+      state, signal, terminated = info.observables, info.signal, info.terminated
 
       if self._signal_clipping:
         signal = np.clip(signal, self._signal_clip_low, self._signal_clip_high)
@@ -231,14 +260,15 @@ class PGAgent(PolicyAgent):
       if render:
         environment.render()
 
-      if np.array(terminated).all():
+      if np.array(terminated).all() or (max_length and t > max_length):
         episode_length = t
         break
 
     if train:
       self.update()
 
-    return episode_signal, episode_length, episode_entropy / episode_length
+    average_episode_entropy = episode_entropy / episode_length
+    return np.array(episode_signal).mean(), episode_length, np.array(average_episode_entropy).mean()
 
   def infer(self, env, render=True):
 
@@ -249,7 +279,7 @@ class PGAgent(PolicyAgent):
       for frame_i in count(1):
 
         action, *_ = self.sample_action(state)
-        state, signal, terminated, info = env.step(action)
+        state, signal, terminated, info = env.act(action)
         if render:
           env.render()
 
@@ -280,13 +310,13 @@ class PGAgent(PolicyAgent):
           signal, dur, entropy, *extras = self.rollout(initial_state, env)
 
         stats.add_scalar('duration', dur, episode_i)
-        stats.add_scalar('signal', signal.mean(), episode_i)
-        stats.add_scalar('entropy', entropy.mean(), episode_i)
+        stats.add_scalar('signal', signal, episode_i)
+        stats.add_scalar('entropy', entropy, episode_i)
 
         if self._end_training:
           break
 
-    return TR(self._policy_model,None)
+    return TR(self._policy_model, None)
 
   def train_episodically_old(self,
                              env,
@@ -330,11 +360,14 @@ class PGAgent(PolicyAgent):
   # endregion
 
 
-def main():
+def pg_test(rollouts=None):
   import configs.agent_test_configs.pg_test_config as C
 
-  agent_test_main(PGAgent, C, training_procedure=parallel_train_agent_procedure)
+  if rollouts:
+    C.ROLLOUTS = rollouts
+
+  agent_test_main(PGAgent, C, training_procedure=parallel_train_agent_procedure,parse_args=False)
 
 
 if __name__ == '__main__':
-  main()
+  pg_test()

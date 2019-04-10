@@ -41,7 +41,7 @@ class EVOAgent(Agent, ABC):
       action = int(self.sample_action(state)[0])
 
 
-      (state, signal, terminated, info) = environment.step(action=action)
+      (state, signal, terminated, info) = environment.act(action=action)
       episode_signal += signal
 
       if render:

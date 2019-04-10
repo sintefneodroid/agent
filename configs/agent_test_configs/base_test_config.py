@@ -12,10 +12,10 @@ from configs.base_config import *
 CONFIG_NAME = __name__
 CONFIG_FILE = __file__
 
-ROLLOUTS = 10000
+ROLLOUTS = 10
 
 ENVIRONMENT_NAME = 'CartPole-v1'
-# ENVIRONMENT_NAME = 'Pendulum-v0'
+# ENVIRONMENT_NAME = ' '
 
 ENVIRONMENTS = {
 

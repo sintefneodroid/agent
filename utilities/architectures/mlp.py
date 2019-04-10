@@ -46,23 +46,32 @@ OOOO hidden_layer_size * (Weights,Biases)
                ):
     super().__init__(**kwargs)
 
-    self._input_size = input_size[0]
-    self._output_size = output_size[0]
+    assert input_size is not None
+    assert output_size is not None
+
+    if isinstance(input_size, Sequence):
+      assert len(input_size) > 0, f'Got length {len(input_size)}'
+      self._input_size = input_size[0]
+    else:
+      self._input_size = input_size
+
+    if isinstance(output_size, Sequence):
+      assert len(output_size) > 0, f'Got length {len(output_size)}'
+      self._output_size = output_size[0]
+    else:
+      self._output_size = output_size
 
     if not hidden_layers and auto_build_hidden_layers_if_none:
-      if self._input_size and self._output_size:
+      h_1_size = int(self._input_size * input_multiplier)
+      h_3_size = int(self._output_size * output_multiplier)
 
-        h_1_size = int(self._input_size * input_multiplier)
-        h_3_size = int(self._output_size * output_multiplier)
+      h_2_size = int(numpy.sqrt(h_1_size * h_3_size))
 
-        h_2_size = int(numpy.sqrt(h_1_size * h_3_size))
+      hidden_layers = NamedOrderedDictionary(h_1_size,
+                                             h_2_size,
+                                             h_3_size
+                                             ).as_list()
 
-        hidden_layers = NamedOrderedDictionary(h_1_size,
-                                               h_2_size,
-                                               h_3_size
-                                               ).as_list()
-      else:
-        warn('No input or output size')
 
     self._hidden_layers = hidden_layers
     self._hidden_layer_activation = hidden_layer_activation
@@ -92,7 +101,7 @@ OOOO hidden_layer_size * (Weights,Biases)
 :param x:
 :return output:
 '''
-    assert isinstance(x, Tensor)
+    #assert isinstance(x, Tensor)
 
     # if hasattr(self, 'num_of_layer'): # Safer but slower
     #  for i in range(1, self.num_of_layer + 1):
@@ -107,7 +116,6 @@ OOOO hidden_layer_size * (Weights,Biases)
       val = self._hidden_layer_activation(val)
 
     val = self._head(val)
-
     return val
 
 
@@ -115,7 +123,7 @@ class CategoricalMLP(MLP):
 
   def forward(self, x, **kwargs):
     x = super().forward(x, **kwargs)
-    return F.softmax(x, dim=1)
+    return F.softmax(x, dim=-1)
 
 
 class MultiHeadedMLP(MLP):
@@ -186,7 +194,7 @@ class RecurrentCategoricalMLP(MLP):
     hidden_x = self.hidden(combined)
     self._prev_hidden_x = hidden_x
 
-    return F.softmax(out_x, dim=1)
+    return F.softmax(out_x, dim=-1)
 
 
 class ExposedRecurrentCategoricalMLP(RecurrentCategoricalMLP):
@@ -195,4 +203,4 @@ class ExposedRecurrentCategoricalMLP(RecurrentCategoricalMLP):
     self._prev_hidden_x = hidden_x
     out_x = super().forward(x, **kwargs)
 
-    return F.softmax(out_x, dim=1), self._prev_hidden_x
+    return F.softmax(out_x, dim=-1), self._prev_hidden_x

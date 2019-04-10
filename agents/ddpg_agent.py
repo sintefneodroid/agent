@@ -3,7 +3,7 @@
 from warg import NamedOrderedDictionary
 
 from neodroid.models import EnvironmentState
-from procedures.agent_tests import agent_test_main, parallel_train_agent_procedure
+from procedures.train_agent import agent_test_main, parallel_train_agent_procedure
 from utilities.specifications.training_resume import TR
 
 __author__ = 'cnheider'
@@ -215,7 +215,7 @@ class DDPGAgent(ActorCriticAgent):
     with torch.no_grad():
       action = self._actor(state)
 
-    action_out = action.to('cpu').numpy()[0]
+    action_out = action.to('cpu').numpy()
     # action_out = action.item()
 
     # Add action space noise for exploration, alternative is parameter space noise
@@ -296,14 +296,18 @@ def test_ddpg_agent(config):
   U.save_model(critic_model, config, name='critic')
 
 
-def main():
+def ddpg_test(rollouts=None):
   import configs.agent_test_configs.ddpg_test_config as C
+  if rollouts:
+    C.ROLLOUTS = rollouts
+
 
   agent_test_main(DDPGAgent,
                   C,
                   training_procedure=parallel_train_agent_procedure(
-                      auto_reset_on_terminal=True))
+                      auto_reset_on_terminal=True),
+                  parse_args=False)
 
 
 if __name__ == '__main__':
-  main()
+  ddpg_test()

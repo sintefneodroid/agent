@@ -45,7 +45,7 @@ class BufferedObsEnv(gym.ObservationWrapper):
     self.observation_space.high[...] = 1.0
 
   def _step(self, action):
-    obs, signal, terminal, info = self.env.step(action)
+    obs, signal, terminal, info = self.env.act(action)
     return self._observation(obs), signal, terminal, info
 
   def _observation(self, obs):

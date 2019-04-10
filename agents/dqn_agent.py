@@ -3,7 +3,7 @@
 import matplotlib
 from warg import NamedOrderedDictionary
 
-from procedures.agent_tests import agent_test_main
+from procedures.train_agent import agent_test_main
 from utilities.transformation.extraction import get_screen
 from utilities.visualisation.experimental.statistics_plot import plot_durations
 
@@ -105,7 +105,7 @@ class DQNAgent(ValueAgent):
     with torch.no_grad():
       action_value_estimates = self._value_model(model_input)
 
-    max_value_action_idx = action_value_estimates.max(1)[1].to('cpu').numpy()[0]
+    max_value_action_idx = action_value_estimates.max(-1)[1].to('cpu').numpy()
     return max_value_action_idx
 
   # region Public
@@ -145,7 +145,7 @@ class DQNAgent(ValueAgent):
     # Calculate Q of successors
     with torch.no_grad():
       Q_successors = self._value_model(non_terminal_successors)
-    Q_successors_max_action_indices = Q_successors.max(1)[1]
+    Q_successors_max_action_indices = Q_successors.max(-1)[1]
     Q_successors_max_action_indices = Q_successors_max_action_indices.view(-1, 1)
     if self._use_double_dqn:
       with torch.no_grad():
@@ -194,7 +194,8 @@ class DQNAgent(ValueAgent):
       self._step_i += 1
 
       action = self.sample_action(state)
-      next_state, signal, terminated, info = environment.step(action)
+      info = environment.react(action)
+      next_state, signal, terminated = info.observables, info.signal, info.terminated
 
       if render:
         environment.render()
@@ -224,8 +225,7 @@ class DQNAgent(ValueAgent):
 
         # T.set_description(f'TD error: {td_error}')
 
-      if (
-          self._use_double_dqn
+      if (self._use_double_dqn
           and self._step_i % self._sync_target_model_frequency == 0
       ):
         self._target_value_model = U.copy_state(target=self._target_value_model, source=self._value_model)
@@ -251,7 +251,7 @@ class DQNAgent(ValueAgent):
 
   def step(self, state, env):
     action = self.sample_action(state)
-    return action, env.step(action)
+    return action, env.act(action)
 
 
 def test_cnn_dqn_agent(config):
@@ -309,14 +309,17 @@ def test_cnn_dqn_agent(config):
   plt.ioff()
   plt.show()
 
-def main():
+
+def dqn_test(rollouts=None):
   import configs.agent_test_configs.dqn_test_config as C
 
   # import configs.cnn_dqn_config as C
+  if rollouts:
+    C.ROLLOUTS = rollouts
 
-  agent_test_main(DQNAgent, C)
+  agent_test_main(DQNAgent, C, parse_args=False)
   # test_cnn_dqn_agent(C)
 
 
 if __name__ == '__main__':
-  main()
+  dqn_test()

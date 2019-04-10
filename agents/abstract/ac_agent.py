@@ -165,11 +165,9 @@ All value iteration agents should inherit from this class
 
       action = self.sample_action(state)
 
-      if hasattr(environment, 'step'):
-        successor_state, signal, terminated, info = environment.step(action)
-      else:
-        info = environment.react(action)
-        successor_state, signal, terminated = info.observables, info.signal, info.terminated
+
+      info = environment.react(action)
+      successor_state, signal, terminated = info.observables, info.signal, info.terminated
 
       if render:
         environment.render()

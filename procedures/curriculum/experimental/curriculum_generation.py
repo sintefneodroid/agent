@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+from neodroid.models import Configuration
+
 __author__ = 'cnheider'
 from collections import namedtuple
 from itertools import count
@@ -14,25 +16,25 @@ initial_states_to_generate = 100
 
 def get_initial_configuration2(environment):
   if environment:
-    goal_pos_x = environment.description.configurable('GoalTransformX_Configurable').observation
-    goal_pos_z = environment.description.configurable('GoalTransformZ_Configurable').observation
+    goal_pos_x = environment.description.configurable('Horizontal').observation
+    goal_pos_z = environment.description.configurable('Vertical').observation
     goal_pos = [goal_pos_x, 0, goal_pos_z]
     # goal_pos = environment.description.configurable('GoalPosition_').configurable_value
     initial_configuration = [
-      Configuration('ActorPositionX_Configurable', goal_pos[0]),
-      Configuration('ActorPositionY_Configurable', goal_pos[1]),
-      Configuration('ActorPositionZ_Configurable', goal_pos[2]),
+      Configuration('Horizontal', goal_pos[0]),
+      Configuration('Orthogonal', goal_pos[1]),
+      Configuration('Vertical', goal_pos[2]),
       ]
     return initial_configuration
 
 
 def get_initial_configuration(environment):
   if environment:
-    goal_pos_x = environment.description.configurable('GoalTransformX_Configurable').configurable_value
-    goal_pos_z = environment.description.configurable('GoalTransformZ_Configurable').configurable_value
+    goal_pos_x = environment.description.configurable('GoalX').configurable_value
+    goal_pos_z = environment.description.configurable('GoalZ').configurable_value
     initial_configuration = [
-      Configuration('ActorTransformX_Configurable', goal_pos_x),
-      Configuration('ActorTransformZ_Configurable', goal_pos_z),
+      Configuration('Horizontal', goal_pos_x),
+      Configuration('Vertical', goal_pos_z),
       ]
     return initial_configuration
 
@@ -43,7 +45,7 @@ def main():
 
   initial_configuration = get_initial_configuration(_environment)
 
-  initial_start_set = _environment.generate_initial_states_from_configuration(
+  initial_start_set = _environment.generate_trajectory_from_configuration(
       initial_configuration
       )
 
@@ -62,10 +64,10 @@ def main():
       fs = sample_frontier(frontier)
       good_starts = [state for state, value in fs if low < value < high]
       if len(good_starts):
-        initial_start_set = []
+        initial_start_set = set()
         for start in good_starts:
-          initial_start_set.extend(
-              _environment.generate_initial_states_from_state(start)
+          initial_start_set.add(
+              _environment.generate_trajectory_from_state(start)
               )
 
     init_state = sample_initial_state(initial_start_set)
@@ -76,8 +78,8 @@ def main():
       episode_reward = 0
       for k in count(1):
 
-        actions = _environment.action_space.sample()
-        observations, signal, terminated, info = _environment.sample_action(actions, )
+        #actions = _environment.action_space.sample()
+        observations, signal, terminated, info = _environment.sample_action()
 
         episode_reward += signal
 
@@ -92,14 +94,16 @@ def main():
 
 
 def sample_frontier(memory, size=5):
-  new_frontier = []
+  memory = list(memory)
+  new_frontier = set()
   while len(new_frontier) < size:
     idx = np.random.randint(0, len(memory))
-    new_frontier.append(memory[idx])
+    new_frontier.add(memory[idx])
   return new_frontier
 
 
 def sample_initial_state(memory):
+  memory = list(memory)
   idx = np.random.randint(0, len(memory))
   return memory[idx]
 

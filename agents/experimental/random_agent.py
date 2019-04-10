@@ -5,10 +5,7 @@ from typing import Any, Tuple
 import draugr
 from tqdm import tqdm
 
-import utilities as U
 from agents.abstract.torch_agent import TorchAgent
-from procedures.agent_tests import agent_test_main
-
 
 
 class RandomAgent(TorchAgent):
@@ -48,17 +45,17 @@ class RandomAgent(TorchAgent):
       initial_state = _environment.reset()
 
       if episode_i % stat_frequency == 0:
-        draugr.terminal_plot_stats_shared_x(
-            stats,
-            printer=E.write,
-            )
+        draugr.terminal_plot_stats_shared_x(stats,
+                                            printer=E.write,
+                                            )
 
         E.set_description(f'Epi: {episode_i}, Dur: {stats.duration.running_value[-1]:.1f}')
 
       if render and episode_i % render_frequency == 0:
-        signal, dur, *extras = self.rollout(
-            initial_state, _environment, render=render
-            )
+        signal, dur, *extras = self.rollout(initial_state,
+                                            _environment,
+                                            render=render
+                                            )
       else:
         signal, dur, *extras = self.rollout(initial_state, _environment)
 
@@ -102,7 +99,7 @@ class RandomAgent(TorchAgent):
     for t in T:
       action = int(self.sample_action(state)[0])
 
-      state, signal, terminated, info = environment.step(action)
+      state, signal, terminated, info = environment.act(action)
       episode_signal += signal
 
       if render:
@@ -128,14 +125,14 @@ class RandomAgent(TorchAgent):
 
 if __name__ == '__main__':
 
-
   def main():
     import neodroid.wrappers.gym_wrapper as neo
     env = neo.NeodroidGymWrapper(environment_name='mab')
     agent = RandomAgent(observation_space=env.observation_space,
-                          action_space=env.action_space,
-                          environment=env)
+                        action_space=env.action_space,
+                        environment=env)
     agent.build(env)
     agent.train(env)
+
 
   main()
