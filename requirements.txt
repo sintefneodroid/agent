@@ -12,3 +12,4 @@ Pillow>=5.4.1
 pynput>=1.4
 graphviz>=0.10.1
 tensorboardX
+scikit-image
