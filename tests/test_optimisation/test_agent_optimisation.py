@@ -54,8 +54,7 @@ def agent_test(agent, env):
   assert last_avg > 10, f'Had {last_avg}'
 
 if __name__ == '__main__':
-  pass
-  #test_pg_agent()
-  #test_dqn_agent()
-  #test_ppo_agent()
-  #test_ddpg_agent()
+  test_pg_agent()
+  test_dqn_agent()
+  test_ppo_agent()
+  test_ddpg_agent()

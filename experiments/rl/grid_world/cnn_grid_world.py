@@ -24,7 +24,8 @@ def train_agent(config, agent):
 
   listener = U.add_early_stopping_key_combination(agent.stop_training)
 
-  listener.start()
+  if listener:
+    listener.start()
   try:
     (trained_model, running_signals, running_lengths, *training_statistics) = agent.train(env,
                                                                                          config.ROLLOUTS,
@@ -35,7 +36,8 @@ def train_agent(config, agent):
     trained_model = None
     print('Training procedure did not return as excepted')
   finally:
-    listener.stop()
+    if listener:
+      listener.stop()
 
   draugr.save_statistic(running_signals, stat_name='running_signals', config_name=C.CONFIG_NAME,
                         project_name=C.PROJECT ,

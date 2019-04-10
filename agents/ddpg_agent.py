@@ -283,14 +283,16 @@ def test_ddpg_agent(config):
   agent.build(env)
   listener = U.add_early_stopping_key_combination(agent.stop_training)
 
-  listener.start()
+  if listener:
+    listener.start()
   try:
     (actor_model, critic_model), stats = agent.train(env,
                                                      config.ROLLOUTS,
                                                      render=config.RENDER_ENVIRONMENT
                                                      )
   finally:
-    listener.stop()
+    if listener:
+      listener.stop()
 
   U.save_model(actor_model, config, name='actor')
   U.save_model(critic_model, config, name='critic')

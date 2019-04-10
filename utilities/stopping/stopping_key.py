@@ -3,39 +3,44 @@
 import draugr
 
 __author__ = 'cnheider'
+__doc__ = ''
 
-from pynput import keyboard
+def add_early_stopping_key_combination(callback, key='ctrl+shift+s', has_x=True):
+  if not has_x:
+    return
 
-# import keyboard
-import utilities as U
+  from pynput import keyboard
 
-COMBINATIONS = [
-  {keyboard.Key.shift, keyboard.Key.alt, keyboard.KeyCode(char='s')},
-  {keyboard.Key.shift, keyboard.Key.alt, keyboard.KeyCode(char='S')},
-  ]
+  # import keyboard
+  import utilities as U
 
-CALLBACKS = []
-# The currently active modifiers
-current = set()
+  COMBINATIONS = [
+    {keyboard.Key.shift, keyboard.Key.alt, keyboard.KeyCode(char='s')},
+    {keyboard.Key.shift, keyboard.Key.alt, keyboard.KeyCode(char='S')},
+    ]
 
+  CALLBACKS = []
+  # The currently active modifiers
+  current = set()
 
-def add_early_stopping_key_combination(callback, key='ctrl+shift+s'):
   # keyboard.add_hotkey(key, callback)
   CALLBACKS.append(callback)
   draugr.sprint(f'\n\nPress any of:\n{COMBINATIONS}\n for early stopping\n', color='red', bold=True,
                 highlight=True)
   print('')
+
+  def on_press(key):
+    if any([key in COMBO for COMBO in COMBINATIONS]):
+      current.add(key)
+      if any(all(k in current for k in COMBO) for COMBO in COMBINATIONS):
+        for callback in CALLBACKS:
+          callback()
+
+  def on_release(key):
+    if any([key in COMBO for COMBO in COMBINATIONS]):
+      current.remove(key)
+
   return keyboard.Listener(on_press=on_press, on_release=on_release)
 
 
-def on_press(key):
-  if any([key in COMBO for COMBO in COMBINATIONS]):
-    current.add(key)
-    if any(all(k in current for k in COMBO) for COMBO in COMBINATIONS):
-      for callback in CALLBACKS:
-        callback()
 
-
-def on_release(key):
-  if any([key in COMBO for COMBO in COMBINATIONS]):
-    current.remove(key)

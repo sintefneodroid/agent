@@ -24,14 +24,16 @@ def train_agent(config, agent):
 
   listener = U.add_early_stopping_key_combination(agent.stop_training)
 
-  listener.start()
+  if listener:
+    listener.start()
   try:
     (trained_model,
      running_signals,
      running_lengths,
      *training_statistics) = agent.train(env, config.ROLLOUTS, render=config.RENDER_ENVIRONMENT)
   finally:
-    listener.stop()
+    if listener:
+      listener.stop()
 
   draugr.save_statistic(running_signals,
                         stat_name='running_signals',

@@ -53,16 +53,18 @@ class regular_train_agent_procedure(TrainingProcedure):
     agent = agent_type(config)
     agent.build(environment)
 
-    listener = U.add_early_stopping_key_combination(agent.stop_training)
+    listener = U.add_early_stopping_key_combination(agent.stop_training,has_x=save)
 
-    listener.start()
+    if listener:
+      listener.start()
     try:
       training_resume = agent.train(environment,
                                     test_env=environment,
                                     rollouts=config.ROLLOUTS,
                                     render=config.RENDER_ENVIRONMENT)
     finally:
-      listener.stop()
+      if listener:
+        listener.stop()
 
     if save:
       identifier = count()
@@ -127,16 +129,18 @@ class parallel_train_agent_procedure(TrainingProcedure):
     agent = agent_type(config)
     agent.build(self.environments)
 
-    listener = U.add_early_stopping_key_combination(agent.stop_training)
+    listener = U.add_early_stopping_key_combination(agent.stop_training,has_x=save)
 
-    listener.start()
+    if listener:
+      listener.start()
     try:
       training_resume = agent.train(self.environments,
                                     self.test_environments,
                                     rollouts=config.ROLLOUTS,
                                     render=config.RENDER_ENVIRONMENT)
     finally:
-      listener.stop()
+      if listener:
+        listener.stop()
 
     if save:
       if isinstance(training_resume.models, Iterable):
