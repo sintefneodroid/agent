@@ -106,7 +106,7 @@ class PGAgent(PolicyAgent):
     return self.sample_continuous_action(state)
 
   def sample_discrete_action(self, state):
-    state_var = U.to_tensor([state], device=self._device, dtype=self._state_type)
+    state_var = U.to_tensor(state, device=self._device, dtype=self._state_type)
 
     probs = self._policy_model(state_var)
     distribution = Categorical(logits=probs)
@@ -119,7 +119,7 @@ class PGAgent(PolicyAgent):
     return action, log_prob, entropy
 
   def sample_continuous_action(self, state):
-    model_input = U.to_tensor([state], device=self._device, dtype=self._state_type)
+    model_input = U.to_tensor(state, device=self._device, dtype=self._state_type)
 
     mean, log_std = self._policy_model(model_input)
 
@@ -130,7 +130,7 @@ class PGAgent(PolicyAgent):
 
     with torch.no_grad():
       entropy = distribution.entropy()  # .mean()
-      action = action.to('cpu').numpy()
+      action = action.to('cpu').numpy().tolist()
 
     '''eps = torch.randn(mean.size()).to(self._device)
     # calculate the probability
@@ -231,9 +231,9 @@ class PGAgent(PolicyAgent):
     if train:
       self._rollout_i += 1
 
-    episode_signal = 0
+    episode_signal = []
     episode_length = 0
-    episode_entropy = 0
+    episode_entropy = []
 
     if isinstance(initial_state, EnvironmentState):
       state = initial_state.observables
@@ -252,8 +252,8 @@ class PGAgent(PolicyAgent):
       if self._signal_clipping:
         signal = np.clip(signal, self._signal_clip_low, self._signal_clip_high)
 
-      episode_signal += signal
-      episode_entropy += entropy
+      episode_signal.append(signal)
+      episode_entropy.append(entropy.to('cpu').numpy())
       if train:
         self._trajectory_trace.add_trace(signal, action_log_probs, entropy)
 
@@ -267,8 +267,10 @@ class PGAgent(PolicyAgent):
     if train:
       self.update()
 
-    average_episode_entropy = episode_entropy / episode_length
-    return np.array(episode_signal).mean(), episode_length, np.array(average_episode_entropy).mean()
+    ep = np.array(episode_signal).mean()
+    el = episode_length
+    ee= np.array(episode_entropy).mean()
+    return ep,el,ee
 
   def infer(self, env, render=True):
 
@@ -366,7 +368,7 @@ def pg_test(rollouts=None):
   if rollouts:
     C.ROLLOUTS = rollouts
 
-  agent_test_main(PGAgent, C, training_procedure=parallel_train_agent_procedure,parse_args=False)
+  agent_test_main(PGAgent, C, parse_args=False,training_procedure=parallel_train_agent_procedure)
 
 
 if __name__ == '__main__':

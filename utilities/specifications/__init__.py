@@ -3,4 +3,4 @@
 
 __author__ = 'cnheider'
 
-from .optimiser_spec import *
+from .optimiser_specification import *

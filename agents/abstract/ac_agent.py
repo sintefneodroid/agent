@@ -156,7 +156,7 @@ All value iteration agents should inherit from this class
     self._rollout_i += 1
 
     state = initial_state
-    episode_signal = 0
+    episode_signal = []
     episode_length = 0
 
     T = tqdm(count(1), f'Rollout #{self._rollout_i}', leave=False)
@@ -189,12 +189,14 @@ All value iteration agents should inherit from this class
 
       if train:
         self.update()
-      episode_signal += signal
+      episode_signal.append(signal)
 
       if terminated.all():
         episode_length = t
         break
 
-    return episode_signal, episode_length
+    es = np.array(episode_signal).mean()
+    el = episode_length
+    return es, episode_length
 
   # endregion

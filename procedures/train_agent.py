@@ -5,10 +5,13 @@ from collections import Iterable
 from itertools import count
 
 import draugr
-from trolls.multiple_environments_wrapper import make_env, SubProcessEnvironments
+from neodroid.wrappers.utility_wrappers.action_encoding_wrappers import (BinaryActionEncodingWrapper,
+                                                                         NeodroidWrapper,
+                                                                         VectorWrap,
+                                                                         )
+from trolls.multiple_environments_wrapper import SubProcessEnvironments, make_env
 
 from configs import get_upper_case_vars_or_protected_of
-from neodroid.wrappers.utility_wrappers.action_encoding_wrappers import BinaryActionEncodingWrapper,NeodroidWrapper
 from utilities.exceptions.exceptions import NoTrainingProcedure
 
 __author__ = 'cnheider'
@@ -39,13 +42,13 @@ class regular_train_agent_procedure(TrainingProcedure):
     if not config.CONNECT_TO_RUNNING:
       if not environment:
         if '-v' in config.ENVIRONMENT_NAME:
-          environment = NeodroidWrapper(gym.make(config.ENVIRONMENT_NAME))
+          environment = VectorWrap(NeodroidWrapper(gym.make(config.ENVIRONMENT_NAME)))
         else:
-          environment = BinaryActionEncodingWrapper(name=config.ENVIRONMENT_NAME,
-                                                    connect_to_running=config.CONNECT_TO_RUNNING)
+          environment = VectorWrap(BinaryActionEncodingWrapper(name=config.ENVIRONMENT_NAME,
+                                                               connect_to_running=config.CONNECT_TO_RUNNING))
     else:
-      environment = BinaryActionEncodingWrapper(name=config.ENVIRONMENT_NAME,
-                                                connect_to_running=config.CONNECT_TO_RUNNING)
+      environment = VectorWrap(BinaryActionEncodingWrapper(name=config.ENVIRONMENT_NAME,
+                                                           connect_to_running=config.CONNECT_TO_RUNNING))
 
     U.set_seeds(config.SEED)
     environment.seed(config.SEED)
@@ -53,7 +56,7 @@ class regular_train_agent_procedure(TrainingProcedure):
     agent = agent_type(config)
     agent.build(environment)
 
-    listener = U.add_early_stopping_key_combination(agent.stop_training,has_x=save)
+    listener = U.add_early_stopping_key_combination(agent.stop_training, has_x=save)
 
     if listener:
       listener.start()
@@ -72,7 +75,8 @@ class regular_train_agent_procedure(TrainingProcedure):
         for model in training_resume.models:
           U.save_model(model, config, name=f'{agent.__class__.__name__}-{identifier.__next__()}')
       else:
-        U.save_model(training_resume.models, config, name=f'{agent.__class__.__name__}-{identifier.__next__()}')
+        U.save_model(training_resume.models, config,
+                     name=f'{agent.__class__.__name__}-{identifier.__next__()}')
 
       if training_resume.stats:
         training_resume.stats.save(project_name=config.PROJECT,
@@ -98,7 +102,7 @@ class parallel_train_agent_procedure(TrainingProcedure):
     self.default_num_test_envs = default_num_test_envs
     self.auto_reset_on_terminal = auto_reset_on_terminal
 
-  def __call__(self, agent_type, config,save=False):
+  def __call__(self, agent_type, config, save=False):
     if not self.environments:
       if '-v' in config.ENVIRONMENT_NAME:
 
@@ -106,7 +110,7 @@ class parallel_train_agent_procedure(TrainingProcedure):
           self.environments = [make_env(config.ENVIRONMENT_NAME) for _ in
                                range(self.default_num_train_envs)]
           self.environments = NeodroidWrapper(SubProcessEnvironments(self.environments,
-                                                       auto_reset_on_terminal=self.auto_reset_on_terminal))
+                                                                     auto_reset_on_terminal=self.auto_reset_on_terminal))
 
       else:
         self.environments = BinaryActionEncodingWrapper(name=config.ENVIRONMENT_NAME,
@@ -129,7 +133,7 @@ class parallel_train_agent_procedure(TrainingProcedure):
     agent = agent_type(config)
     agent.build(self.environments)
 
-    listener = U.add_early_stopping_key_combination(agent.stop_training,has_x=save)
+    listener = U.add_early_stopping_key_combination(agent.stop_training, has_x=save)
 
     if listener:
       listener.start()

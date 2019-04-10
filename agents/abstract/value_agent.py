@@ -55,11 +55,11 @@ All value iteration agents should inherit from this class
       return self._sample_model(state)
     if self._verbose:
       print('Sampling from random process')
-    return self.sample_random_process()
+    return self.sample_random_process(state)
 
-  def sample_random_process(self):
-    sample = np.random.choice(self._output_size[0])
-    return np.array([sample])
+  def sample_random_process(self, state):
+    sample = np.random.choice(np.arange(self._output_size[0]),len(state))
+    return sample
 
   def build(self, env, **kwargs):
     super().build(env, **kwargs)

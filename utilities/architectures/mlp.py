@@ -4,6 +4,7 @@ from typing import Iterable, Sequence
 from warnings import warn
 
 import numpy
+from numpy import prod
 
 from warg import NamedOrderedDictionary
 
@@ -51,13 +52,19 @@ OOOO hidden_layer_size * (Weights,Biases)
 
     if isinstance(input_size, Sequence):
       assert len(input_size) > 0, f'Got length {len(input_size)}'
-      self._input_size = input_size[0]
+      if len(input_size)>1:
+        self._input_size = input_size[0]*input_size[1]
+      else:
+        self._input_size = input_size[0]
     else:
       self._input_size = input_size
 
     if isinstance(output_size, Sequence):
       assert len(output_size) > 0, f'Got length {len(output_size)}'
-      self._output_size = output_size[0]
+      if len(output_size)>1:
+        self._output_size = prod(output_size)
+      else:
+        self._output_size = output_size[0]
     else:
       self._output_size = output_size
 
@@ -109,7 +116,7 @@ OOOO hidden_layer_size * (Weights,Biases)
     #      layer = getattr(self, 'fc' + str(i))
     #      x = F.relu(layer(x))
 
-    val = x
+    val = x.view(x.size(0),-1)
     for i in range(1, self.num_of_layer + 1):
       layer = getattr(self, f'_fc{i}')
       val = layer(val)

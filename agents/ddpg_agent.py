@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+from neodroid.models import EnvironmentState
 from warg import NamedOrderedDictionary
 
-from neodroid.models import EnvironmentState
 from procedures.train_agent import agent_test_main, parallel_train_agent_procedure
 from utilities.specifications.training_resume import TR
 
@@ -210,7 +210,7 @@ class DDPGAgent(ActorCriticAgent):
                     low_action_clip=-1.0,
                     high_action_clip=1.0,
                     **kwargs):
-    state = U.to_tensor([state], device=self._device, dtype=self._state_type)
+    state = U.to_tensor(state, device=self._device, dtype=self._state_type)
 
     with torch.no_grad():
       action = self._actor(state)
@@ -303,11 +303,9 @@ def ddpg_test(rollouts=None):
   if rollouts:
     C.ROLLOUTS = rollouts
 
-
   agent_test_main(DDPGAgent,
                   C,
-                  training_procedure=parallel_train_agent_procedure(
-                      auto_reset_on_terminal=True),
+                  training_procedure=parallel_train_agent_procedure(auto_reset_on_terminal=True),
                   parse_args=False)
 
 

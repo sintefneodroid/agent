@@ -12,7 +12,7 @@ from configs.base_config import *
 CONFIG_NAME = __name__
 CONFIG_FILE = __file__
 
-ROLLOUTS = 10
+ROLLOUTS = 10000
 
 ENVIRONMENT_NAME = 'CartPole-v1'
 # ENVIRONMENT_NAME = ' '

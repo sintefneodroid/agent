@@ -6,7 +6,7 @@ from typing import Any, Tuple
 import numpy
 from warg import NOD
 
-from procedures.train_agent import agent_test_main
+from procedures.train_agent import agent_test_main, parallel_train_agent_procedure
 from utilities.specifications.training_resume import TR
 
 __author__ = 'cnheider'
@@ -391,7 +391,6 @@ class PPOAgent(ActorCriticAgent):
 
   def update(self):
 
-
     returns_ = U.compute_gae(self._last_value_estimate,
                              self._transitions_.signal,
                              self._transitions_.non_terminal,
@@ -427,8 +426,6 @@ class PPOAgent(ActorCriticAgent):
 
     self._optimise_wrt(collective_cost)
     '''
-
-
 
   def inner_ppo_update(self,
                        states,
@@ -528,7 +525,7 @@ class PPOAgent(ActorCriticAgent):
                          *,
                          num_steps=200,
                          rollouts=10,
-                         render=False
+                         render=True
                          ):
     # stats = draugr.StatisticCollection(stats=('batch_signal', 'test_signal', 'entropy'))
 
@@ -561,7 +558,7 @@ class PPOAgent(ActorCriticAgent):
 
         successor_state = U.to_tensor(successor_state, device=self._device)
         signal_ = U.to_tensor(signal, device=self._device)
-        not_terminated = U.to_tensor(not terminated, device=self._device)
+        not_terminated = U.to_tensor([not t for t in terminated], device=self._device)
 
         transitions.append(U.ValuedTransition(state,
                                               action,
@@ -590,15 +587,13 @@ class PPOAgent(ActorCriticAgent):
 
         # stats.batch_signal.append(batch_signal)
 
-
       # only calculate value of next state for the last step this time
       *_, self._last_value_estimate, _ = self._sample_model(successor_state)
 
       self._transitions_ = U.ValuedTransition(*zip(*transitions))
 
-      if len(self._transitions_)>100:
+      if len(self._transitions_) > 100:
         self.update()
-
 
     return TR((self._actor, self._critic), None)
 
@@ -687,19 +682,11 @@ def ppo_test(rollouts=None):
   if rollouts:
     C.ROLLOUTS = rollouts
 
-  '''
   agent_test_main(PPOAgent,
                   C,
                   training_procedure=parallel_train_agent_procedure(
-                      auto_reset_on_terminal=True,
-                      default_num_train_envs=1),
+                      auto_reset_on_terminal=True),
                   parse_args=False)
-  '''
-
-  agent_test_main(PPOAgent,
-                  C,
-                  parse_args=False
-                  )
 
 
 if __name__ == '__main__':
