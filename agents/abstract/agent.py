@@ -8,6 +8,7 @@ from warnings import warn
 
 import draugr
 import numpy
+from neodroid.neodroid_utilities import ActionSpace
 from tqdm import tqdm
 from warg import NamedOrderedDictionary
 
@@ -202,8 +203,11 @@ Tries to infer input and output size from env if either _input_size or _output_s
         self._input_size = (env.observation_space.n,1)
 
     if self._output_size is None or self._output_size == -1:
-      if hasattr(env.action_space, 'num_binary_actions'):
-        self._output_size = (env.action_space.num_binary_actions,1)
+      if isinstance(env.action_space, ActionSpace):
+        if env.action_space.is_discrete:
+          self._output_size = (env.action_space.num_discrete_actions,1)
+        else:
+          self._output_size = (env.action_space.n,1)
       elif len(env.action_space.shape) >= 1:
         self._output_size = env.action_space.shape
       else:
@@ -212,13 +216,13 @@ Tries to infer input and output size from env if either _input_size or _output_s
     # region print
 
     draugr.sprint(f'observation dimensions: {self._input_size}\n'
-                  f'observation_space:\n{env.observation_space}\n',
+                  f'observation_space: {env.observation_space}\n',
                   color='green',
                   bold=True,
                   highlight=True)
 
     draugr.sprint(f'action dimensions: {self._output_size}\n'
-                  f'action_space:\n{env.action_space}\n',
+                  f'action_space: {env.action_space}\n',
                   color='yellow',
                   bold=True,
                   highlight=True)

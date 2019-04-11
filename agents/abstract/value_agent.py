@@ -45,11 +45,11 @@ All value iteration agents should inherit from this class
 
     super().__init__(config, *args, **kwargs)
 
-  def sample_action(self, state, **kwargs):
+  def sample_action(self, state, random_sample=True, **kwargs):
     self._step_i += 1
     if (self.epsilon_random(self._step_i)
         and self._step_i > self._initial_observation_period
-    ):
+    ) or not random_sample:
       if self._verbose:
         print('Sampling from model')
       return self._sample_model(state)
@@ -166,7 +166,7 @@ All value iteration agents should inherit from this class
   def train_episodically_old(self,
                              _environment,
                              *,
-                             rollouts=1000,
+                             rollouts=10000,
                              render=False,
                              render_frequency=100,
                              stat_frequency=100,

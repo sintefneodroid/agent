@@ -180,8 +180,7 @@ All value iteration agents should inherit from this class
 
       action = self.sample_action(state)
 
-      info = environment.react(action)
-      successor_state, signal, terminated = info.observables, info.signal, info.terminated
+      successor_state, signal, terminated,*_ = environment.react(action)
 
       if render:
         environment.render()

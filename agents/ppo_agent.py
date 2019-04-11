@@ -47,7 +47,7 @@ class PPOAgent(ActorCriticAgent):
     self._solved_threshold = -200
     self._test_interval = 1000
     self._early_stop = False
-    self._rollouts = 10
+    self._rollouts = 10000
 
     self._ppo_epochs = 4
 
@@ -468,7 +468,7 @@ class PPOAgent(ActorCriticAgent):
   #
   def train_episodically(self,
                          env,
-                         rollouts=10,
+                         rollouts=10000,
                          render=False,
                          render_frequency=1000,
                          stat_frequency=10,
@@ -525,7 +525,7 @@ class PPOAgent(ActorCriticAgent):
                          test_environments,
                          *,
                          num_steps=200,
-                         rollouts=10,
+                         rollouts=10000,
                          render=True
                          ):
     # stats = draugr.StatisticCollection(stats=('batch_signal', 'test_signal', 'entropy'))
@@ -552,8 +552,7 @@ class PPOAgent(ActorCriticAgent):
         action, action_log_prob, value_estimate = self.sample_action(state)
 
         a = action.to('cpu').numpy()
-        info = environments.react(a)
-        successor_state, signal, terminated = info.observables, info.signal, info.terminated
+        successor_state, signal, terminated,*_ = environments.react(a)
 
         batch_signal += signal
 
@@ -646,9 +645,8 @@ class PPOAgent(ActorCriticAgent):
       state = U.to_tensor(state, device=self._device)
       with torch.no_grad():
         action, *_ = self.sample_action(state)
-        info = test_environment.react(action)
+        next_state, signal, terminal = test_environment.react(action)
 
-        next_state, signal, terminal = info.observables, info.signal, info.terminated
 
       # terminal = terminal.all()
       state = next_state

@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+from architectures import MLP
 from warg import NOD
 
 __author__ = 'cnheider'

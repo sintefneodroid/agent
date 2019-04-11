@@ -175,7 +175,7 @@ class DQNAgent(ValueAgent):
 
     return error
 
-  def rollout(self, initial_state, environment, render=False, train=True, **kwargs):
+  def rollout(self, initial_state, environment, render=False, train=True,random_sample=True, **kwargs):
     self._rollout_i += 1
 
     state = np.array(initial_state)
@@ -189,9 +189,8 @@ class DQNAgent(ValueAgent):
     for t in T:
       self._step_i += 1
 
-      action = self.sample_action(state)
-      info = environment.react(action)
-      next_state, signal, terminated = info.observables, info.signal, info.terminated
+      action = self.sample_action(state,random_sample=random_sample)
+      next_state, signal, terminated,*_ = environment.react(action)
 
       if render:
         environment.render()

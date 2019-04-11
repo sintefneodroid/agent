@@ -1,13 +1,12 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-import draugr
-
 import configs
+import draugr
 from agents.pg_agent import PGAgent
-from procedures.curriculum.grid_world import (get_initial_configuration_from_goal,
+from procedures.curriculum.grid_world import (display_actor_configurations,
                                               estimate_entire_state_space,
-                                              display_actor_configurations,
                                               estimate_value,
+                                              get_initial_configuration_from_goal,
                                               )
 
 __author__ = 'cnheider'
@@ -17,7 +16,8 @@ import torch
 from tqdm import tqdm
 
 from neodroid.wrappers.utility_wrappers.action_encoding_wrappers import \
-  BinaryActionEncodingCurriculumEnvironment
+  (BinaryActionEncodingCurriculumEnvironment, NeodroidWrapper,
+   )
 
 tqdm.monitor_interval = 0
 
@@ -57,9 +57,9 @@ def main(config, agent, full_state_evaluation_frequency=20):
   _episode_i = 0
   _step_i = 0
 
-  env = BinaryActionEncodingCurriculumEnvironment(name=config.ENVIRONMENT_NAME,
-                                                  connect_to_running=config.CONNECT_TO_RUNNING
-                                                  )
+  env = NeodroidWrapper(BinaryActionEncodingCurriculumEnvironment(name=config.ENVIRONMENT_NAME,
+                                                                  connect_to_running=config.CONNECT_TO_RUNNING
+                                                                  ))
 
   _agent.build(env)
 
@@ -88,10 +88,10 @@ def main(config, agent, full_state_evaluation_frequency=20):
     if i % full_state_evaluation_frequency == 0:
       print('Estimating entire state space')
       estimate_entire_state_space(env,
-                                    agent,
-                                    C,
-                                    # statistics=None,
-                                    save_snapshot=save_snapshot)
+                                  agent,
+                                  C,
+                                  # statistics=None,
+                                  save_snapshot=save_snapshot)
 
     num_candidates = tqdm(range(1, C.CANDIDATE_SET_SIZE + 1), leave=False)
     for c in num_candidates:
@@ -115,15 +115,13 @@ def main(config, agent, full_state_evaluation_frequency=20):
 
       candidate = U.sample(S_candidate)
 
-
-
       est, _episode_i, _step_i = estimate_value(candidate,
-                                                  env,
-                                                  agent,
-                                                  C,
-                                                  save_snapshot=save_snapshot,
-                                                  # statistics=stats,
-                                                  train=True)
+                                                env,
+                                                agent,
+                                                C,
+                                                save_snapshot=save_snapshot,
+                                                # statistics=stats,
+                                                train=True)
 
       if C.LOW <= est <= C.HIGH:
         S_initial.append(candidate)

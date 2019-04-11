@@ -17,5 +17,5 @@ def xavier_init(model,activation='relu'):
   gain = nn.init.calculate_gain(activation)
   for m in model.modules():
     if isinstance(m, (nn.Conv2d, nn.Linear)):
-      nn.init.xavier_uniform(m.weight,
+      nn.init.xavier_uniform_(m.weight,
                              gain=gain)

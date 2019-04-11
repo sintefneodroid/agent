@@ -2,7 +2,9 @@
 # -*- coding: utf-8 -*-
 import draugr
 
-from neodroid.wrappers.utility_wrappers.action_encoding_wrappers import BinaryActionEncodingWrapper
+from neodroid.wrappers.utility_wrappers.action_encoding_wrappers import (BinaryActionEncodingWrapper,
+                                                                         NeodroidWrapper,
+                                                                         )
 
 __author__ = 'cnheider'
 
@@ -17,8 +19,8 @@ import utilities as U
 def train_agent(config, agent):
   torch.manual_seed(config.SEED)
 
-  env = BinaryActionEncodingWrapper(environment_name=config.ENVIRONMENT_NAME,
-                                    connect_to_running=config.CONNECT_TO_RUNNING)
+  env = NeodroidWrapper(BinaryActionEncodingWrapper(environment_name=config.ENVIRONMENT_NAME,
+                                    connect_to_running=config.CONNECT_TO_RUNNING))
   env.seed(config.SEED)
 
   agent.build(env)
@@ -35,11 +37,11 @@ def train_agent(config, agent):
                                          env,
                                          rollouts=config.ROLLOUTS,
                                          render=config.RENDER_ENVIRONMENT)
-  except ValueError:
+  except ValueError as e:
     running_signals = None
     running_lengths = None
     trained_model = None
-    print('Training procedure did not return as excepted')
+    raise e
   finally:
     if listener:
       listener.stop()

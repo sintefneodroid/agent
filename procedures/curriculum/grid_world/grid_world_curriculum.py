@@ -19,8 +19,12 @@ def grid_world_sample_entire_configuration_space(environment):
     x_space = actor_x_conf.configurable_space
     # y_space = actor_y_conf.configurable_space
     z_space = actor_z_conf.configurable_space
-    for x in np.linspace(x_space.min_value, x_space.max_value, x_space.discrete_steps):
-      for z in np.linspace(z_space.min_value, z_space.max_value, z_space.discrete_steps):
+    x_steps = x_space.discrete_steps
+    z_steps = z_space.discrete_steps
+    x_min, x_max = x_space.min_value, x_space.max_value
+    z_min, z_max = z_space.min_value, z_space.max_value
+    for x in np.linspace(x_min, x_max, x_steps ):
+      for z in np.linspace(z_min, z_max, z_steps):
         # for y in np.linspace(y_space.min_value, y_space.max_value, y_space.discrete_steps):
         initial_configuration = [
           Configuration('Vertical', x),
@@ -90,9 +94,8 @@ def estimate_entire_state_space(env,
                                  C,
                                  save_snapshot=save_snapshot,
                                  statistics=statistics,
-                                 train=False)
-      # TODO: Use a rollout of only policy sampled actions with no random sampling (effects like epsilon
-      # exploration)
+                                 train=False,
+                                 random_sample=False)
 
       vec3 = (configuration[0].configurable_value,
               0,  # configuration[1].configurable_value,
@@ -110,19 +113,29 @@ _episode_i = 0
 _step_i = 0
 
 
-def estimate_value(candidate, env, agent, C, *, save_snapshot=False, statistics=None, train=False):
+def estimate_value(candidate,
+                   env,
+                   agent,
+                   C,
+                   *,
+                   save_snapshot=False,
+                   statistics=None,
+                    random_sample=False,
+                   train=False):
   global _step_i, _episode_i
 
+  N_c_r =C.CANDIDATE_ROLLOUTS
+
   rollout_signals = 0
-  rollout_session = range(1, C.CANDIDATE_ROLLOUTS + 1)
+  rollout_session = range(1, N_c_r + 1)
   rollout_session = tqdm(rollout_session, leave=False)
   for j in rollout_session:
-    rollout_session.set_description(f'Candidate rollout #{j} of {C.CANDIDATE_ROLLOUTS} | '
-                                    f'Est: {rollout_signals / C.CANDIDATE_ROLLOUTS}'
+    rollout_session.set_description(f'Candidate rollout #{j} of {N_c_r} | '
+                                    f'Est: {rollout_signals / N_c_r}'
                                     )
     state_ob, _ = env.configure(state=candidate)
 
-    signals, steps, *stats = agent.rollout(state_ob, env, train=train)
+    signals, steps, *stats = agent.rollout(state_ob, env, train=train,random_sample=random_sample)
     rollout_signals += signals
 
     if train:
@@ -138,7 +151,7 @@ def estimate_value(candidate, env, agent, C, *, save_snapshot=False, statistics=
       pass
       # save_snapshot()
 
-  return rollout_signals / C.CANDIDATE_ROLLOUTS, _episode_i, _step_i
+  return rollout_signals / N_c_r, _episode_i, _step_i
 
 
 

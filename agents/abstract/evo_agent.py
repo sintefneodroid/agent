@@ -25,7 +25,8 @@ class EVOAgent(Agent, ABC):
   def evaluate(self, batch, **kwargs):
     pass
 
-  def rollout(self, initial_state, environment, *, train=True, render=False, **kwargs) -> Any:
+  def rollout(self, initial_state, environment, *, train=True, render=False, random_sample=True, **kwargs) -> \
+      Any:
     if train:
       self._rollout_i += 1
 

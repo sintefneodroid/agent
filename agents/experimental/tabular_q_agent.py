@@ -124,7 +124,7 @@ class TabularQAgent(ValueAgent):
 
   def _train(self,
              env,
-             rollouts=100,
+             rollouts=10000,
              *args,
              **kwargs) -> Tuple[Any, Any]:
     model, *stats = self.train_episodically(env, rollouts=rollouts)
@@ -160,7 +160,7 @@ def tabular_test():
                         action_space=env.action_space,
                         environment=env)
   agent.build(env)
-  agent.train(env)
+  agent.train(env,env)
 
 if __name__ == '__main__':
   def taxi():
@@ -227,7 +227,7 @@ if __name__ == '__main__':
                           action_space=env.action_space,
                           environment=env)
     agent.build(env)
-    agent.train(env)
+    agent.train(env,env)
 
 
 

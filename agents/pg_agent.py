@@ -247,8 +247,7 @@ class PGAgent(PolicyAgent):
     for t in T:
       action, action_log_probs, entropy, *_ = self.sample_action(state)
 
-      info = environment.react(action)
-      state, signal, terminated = info.observables, info.signal, info.terminated
+      state, signal, terminated,*_ = environment.react(action)
 
       if self._signal_clipping:
         signal = np.clip(signal, self._signal_clip_low, self._signal_clip_high)

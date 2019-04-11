@@ -131,7 +131,7 @@ def random_test():
                       action_space=env.action_space,
                       environment=env)
   agent.build(env)
-  agent.train(env)
+  agent.train(env,env)
 
 if __name__ == '__main__':
 
