@@ -538,7 +538,7 @@ class PPOAgent(ActorCriticAgent):
       if self._end_training:
         break
 
-      batch_signal = 0
+      batch_signal = []
 
       transitions = []
 
@@ -554,7 +554,7 @@ class PPOAgent(ActorCriticAgent):
         a = action.to('cpu').numpy()
         successor_state, signal, terminated,*_ = environments.react(a)
 
-        batch_signal += signal
+        batch_signal.append(signal)
 
         successor_state = U.to_tensor(successor_state, device=self._device)
         signal_ = U.to_tensor(signal, device=self._device)
