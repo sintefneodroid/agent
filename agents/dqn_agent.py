@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 import matplotlib
+from architectures import MLP
 from warg import NamedOrderedDictionary
 
 from procedures.train_agent import agent_test_main, parallel_train_agent_procedure
@@ -35,7 +36,7 @@ class DQNAgent(ValueAgent):
 
     self._evaluation_function = F.smooth_l1_loss
 
-    self._value_arch = U.MLP
+    self._value_arch = MLP
     self._value_arch_parameters = NamedOrderedDictionary({
       'input_size':             None,  # Obtain from environment
       'hidden_layers':          None,

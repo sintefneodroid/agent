@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+from architectures import MLP
 
 __author__ = 'cnheider'
 '''
@@ -30,7 +31,7 @@ SYNC_TARGET_MODEL_FREQUENCY = 1000
 
 # EVALUATION_FUNCTION = lambda Q_state, Q_true_state: (Q_state - Q_true_state).pow(2).mean()
 
-VALUE_ARCH = U.MLP
+VALUE_ARCH = MLP
 OPTIMISER_TYPE = torch.optim.RMSprop  # torch.optim.Adam
 
 # Architecture

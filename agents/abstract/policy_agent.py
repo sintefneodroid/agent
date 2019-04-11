@@ -4,6 +4,7 @@ import copy
 from abc import abstractmethod
 from typing import Any
 
+import draugr
 from warg import NamedOrderedDictionary
 
 __author__ = 'cnheider'
@@ -48,6 +49,11 @@ class PolicyAgent(TorchAgent):
       writer.add_graph(model, dummy_in, verbose=self._verbose)
     '''
 
+
+    num_trainable_params = sum(
+        p.numel() for p in self._policy_model.parameters() if p.requires_grad)
+    num_params = sum(param.numel() for param in self._policy_model.parameters())
+    draugr.sprint(f'trainable/num_params: {num_trainable_params}/{num_params}\n', highlight=True, color='cyan')
   # endregion
 
   # region Public

@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+from architectures import CategoricalCNN
 
 __author__ = 'cnheider'
 '''
@@ -34,7 +35,7 @@ CONNECT_TO_RUNNING = True
 
 # EVALUATION_FUNCTION = lambda Q_state, Q_true_state: (Q_state - Q_true_state).pow(2).mean()
 
-ARCH = U.CategoricalCNN
+ARCH = CategoricalCNN
 OPTIMISER_TYPE = torch.optim.Adam
 OPTIMISER_LEARNING_RATE = 0.0025
 # ENVIRONMENT_NAME = 'CartPole-v0'
@@ -50,4 +51,4 @@ POLICY_ARCH_PARAMS = {
   'output_size':            None,  # Obtain from environment
   'use_bias':               True,
   }
-POLICY_ARCH = U.CategoricalCNN
+POLICY_ARCH = CategoricalCNN

@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+from architectures import CategoricalCNN
+
 __author__ = 'cnheider'
 
 from configs.agent_test_configs.base_test_config import *
@@ -26,4 +28,4 @@ POLICY_ARCH_PARAMS = NOD(
     output_size=None,  # Obtain from environment
     use_bias=True
     )
-POLICY_ARCH = U.CategoricalCNN
+POLICY_ARCH = CategoricalCNN

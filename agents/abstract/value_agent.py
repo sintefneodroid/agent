@@ -71,6 +71,11 @@ All value iteration agents should inherit from this class
       model.to('cpu')
       writer.add_graph(model, dummy_in, verbose=self._verbose)
 
+    num_params = sum(param.numel() for param in self._value_model.parameters())
+    num_trainable_params = sum(
+        p.numel() for p in self._value_model.parameters() if p.requires_grad)
+    draugr.sprint(f'trainable/num_params: {num_trainable_params}/{num_params}\n', highlight=True, color='cyan')
+
   def epsilon_random(self, steps_taken):
     '''
 :param steps_taken:

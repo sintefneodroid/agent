@@ -4,6 +4,7 @@ from abc import abstractmethod
 from itertools import count
 from typing import Any
 
+import draugr
 from tqdm import tqdm
 
 __author__ = 'cnheider'
@@ -61,6 +62,20 @@ All value iteration agents should inherit from this class
     self._critic_optimiser = self._critic_optimiser_spec.constructor(self._critic.parameters(),
                                                                      **self._critic_optimiser_spec.kwargs
                                                                      )
+
+    actor_num_params = sum(param.numel() for param in self._actor.parameters())
+    critic_num_params = sum(param.numel() for param in self._critic.parameters())
+
+    actor_num_trainable_params = sum(
+        p.numel() for p in self._actor.parameters() if p.requires_grad)
+
+    critic_num_trainable_params = sum(
+        p.numel() for p in self._critic.parameters() if p.requires_grad)
+
+    draugr.sprint(f'trainable/actor_num_params: {actor_num_trainable_params}/{actor_num_params}\n',
+                  highlight=True, color='cyan')
+    draugr.sprint(f'trainable/critic_num_params: {critic_num_trainable_params}/{critic_num_params}\n',
+                  highlight=True, color='magenta')
 
   def _maybe_infer_sizes(self, env):
     super()._maybe_infer_sizes(env)
@@ -164,7 +179,6 @@ All value iteration agents should inherit from this class
       self._step_i += 1
 
       action = self.sample_action(state)
-
 
       info = environment.react(action)
       successor_state, signal, terminated = info.observables, info.signal, info.terminated

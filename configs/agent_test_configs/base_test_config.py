@@ -8,6 +8,7 @@ Author: Christian Heider Nielsen
 
 # noinspection PyUnresolvedReferences
 from configs.base_config import *
+import utilities as U
 
 CONFIG_NAME = __name__
 CONFIG_FILE = __file__

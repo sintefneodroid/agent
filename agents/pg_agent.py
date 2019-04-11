@@ -4,6 +4,7 @@ import time
 from warnings import warn
 
 import draugr
+from architectures import CategoricalMLP
 from neodroid.models import EnvironmentState
 from warg import NOD
 
@@ -38,7 +39,7 @@ class PGAgent(PolicyAgent):
 
   def __defaults__(self) -> None:
 
-    self._policy_arch = U.CategoricalMLP
+    self._policy_arch = CategoricalMLP
     self._accumulated_error = U.to_tensor(0.0, device=self._device)
     self._evaluation_function = torch.nn.CrossEntropyLoss()
     self._trajectory_trace = U.TrajectoryTraceBuffer()

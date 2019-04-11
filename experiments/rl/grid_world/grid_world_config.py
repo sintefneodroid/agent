@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 from agents.dqn_agent import DQNAgent
+from architectures import MLP
 
 __author__ = 'cnheider'
 '''
@@ -30,7 +31,7 @@ CONNECT_TO_RUNNING = True
 
 # EVALUATION_FUNCTION = lambda Q_state, Q_true_state: (Q_state - Q_true_state).pow(2).mean()
 
-VALUE_ARCH = U.MLP
+VALUE_ARCH = MLP
 OPTIMISER_TYPE = torch.optim.Adam
 OPTIMISER_LEARNING_RATE = 0.0025
 # ENVIRONMENT_NAME = 'CartPole-v0'

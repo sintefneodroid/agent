@@ -5,9 +5,9 @@ from pathlib import Path
 
 import torch
 import torch.nn.functional as F
+from architectures import CategoricalMLP
 from warg import NOD
 
-import utilities as U
 from agents.pg_agent import PGAgent
 
 __author__ = 'cnheider'
@@ -40,7 +40,7 @@ POLICY_ARCH_PARAMS = NOD(
     hidden_layer_activation=torch.relu,
     use_bias=True
     )
-POLICY_ARCH = U.CategoricalMLP
+POLICY_ARCH = CategoricalMLP
 
 AGENT_TYPE = PGAgent
 

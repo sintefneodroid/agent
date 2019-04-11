@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+from architectures import DDPGActorArchitecture, DDPGCriticArchitecture
 from neodroid.models import EnvironmentState
 from warg import NamedOrderedDictionary
 
@@ -52,14 +53,14 @@ class DDPGAgent(ActorCriticAgent):
 
     self._evaluation_function = F.smooth_l1_loss
 
-    self._actor_arch = U.DDPGActorArchitecture
+    self._actor_arch = DDPGActorArchitecture
     self._actor_arch_parameters = NamedOrderedDictionary({
       'input_size':       None,  # Obtain from environment
       'output_activation':torch.tanh,
       'output_size':      None,  # Obtain from environment
       })
 
-    self._critic_arch = U.DDPGCriticArchitecture
+    self._critic_arch = DDPGCriticArchitecture
     self._critic_arch_parameters = NamedOrderedDictionary({
       'input_size': None,  # Obtain from environment
       'output_size':None,  # Obtain from environment

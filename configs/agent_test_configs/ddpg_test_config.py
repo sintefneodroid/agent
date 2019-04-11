@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 from agents.ddpg_agent import DDPGAgent
+from architectures import DDPGActorArchitecture, DDPGCriticArchitecture
 
 __author__ = 'cnheider'
 '''
@@ -71,11 +72,11 @@ ACTOR_ARCH_PARAMETERS = NOD(**{
   'output_activation':torch.tanh,
   'output_size':      None,  # Obtain from environment
   })
-ACTOR_ARCH = U.DDPGActorArchitecture
+ACTOR_ARCH = DDPGActorArchitecture
 
 CRITIC_ARCH_PARAMETERS = NOD(**{
   'input_size':       None,  # Obtain from environment
   #'hidden_layers' : [256],
   'output_size':      None,  # Obtain from environment
   })
-CRITIC_ARCH = U.DDPGCriticArchitecture
+CRITIC_ARCH = DDPGCriticArchitecture

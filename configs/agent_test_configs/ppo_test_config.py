@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+from architectures import MLP, ContinuousActorArchitecture
 from torch.nn import MSELoss
 
 __author__ = 'cnheider'
@@ -67,7 +68,7 @@ ACTOR_ARCH_PARAMETERS = NOD(**{
   'hidden_layer_activation':torch.relu,
   'output_size':            None,  # Obtain from environment
   })
-ACTOR_ARCH = U.ContinuousActorArchitecture
+ACTOR_ARCH = ContinuousActorArchitecture
 
 CRITIC_LR = 3e-3
 CRITIC_ARCH_PARAMETERS = NOD(**{
@@ -76,7 +77,7 @@ CRITIC_ARCH_PARAMETERS = NOD(**{
   'hidden_layer_activation':torch.relu,
   'output_size':            None,  # Obtain from environment
   })
-CRITIC_ARCH = U.MLP
+CRITIC_ARCH = MLP
 
 ACTOR_LEARNING_RATE = 3e-4
 CRITIC_LEARNING_RATE = 3e-3

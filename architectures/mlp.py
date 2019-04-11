@@ -8,7 +8,7 @@ from numpy import prod
 
 from warg import NamedOrderedDictionary
 
-from utilities.torch_utilities.initialisation import fan_in_init
+from utilities.torch_utilities.initialisation import fan_in_init, xavier_init
 from .architecture import Architecture
 
 __author__ = 'cnheider'
@@ -37,7 +37,7 @@ OOOO hidden_layer_size * (Weights,Biases)
                *,
                input_size: Sequence = (10,),
                hidden_layers: Sequence = None,
-               hidden_layer_activation: callable = torch.tanh,
+               hidden_layer_activation: callable = torch.relu,
                output_size: Sequence = (2,),
                use_bias: bool = True,
                auto_build_hidden_layers_if_none=True,
@@ -93,21 +93,23 @@ OOOO hidden_layer_size * (Weights,Biases)
         layer = nn.Linear(previous_layer_size,
                           self._hidden_layers[i - 1],
                           bias=self._use_bias)
-        fan_in_init(layer.weight)
+        #fan_in_init(layer.weight)
         setattr(self, f'_fc{i}', layer)
         previous_layer_size = self._hidden_layers[i - 1]
 
     self._head = nn.Linear(previous_layer_size,
                            self._output_size,
                            bias=self._use_bias)
-    fan_in_init(self._head.weight)
+    #fan_in_init(self._head.weight)
+
+    xavier_init(self)
 
   def forward(self, x, **kwargs):
     '''
 
-:param x:
-:return output:
-'''
+    :param x:
+    :return output:
+    '''
     #assert isinstance(x, Tensor)
 
     # if hasattr(self, 'num_of_layer'): # Safer but slower

@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+from architectures import CNN
+
 __author__ = 'cnheider'
 '''
 Description: Config for training
@@ -31,7 +33,7 @@ SYNC_TARGET_MODEL_FREQUENCY = 1000
 
 # EVALUATION_FUNCTION = lambda Q_state, Q_true_state: (Q_state - Q_true_state).pow(2).mean()
 
-VALUE_ARCH = U.CNN
+VALUE_ARCH = CNN
 OPTIMISER_TYPE = torch.optim.RMSprop  # torch.optim.Adam
 
 # Architecture

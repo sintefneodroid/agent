@@ -4,6 +4,7 @@ from itertools import count
 from typing import Any, Tuple
 
 import numpy
+from architectures import DDPGActorArchitecture, DDPGCriticArchitecture
 from warg import NOD
 
 from procedures.train_agent import agent_test_main, parallel_train_agent_procedure
@@ -65,7 +66,7 @@ class PPOAgent(ActorCriticAgent):
 
     self._optimiser_type = torch.optim.Adam
 
-    self._actor_arch = U.DDPGActorArchitecture
+    self._actor_arch = DDPGActorArchitecture
     self._actor_arch_parameters = {
       'input_size':       None,  # Obtain from environment
       'hidden_layers':    None,
@@ -73,7 +74,7 @@ class PPOAgent(ActorCriticAgent):
       'output_size':      None,  # Obtain from environment
       }
 
-    self._critic_arch = U.DDPGCriticArchitecture
+    self._critic_arch = DDPGCriticArchitecture
     self._critic_arch_parameters = {
       'input_size':       None,  # Obtain from environment
       'hidden_layers':    None,

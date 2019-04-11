@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+from architectures import MLP
 
 __author__ = 'cnheider'
 
@@ -25,4 +26,4 @@ POLICY_ARCH_PARAMS = NOD(**{
   'output_size':            None,  # Obtain from environment
   'use_bias':               True,
   })
-POLICY_ARCH = U.MLP
+POLICY_ARCH = MLP

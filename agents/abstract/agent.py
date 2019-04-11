@@ -211,13 +211,13 @@ Tries to infer input and output size from env if either _input_size or _output_s
 
     # region print
 
-    draugr.sprint(f'\nobservation dimensions: {self._input_size}\n'
+    draugr.sprint(f'observation dimensions: {self._input_size}\n'
                   f'observation_space:\n{env.observation_space}\n',
                   color='green',
                   bold=True,
                   highlight=True)
 
-    draugr.sprint(f'\naction dimensions: {self._output_size}\n'
+    draugr.sprint(f'action dimensions: {self._output_size}\n'
                   f'action_space:\n{env.action_space}\n',
                   color='yellow',
                   bold=True,

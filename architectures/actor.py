@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 import torch
+from torch import nn
 
 from utilities.torch_utilities.initialisation import init_weights
 from .mlp import MLP
@@ -21,6 +22,8 @@ class DDPGActorArchitecture(MLP):
     low, high = -init_weight, init_weight
     init.uniform_(self._head.weight, low, high)
     init.uniform_(self._head.bias, low, high)
+
+
 
   def forward(self, x, **kwargs):
     val = super().forward(x)
