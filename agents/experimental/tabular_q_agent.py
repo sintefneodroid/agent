@@ -153,6 +153,15 @@ class TabularQAgent(ValueAgent):
     return self._q_table
 
 
+def tabular_test():
+  import neodroid.wrappers.gym_wrapper as neo
+  env = neo.NeodroidGymWrapper(environment_name='mab')
+  agent = TabularQAgent(observation_space=env.observation_space,
+                        action_space=env.action_space,
+                        environment=env)
+  agent.build(env)
+  agent.train(env)
+
 if __name__ == '__main__':
   def taxi():
 
@@ -221,14 +230,7 @@ if __name__ == '__main__':
     agent.train(env)
 
 
-  def main2():
-    import neodroid.wrappers.gym_wrapper as neo
-    env = neo.NeodroidGymWrapper(environment_name='mab')
-    agent = TabularQAgent(observation_space=env.observation_space,
-                          action_space=env.action_space,
-                          environment=env)
-    agent.build(env)
-    agent.train(env)
 
 
-  main2()
+
+  tabular_test()

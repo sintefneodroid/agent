@@ -123,16 +123,19 @@ class RandomAgent(TorchAgent):
   # endregion
 
 
+
+def random_test():
+  import neodroid.wrappers.gym_wrapper as neo
+  env = neo.NeodroidGymWrapper(environment_name='mab')
+  agent = RandomAgent(observation_space=env.observation_space,
+                      action_space=env.action_space,
+                      environment=env)
+  agent.build(env)
+  agent.train(env)
+
 if __name__ == '__main__':
 
-  def main():
-    import neodroid.wrappers.gym_wrapper as neo
-    env = neo.NeodroidGymWrapper(environment_name='mab')
-    agent = RandomAgent(observation_space=env.observation_space,
-                        action_space=env.action_space,
-                        environment=env)
-    agent.build(env)
-    agent.train(env)
 
 
-  main()
+
+  random_test()

@@ -95,11 +95,14 @@ class CMAAgent(EVOAgent):
 
   # endregion
 
-
-if __name__ == '__main__':
+def cma_test():
   import configs.agent_test_configs.pg_test_config as C
 
   C.CONNECT_TO_RUNNING = False
   C.ENVIRONMENT_NAME = 'mab'
 
   agent_test_main(CMAAgent, C)
+
+if __name__ == '__main__':
+
+  cma_test()
