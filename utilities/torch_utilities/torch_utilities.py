@@ -8,6 +8,17 @@ import numpy as np
 import torch
 
 
+def add_indent(s_, numSpaces):
+  s = s_.split('\n')
+  if len(s) == 1:  # don't do anything for single-line stuff
+    return s_
+  first = s.pop(0)
+  s = [(numSpaces * ' ') + line for line in s]
+  s = '\n'.join(s)
+  s = first + '\n' + s
+  return s
+
+
 def entropy(prob):
   return -torch.sum(prob * torch.log(prob), 1)
 
@@ -50,10 +61,6 @@ def normal_log_density(x, mean, log_std, std):
 
 
 import torch
-from torch.autograd import Function, Variable
-
-
-
 
 
 def identity(x):

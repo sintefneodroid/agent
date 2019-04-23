@@ -20,7 +20,7 @@ def train_agent(config, agent):
   torch.manual_seed(config.SEED)
 
   env = NeodroidWrapper(BinaryActionEncodingWrapper(environment_name=config.ENVIRONMENT_NAME,
-                                    connect_to_running=config.CONNECT_TO_RUNNING))
+                                                    connect_to_running=config.CONNECT_TO_RUNNING))
   env.seed(config.SEED)
 
   agent.build(env)
@@ -46,12 +46,16 @@ def train_agent(config, agent):
     if listener:
       listener.stop()
 
-  draugr.save_statistic(running_signals, stat_name='running_signals', config_name=C.CONFIG_NAME,
-                        project_name=C.PROJECT ,
-                        directory=C.LOG_DIRECTORY)
-  draugr.save_statistic(running_lengths, stat_name='running_lengths', directory=C.LOG_DIRECTORY,
+  draugr.save_statistic(running_signals,
+                        stat_name='running_signals',
                         config_name=C.CONFIG_NAME,
-                        project_name=C.PROJECT )
+                        project_name=C.PROJECT,
+                        directory=C.LOG_DIRECTORY)
+  draugr.save_statistic(running_lengths,
+                        stat_name='running_lengths',
+                        directory=C.LOG_DIRECTORY,
+                        config_name=C.CONFIG_NAME,
+                        project_name=C.PROJECT)
   U.save_model(trained_model, config)
 
   env.close()
