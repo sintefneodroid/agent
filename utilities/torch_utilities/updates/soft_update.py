@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+import scipy
+from scipy.signal import lfilter
 
 __author__ = 'cnheider'
 import torch
@@ -13,3 +15,4 @@ def soft_update(target: torch.nn.Module, source: torch.nn.Module, tau: float) ->
         )
 
   return target
+

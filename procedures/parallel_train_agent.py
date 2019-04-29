@@ -140,7 +140,6 @@ if __name__ == '__main__':
     for p in processes:
       p.join()
   except KeyboardInterrupt:
-    print('Stopping training. ' +
-          'Best model stored at {}model_best'.format(args.dump_location))
+    print('Stopping training. Best model stored at {}model_best'.format(args.dump_location))
     for p in processes:
       p.terminate()

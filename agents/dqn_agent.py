@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 import matplotlib
-from architectures import MLP
 from warg import NamedOrderedDictionary
 
+from architectures import MLP
 from procedures.train_agent import agent_test_main, parallel_train_agent_procedure
 from utilities.transformation.extraction import get_screen
 from utilities.visualisation.experimental.statistics_plot import plot_durations
@@ -136,8 +136,8 @@ class DQNAgent(ValueAgent):
                                     device=self._device).view(-1, 1)
 
     successor_states = U.to_tensor(batch.successor_state,
-                                          dtype=self._state_type,
-                                          device=self._device).view(-1, *self._input_size)
+                                   dtype=self._state_type,
+                                   device=self._device).view(-1, *self._input_size)
 
     # Calculate Q of successors
     with torch.no_grad():
@@ -151,7 +151,7 @@ class DQNAgent(ValueAgent):
 
     max_next_values = Q_successors.gather(1, Q_successors_max_action_indices)
     # a = Q_max_successor[non_terminal_mask]
-    Q_max_successor = max_next_values*non_terminal_mask
+    Q_max_successor = max_next_values * non_terminal_mask
 
     # Integrate with the true signal
     Q_expected = true_signals + (self._discount_factor * Q_max_successor).view(-1, 1)
@@ -175,7 +175,7 @@ class DQNAgent(ValueAgent):
 
     return error
 
-  def rollout(self, initial_state, environment, render=False, train=True,random_sample=True, **kwargs):
+  def rollout(self, initial_state, environment, render=False, train=True, random_sample=True, **kwargs):
     self._rollout_i += 1
 
     state = np.array(initial_state)
@@ -189,8 +189,8 @@ class DQNAgent(ValueAgent):
     for t in T:
       self._step_i += 1
 
-      action = self.sample_action(state,random_sample=random_sample)
-      next_state, signal, terminated,*_ = environment.react(action)
+      action = self.sample_action(state, random_sample=random_sample)
+      next_state, signal, terminated, *_ = environment.react(action)
 
       if render:
         environment.render()
@@ -236,11 +236,10 @@ class DQNAgent(ValueAgent):
 
       state = next_state
 
-
     ep = np.array(episode_signal).mean()
     el = episode_length
-    ee= np.array(episode_td_error).mean()
-    return ep,el,ee
+    ee = np.array(episode_td_error).mean()
+    return ep, el, ee
 
   def infer(self, state, **kwargs):
     model_input = U.to_tensor(state, device=self._device, dtype=self._state_type)
@@ -316,7 +315,7 @@ def dqn_test(rollouts=None):
   if rollouts:
     C.ROLLOUTS = rollouts
 
-  agent_test_main(DQNAgent, C, parse_args=False,training_procedure=parallel_train_agent_procedure)
+  agent_test_main(DQNAgent, C, parse_args=False, training_procedure=parallel_train_agent_procedure)
   # test_cnn_dqn_agent(C)
 
 

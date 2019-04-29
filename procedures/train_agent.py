@@ -11,7 +11,7 @@ from neodroid.wrappers.utility_wrappers.action_encoding_wrappers import (BinaryA
                                                                          )
 from trolls.multiple_environments_wrapper import SubProcessEnvironments, make_env
 
-from configs import get_upper_case_vars_or_protected_of
+from warg import get_upper_case_vars_or_protected_of
 from utilities.exceptions.exceptions import NoTrainingProcedure
 
 __author__ = 'cnheider'
@@ -195,7 +195,7 @@ def agent_test_main(agent,
   '''
 
 '''
-  from configs.arguments import parse_arguments
+  from warg import parse_arguments
 
   if training_procedure is None:
     raise NoTrainingProcedure

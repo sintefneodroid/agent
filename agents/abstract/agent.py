@@ -10,9 +10,10 @@ import draugr
 import numpy
 from neodroid.neodroid_utilities import ActionSpace
 from tqdm import tqdm
-from warg import NamedOrderedDictionary
+from warg import (NamedOrderedDictionary,
+                  get_upper_case_vars_or_protected_of,
+                  check_for_duplicates_in_args)
 
-from configs import get_upper_case_vars_or_protected_of
 from utilities.specifications.training_resume import TrainingResume
 
 tqdm.monitor_interval = 0
@@ -77,31 +78,7 @@ All agent should inherit from this class
         self.__setattr__(k, v)
 
   @staticmethod
-  def __check_for_duplicates_in_args(**kwargs) -> None:
-    for key, value in kwargs.items():
 
-      occur = 0
-
-      if kwargs.get(key) is not None:
-        occur += 1
-      else:
-        pass
-
-      if key.isupper():
-        k_lowered = f'_{key.lower()}'
-        if kwargs.get(k_lowered) is not None:
-          occur += 1
-        else:
-          pass
-      else:
-        k_lowered = f'{key.lstrip("_").upper()}'
-        if kwargs.get(k_lowered) is not None:
-          occur += 1
-        else:
-          pass
-
-      if occur > 1:
-        warn(f'Config contains hiding duplicates of {key} and {k_lowered}, {occur} times')
 
   # endregion
 
@@ -151,7 +128,7 @@ All agent should inherit from this class
   def set_config_attributes(self, config, **kwargs) -> None:
     if config:
       config_vars = get_upper_case_vars_or_protected_of(config)
-      self.__check_for_duplicates_in_args(**config_vars)
+      check_for_duplicates_in_args(**config_vars)
       self.__parse_set_attr(**config_vars)
     self.__parse_set_attr(**kwargs)
 

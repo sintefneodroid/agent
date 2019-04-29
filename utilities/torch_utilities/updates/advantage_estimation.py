@@ -3,21 +3,19 @@
 
 __author__ = 'cnheider'
 
-import numpy as np
 import torch
 
 import utilities as U
 
 
-def advantage_estimate(
-    signal,
-    non_terminal,
-    value_estimate,
-    *,
-    discount_factor=0.99,
-    tau=0.95,
-    device='cpu'
-    ):
+def advantage_estimate(signal,
+                       non_terminal,
+                       value_estimate,
+                       *,
+                       discount_factor=0.99,
+                       tau=0.95,
+                       device='cpu'
+                       ):
   '''
     Computes advantages and discounted returns.
     If the advantage is positive for an action, then it yielded a more positive signal than expected. And thus
@@ -68,7 +66,13 @@ def advantage_estimate(
   return advantages
 
 
-def compute_gae(next_value, signals, masks, values, *, discount_factor=0.99, tau=0.95):
+def compute_gae(next_value,
+                signals,
+                masks,
+                values,
+                *,
+                discount_factor=0.99,
+                tau=0.95):
   with torch.no_grad():
     values = values + (next_value,)
     gae = 0.0

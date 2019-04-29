@@ -1,11 +1,20 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+import math
+import random
+
+import numpy
+import torch
+
 __author__ = 'cnheider'
 
-import math
 
-import numpy as np
-import torch
+def seed(s):
+  random.seed(s)
+  numpy.random.seed(s)
+  torch.manual_seed(s)
+  if torch.cuda.is_available():
+    torch.cuda.manual_seed_all(s)
 
 
 def add_indent(s_, numSpaces):
@@ -29,15 +38,15 @@ def log_entropy(log_prob):
 
 def to_tensor(obj, dtype=torch.float, device='cpu'):
   if not torch.is_tensor(obj):
-    if isinstance(obj, np.ndarray):
-      return torch.from_numpy(np.array(obj)).to(device=device, dtype=dtype)
+    if isinstance(obj, numpy.ndarray):
+      return torch.from_numpy(numpy.array(obj)).to(device=device, dtype=dtype)
     return torch.tensor(obj, device=device, dtype=dtype)
   else:
     return obj.type(dtype).to(device)
 
 
 def pi_torch(device='cpu'):
-  return to_tensor([np.math.pi], device=device)
+  return to_tensor([numpy.math.pi], device=device)
 
 
 '''
@@ -68,7 +77,7 @@ def identity(x):
 
 
 def _discount_reward(self, signals, value):
-  discounted_r = np.zeros_like(signals)
+  discounted_r = numpy.zeros_like(signals)
   running_add = value
   for t in reversed(range(0, len(signals))):
     running_add = running_add * self.gamma + signals[t]
@@ -79,25 +88,25 @@ def _discount_reward(self, signals, value):
 # choose an action based on state with random noise added for exploration in training
 def exploration_action(self, state):
   softmax_action = self._sample_model(state)
-  epsilon = self.epsilon_end + (self.epsilon_start - self.epsilon_end) * np.exp(
+  epsilon = self.epsilon_end + (self.epsilon_start - self.epsilon_end) * numpy.exp(
       -1. * self._step_i / self.epsilon_decay
       )
-  if np.random.rand() < epsilon:
-    action = np.random.choice(self.action_dim)
+  if numpy.random.rand() < epsilon:
+    action = numpy.random.choice(self.action_dim)
   else:
-    action = np.argmax(softmax_action)
+    action = numpy.argmax(softmax_action)
   return action
 
 
 def reverse_channel_transform(inp):
   inp = inp.transpose((1, 2, 0))
   inp = inp * 255.0
-  inp = np.clip(inp, 0, 255).astype(np.uint8)
+  inp = numpy.clip(inp, 0, 255).astype(numpy.uint8)
   return inp
 
 
 def channel_transform(inp):
   inp = inp / 255.0
-  inp = np.clip(inp, 0, 1)
+  inp = numpy.clip(inp, 0, 1)
   inp = inp.transpose((2, 0, 1))
   return inp

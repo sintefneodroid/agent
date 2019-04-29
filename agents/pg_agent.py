@@ -4,6 +4,7 @@ import time
 from warnings import warn
 
 import draugr
+from draugr import TensorBoardWriter
 from architectures import CategoricalMLP
 from neodroid.models import EnvironmentState
 from warg import NOD
@@ -301,7 +302,7 @@ class PGAgent(PolicyAgent):
     E = range(1, rollouts)
     E = tqdm(E, f'Episode: {1}', leave=False)
 
-    with tx.writer.SummaryWriter(str(self._base_log_dir / ('session' + str(int(time.time())))))as stats:
+    with TensorBoardWriter(str(self._base_log_dir / ('session' + str(int(time.time()))))) as stat_writer:
 
       for episode_i in E:
         initial_state = env.reset()
@@ -311,9 +312,9 @@ class PGAgent(PolicyAgent):
         else:
           signal, dur, entropy, *extras = self.rollout(initial_state, env)
 
-        stats.add_scalar('duration', dur, episode_i)
-        stats.add_scalar('signal', signal, episode_i)
-        stats.add_scalar('entropy', entropy, episode_i)
+        stat_writer.scalar('duration', dur, episode_i)
+        stat_writer.scalar('signal', signal, episode_i)
+        stat_writer.scalar('entropy', entropy, episode_i)
 
         if self._end_training:
           break

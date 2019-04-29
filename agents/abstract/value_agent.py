@@ -6,6 +6,7 @@ from abc import abstractmethod
 from typing import Any
 
 import draugr
+from draugr import TensorBoardWriter
 from tqdm import tqdm
 from warg import NamedOrderedDictionary
 
@@ -142,7 +143,7 @@ All value iteration agents should inherit from this class
     E = range(1, rollouts)
     E = tqdm(E, leave=False)
 
-    with tx.writer.SummaryWriter(str(self._base_log_dir / ('session' + str(int(time.time())))))as stats:
+    with TensorBoardWriter(str(self._base_log_dir / ('session' + str(int(time.time()))))) as stat_writer:
       for episode_i in E:
         initial_state = _environment.reset()
 
@@ -153,10 +154,10 @@ All value iteration agents should inherit from this class
         else:
           signal, dur, td_error, *extras = self.rollout(initial_state, _environment)
 
-        stats.add_scalar('duration', dur, episode_i)
-        stats.add_scalar('signal', signal, episode_i)
-        stats.add_scalar('td_error', td_error, episode_i)
-        stats.add_scalar('_current_eps_threshold', self._current_eps_threshold, episode_i)
+        stat_writer.scalar('duration', dur, episode_i)
+        stat_writer.scalar('signal', signal, episode_i)
+        stat_writer.scalar('td_error', td_error, episode_i)
+        stat_writer.scalar('_current_eps_threshold', self._current_eps_threshold, episode_i)
 
         if self._end_training:
           break
