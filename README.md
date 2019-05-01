@@ -47,10 +47,10 @@ _[Neodroid](https://github.com/sintefneodroid) is developed with support from Re
 - [Other Components](#other-components-of-the-neodroid-platform)
 
 # Algorithms
-- [REINFORCE (PG)](agents/pg_agent.py)
-- [DQN](agents/dqn_agent.py)
-- [DDPG](agents/ddpg_agent.py)
-- [PPO](agents/ppo_agent.py)
+- [REINFORCE (PG)](agent/agents/pg_agent.py)
+- [DQN](agent/agents/dqn_agent.py)
+- [DDPG](agent/agents/ddpg_agent.py)
+- [PPO](agent/agents/ppo_agent.py)
 - TRPO, GA, EVO, IMITATION...
 
 # Requirements
@@ -92,26 +92,26 @@ python3 procedures/test_agent.py
 ## Target Point Estimator
 Using Depth, Segmentation And RGB images to estimate the location of target point in an environment.
 
-### [REINFORCE (PG)](agents/pg_agent.py)
+### [REINFORCE (PG)](agent/agents/pg_agent.py)
 
-### [DQN](agents/dqn_agent.py)
+### [DQN](agent/agents/dqn_agent.py)
 
-### [DDPG](agents/ddpg_agent.py)
+### [DDPG](agent/agents/ddpg_agent.py)
 
-### [PPO](agents/ppo_agent.py)
+### [PPO](agent/agents/ppo_agent.py)
 
 ### GA, EVO, IMITATION...
 
 ## Perfect Information Navigator
 Has access to perfect location information about the obstructions and target in the environment, the objective is to navigate to the target with colliding with the obstructions.
 
-### [REINFORCE (PG)](agents/pg_agent.py)
+### [REINFORCE (PG)](agent/agents/pg_agent.py)
 
-### [DQN](agents/dqn_agent.py)
+### [DQN](agent/agents/dqn_agent.py)
 
-### [DDPG](agents/ddpg_agent.py)
+### [DDPG](agent/agents/ddpg_agent.py)
 
-### [PPO](agents/ppo_agent.py)
+### [PPO](agent/agents/ppo_agent.py)
 
 ### GA, EVO, IMITATION...
 

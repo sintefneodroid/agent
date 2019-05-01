@@ -75,7 +75,7 @@ instance/
 .scrapy
 
 # Sphinx documentation
-docs/_build/
+agent/docs/_build/
 
 # PyBuilder
 target/
@@ -115,7 +115,7 @@ ENV/
 #.idea
 .ropeproject
 .pyre
-logs/*.csv
+agent/logs/*.csv
 
 
 exclude/
