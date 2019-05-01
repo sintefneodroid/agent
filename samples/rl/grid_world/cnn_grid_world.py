@@ -10,7 +10,8 @@ from tqdm import tqdm
 
 tqdm.monitor_interval = 0
 
-from agent import utilities as U, experiments as C
+from agent import utilities as U
+import experiments as C
 
 
 def train_agent(config, agent):

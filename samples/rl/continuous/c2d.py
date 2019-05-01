@@ -51,7 +51,7 @@ def train_agent(config, agent):
 
 
 if __name__ == '__main__':
-  import agent.experiments.rl.continuous.c2d_config as C
+  import experiments.rl.continuous.c2d_config as C
 
   from agent.configs import parse_arguments, get_upper_case_vars_or_protected_of
 
