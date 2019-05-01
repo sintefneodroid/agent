@@ -69,7 +69,7 @@ All value iteration agents should inherit from this class
 
       model = copy.deepcopy(self._value_model)
       model.to('cpu')
-      writer.add_graph(model, dummy_in, verbose=self._verbose)
+      #writer.add_graph(model, dummy_in, verbose=self._verbose)
 
     num_params = sum(param.numel() for param in self._value_model.parameters())
     num_trainable_params = sum(
