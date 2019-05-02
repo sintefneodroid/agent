@@ -24,8 +24,14 @@ class EVOAgent(Agent, ABC):
   def evaluate(self, batch, **kwargs):
     pass
 
-  def rollout(self, initial_state, environment, *, train=True, render=False, random_sample=True, **kwargs) -> \
-      Any:
+  def rollout(self,
+              initial_state,
+              environment,
+              *,
+              train=True,
+              render=False,
+              random_sample=True,
+              **kwargs) -> Any:
     if train:
       self._rollout_i += 1
 
@@ -39,7 +45,6 @@ class EVOAgent(Agent, ABC):
 
     for t in T:
       action = int(self.sample_action(state)[0])
-
 
       (state, signal, terminated, info) = environment.act(action=action)
       episode_signal += signal

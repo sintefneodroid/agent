@@ -47,10 +47,7 @@ GYM_ENVIRONMENT = 'LunarLander-v2'
 SOLVED_REWARD = 200
 ROLLOUTS = 4000
 
-# Epsilon random action parameters
-EPS_START = 1
-EPS_END = 0.1
-EPS_DECAY = 1000000
+EXPLORATION_SPEC = ExplorationSpecification(1,0.1,1000000)
 
 # Training parameters
 LOAD_PREVIOUS_MODEL_IF_AVAILABLE = False

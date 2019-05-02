@@ -8,11 +8,11 @@ from warnings import warn
 
 import draugr
 import numpy
-from neodroid.neodroid_utilities import ActionSpace
+from neodroid.utilities import ActionSpace
 from tqdm import tqdm
 from warg import (NamedOrderedDictionary,
-                  get_upper_case_vars_or_protected_of,
-                  check_for_duplicates_in_args)
+                  get_upper_case_vars_or_protected_of, check_for_duplicates_in_args,
+                  )
 
 from agent.utilities.exceptions.exceptions import HasNoEnvError
 from agent.utilities.specifications.training_resume import TrainingResume

@@ -5,7 +5,7 @@ __author__ = 'cnheider'
 # Based on http://math.stackexchange.com/questions/1287634/implementing-ornstein-uhlenbeck-in-matlab
 import numpy as np
 
-from agent.utilities.sampling.random_process import AnnealedGaussianProcess
+from agent.utilities.exploration.sampling.random_process import AnnealedGaussianProcess
 
 
 class OrnsteinUhlenbeckProcess(AnnealedGaussianProcess):

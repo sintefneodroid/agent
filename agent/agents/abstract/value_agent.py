@@ -10,6 +10,8 @@ from draugr import TensorBoardWriter
 from tqdm import tqdm
 from warg import NamedOrderedDictionary
 
+from agent.utilities.specifications.exploration_specification import ExplorationSpecification
+from agent.utilities.specifications.generalised_delayed_construction_specification import GDCS
 from agent.utilities.specifications.training_resume import TR
 
 __author__ = 'cnheider'
@@ -32,13 +34,10 @@ All value iteration agents should inherit from this class
   # region Public
 
   def __init__(self, config=None, *args, **kwargs):
-    self._exploration_epsilon_start = 0.99
-    self._exploration_epsilon_end = 0.04
-    self._exploration_epsilon_decay = 10000
+    self._exploration_spec = ExplorationSpecification(start=0.99,end=0.04,decay=10000)
     self._initial_observation_period = 0
 
-    self._value_arch_parameters = {}
-    self._value_arch = None
+    self._value_arch_spec : GDCS = None
     self._value_model = None
 
     self._naive_max_policy = False
@@ -81,17 +80,17 @@ All value iteration agents should inherit from this class
 :param steps_taken:
 :return:
 '''
-    assert 0 <= self._exploration_epsilon_end <= self._exploration_epsilon_start
+    assert 0 <= self._exploration_spec.end <= self._exploration_spec.start
 
     if steps_taken == 0:
       return False
 
     sample = random.random()
 
-    a = self._exploration_epsilon_start - self._exploration_epsilon_end
+    a = self._exploration_spec.start - self._exploration_spec.end
 
-    b = math.exp(-1. * steps_taken / (self._exploration_epsilon_decay + self._divide_by_zero_safety))
-    self._current_eps_threshold = self._exploration_epsilon_end + a * b
+    b = math.exp(-1. * steps_taken / (self._exploration_spec.decay + self._divide_by_zero_safety))
+    self._current_eps_threshold = self._exploration_spec.end + a * b
 
     if self._verbose:
       print(f'{sample} > {self._current_eps_threshold} = {sample > self._current_eps_threshold},'
@@ -103,7 +102,7 @@ All value iteration agents should inherit from this class
 
   def load(self, model_path, evaluation):
     print('Loading latest model: ' + model_path)
-    self._value_model = self._value_arch(**self._value_arch_parameters)
+    self._value_model = self._value_arch_spec.constructor(**self._value_arch_spec.kwargs)
     self._value_model.load_state_dict(torch.load(model_path))
     if evaluation:
       self._value_model = self._value_model.eval()
@@ -237,13 +236,13 @@ All value iteration agents should inherit from this class
   def _maybe_infer_input_output_sizes(self, env, **kwargs):
     super()._maybe_infer_input_output_sizes(env)
 
-    self._value_arch_parameters['input_size'] = self._input_size
-    self._value_arch_parameters['output_size'] = self._output_size
+    self._value_arch_spec.kwargs['input_size'] = self._input_size
+    self._value_arch_spec.kwargs['output_size'] = self._output_size
 
   def _maybe_infer_hidden_layers(self, **kwargs):
     super()._maybe_infer_hidden_layers()
 
-    self._value_arch_parameters['hidden_layers'] = self._hidden_layers
+    self._value_arch_spec.kwargs['hidden_layers'] = self._hidden_layers
 
   def _train(self, *args, **kwargs) -> TR:
     return self.train_episodically(*args, **kwargs)

@@ -14,31 +14,24 @@ CONFIG_NAME = __name__
 CONFIG_FILE = __file__
 
 # Architecture
-POLICY_ARCH_PARAMS = NOD(**{
+POLICY_ARCH_SPEC = GDCS(CategoricalMLP, NOD(**{
   'input_size':             None,  # Obtain from environment
   'hidden_layer_activation':torch.tanh,
   'hidden_layers':          [128, 64, 32, 16],
   'output_size':            None,  # Obtain from environment,
   'use_bias':               False,
-  })
-POLICY_ARCH = CategoricalMLP
+  }))
 
-VALUE_ARCH_PARAMS = NOD(**{
+VALUE_ARCH_PARAMS = GDCS(MLP,NOD(**{
   'input_size':             None,  # Obtain from environment
   'hidden_layer_activation':torch.tanh,
   'hidden_layers':          [128, 64, 32, 16],
   'output_size':            None,  # Obtain from environment
   'use_bias':               False,
-  })
-VALUE_ARCH = MLP
+  }))
 
 # Optimiser
-OPTIMISER = torch.optim.Adam
-# OPTIMISER = torch.optim.RMSprop
-LEARNING_RATE = 0.00025
-WEIGHT_DECAY = 1e-5
-ALPHA = 0.95
-EPSILON = 0.01
+OPTIMISER_SPEC = GDCS(torch.optim.Adam,NOD(lr=0.00025,weight_decay=1e-5,alpha=0.95,epsilon=0.01))
 
 # Curriculum
 RANDOM_MOTION_HORIZON = 20

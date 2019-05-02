@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 from agent.architectures import CNN
+from agent.utilities import ReplayBuffer
 from .base_test_config import *
 
 __author__ = 'cnheider'
@@ -21,7 +22,7 @@ ROLLOUTS = 10000
 INITIAL_OBSERVATION_PERIOD = 0
 LEARNING_FREQUENCY = 1
 REPLAY_MEMORY_SIZE = 10000
-MEMORY = U.ReplayBuffer(REPLAY_MEMORY_SIZE)
+MEMORY = ReplayBuffer(REPLAY_MEMORY_SIZE)
 
 BATCH_SIZE = 128
 DISCOUNT_FACTOR = 0.999
@@ -32,11 +33,10 @@ SYNC_TARGET_MODEL_FREQUENCY = 1000
 
 # EVALUATION_FUNCTION = lambda Q_state, Q_true_state: (Q_state - Q_true_state).pow(2).mean()
 
-VALUE_ARCH = CNN
-OPTIMISER_TYPE = torch.optim.RMSprop  # torch.optim.Adam
+OPTIMISER_SPEC = GDCS(torch.optim.RMSprop,{})  # torch.optim.Adam
 
 # Architecture
-VALUE_ARCH_PARAMETERS = NOD(
+VALUE_ARCH_SPEC = GDCS(CNN,NOD(
     input_size=None,  # Obtain from environment
     input_channels=None,
     hidden_layers=[64, 32, 16],
@@ -44,4 +44,4 @@ VALUE_ARCH_PARAMETERS = NOD(
     output_channels=None,
     hidden_layer_activation=F.relu,
     use_bias=True
-    )
+    ))

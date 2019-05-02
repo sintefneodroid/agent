@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-from agent.utilities.sampling.random_process import RandomProcess
+from agent.utilities.exploration.sampling.random_process import RandomProcess
 
 __author__ = 'cnheider'
 

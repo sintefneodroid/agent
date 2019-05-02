@@ -9,9 +9,8 @@ from .specifications import *
 from .stopping import *
 from .transformation import *
 
-from .sampling import *
+from agent.utilities.exploration.sampling import *
 from .visualisation import *
 
 from .torch_utilities import *
-from .environment_utilities import *
 

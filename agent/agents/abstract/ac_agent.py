@@ -7,6 +7,8 @@ from typing import Any
 import draugr
 from tqdm import tqdm
 
+from agent.utilities.specifications.generalised_delayed_construction_specification import GDCS
+
 __author__ = 'cnheider'
 import torch
 
@@ -23,10 +25,8 @@ All value iteration agents should inherit from this class
   # region Private
 
   def __init__(self, *args, **kwargs):
-    self._actor_arch = None
-    self._critic_arch = None
-    self._actor_arch_parameters = None
-    self._critic_arch_parameters = None
+    self._actor_arch_spec: GDCS = None
+    self._critic_arch_spec: GDCS = None
 
     self._target_update_tau = 3e-3
     self._signal_clipping = False
@@ -34,26 +34,27 @@ All value iteration agents should inherit from this class
 
     self._memory_buffer = U.TransitionBuffer()
 
-    self._optimiser_type = torch.optim.Adam
+    self._actor_optimiser_spec : GDCS = GDCS(constructor=torch.optim.Adam,
+                                      kwargs={'lr':3e-4}
+                                      )
 
-    self._actor_optimiser_spec = U.OptimiserSpecification(constructor=self._optimiser_type,
-                                                          kwargs={'lr':3e-4}
-                                                          )
-    self._critic_optimiser_spec = U.OptimiserSpecification(constructor=self._optimiser_type,
-                                                           kwargs={'lr':          3e-3,
-                                                                   'weight_decay':3e-2
-                                                                   }
-                                                           )
+    self._critic_optimiser_spec : GDCS = GDCS(constructor=torch.optim.Adam,
+                                       kwargs={'lr':          3e-3,
+                                               'weight_decay':3e-2
+                                               }
+                                       )
 
     super().__init__(*args, **kwargs)
 
   def _build(self, **kwargs) -> None:
     # Construct actor and critic
-    self._actor = self._actor_arch(**self._actor_arch_parameters).to(self._device)
-    self._target_actor = self._actor_arch(**self._actor_arch_parameters).to(self._device).eval()
+    self._actor = self._actor_arch_spec.constructor(**self._actor_arch_spec.kwargs).to(self._device)
+    self._target_actor = self._actor_arch_spec.constructor(**self._actor_arch_spec.kwargs).to(
+      self._device).eval()
 
-    self._critic = self._critic_arch(**self._critic_arch_parameters).to(self._device)
-    self._target_critic = self._critic_arch(**self._critic_arch_parameters).to(self._device).eval()
+    self._critic = self._critic_arch_spec.constructor(**self._critic_arch_spec.kwargs).to(self._device)
+    self._target_critic = self._critic_arch_spec.constructor(**self._critic_arch_spec.kwargs).to(
+      self._device).eval()
 
     # Construct the optimizers for actor and critic
     self._actor_optimiser = self._actor_optimiser_spec.constructor(self._actor.parameters(),
@@ -80,29 +81,29 @@ All value iteration agents should inherit from this class
   def _maybe_infer_sizes(self, env):
     super()._maybe_infer_sizes(env)
 
-    if ('input_size' not in self._actor_arch_parameters or
-        not self._actor_arch_parameters['input_size']):
-      self._actor_arch_parameters['input_size'] = self._input_size
+    if ('input_size' not in self._actor_arch_spec.kwargs or
+        not self._actor_arch_spec.kwargs['input_size']):
+      self._actor_arch_spec.kwargs['input_size'] = self._input_size
 
-    if ('hidden_layers' not in self._actor_arch_parameters or
-        not self._actor_arch_parameters['hidden_layers']):
-      self._actor_arch_parameters['hidden_layers'] = self._hidden_layers
+    if ('hidden_layers' not in self._actor_arch_spec.kwargs or
+        not self._actor_arch_spec.kwargs['hidden_layers']):
+      self._actor_arch_spec.kwargs['hidden_layers'] = self._hidden_layers
 
-    if ('output_size' not in self._actor_arch_parameters or
-        not self._actor_arch_parameters['output_size']):
-      self._actor_arch_parameters['output_size'] = self._output_size
+    if ('output_size' not in self._actor_arch_spec.kwargs or
+        not self._actor_arch_spec.kwargs['output_size']):
+      self._actor_arch_spec.kwargs['output_size'] = self._output_size
 
-    if ('input_size' not in self._critic_arch_parameters or
-        not self._critic_arch_parameters['input_size']):
-      self._critic_arch_parameters['input_size'] = self._input_size
+    if ('input_size' not in self._critic_arch_spec.kwargs or
+        not self._critic_arch_spec.kwargs['input_size']):
+      self._critic_arch_spec.kwargs['input_size'] = self._input_size
 
-    if ('hidden_layers' not in self._critic_arch_parameters or
-        not self._critic_arch_parameters['hidden_layers']):
-      self._critic_arch_parameters['hidden_layers'] = self._hidden_layers
+    if ('hidden_layers' not in self._critic_arch_spec.kwargs or
+        not self._critic_arch_spec.kwargs['hidden_layers']):
+      self._critic_arch_spec.kwargs['hidden_layers'] = self._hidden_layers
 
-    if ('output_size' not in self._critic_arch_parameters or
-        not self._critic_arch_parameters['output_size']):
-      self._critic_arch_parameters['output_size'] = self._output_size
+    if ('output_size' not in self._critic_arch_spec.kwargs or
+        not self._critic_arch_spec.kwargs['output_size']):
+      self._critic_arch_spec.kwargs['output_size'] = self._output_size
 
   # endregion
 
@@ -180,7 +181,7 @@ All value iteration agents should inherit from this class
 
       action = self.sample_action(state)
 
-      successor_state, signal, terminated,*_ = environment.react(action)
+      successor_state, signal, terminated, *_ = environment.react(action)
 
       if render:
         environment.render()

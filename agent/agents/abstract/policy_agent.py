@@ -29,7 +29,7 @@ class PolicyAgent(TorchAgent):
     :param kwargs:
     '''
     self._policy_arch = None
-    self._policy_arch_params = None
+    self._policy_arch_spec = None
     self._policy_model = None
 
     self._deterministic = True
@@ -61,7 +61,7 @@ class PolicyAgent(TorchAgent):
 
   def load(self, model_file, evaluation=False):
     print(f'Loading model: {model_file}')
-    self._policy_model = self._policy_arch(**self._policy_arch_params)
+    self._policy_model = self._policy_arch(**self._policy_arch_spec)
     self._policy_model.load_state_dict(torch.load(model_file))
     if evaluation:
       self._policy_model = self._policy_model.eval()
@@ -76,13 +76,13 @@ class PolicyAgent(TorchAgent):
   def _maybe_infer_input_output_sizes(self, env, **kwargs):
     super()._maybe_infer_input_output_sizes(env)
 
-    self._policy_arch_params['input_size'] = self._input_size
-    self._policy_arch_params['output_size'] = self._output_size
+    self._policy_arch_spec.kwargs['input_size'] = self._input_size
+    self._policy_arch_spec.kwargs['output_size'] = self._output_size
 
   def _maybe_infer_hidden_layers(self, **kwargs):
     super()._maybe_infer_hidden_layers()
 
-    self._policy_arch_params['hidden_layers'] = self._hidden_layers
+    self._policy_arch_spec.kwargs['hidden_layers'] = self._hidden_layers
 
   def _train(self, *args, **kwargs) -> NamedOrderedDictionary:
     return self.train_episodically(*args, **kwargs)

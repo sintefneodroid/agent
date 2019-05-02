@@ -5,11 +5,12 @@ from warnings import warn
 
 import draugr
 from draugr import TensorBoardWriter
-from agent.architectures import CategoricalMLP
 from neodroid.models import EnvironmentState
 from warg import NOD
 
+from agent.architectures import CategoricalMLP
 from agent.procedures.train_agent import agent_test_main, parallel_train_agent_procedure
+from agent.utilities.specifications.generalised_delayed_construction_specification import GDCS
 from agent.utilities.specifications.training_resume import TR
 
 __author__ = 'cnheider'
@@ -38,18 +39,17 @@ class PGAgent(PolicyAgent):
 
   def __defaults__(self) -> None:
 
-    self._policy_arch = CategoricalMLP
     self._accumulated_error = U.to_tensor(0.0, device=self._device)
     self._evaluation_function = torch.nn.CrossEntropyLoss()
     self._trajectory_trace = U.TrajectoryTraceBuffer()
 
-    self._policy_arch_params = NOD(**{
+    self._policy_arch_spec = GDCS(CategoricalMLP, NOD(**{
       'input_size':             None,  # Obtain from environment
       'hidden_layers':          None,
       'output_size':            None,  # Obtain from environment
       'hidden_layer_activation':torch.relu,
       'use_bias':               True,
-      })
+      }))
 
     self._use_cuda = False
     self._discount_factor = 0.99
@@ -60,9 +60,7 @@ class PGAgent(PolicyAgent):
     self._signal_clip_low = -1.0
     self._signal_clip_high = -self._signal_clip_low
 
-    self._optimiser_learning_rate = 1e-4
-    self._optimiser_type = torch.optim.Adam
-    self._optimiser_weight_decay = 1e-5
+    self._optimiser_spec = GDCS(torch.optim.Adam, NOD(lr=1e-4, weight_decay=1e-5))
 
     self._state_type = torch.float
     self._signals_tensor_type = torch.float
@@ -77,11 +75,10 @@ class PGAgent(PolicyAgent):
   # region Protected
 
   def _build(self, **kwargs) -> None:
-    self._policy_model = self._policy_arch(**(self._policy_arch_params)).to(self._device)
+    self._policy_model = self._policy_arch_spec.constructor(**self._policy_arch_spec.kwargs).to(self._device)
 
-    self.optimiser = self._optimiser_type(self._policy_model.parameters(),
-                                          lr=self._optimiser_learning_rate,
-                                          weight_decay=self._optimiser_weight_decay)
+    self.optimiser = self._optimiser_spec.constructor(self._policy_model.parameters(),
+                                          **self._optimiser_spec.kwargs)
 
   def _optimise_wrt(self, loss, **kwargs):
     self.optimiser.zero_grad()
@@ -246,7 +243,7 @@ class PGAgent(PolicyAgent):
     for t in T:
       action, action_log_probs, entropy, *_ = self.sample_action(state)
 
-      state, signal, terminated,*_ = environment.react(action)
+      state, signal, terminated, *_ = environment.react(action)
 
       if self._signal_clipping:
         signal = np.clip(signal, self._signal_clip_low, self._signal_clip_high)
@@ -268,8 +265,8 @@ class PGAgent(PolicyAgent):
 
     ep = np.array(episode_signal).mean()
     el = episode_length
-    ee= np.array(episode_entropy).mean()
-    return ep,el,ee
+    ee = np.array(episode_entropy).mean()
+    return ep, el, ee
 
   def infer(self, env, render=True):
 
@@ -360,6 +357,7 @@ class PGAgent(PolicyAgent):
     return NOD(model=self._policy_model, stats=stats)
   # endregion
 
+
 # region Test
 def pg_test(rollouts=None):
   import agent.configs.agent_test_configs.pg_test_config as C
@@ -367,7 +365,7 @@ def pg_test(rollouts=None):
   if rollouts:
     C.ROLLOUTS = rollouts
 
-  agent_test_main(PGAgent, C, parse_args=False,training_procedure=parallel_train_agent_procedure)
+  agent_test_main(PGAgent, C, parse_args=False, training_procedure=parallel_train_agent_procedure)
 
 
 if __name__ == '__main__':

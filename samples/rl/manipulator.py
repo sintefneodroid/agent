@@ -72,7 +72,7 @@ if __name__ == '__main__':
       print(f'{key} = {arg}')
     input('\nPress Enter to begin... ')
 
-  _agent = C.AGENT_TYPE(C)
+  _agent = C.AGENT(C)
 
   try:
     train_agent(C, _agent)

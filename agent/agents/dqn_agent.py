@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 import matplotlib
-from warg import NamedOrderedDictionary
+from warg import NOD, NamedOrderedDictionary
 
 from agent.architectures import MLP
 from agent.procedures.train_agent import agent_test_main, parallel_train_agent_procedure
 from agent.utilities import get_screen
+from agent.utilities.specifications.generalised_delayed_construction_specification import GDCS
 from agent.utilities.visualisation.experimental.statistics_plot import plot_durations
 
 __author__ = 'cnheider'
@@ -36,14 +37,13 @@ class DQNAgent(ValueAgent):
 
     self._evaluation_function = F.smooth_l1_loss
 
-    self._value_arch = MLP
-    self._value_arch_parameters = NamedOrderedDictionary({
+    self._value_arch_spec = GDCS(MLP, NamedOrderedDictionary({
       'input_size':             None,  # Obtain from environment
       'hidden_layers':          None,
       'output_size':            None,  # Obtain from environment
       'hidden_layer_activation':torch.tanh,
       'use_bias':               True,
-      })
+      }))
 
     self._batch_size = 128
 
@@ -63,27 +63,23 @@ class DQNAgent(ValueAgent):
     self._early_stopping_condition = None
     self._target_value_model = None
 
-    self._optimiser_type = torch.optim.RMSprop
+    self._optimiser_spec = GDCS(torch.optim.RMSprop, kwargs=NOD(alpha=0.9,
+                                                                lr=0.0025,
+                                                                eps=1e-02,
+                                                                momentum=0.0))
     self._optimiser = None
-    self._optimiser_alpha = 0.9
-    self._optimiser_learning_rate = 0.0025
-    self._optimiser_epsilon = 1e-02
-    self._optimiser_momentum = 0.0
 
   def _build(self, **kwargs) -> None:
 
-    self._value_model = self._value_arch(**self._value_arch_parameters).to(self._device)
+    self._value_model = self._value_arch_spec.constructor(**self._value_arch_spec.kwargs).to(self._device)
 
-    self._target_value_model = self._value_arch(**self._value_arch_parameters).to(self._device)
+    self._target_value_model = self._value_arch_spec.constructor(**self._value_arch_spec.kwargs).to(self._device)
     self._target_value_model = U.copy_state(target=self._target_value_model, source=self._value_model)
     self._target_value_model.eval()
 
-    self._optimiser = self._optimiser_type(
+    self._optimiser = self._optimiser_spec.constructor(
         self._value_model.parameters(),
-        lr=self._optimiser_learning_rate,
-        eps=self._optimiser_epsilon,
-        # alpha=self._optimiser_alpha,
-        # momentum=self._optimiser_momentum,
+        **self._optimiser_spec.kwargs
         )
 
   def _optimise_wrt(self, error, **kwargs):
@@ -109,7 +105,7 @@ class DQNAgent(ValueAgent):
     max_value_action_idx = action_value_estimates.max(-1)[1].to('cpu').numpy().tolist()
     return max_value_action_idx
 
-  #endregion
+  # endregion
 
   # region Public
 
@@ -253,7 +249,8 @@ class DQNAgent(ValueAgent):
     action = self.sample_action(state)
     return action, env.react(action)
 
-  #endregion
+  # endregion
+
 
 # region Test
 def test_cnn_dqn_agent(config):
@@ -325,4 +322,4 @@ def dqn_test(rollouts=None):
 
 if __name__ == '__main__':
   dqn_test()
-#endregion
+# endregion

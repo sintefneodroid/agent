@@ -5,14 +5,10 @@ from collections import Iterable
 from itertools import count
 
 import draugr
-from neodroid.wrappers.utility_wrappers.action_encoding_wrappers import (BinaryActionEncodingWrapper,
-                                                                         NeodroidWrapper,
-                                                                         VectorWrap,
-                                                                         )
 from trolls.multiple_environments_wrapper import SubProcessEnvironments, make_env
-
 from warg import get_upper_case_vars_or_protected_of
-
+from neodroid.wrappers import VectorWrap, NeodroidWrapper,BinaryActionEncodingWrapper
+from warg import parse_arguments
 from agent.utilities.exceptions.exceptions import NoTrainingProcedure
 
 __author__ = 'cnheider'
@@ -196,7 +192,7 @@ def agent_test_main(agent,
   '''
 
 '''
-  from warg import parse_arguments
+
 
   if training_procedure is None:
     raise NoTrainingProcedure

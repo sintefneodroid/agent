@@ -5,10 +5,12 @@ from pathlib import Path
 
 import torch
 import torch.nn.functional as F
-from agent.architectures import CategoricalMLP
 from warg import NOD
+
 from agent.agents.pg_agent import PGAgent
-import agent.utilities as U
+from agent.architectures import CategoricalMLP
+from agent.utilities.specifications.exploration_specification import ExplorationSpecification
+from agent.utilities.specifications.generalised_delayed_construction_specification import GDCS
 
 __author__ = 'cnheider'
 '''
@@ -33,16 +35,15 @@ hidden_layers = None  # Obtain from input and output size
 output_size = None  # Obtain from environment
 
 # Architecture
-POLICY_ARCH_PARAMS = NOD(
+POLICY_ARCH_SPEC = GDCS(CategoricalMLP, NOD(
     input_size=input_size,
     hidden_layers=hidden_layers,
     output_size=output_size,
     hidden_layer_activation=torch.relu,
     use_bias=True
-    )
-POLICY_ARCH = CategoricalMLP
+    ))
 
-AGENT_TYPE = PGAgent
+AGENT = PGAgent
 
 # Environment Related Parameters
 CONNECT_TO_RUNNING = False
@@ -52,9 +53,7 @@ SOLVED_REWARD = 0.9
 ACTION_MAGNITUDES = 10000
 
 # Epsilon Exploration
-EXPLORATION_EPSILON_START = 0.99
-EXPLORATION_EPSILON_END = 0.05
-EXPLORATION_EPSILON_DECAY = 10000
+EXPLORATION_SPEC = ExplorationSpecification(0.99,0.05,10000)
 
 # Training parameters
 LOAD_PREVIOUS_MODEL_IF_AVAILABLE = False
@@ -75,12 +74,10 @@ ACTION_TYPE = torch.long
 EVALUATION_FUNCTION = F.smooth_l1_loss
 
 # Optimiser
-OPTIMISER_TYPE = torch.optim.Adam
-OPTIMISER_LEARNING_RATE = 0.0025
-OPTIMISER_WEIGHT_DECAY = 1e-5
-OPTIMISER_ALPHA = 0.9
-OPTIMISER_EPSILON = 1e-02
-OPTIMISER_MOMENTUM = 0.0
+OPTIMISER_SPEC = GDCS(torch.optim.Adam, NOD(
+    lr=0.0025,
+    weight_decay=1e-5,
+    eps=1e-02))
 
 # Paths
 PROJECT_DIRECTORY = Path(os.getcwd())

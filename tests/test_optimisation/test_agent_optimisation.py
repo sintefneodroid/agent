@@ -7,7 +7,7 @@ from agent.agents.ddpg_agent import DDPGAgent
 from agent.agents.dqn_agent import DQNAgent
 from agent.agents.pg_agent import PGAgent
 from agent.agents.ppo_agent import PPOAgent
-from agent.utilities.environment_utilities.simple_environments.constant_environment import \
+from samples.simple_environments import \
   StatefullEnvironment
 
 __author__ = 'cnheider'

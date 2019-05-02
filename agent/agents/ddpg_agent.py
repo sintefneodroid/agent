@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-from agent.architectures import DDPGActorArchitecture, DDPGCriticArchitecture
 from neodroid.models import EnvironmentState
 from warg import NamedOrderedDictionary
 
-from agent.procedures.train_agent import parallel_train_agent_procedure, agent_test_main
+from agent.architectures import DDPGActorArchitecture, DDPGCriticArchitecture
+from agent.procedures.train_agent import agent_test_main, parallel_train_agent_procedure
 from agent.utilities.specifications.training_resume import TR
 
 __author__ = 'cnheider'
@@ -18,7 +18,7 @@ tqdm.monitor_interval = 0
 
 from agent import utilities as U
 from agent.agents.abstract.ac_agent import ActorCriticAgent
-from agent.utilities import OrnsteinUhlenbeckProcess
+from agent.utilities import OrnsteinUhlenbeckProcess, ArchitectureSpecification
 
 
 class DDPGAgent(ActorCriticAgent):
@@ -55,18 +55,16 @@ class DDPGAgent(ActorCriticAgent):
 
     self._evaluation_function = F.smooth_l1_loss
 
-    self._actor_arch = DDPGActorArchitecture
-    self._actor_arch_parameters = NamedOrderedDictionary({
+    self._actor_arch_spec = ArchitectureSpecification(DDPGActorArchitecture, kwargs=NamedOrderedDictionary({
       'input_size':       None,  # Obtain from environment
       'output_activation':torch.tanh,
       'output_size':      None,  # Obtain from environment
-      })
+      }))
 
-    self._critic_arch = DDPGCriticArchitecture
-    self._critic_arch_parameters = NamedOrderedDictionary({
+    self._critic_arch_spec = ArchitectureSpecification(DDPGCriticArchitecture, kwargs=NamedOrderedDictionary({
       'input_size': None,  # Obtain from environment
       'output_size':None,  # Obtain from environment
-      })
+      }))
 
     self._discount_factor = 0.99
 

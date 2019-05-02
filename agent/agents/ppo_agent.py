@@ -4,10 +4,11 @@ from itertools import count
 from typing import Any, Tuple
 
 import numpy
-from agent.architectures import DDPGActorArchitecture, DDPGCriticArchitecture
 from warg import NOD
 
-from agent.procedures.train_agent import parallel_train_agent_procedure, agent_test_main
+from agent.architectures import DDPGActorArchitecture, DDPGCriticArchitecture
+from agent.procedures.train_agent import agent_test_main, parallel_train_agent_procedure
+from agent.utilities.specifications.generalised_delayed_construction_specification import GDCS
 from agent.utilities.specifications.training_resume import TR
 
 __author__ = 'cnheider'
@@ -19,6 +20,9 @@ import torch.nn.functional as F
 
 from agent import utilities as U
 from agent.agents.abstract.ac_agent import ActorCriticAgent
+
+
+
 
 
 class PPOAgent(ActorCriticAgent):
@@ -64,23 +68,21 @@ class PPOAgent(ActorCriticAgent):
 
     self._surrogate_clipping_value = 0.2
 
-    self._optimiser_type = torch.optim.Adam
+    self._optimiser_spec = GDCS(torch.optim.Adam,{})
 
-    self._actor_arch = DDPGActorArchitecture
-    self._actor_arch_parameters = {
+    self._actor_arch_spec = GDCS(DDPGActorArchitecture, kwargs=NOD({
       'input_size':       None,  # Obtain from environment
       'hidden_layers':    None,
       'output_activation':None,
       'output_size':      None,  # Obtain from environment
-      }
+      }))
 
-    self._critic_arch = DDPGCriticArchitecture
-    self._critic_arch_parameters = {
+    self._critic_arch_spec = GDCS(DDPGCriticArchitecture, kwargs=NOD({
       'input_size':       None,  # Obtain from environment
       'hidden_layers':    None,
       'output_activation':None,
       'output_size':      None,  # Obtain from environment
-      }
+      }))
 
     self._optimiser = None
 
@@ -459,12 +461,10 @@ class PPOAgent(ActorCriticAgent):
         if self._update_early_stopping(old_log_probs, new_log_probs):
           break
 
-
   def sample_action(self, state, **kwargs) -> Tuple[Any, Any, Any]:
     action, action_log_prob, value_estimate, *_ = self._sample_model(state)
 
     return action, action_log_prob, value_estimate
-
 
   def train_episodically(self,
                          env,
@@ -518,8 +518,6 @@ class PPOAgent(ActorCriticAgent):
 
     return self._actor, self._critic, []
 
-
-
   def train_step_batched(self,
                          environments,
                          test_environments,
@@ -527,7 +525,7 @@ class PPOAgent(ActorCriticAgent):
                          num_steps=200,
                          rollouts=10000,
                          render=True
-                         )->TR:
+                         ) -> TR:
     # stats = draugr.StatisticCollection(stats=('batch_signal', 'test_signal', 'entropy'))
 
     state = environments.reset()
@@ -552,7 +550,7 @@ class PPOAgent(ActorCriticAgent):
         action, action_log_prob, value_estimate = self.sample_action(state)
 
         a = action.to('cpu').numpy()
-        successor_state, signal, terminated,*_ = environments.react(a)
+        successor_state, signal, terminated, *_ = environments.react(a)
 
         batch_signal.append(signal)
 
@@ -647,7 +645,6 @@ class PPOAgent(ActorCriticAgent):
         action, *_ = self.sample_action(state)
         next_state, signal, terminal = test_environment.react(action)
 
-
       # terminal = terminal.all()
       state = next_state
       if render:
@@ -675,6 +672,8 @@ class PPOAgent(ActorCriticAgent):
                 advantage=advantage[rand_ids, :])
 
   # endregion
+
+
 # region Test
 def ppo_test(rollouts=None):
   import agent.configs.agent_test_configs.ppo_test_config as C
@@ -691,4 +690,4 @@ def ppo_test(rollouts=None):
 
 if __name__ == '__main__':
   ppo_test()
-#endregion
+# endregion
