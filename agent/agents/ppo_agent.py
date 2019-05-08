@@ -684,7 +684,7 @@ def ppo_test(rollouts=None):
   agent_test_main(PPOAgent,
                   C,
                   training_procedure=parallel_train_agent_procedure(
-                      auto_reset_on_terminal=True),
+                      auto_reset_on_terminal_state=True),
                   parse_args=False)
 
 

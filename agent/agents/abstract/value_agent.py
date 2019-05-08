@@ -62,7 +62,7 @@ All value iteration agents should inherit from this class
 
   def build(self, env, **kwargs):
     super().build(env, **kwargs)
-    with tx.SummaryWriter(str(self._base_log_dir))as writer:
+    with tx.SummaryWriter(str(self._log_directory))as writer:
       dummy_in = torch.rand(
           1, *self._observation_space.shape)
 
@@ -141,7 +141,7 @@ All value iteration agents should inherit from this class
     E = range(1, rollouts)
     E = tqdm(E, leave=False)
 
-    with TensorBoardWriter(str(self._base_log_dir / ('session' + str(int(time.time()))))) as stat_writer:
+    with TensorBoardWriter(str(self._log_directory)) as stat_writer:
       for episode_i in E:
         initial_state = _environment.reset()
 

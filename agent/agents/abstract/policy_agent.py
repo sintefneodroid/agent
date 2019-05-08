@@ -28,7 +28,6 @@ class PolicyAgent(TorchAgent):
     :param args:
     :param kwargs:
     '''
-    self._policy_arch = None
     self._policy_arch_spec = None
     self._policy_model = None
 
@@ -55,6 +54,10 @@ class PolicyAgent(TorchAgent):
   # endregion
 
   # region Public
+
+  @property
+  def models(self):
+    return (self._policy_model,)
 
   def save(self, C):
     U.save_model(self._policy_model, C)

@@ -16,7 +16,6 @@ Author: Christian Heider Nielsen
 CONFIG_NAME = __name__
 CONFIG_FILE = __file__
 
-AGENT_TYPE = DDPGAgent
 
 CONNECT_TO_RUNNING=False
 ENVIRONMENT_NAME = 'Pendulum-v0'

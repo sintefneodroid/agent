@@ -28,13 +28,14 @@ class TrainingProcedure(abc.ABC):
     pass
 
 
-class regular_train_agent_procedure(TrainingProcedure):
+class single_train_agent_procedure(TrainingProcedure):
 
   def __call__(self,
                agent_type,
                config,
                environment=None,
-               save=False):
+               save=False,
+               has_x_server=False):
 
     if not config.CONNECT_TO_RUNNING:
       if not environment:
@@ -53,7 +54,7 @@ class regular_train_agent_procedure(TrainingProcedure):
     agent = agent_type(config)
     agent.build(environment)
 
-    listener = U.add_early_stopping_key_combination(agent.stop_training, has_x=save)
+    listener = U.add_early_stopping_key_combination(agent.stop_training, has_x_server=save)
 
     if listener:
       listener.start()
@@ -90,16 +91,16 @@ class parallel_train_agent_procedure(TrainingProcedure):
                test_environments=None,
                default_num_train_envs=4,
                default_num_test_envs=1,
-               auto_reset_on_terminal=False,
+               auto_reset_on_terminal_state=False,
                **kwargs):
     super().__init__(**kwargs)
     self.environments = environments
     self.test_environments = test_environments
     self.default_num_train_envs = default_num_train_envs
     self.default_num_test_envs = default_num_test_envs
-    self.auto_reset_on_terminal = auto_reset_on_terminal
+    self.auto_reset_on_terminal = auto_reset_on_terminal_state
 
-  def __call__(self, agent_type, config, save=False):
+  def __call__(self, agent_type, config, save=True, has_x_server=False):
     if not self.environments:
       if '-v' in config.ENVIRONMENT_NAME:
 
@@ -130,7 +131,7 @@ class parallel_train_agent_procedure(TrainingProcedure):
     agent = agent_type(config)
     agent.build(self.environments)
 
-    listener = U.add_early_stopping_key_combination(agent.stop_training, has_x=save)
+    listener = U.add_early_stopping_key_combination(agent.stop_training, has_x_server=has_x_server)
 
     if listener:
       listener.start()
@@ -139,6 +140,10 @@ class parallel_train_agent_procedure(TrainingProcedure):
                                     self.test_environments,
                                     rollouts=config.ROLLOUTS,
                                     render=config.RENDER_ENVIRONMENT)
+    except KeyboardInterrupt:
+      for identifier, model in enumerate(agent.models):
+        U.save_model(model, config, name=f'{agent}-{identifier}-interrupted')
+      exit()
     finally:
       if listener:
         listener.stop()
@@ -186,9 +191,12 @@ class agent_test_gym(TrainingProcedure):
 def agent_test_main(agent,
                     config,
                     *,
-                    training_procedure=regular_train_agent_procedure,
+                    training_procedure=single_train_agent_procedure,
                     parse_args=True,
-                    save=False):
+                    save=True,
+                    has_x_server=True,
+                    skip_confirmation=False
+                    ):
   '''
 
 '''
@@ -199,9 +207,13 @@ def agent_test_main(agent,
   elif isinstance(training_procedure, type):
     training_procedure = training_procedure()
 
+
+
   if parse_args:
     args = parse_arguments(f'{type(agent)}', config)
     args_dict = args.__dict__
+
+    skip_confirmation = args.skip_confirmation
 
     if 'CONFIG' in args_dict.keys() and args_dict['CONFIG']:
       import importlib.util
@@ -213,14 +225,21 @@ def agent_test_main(agent,
         if key != 'CONFIG':
           setattr(config, key, arg)
 
-    draugr.sprint(f'\nUsing config: {config}\n', highlight=True, color='yellow')
-    if not args.skip_confirmation:
-      for key, arg in get_upper_case_vars_or_protected_of(config).items():
-        print(f'{key} = {arg}')
-      input('\nPress Enter to begin... ')
+  if has_x_server:
+    display_env = os.environ['DISPLAY']
+    if display_env is None:
+      config.RENDER_ENVIRONMENT = False
+
+  draugr.sprint(f'\nUsing config: {config}\n', highlight=True, color='yellow')
+  if not skip_confirmation:
+    for key, arg in get_upper_case_vars_or_protected_of(config).items():
+      print(f'{key} = {arg}')
+
+    print( f'\n.. Also save:{save}, has_x_server:{has_x_server}')
+    input('\nPress Enter to begin... ')
 
   try:
-    training_procedure(agent, config, save=save)
+    training_procedure(agent, config, save=save, has_x_server=has_x_server)
   except KeyboardInterrupt:
     print('Stopping')
 
@@ -235,4 +254,4 @@ if __name__ == '__main__':
                                     connect_to_running=C.CONNECT_TO_RUNNING)
   env.seed(C.SEED)
 
-  regular_train_agent_procedure()(agent_type=PGAgent, config=C, environment=env)
+  single_train_agent_procedure()(agent_type=PGAgent, config=C, environment=env)

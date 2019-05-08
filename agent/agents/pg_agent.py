@@ -297,7 +297,7 @@ class PGAgent(PolicyAgent):
     E = range(1, rollouts)
     E = tqdm(E, f'Episode: {1}', leave=False)
 
-    with TensorBoardWriter(str(self._base_log_dir / ('session' + str(int(time.time()))))) as stat_writer:
+    with TensorBoardWriter(str(self._log_directory)) as stat_writer:
 
       for episode_i in E:
         initial_state = env.reset()

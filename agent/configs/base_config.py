@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 import os
+import time
 from pathlib import Path
 
 import torch
@@ -43,8 +44,6 @@ POLICY_ARCH_SPEC = GDCS(CategoricalMLP, NOD(
     use_bias=True
     ))
 
-AGENT = PGAgent
-
 # Environment Related Parameters
 CONNECT_TO_RUNNING = False
 RENDER_ENVIRONMENT = False
@@ -80,7 +79,8 @@ OPTIMISER_SPEC = GDCS(torch.optim.Adam, NOD(
     eps=1e-02))
 
 # Paths
-PROJECT_DIRECTORY = Path(os.getcwd())
+#PROJECT_DIRECTORY = Path(os.getcwd())
+PROJECT_DIRECTORY = Path.home() / 'Models' / 'Neodroid' / str(int(time.time()))
 MODEL_DIRECTORY = PROJECT_DIRECTORY / 'models'
 CONFIG_DIRECTORY = PROJECT_DIRECTORY / 'configs'
 LOG_DIRECTORY = PROJECT_DIRECTORY / 'logs'

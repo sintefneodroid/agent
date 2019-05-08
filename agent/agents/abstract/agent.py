@@ -32,7 +32,8 @@ All agent should inherit from this class
 
   # region Private
 
-  def __init__(self, config=None,
+  def __init__(self,
+               config=None,
                environment=None,
                verbose=False,
                *args,
@@ -44,7 +45,7 @@ All agent should inherit from this class
     self._end_training = False
     self._divide_by_zero_safety = 1e-10
     self._environment = environment
-    self._base_log_dir = Path.home() / 'Models' / 'Neodroid' / str(int(time.time()))
+    self._log_directory = Path.home() / 'Models' / 'Neodroid' / str(int(time.time()))
 
     self._verbose = verbose
 
@@ -77,7 +78,6 @@ All agent should inherit from this class
       else:
         self.__setattr__(k, v)
 
-  @staticmethod
 
   # endregion
 

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-from abc import ABC
+from abc import ABC, abstractmethod
 
 import torch
 from tqdm import tqdm
@@ -34,5 +34,10 @@ All agent should inherit from this class
   @property
   def device(self):
     return self._device
+
+  @property
+  @abstractmethod
+  def models(self):
+    raise NotImplementedError
 
   # endregion
