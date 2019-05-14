@@ -6,6 +6,6 @@ __author__ = 'cnheider'
 __doc__ = ''
 
 ExplorationSpecification = namedtuple('ExplorationSpecification',
-                                                         ['start',
-                                                          'end',
-                                                          'decay'])
+                                      ['start',
+                                       'end',
+                                       'decay'])

@@ -18,47 +18,9 @@
     inkscape:export-ydpi="300"
     inkscape:version="0.92.3 (2405546, 2018-03-11)"
     sodipodi:docname="matplotlib.svg">
-  <metadata
-      id="metadata412">
-    <rdf:RDF>
-      <cc:Work
-          rdf:about="">
-        <dc:format>image/svg+xml</dc:format>
-        <dc:type
-            rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
-        <dc:title/>
-      </cc:Work>
-    </rdf:RDF>
-  </metadata>
-  <sodipodi:namedview
-      bordercolor="#666666"
-      borderopacity="1"
-      gridtolerance="10"
-      guidetolerance="10"
-      id="namedview410"
-      objecttolerance="10"
-      pagecolor="#ffffff"
-      showgrid="false"
-      units="in"
-      inkscape:current-layer="svg2"
-      inkscape:cx="147.37658"
-      inkscape:cy="49.161315"
-      inkscape:pageopacity="0"
-      inkscape:pageshadow="2"
-      inkscape:window-height="1080"
-      inkscape:window-maximized="0"
-      inkscape:window-width="1920"
-      inkscape:window-x="0"
-      inkscape:window-y="0"
-      inkscape:zoom="0.79730218"/>
   <defs
       style="stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:100000"
       id="defs4">
-    <style
-        id="style6"
-        type="text/css">
-      *{stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:100000;}
-    </style>
     <clipPath
         style="stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:100000"
         id="p1a558b8dcd-1">
@@ -122,6 +84,11 @@
           id="path5305"
           inkscape:connector-curvature="0"/>
     </clipPath>
+    <style
+        id="style6"
+        type="text/css">
+      *{stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:100000;}
+    </style>
   </defs>
   <defs
       id="defs405">
@@ -558,4 +525,37 @@
           inkscape:connector-curvature="0"/>
     </g>
   </g>
+  <metadata
+      id="metadata412">
+    <rdf:RDF>
+      <cc:Work
+          rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:title/>
+        <dc:type
+            rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <sodipodi:namedview
+      bordercolor="#666666"
+      borderopacity="1"
+      gridtolerance="10"
+      guidetolerance="10"
+      id="namedview410"
+      objecttolerance="10"
+      pagecolor="#ffffff"
+      showgrid="false"
+      units="in"
+      inkscape:current-layer="svg2"
+      inkscape:cx="147.37658"
+      inkscape:cy="49.161315"
+      inkscape:pageopacity="0"
+      inkscape:pageshadow="2"
+      inkscape:window-height="1080"
+      inkscape:window-maximized="0"
+      inkscape:window-width="1920"
+      inkscape:window-x="0"
+      inkscape:window-y="0"
+      inkscape:zoom="0.79730218"/>
 </svg>

@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 from agent.architectures import MLP
+from utilities import ReplayBuffer
 
 __author__ = 'cnheider'
 '''
@@ -12,12 +13,11 @@ from agent.configs.base_config import *
 CONFIG_NAME = __name__
 CONFIG_FILE = __file__
 
-
 ROLLOUTS = 10000
 INITIAL_OBSERVATION_PERIOD = 0
 LEARNING_FREQUENCY = 1
 REPLAY_MEMORY_SIZE = 10000
-MEMORY = U.ReplayBuffer(REPLAY_MEMORY_SIZE)
+MEMORY = ReplayBuffer(REPLAY_MEMORY_SIZE)
 
 BATCH_SIZE = 128
 DISCOUNT_FACTOR = 0.999

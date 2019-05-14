@@ -16,34 +16,6 @@
     inkscape:version="0.92.3 (2405546, 2018-03-11)"
     sodipodi:docname="python.svg"
     sodipodi:version="0.32">
-  <metadata
-      id="metadata2193">
-    <rdf:RDF>
-      <cc:Work
-          rdf:about="">
-        <dc:format>image/svg+xml</dc:format>
-        <dc:type
-            rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
-      </cc:Work>
-    </rdf:RDF>
-  </metadata>
-  <sodipodi:namedview
-      bordercolor="#666666"
-      borderopacity="1.0"
-      id="base"
-      pagecolor="#ffffff"
-      showgrid="false"
-      inkscape:current-layer="g2303"
-      inkscape:cx="237.43362"
-      inkscape:cy="59.592653"
-      inkscape:pageopacity="0.0"
-      inkscape:pageshadow="2"
-      inkscape:window-height="1414"
-      inkscape:window-maximized="1"
-      inkscape:window-width="2508"
-      inkscape:window-x="26"
-      inkscape:window-y="26"
-      inkscape:zoom="1.4340089"/>
   <defs
       id="defs4">
     <linearGradient
@@ -184,16 +156,6 @@
         y1="76.176224"
         y2="76.313133"
         xlink:href="#linearGradient4689"/>
-    <radialGradient
-        cx="61.518883"
-        cy="132.28575"
-        fx="61.518883"
-        fy="132.28575"
-        gradientTransform="matrix(1,0,0,0.177966,0,108.7434)"
-        gradientUnits="userSpaceOnUse"
-        id="radialGradient2801"
-        r="29.036913"
-        xlink:href="#linearGradient2795"/>
     <linearGradient
         gradientTransform="matrix(0.562541,0,0,0.567972,-9.399749,-5.305317)"
         gradientUnits="userSpaceOnUse"
@@ -212,6 +174,16 @@
         y1="20.603781"
         y2="114.39767"
         xlink:href="#linearGradient4689"/>
+    <radialGradient
+        cx="61.518883"
+        cy="132.28575"
+        fx="61.518883"
+        fy="132.28575"
+        gradientTransform="matrix(1,0,0,0.177966,0,108.7434)"
+        gradientUnits="userSpaceOnUse"
+        id="radialGradient2801"
+        r="29.036913"
+        xlink:href="#linearGradient2795"/>
     <radialGradient
         cx="61.518883"
         cy="132.28575"
@@ -278,4 +250,32 @@
         transform="matrix(0.73406,0,0,0.809524,16.24958,27.00935)"
         inkscape:connector-curvature="0"/>
   </g>
+  <metadata
+      id="metadata2193">
+    <rdf:RDF>
+      <cc:Work
+          rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+            rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <sodipodi:namedview
+      bordercolor="#666666"
+      borderopacity="1.0"
+      id="base"
+      pagecolor="#ffffff"
+      showgrid="false"
+      inkscape:current-layer="g2303"
+      inkscape:cx="237.43362"
+      inkscape:cy="59.592653"
+      inkscape:pageopacity="0.0"
+      inkscape:pageshadow="2"
+      inkscape:window-height="1414"
+      inkscape:window-maximized="1"
+      inkscape:window-width="2508"
+      inkscape:window-x="26"
+      inkscape:window-y="26"
+      inkscape:zoom="1.4340089"/>
 </svg>

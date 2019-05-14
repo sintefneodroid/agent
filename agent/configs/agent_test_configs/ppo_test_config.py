@@ -48,8 +48,6 @@ SEED = 66
 VALUE_REG_COEF = 0.5
 ENTROPY_REG_COEF = 1.0
 
-
-
 SURROGATE_CLIPPING_VALUE = 0.2  # initial probability ratio clipping range
 SURROGATE_CLIP_FUNC = lambda a:SURROGATE_CLIPPING_VALUE * (1. - a)  # clip range schedule function
 
@@ -74,7 +72,7 @@ ACTOR_OPTIMISER_SPEC = GDCS(constructor=torch.optim.Adam,
 
 CRITIC_OPTIMISER_SPEC = GDCS(constructor=torch.optim.Adam,
                              kwargs=NOD(lr=3e-3,
-                                         weight_decay=3e-2),
+                                        weight_decay=3e-2),
                              )
 
 LR_FUNC = lambda a:CRITIC_OPTIMISER_SPEC.kwargs['lr'] * (1. - a)

@@ -52,7 +52,7 @@ SOLVED_REWARD = 0.9
 ACTION_MAGNITUDES = 10000
 
 # Epsilon Exploration
-EXPLORATION_SPEC = ExplorationSpecification(0.99,0.05,10000)
+EXPLORATION_SPEC = ExplorationSpecification(0.99, 0.05, 10000)
 
 # Training parameters
 LOAD_PREVIOUS_MODEL_IF_AVAILABLE = False
@@ -79,7 +79,7 @@ OPTIMISER_SPEC = GDCS(torch.optim.Adam, NOD(
     eps=1e-02))
 
 # Paths
-#PROJECT_DIRECTORY = Path(os.getcwd())
+# PROJECT_DIRECTORY = Path.cwd()
 PROJECT_DIRECTORY = Path.home() / 'Models' / 'Neodroid' / str(int(time.time()))
 MODEL_DIRECTORY = PROJECT_DIRECTORY / 'models'
 CONFIG_DIRECTORY = PROJECT_DIRECTORY / 'configs'

@@ -4,6 +4,8 @@ from abc import abstractmethod
 from typing import Any
 
 import draugr
+from agent.utilities.specifications.generalised_delayed_construction_specification import GDCS
+from agent.architectures import Architecture
 from warg import NamedOrderedDictionary
 
 __author__ = 'cnheider'
@@ -28,8 +30,8 @@ class PolicyAgent(TorchAgent):
     :param args:
     :param kwargs:
     '''
-    self._policy_arch_spec = None
-    self._policy_model = None
+    self._policy_arch_spec: GDCS = None
+    self._policy_model: Architecture = None
 
     self._deterministic = True
 
@@ -46,11 +48,12 @@ class PolicyAgent(TorchAgent):
       writer.add_graph(model, dummy_in, verbose=self._verbose)
     '''
 
-
     num_trainable_params = sum(
         p.numel() for p in self._policy_model.parameters() if p.requires_grad)
     num_params = sum(param.numel() for param in self._policy_model.parameters())
-    draugr.sprint(f'trainable/num_params: {num_trainable_params}/{num_params}\n', highlight=True, color='cyan')
+    draugr.sprint(f'trainable/num_params: {num_trainable_params}/{num_params}\n', highlight=True,
+                  color='cyan')
+
   # endregion
 
   # region Public
@@ -64,7 +67,7 @@ class PolicyAgent(TorchAgent):
 
   def load(self, model_file, evaluation=False):
     print(f'Loading model: {model_file}')
-    self._policy_model = self._policy_arch(**self._policy_arch_spec)
+    self._policy_model = self._policy_arch_spec.constructor(**self._policy_arch_spec.kwargs)
     self._policy_model.load_state_dict(torch.load(model_file))
     if evaluation:
       self._policy_model = self._policy_model.eval()
@@ -87,7 +90,7 @@ class PolicyAgent(TorchAgent):
 
     self._policy_arch_spec.kwargs['hidden_layers'] = self._hidden_layers
 
-  def _train(self, *args, **kwargs) -> NamedOrderedDictionary:
+  def _train_procedure(self, *args, **kwargs) -> NamedOrderedDictionary:
     return self.train_episodically(*args, **kwargs)
 
   # endregion
@@ -99,7 +102,7 @@ class PolicyAgent(TorchAgent):
     raise NotImplementedError
 
   @abstractmethod
-  def train_episodically(self, rollout, *args, **kwargs) -> NamedOrderedDictionary:
+  def train_episodically(self, rollout, *args, **kwargs) -> U.TR:
     raise NotImplementedError
 
   # endregion

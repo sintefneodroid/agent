@@ -13,7 +13,6 @@ from agent.configs.base_config import *
 CONFIG_NAME = __name__
 CONFIG_FILE = __file__
 
-
 ROLLOUTS = 10000
 INITIAL_OBSERVATION_PERIOD = 0
 LEARNING_FREQUENCY = 1

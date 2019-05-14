@@ -6,6 +6,7 @@ from gym import Env
 from gym.spaces import Box, Discrete
 import filelock
 
+
 class MnistEnv(Env):
   def __init__(self,
                seed=0,

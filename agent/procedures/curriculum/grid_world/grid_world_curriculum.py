@@ -23,7 +23,7 @@ def grid_world_sample_entire_configuration_space(environment):
     z_steps = z_space.discrete_steps
     x_min, x_max = x_space.min_value, x_space.max_value
     z_min, z_max = z_space.min_value, z_space.max_value
-    for x in np.linspace(x_min, x_max, x_steps ):
+    for x in np.linspace(x_min, x_max, x_steps):
       for z in np.linspace(z_min, z_max, z_steps):
         # for y in np.linspace(y_space.min_value, y_space.max_value, y_space.discrete_steps):
         initial_configuration = [
@@ -120,11 +120,11 @@ def estimate_value(candidate,
                    *,
                    save_snapshot=False,
                    statistics=None,
-                    random_sample=False,
+                   random_sample=False,
                    train=False):
   global _step_i, _episode_i
 
-  N_c_r =C.CANDIDATE_ROLLOUTS
+  N_c_r = C.CANDIDATE_ROLLOUTS
 
   rollout_signals = 0
   rollout_session = range(1, N_c_r + 1)
@@ -135,7 +135,7 @@ def estimate_value(candidate,
                                     )
     state_ob, _ = env.configure(state=candidate)
 
-    signals, steps, *stats = agent.rollout(state_ob, env, train=train,random_sample=random_sample)
+    signals, steps, *stats = agent.rollout(state_ob, env, train=train, random_sample=random_sample)
     rollout_signals += signals
 
     if train:
@@ -154,10 +154,6 @@ def estimate_value(candidate,
   return rollout_signals / N_c_r, _episode_i, _step_i
 
 
-
-
-
-
 def display_actor_configurations(env, candidates, frontier_displayer_name='ScatterPlot2'):
   actor_configurations = []
   for candidate in candidates:
@@ -167,8 +163,8 @@ def display_actor_configurations(env, candidates, frontier_displayer_name='Scatt
             actor_configuration[1])
     actor_configurations.append(vec3)
   frontier_displayable = [Displayable(frontier_displayer_name,
-                                      ([1]*len(actor_configuration),
-                                      actor_configurations))]
+                                      ([1] * len(actor_configuration),
+                                       actor_configurations))]
   state_ob, info = env.display(frontier_displayable)
 
 

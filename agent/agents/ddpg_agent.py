@@ -236,15 +236,15 @@ class DDPGAgent(ActorCriticAgent):
 
     return action_out
 
-  def _train(self,
-             env,
-             test_env,
-             *,
-             rollouts=1000,
-             render=False,
-             render_frequency=10,
-             stat_frequency=10
-             ):
+  def _train_procedure(self,
+                       env,
+                       test_env,
+                       *,
+                       rollouts=1000,
+                       render=False,
+                       render_frequency=10,
+                       stat_frequency=10
+                       ):
 
     # stats = draugr.StatisticCollection(stats=('signal', 'duration'))
 

@@ -15,7 +15,6 @@ from agent import utilities as U
 
 
 def train_agent(config, agent):
-
   neo.seed(config.SEED)
   torch.manual_seed(config.SEED)
 
@@ -34,9 +33,9 @@ def train_agent(config, agent):
      running_signals,
      running_lengths,
      *training_statistics) = agent.train(env,
-                                                                                        config.ROLLOUTS,
-                                                                                        render=config.RENDER_ENVIRONMENT
-                                                                                        )
+                                         config.ROLLOUTS,
+                                         render=config.RENDER_ENVIRONMENT
+                                         )
   finally:
     listener.stop()
 

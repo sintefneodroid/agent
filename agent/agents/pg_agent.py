@@ -6,6 +6,7 @@ from warnings import warn
 import draugr
 from draugr import TensorBoardWriter
 from neodroid.models import EnvironmentState
+from agent.utilities.exceptions.exceptions import NoTrajectoryException
 from warg import NOD
 
 from agent.architectures import CategoricalMLP
@@ -78,7 +79,7 @@ class PGAgent(PolicyAgent):
     self._policy_model = self._policy_arch_spec.constructor(**self._policy_arch_spec.kwargs).to(self._device)
 
     self.optimiser = self._optimiser_spec.constructor(self._policy_model.parameters(),
-                                          **self._optimiser_spec.kwargs)
+                                                      **self._optimiser_spec.kwargs)
 
   def _optimise_wrt(self, loss, **kwargs):
     self.optimiser.zero_grad()

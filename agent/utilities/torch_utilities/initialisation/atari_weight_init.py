@@ -9,7 +9,6 @@ __author__ = 'cnheider'
 import numpy as np
 
 
-
 def atari_initializer(module):
   ''' Parameter initializer for Atari models
 
@@ -33,6 +32,7 @@ Initializes Linear, Conv2d, and LSTM weights.
         param.data = ortho_weights(param.data.size(), scale=1.)
       if 'bias' in name:
         param.data.zero_()
+
 
 def initialize_parameters(m):
   classname = m.__class__.__name__

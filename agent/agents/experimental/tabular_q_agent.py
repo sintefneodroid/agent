@@ -141,18 +141,16 @@ class TabularQAgent(ValueAgent):
 
     # self._q_table = np.zeros([self._environment.observation_space.n, self._environment.action_space.n])
 
-  def _train(self,
-             env,
-             rollouts=10000,
-             *args,
-             **kwargs) -> Tuple[Any, Any]:
+  def _train_procedure(self,
+                       env,
+                       rollouts=10000,
+                       *args,
+                       **kwargs) -> Tuple[Any, Any]:
     model, *stats = self.train_episodically(env, rollouts=rollouts)
 
     return model, stats
 
   # endregion
-
-
 
 
 # region Test

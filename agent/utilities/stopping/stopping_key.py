@@ -5,6 +5,7 @@ import draugr
 __author__ = 'cnheider'
 __doc__ = ''
 
+
 def add_early_stopping_key_combination(callback, key='ctrl+shift+s', has_x_server=True):
   if not has_x_server:
     return
@@ -40,6 +41,3 @@ def add_early_stopping_key_combination(callback, key='ctrl+shift+s', has_x_serve
       current.remove(key)
 
   return keyboard.Listener(on_press=on_press, on_release=on_release)
-
-
-

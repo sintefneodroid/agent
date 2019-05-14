@@ -78,7 +78,7 @@ def main():
       episode_reward = 0
       for k in count(1):
 
-        #actions = _environment.action_space.sample()
+        # actions = _environment.action_space.sample()
         observations, signal, terminated, info = _environment.sample_action()
 
         episode_reward += signal

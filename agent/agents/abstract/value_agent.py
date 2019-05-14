@@ -34,10 +34,10 @@ All value iteration agents should inherit from this class
   # region Public
 
   def __init__(self, config=None, *args, **kwargs):
-    self._exploration_spec = ExplorationSpecification(start=0.99,end=0.04,decay=10000)
+    self._exploration_spec = ExplorationSpecification(start=0.99, end=0.04, decay=10000)
     self._initial_observation_period = 0
 
-    self._value_arch_spec : GDCS = None
+    self._value_arch_spec: GDCS = None
     self._value_model = None
 
     self._naive_max_policy = False
@@ -57,7 +57,7 @@ All value iteration agents should inherit from this class
     return self.sample_random_process(state)
 
   def sample_random_process(self, state):
-    sample = np.random.choice(np.arange(self._output_size[0]),len(state))
+    sample = np.random.choice(np.arange(self._output_size[0]), len(state))
     return sample
 
   def build(self, env, **kwargs):
@@ -68,12 +68,13 @@ All value iteration agents should inherit from this class
 
       model = copy.deepcopy(self._value_model)
       model.to('cpu')
-      #writer.add_graph(model, dummy_in, verbose=self._verbose)
+      # writer.add_graph(model, dummy_in, verbose=self._verbose)
 
     num_params = sum(param.numel() for param in self._value_model.parameters())
     num_trainable_params = sum(
         p.numel() for p in self._value_model.parameters() if p.requires_grad)
-    draugr.sprint(f'trainable/num_params: {num_trainable_params}/{num_params}\n', highlight=True, color='cyan')
+    draugr.sprint(f'trainable/num_params: {num_trainable_params}/{num_params}\n', highlight=True,
+                  color='cyan')
 
   def epsilon_random(self, steps_taken):
     '''
@@ -244,7 +245,7 @@ All value iteration agents should inherit from this class
 
     self._value_arch_spec.kwargs['hidden_layers'] = self._hidden_layers
 
-  def _train(self, *args, **kwargs) -> TR:
+  def _train_procedure(self, *args, **kwargs) -> TR:
     return self.train_episodically(*args, **kwargs)
 
   # endregion

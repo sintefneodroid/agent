@@ -29,8 +29,8 @@ def train_agent(config, agent):
     listener.start()
   try:
     (trained_model, running_signals, running_lengths, *training_statistics) = agent.train(env,
-                                                                                         config.ROLLOUTS,
-                                                                                         render=config.RENDER_ENVIRONMENT)
+                                                                                          config.ROLLOUTS,
+                                                                                          render=config.RENDER_ENVIRONMENT)
   except ValueError:
     running_signals = None
     running_lengths = None
@@ -41,11 +41,11 @@ def train_agent(config, agent):
       listener.stop()
 
   draugr.save_statistic(running_signals, stat_name='running_signals', config_name=C.CONFIG_NAME,
-                        project_name=C.PROJECT ,
+                        project_name=C.PROJECT,
                         directory=C.LOG_DIRECTORY)
   draugr.save_statistic(running_lengths, stat_name='running_lengths', directory=C.LOG_DIRECTORY,
                         config_name=C.CONFIG_NAME,
-                        project_name=C.PROJECT )
+                        project_name=C.PROJECT)
   U.save_model(trained_model, config)
 
   env.close()

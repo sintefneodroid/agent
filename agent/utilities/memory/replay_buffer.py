@@ -6,7 +6,7 @@ from agent.utilities.memory import Transition
 
 class ReplayBuffer(object):
 
-  def __init__(self, capacity = int(3e6)):
+  def __init__(self, capacity=int(3e6)):
     self._buffer = deque(maxlen=capacity)
 
   def add(self, item):

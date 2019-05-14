@@ -73,7 +73,8 @@ class DQNAgent(ValueAgent):
 
     self._value_model = self._value_arch_spec.constructor(**self._value_arch_spec.kwargs).to(self._device)
 
-    self._target_value_model = self._value_arch_spec.constructor(**self._value_arch_spec.kwargs).to(self._device)
+    self._target_value_model = self._value_arch_spec.constructor(**self._value_arch_spec.kwargs).to(
+      self._device)
     self._target_value_model = U.copy_state(target=self._target_value_model, source=self._value_model)
     self._target_value_model.eval()
 

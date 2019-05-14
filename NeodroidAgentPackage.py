@@ -4,8 +4,8 @@ import os
 import re
 
 with open(os.path.join(os.path.dirname(__file__), "agent/version.py"), "r") as f:
-    # get version string from module
-    version = re.search(r"__version__ = ['\"]([^'\"]*)['\"]", f.read(), re.M).group(1)
+  # get version string from module
+  version = re.search(r"__version__ = ['\"]([^'\"]*)['\"]", f.read(), re.M).group(1)
 
 
 class NeodroidAgentPackage:
@@ -88,7 +88,7 @@ class NeodroidAgentPackage:
         'neodroid-pg = agent.agents.pg_agent:pg_test',
         'neodroid-ddpg = agent.agents.dppg_agent:ddpg_test',
         'neodroid-cma = agent.agents.experimental.cma_agent:cma_test'
-        #'neodroid-evo = agents.evo_agent:main'
+        # 'neodroid-evo = agents.evo_agent:main'
         ]
       }
 

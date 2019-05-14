@@ -5,7 +5,6 @@ from collections import namedtuple
 __author__ = 'cnheider'
 __doc__ = ''
 
-
 TrainingSpecification = namedtuple('TrainingSpecification',
-                                                         ['constructor',
-                                                          'kwargs'])
+                                   ['constructor',
+                                    'kwargs'])

@@ -48,6 +48,6 @@ if __name__ == '__main__':
   obs = env.reset()
   for t in range(100000):
     obs, signal, term, info = env.step(env.np_random.randint(0, env.action_space.n - 1))
-    print(obs,signal,term)
+    print(obs, signal, term)
     if term:
       obs = env.reset()

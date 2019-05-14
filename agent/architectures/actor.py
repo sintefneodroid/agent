@@ -23,8 +23,6 @@ class DDPGActorArchitecture(MLP):
     init.uniform_(self._head.weight, low, high)
     init.uniform_(self._head.bias, low, high)
 
-
-
   def forward(self, x, **kwargs):
     val = super().forward(x)
 

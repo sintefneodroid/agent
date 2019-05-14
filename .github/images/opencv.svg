@@ -26,10 +26,6 @@
         id="cv_element"/>
   </defs>
   <!-- paths -->
-  <use fill="#ff0101" id="red" x="298" y="140" xlink:href="#cv_element"/>
-  <use fill="#0101ff" id="blue" transform="rotate(180,457,415)" x="457" y="415" xlink:href="#cv_element"/>
-  <use fill="#01ff01" id="green" transform="rotate(240,142,415)" x="142" y="415" xlink:href="#cv_element"/>
-  <!--- text -->
   <g fill-rule="evenodd" id="opencv_text">
     <path d="
 			M 42.48 587.70 C 54.27 586.64 66.19 586.65 77.92 588.33 C 85.15 589.61 92.82 591.48 98.25 596.75 C 103.94 603.10 105.34 611.92 106.59 620.05 C 108.64 636.92 108.40 654.03 106.59 670.91 C 105.38 679.15 104.19 688.05 98.79 694.75 C 92.90 700.73 84.20 702.43 76.22 703.69 C 64.44 705.16 52.49 705.50 40.66 704.32 C 32.65 703.50 24.29 702.09 17.47 697.52 C 13.06 694.72 10.69 689.78 9.08 684.99 C 5.85 675.01 5.44 664.41 5.00 654.01 C 4.95 640.27 5.21 626.39 7.89 612.87 C 9.34 606.56 11.10 599.62 16.43 595.41 C 23.94 589.96 33.49 588.64 42.48 587.70 Z
@@ -59,5 +55,9 @@
         fill="#050505"
         id="V"/>
   </g>
+  <use fill="#0101ff" id="blue" transform="rotate(180,457,415)" x="457" y="415" xlink:href="#cv_element"/>
+  <use fill="#01ff01" id="green" transform="rotate(240,142,415)" x="142" y="415" xlink:href="#cv_element"/>
+  <!--- text -->
+  <use fill="#ff0101" id="red" x="298" y="140" xlink:href="#cv_element"/>
   <!-- <text style="font-family: 'Eurostile Bold';" font-family="Eurostile Bold" font-size="170" y="95%" x="0">OpenCV</text> -->
 </svg>

@@ -22,7 +22,7 @@ POLICY_ARCH_SPEC = GDCS(CategoricalMLP, NOD(**{
   'use_bias':               False,
   }))
 
-VALUE_ARCH_PARAMS = GDCS(MLP,NOD(**{
+VALUE_ARCH_PARAMS = GDCS(MLP, NOD(**{
   'input_size':             None,  # Obtain from environment
   'hidden_layer_activation':torch.tanh,
   'hidden_layers':          [128, 64, 32, 16],
@@ -31,7 +31,7 @@ VALUE_ARCH_PARAMS = GDCS(MLP,NOD(**{
   }))
 
 # Optimiser
-OPTIMISER_SPEC = GDCS(torch.optim.Adam,NOD(lr=0.00025,weight_decay=1e-5,alpha=0.95,epsilon=0.01))
+OPTIMISER_SPEC = GDCS(torch.optim.Adam, NOD(lr=0.00025, weight_decay=1e-5, alpha=0.95, epsilon=0.01))
 
 # Curriculum
 RANDOM_MOTION_HORIZON = 20

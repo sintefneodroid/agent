@@ -15,4 +15,3 @@ def soft_update(target: torch.nn.Module, source: torch.nn.Module, tau: float) ->
         )
 
   return target
-

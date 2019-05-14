@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 from agent.utilities.exploration.sampling.random_process import RandomProcess
+
 __author__ = 'cnheider'
 
 from math import sqrt
@@ -8,7 +9,6 @@ from math import sqrt
 import matplotlib.pyplot as plt
 import numpy as np
 from scipy.stats import norm
-
 
 
 class WienerProcess(RandomProcess):

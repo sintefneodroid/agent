@@ -18,29 +18,31 @@ __doc__ = 'Tests of agents'
 def test_pg_agent():
   env = NeodroidWrapper(StatefullEnvironment())
   agent = PGAgent()
-  #agent_test(agent,env)
+  # agent_test(agent,env)
 
 
 @pytest.mark.slow
 def test_dqn_agent():
   env = NeodroidWrapper(StatefullEnvironment())
   agent = DQNAgent()
-  #agent_test(agent,env)
+  # agent_test(agent,env)
+
 
 @pytest.mark.slow
 def test_ppo_agent():
   env = NeodroidWrapper(StatefullEnvironment())
   agent = PPOAgent()
-  #agent_test(agent,env)
+  # agent_test(agent,env)
+
 
 @pytest.mark.slow
 def test_ddpg_agent():
   env = NeodroidWrapper(StatefullEnvironment())
   agent = DDPGAgent()
-  #agent_test(agent, env)
+  # agent_test(agent, env)
+
 
 def agent_test(agent, env):
-
   agent.build(env)
 
   episode_signals = []
@@ -52,6 +54,7 @@ def agent_test(agent, env):
 
   last_avg = sum(episode_signals) / 100
   assert last_avg > 10, f'Had {last_avg}'
+
 
 if __name__ == '__main__':
   test_pg_agent()

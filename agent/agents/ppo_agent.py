@@ -4,12 +4,12 @@ from itertools import count
 from typing import Any, Tuple
 
 import numpy
-from warg import NOD
 
 from agent.architectures import DDPGActorArchitecture, DDPGCriticArchitecture
 from agent.procedures.train_agent import agent_test_main, parallel_train_agent_procedure
 from agent.utilities.specifications.generalised_delayed_construction_specification import GDCS
 from agent.utilities.specifications.training_resume import TR
+from warg import NOD
 
 __author__ = 'cnheider'
 
@@ -22,11 +22,11 @@ from agent import utilities as U
 from agent.agents.abstract.ac_agent import ActorCriticAgent
 
 
-
-
-
 class PPOAgent(ActorCriticAgent):
   '''
+  PPO, Proximal Policy Optimization method
+
+  See method __defaults__ for default parameters
 '''
 
   # region Private
@@ -68,7 +68,7 @@ class PPOAgent(ActorCriticAgent):
 
     self._surrogate_clipping_value = 0.2
 
-    self._optimiser_spec = GDCS(torch.optim.Adam,{})
+    self._optimiser_spec = GDCS(torch.optim.Adam, {})
 
     self._actor_arch_spec = GDCS(DDPGActorArchitecture, kwargs=NOD({
       'input_size':       None,  # Obtain from environment
@@ -169,7 +169,7 @@ class PPOAgent(ActorCriticAgent):
 
     return action, action_log_prob, value_estimate, distribution
 
-  def _train(self, *args, **kwargs):
+  def _train_procedure(self, *args, **kwargs):
 
     # num_updates = int(args.num_frames) // args.num_steps // args.num_processes
 

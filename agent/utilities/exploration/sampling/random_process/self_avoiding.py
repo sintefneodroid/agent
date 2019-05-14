@@ -9,7 +9,6 @@ import random
 import numpy as np
 
 
-
 class SelfAvoiding(RandomProcess):
 
   def __init__(self, num_of_options=4, n=10):

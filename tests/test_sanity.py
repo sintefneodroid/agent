@@ -25,11 +25,11 @@ def test_print(capsys):
   assert err in captured.err
 
 
-@pytest.mark.parametrize(["a","b"],
-                         ((0, 0),(10,20)),
+@pytest.mark.parametrize(["a", "b"],
+                         ((0, 0), (10, 20)),
                          ids=["zero", "ten"])
-def test_double(a,b):
-    assert a*2 == b
+def test_double(a, b):
+  assert a * 2 == b
 
 
 if __name__ == '__main__':

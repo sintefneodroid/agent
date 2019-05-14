@@ -28,13 +28,13 @@ class CMAAgent(EVOAgent):
   def _sample_model(self, state, *args, **kwargs) -> Any:
     pass
 
-  def _train(self,
-             _environment,
-             rollouts=2000,
-             render=False,
-             render_frequency=100,
-             stat_frequency=10,
-             **kwargs) -> Tuple[Any, Any]:
+  def _train_procedure(self,
+                       _environment,
+                       rollouts=2000,
+                       render=False,
+                       render_frequency=100,
+                       stat_frequency=10,
+                       **kwargs) -> Tuple[Any, Any]:
     training_start_timestamp = time.time()
     E = range(1, rollouts)
     E = tqdm(E, f'Episode: {1}', leave=False)
@@ -67,7 +67,7 @@ class CMAAgent(EVOAgent):
 
     time_elapsed = time.time() - training_start_timestamp
     end_message = f'Training done, time elapsed: {time_elapsed // 60:.0f}m {time_elapsed % 60:.0f}s'
-    print('\n{} {} {}\n'.format('-' * 9, end_message, '-' * 9))
+    print(f'\n{"-" * 9} {end_message} {"-" * 9}\n')
 
     return self._policy, stats
 
@@ -92,7 +92,8 @@ class CMAAgent(EVOAgent):
 
   # endregion
 
-#region Test
+
+# region Test
 def cma_test():
   import agent.configs.agent_test_configs.pg_test_config as C
 
@@ -101,8 +102,9 @@ def cma_test():
 
   agent_test_main(CMAAgent, C)
 
+
 if __name__ == '__main__':
 
   cma_test()
 
-#endregion
+# endregion

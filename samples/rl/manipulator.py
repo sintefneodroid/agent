@@ -34,9 +34,9 @@ def train_agent(config, agent):
      running_signals,
      running_lengths,
      *training_statistics) = agent.train(env,
-                                                                                          config.ROLLOUTS,
-                                                                                          render=config.RENDER_ENVIRONMENT
-                                                                                          )
+                                         config.ROLLOUTS,
+                                         render=config.RENDER_ENVIRONMENT
+                                         )
   finally:
     if listener:
       listener.stop()

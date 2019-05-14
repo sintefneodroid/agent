@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-import draugr
+from agents.pg_agent import PGAgent
+from warg import parse_arguments, get_upper_case_vars_or_protected_of
 
-from neodroid.wrappers.utility_wrappers.action_encoding_wrappers import (BinaryActionEncodingWrapper,
-                                                                         NeodroidWrapper,
-                                                                         )
+import draugr
+from neodroid.wrappers import BinaryActionEncodingWrapper, NeodroidWrapper
 
 __author__ = 'cnheider'
 
@@ -62,9 +62,7 @@ def train_agent(config, agent):
 
 
 if __name__ == '__main__':
-  import experiments.rl.grid_world.grid_world_config as C
-
-  from agent.configs import parse_arguments, get_upper_case_vars_or_protected_of
+  import samples.rl.grid_world.grid_world_config as C
 
   args = parse_arguments('Regular small grid world experiment', C)
 
@@ -77,7 +75,7 @@ if __name__ == '__main__':
       print(f'{key} = {arg}')
     input('\nPress Enter to begin... ')
 
-  _agent = C.AGENT_TYPE(C)
+  _agent = PGAgent(C)
 
   try:
     train_agent(C, _agent)

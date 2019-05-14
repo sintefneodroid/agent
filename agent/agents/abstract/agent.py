@@ -15,10 +15,9 @@ from warg import (NamedOrderedDictionary,
                   )
 
 from agent.utilities.exceptions.exceptions import HasNoEnvError
-from agent.utilities.specifications.training_resume import TrainingResume
+from agent.utilities.specifications.training_resume import TrainingResume, TR
 
 tqdm.monitor_interval = 0
-
 
 __author__ = 'cnheider'
 
@@ -78,7 +77,6 @@ All agent should inherit from this class
       else:
         self.__setattr__(k, v)
 
-
   # endregion
 
   # region Public
@@ -113,10 +111,10 @@ All agent should inherit from this class
     self._maybe_infer_sizes(self._environment)
     self._build(**kwargs)
 
-  def train(self, env, test_env, **kwargs) -> TrainingResume:
+  def train(self, env, test_env, **kwargs) -> TR:
     training_start_timestamp = time.time()
 
-    training_resume = self._train(env, test_env, **kwargs)
+    training_resume = self._train_procedure(env, test_env, **kwargs)
 
     time_elapsed = time.time() - training_start_timestamp
     end_message = f'Training done, time elapsed: {time_elapsed // 60:.0f}m {time_elapsed % 60:.0f}s'
@@ -174,20 +172,20 @@ Tries to infer input and output size from env if either _input_size or _output_s
 
     if self._input_size is None or self._input_size == -1:
       if len(env.observation_space.shape) >= 1:
-       self._input_size = env.observation_space.shape
+        self._input_size = env.observation_space.shape
       else:
-        self._input_size = (env.observation_space.n,1)
+        self._input_size = (env.observation_space.n, 1)
 
     if self._output_size is None or self._output_size == -1:
       if isinstance(env.action_space, ActionSpace):
         if env.action_space.is_discrete:
-          self._output_size = (env.action_space.num_discrete_actions,1)
+          self._output_size = (env.action_space.num_discrete_actions, 1)
         else:
-          self._output_size = (env.action_space.n,1)
+          self._output_size = (env.action_space.n, 1)
       elif len(env.action_space.shape) >= 1:
         self._output_size = env.action_space.shape
       else:
-        self._output_size = (env.action_space.n,1)
+        self._output_size = (env.action_space.n, 1)
 
     # region print
 
@@ -262,8 +260,7 @@ Tries to infer input and output size from env if either _input_size or _output_s
     raise NotImplementedError
 
   @abstractmethod
-  def _train(self, *args, **kwargs) -> TrainingResume:
+  def _train_procedure(self, *args, **kwargs) -> TrainingResume:
     raise NotImplementedError
 
   # endregion
-

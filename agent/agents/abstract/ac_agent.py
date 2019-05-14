@@ -34,15 +34,15 @@ All value iteration agents should inherit from this class
 
     self._memory_buffer = U.TransitionBuffer()
 
-    self._actor_optimiser_spec : GDCS = GDCS(constructor=torch.optim.Adam,
-                                      kwargs={'lr':3e-4}
-                                      )
+    self._actor_optimiser_spec: GDCS = GDCS(constructor=torch.optim.Adam,
+                                            kwargs={'lr':3e-4}
+                                            )
 
-    self._critic_optimiser_spec : GDCS = GDCS(constructor=torch.optim.Adam,
-                                       kwargs={'lr':          3e-3,
-                                               'weight_decay':3e-2
-                                               }
-                                       )
+    self._critic_optimiser_spec: GDCS = GDCS(constructor=torch.optim.Adam,
+                                             kwargs={'lr':          3e-3,
+                                                     'weight_decay':3e-2
+                                                     }
+                                             )
 
     super().__init__(*args, **kwargs)
 
@@ -50,11 +50,11 @@ All value iteration agents should inherit from this class
     # Construct actor and critic
     self._actor = self._actor_arch_spec.constructor(**self._actor_arch_spec.kwargs).to(self._device)
     self._target_actor = self._actor_arch_spec.constructor(**self._actor_arch_spec.kwargs).to(
-      self._device).eval()
+        self._device).eval()
 
     self._critic = self._critic_arch_spec.constructor(**self._critic_arch_spec.kwargs).to(self._device)
     self._target_critic = self._critic_arch_spec.constructor(**self._critic_arch_spec.kwargs).to(
-      self._device).eval()
+        self._device).eval()
 
     # Construct the optimizers for actor and critic
     self._actor_optimiser = self._actor_optimiser_spec.constructor(self._actor.parameters(),

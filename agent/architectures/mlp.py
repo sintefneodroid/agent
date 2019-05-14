@@ -51,8 +51,8 @@ OOOO hidden_layer_size * (Weights,Biases)
 
     if isinstance(input_size, Sequence):
       assert len(input_size) > 0, f'Got length {len(input_size)}'
-      if len(input_size)>1:
-        self._input_size = input_size[0]*input_size[1]
+      if len(input_size) > 1:
+        self._input_size = input_size[0] * input_size[1]
       else:
         self._input_size = input_size[0]
     else:
@@ -60,7 +60,7 @@ OOOO hidden_layer_size * (Weights,Biases)
 
     if isinstance(output_size, Sequence):
       assert len(output_size) > 0, f'Got length {len(output_size)}'
-      if len(output_size)>1:
+      if len(output_size) > 1:
         self._output_size = prod(output_size)
       else:
         self._output_size = output_size[0]
@@ -78,7 +78,6 @@ OOOO hidden_layer_size * (Weights,Biases)
                                              h_3_size
                                              ).as_list()
 
-
     self._hidden_layers = hidden_layers
     self._hidden_layer_activation = hidden_layer_activation
 
@@ -92,14 +91,14 @@ OOOO hidden_layer_size * (Weights,Biases)
         layer = nn.Linear(previous_layer_size,
                           self._hidden_layers[i - 1],
                           bias=self._use_bias)
-        #fan_in_init(layer.weight)
+        # fan_in_init(layer.weight)
         setattr(self, f'_fc{i}', layer)
         previous_layer_size = self._hidden_layers[i - 1]
 
     self._head = nn.Linear(previous_layer_size,
                            self._output_size,
                            bias=self._use_bias)
-    #fan_in_init(self._head.weight)
+    # fan_in_init(self._head.weight)
 
     xavier_init(self)
 
@@ -109,7 +108,7 @@ OOOO hidden_layer_size * (Weights,Biases)
     :param x:
     :return output:
     '''
-    #assert isinstance(x, Tensor)
+    # assert isinstance(x, Tensor)
 
     # if hasattr(self, 'num_of_layer'): # Safer but slower
     #  for i in range(1, self.num_of_layer + 1):
@@ -117,7 +116,7 @@ OOOO hidden_layer_size * (Weights,Biases)
     #      layer = getattr(self, 'fc' + str(i))
     #      x = F.relu(layer(x))
 
-    val = x.view(x.size(0),-1)
+    val = x.view(x.size(0), -1)
     for i in range(1, self.num_of_layer + 1):
       layer = getattr(self, f'_fc{i}')
       val = layer(val)

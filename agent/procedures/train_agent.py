@@ -7,7 +7,7 @@ from itertools import count
 import draugr
 from trolls.multiple_environments_wrapper import SubProcessEnvironments, make_env
 from warg import get_upper_case_vars_or_protected_of
-from neodroid.wrappers import VectorWrap, NeodroidWrapper,BinaryActionEncodingWrapper
+from neodroid.wrappers import VectorWrap, NeodroidWrapper, BinaryActionEncodingWrapper
 from warg import parse_arguments
 from agent.utilities.exceptions.exceptions import NoTrainingProcedure
 
@@ -201,13 +201,10 @@ def agent_test_main(agent,
 
 '''
 
-
   if training_procedure is None:
     raise NoTrainingProcedure
   elif isinstance(training_procedure, type):
     training_procedure = training_procedure()
-
-
 
   if parse_args:
     args = parse_arguments(f'{type(agent)}', config)
@@ -235,7 +232,7 @@ def agent_test_main(agent,
     for key, arg in get_upper_case_vars_or_protected_of(config).items():
       print(f'{key} = {arg}')
 
-    print( f'\n.. Also save:{save}, has_x_server:{has_x_server}')
+    print(f'\n.. Also save:{save}, has_x_server:{has_x_server}')
     input('\nPress Enter to begin... ')
 
   try:

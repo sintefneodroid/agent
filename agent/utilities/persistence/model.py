@@ -19,7 +19,7 @@ def load_latest_model(configuration):
 
 def ensure_directory_exist(model_path):
   if not os.path.exists(model_path):
-      os.makedirs(model_path)
+    os.makedirs(model_path)
 
 
 def save_model(model, configuration, *, name=''):
@@ -38,8 +38,8 @@ def save_model(model, configuration, *, name=''):
   ensure_directory_exist(configuration.CONFIG_DIRECTORY)
   config_path = os.path.join(configuration.CONFIG_DIRECTORY, model_name)
   try:
-    save_model_and_configuration(model=model, model_path=model_path,config_path=config_path,
-    configuration=configuration)
+    save_model_and_configuration(model=model, model_path=model_path, config_path=config_path,
+                                 configuration=configuration)
   except FileNotFoundError as e:
     print(e)
     saved = False
