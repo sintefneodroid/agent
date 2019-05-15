@@ -1,14 +1,12 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 import pytest
-from neodroid.wrappers.utility_wrappers.action_encoding_wrappers import NeodroidWrapper
 
 from agent.agents.ddpg_agent import DDPGAgent
 from agent.agents.dqn_agent import DQNAgent
 from agent.agents.pg_agent import PGAgent
 from agent.agents.ppo_agent import PPOAgent
-from samples.simple_environments import \
-  StatefullEnvironment
+from neodroid.wrappers import NeodroidWrapper
 
 __author__ = 'cnheider'
 __doc__ = 'Tests of agents'
@@ -16,28 +14,28 @@ __doc__ = 'Tests of agents'
 
 @pytest.mark.slow
 def test_pg_agent():
-  env = NeodroidWrapper(StatefullEnvironment())
+  env = NeodroidWrapper(None)
   agent = PGAgent()
   # agent_test(agent,env)
 
 
 @pytest.mark.slow
 def test_dqn_agent():
-  env = NeodroidWrapper(StatefullEnvironment())
+  env = NeodroidWrapper(None)
   agent = DQNAgent()
   # agent_test(agent,env)
 
 
 @pytest.mark.slow
 def test_ppo_agent():
-  env = NeodroidWrapper(StatefullEnvironment())
+  env = NeodroidWrapper(None)
   agent = PPOAgent()
   # agent_test(agent,env)
 
 
 @pytest.mark.slow
 def test_ddpg_agent():
-  env = NeodroidWrapper(StatefullEnvironment())
+  env = NeodroidWrapper(None)
   agent = DDPGAgent()
   # agent_test(agent, env)
 

@@ -42,7 +42,7 @@ class ConstantEnvironment(NoRenderEnv):
     return self.act(a)
 
 
-class StatefullEnvironment(ConstantEnvironment):
+class StatefulEnvironment(ConstantEnvironment):
 
   def reset(self):
     self.obs = self.observation_space.sample()
@@ -62,7 +62,7 @@ class StatefullEnvironment(ConstantEnvironment):
 
 
 if __name__ == '__main__':
-  env = StatefullEnvironment()
+  env = StatefulEnvironment()
   obs = env.reset()
   total = 0
   for t in range(10000):

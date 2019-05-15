@@ -30,7 +30,7 @@ VISDOM_SERVER = 'http://localhost'
 
 # Paths
 DATA_SET = 'neodroid'
-DATA_SET_DIRECTORY = os.path.join('/home/heider/Datasets', DATA_SET)
+DATA_SET_DIRECTORY = pathlib.Path.joinpath('/home/heider/Datasets', DATA_SET)
 TARGET_FILE_NAME = 'target_position_rotation.csv'
 DEPTH_IMAGES_DIRECTORY = 'depth'
 MODEL_DIRECTORY = 'models'
