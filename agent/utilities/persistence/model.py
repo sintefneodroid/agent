@@ -61,7 +61,7 @@ def save_model(model, configuration, *, name=''):
 
 def save_model_and_configuration(*, model, model_path, config_path, configuration):
   if model and model_path:
-    torch.save(model.state_dict(), model_path)  # TODO possible to .cpu() copy would be great
+    torch.save(model.state_dict(), model_path)
     save_config(config_path, configuration)
     return True
   return False
@@ -70,7 +70,7 @@ def save_model_and_configuration(*, model, model_path, config_path, configuratio
 def save_config(new_path, configuration):
   config_path = pathlib.Path(configuration.CONFIG_FILE).absolute().parent/configuration.CONFIG_FILE
 
-  shutil.copyfile(config_path, new_path + '.py')
+  shutil.copyfile(str(config_path), new_path + '.py')
 
 
 def convert_to_cpu(path=''):
