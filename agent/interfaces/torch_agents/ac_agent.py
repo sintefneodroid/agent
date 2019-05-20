@@ -8,12 +8,12 @@ import draugr
 from tqdm import tqdm
 
 from agent.utilities.specifications.generalised_delayed_construction_specification import GDCS
+from agent.interfaces.torch_agent import TorchAgent
 
 __author__ = 'cnheider'
 import torch
 
 from agent import utilities as U
-from agent.agents.abstract.torch_agent import TorchAgent
 import numpy as np
 
 

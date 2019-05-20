@@ -3,5 +3,3 @@
 
 __author__ = 'cnheider'
 __doc__ = ''
-
-from samples import *

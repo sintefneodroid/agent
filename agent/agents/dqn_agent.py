@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 import matplotlib
+
+from agent.interfaces.torch_agents.value_agent import ValueAgent
 from warg import NOD, NamedOrderedDictionary
 
 from agent.architectures import MLP
@@ -19,7 +21,6 @@ from tqdm import tqdm
 import matplotlib.pyplot as plt
 
 from agent import utilities as U
-from agent.agents.abstract.value_agent import ValueAgent
 
 
 class DQNAgent(ValueAgent):

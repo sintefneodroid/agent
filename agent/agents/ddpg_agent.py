@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 from neodroid.models import EnvironmentState
+from agent.utilities.exploration.sampling import OrnsteinUhlenbeckProcess
 from warg import NamedOrderedDictionary
 
 from agent.architectures import DDPGActorArchitecture, DDPGCriticArchitecture
@@ -17,8 +18,8 @@ from tqdm import tqdm
 tqdm.monitor_interval = 0
 
 from agent import utilities as U
-from agent.agents.abstract.ac_agent import ActorCriticAgent
-from agent.utilities import OrnsteinUhlenbeckProcess, ArchitectureSpecification
+from agent.interfaces.torch_agents.ac_agent import ActorCriticAgent
+from agent.utilities import  ArchitectureSpecification
 
 
 class DDPGAgent(ActorCriticAgent):

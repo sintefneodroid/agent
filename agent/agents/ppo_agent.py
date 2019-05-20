@@ -9,6 +9,7 @@ from agent.architectures import DDPGActorArchitecture, DDPGCriticArchitecture
 from agent.procedures.train_agent import agent_test_main, parallel_train_agent_procedure
 from agent.utilities.specifications.generalised_delayed_construction_specification import GDCS
 from agent.utilities.specifications.training_resume import TR
+from agent.interfaces.torch_agents.ac_agent import ActorCriticAgent
 from warg import NOD
 
 __author__ = 'cnheider'
@@ -19,7 +20,6 @@ from tqdm import tqdm
 import torch.nn.functional as F
 
 from agent import utilities as U
-from agent.agents.abstract.ac_agent import ActorCriticAgent
 
 
 class PPOAgent(ActorCriticAgent):

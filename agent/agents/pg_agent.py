@@ -1,12 +1,11 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-import time
 from warnings import warn
 
 import draugr
 from draugr import TensorBoardWriter
 from neodroid.models import EnvironmentState
-from agent.utilities.exceptions.exceptions import NoTrajectoryException
+from agent.exceptions.exceptions import NoTrajectoryException
 from neodroid.utilities.transformations.encodings import to_one_hot
 from warg import NOD
 
@@ -25,7 +24,7 @@ from torch.distributions import Categorical, Normal
 from tqdm import tqdm
 
 from agent import utilities as U
-from agent.agents.abstract.policy_agent import PolicyAgent
+from agent.interfaces.torch_agents.policy_agent import PolicyAgent
 
 tqdm.monitor_interval = 0
 

@@ -5,7 +5,7 @@ from abc import ABC, abstractmethod
 import torch
 from tqdm import tqdm
 
-from agent.agents.abstract.agent import Agent
+from .agent import Agent
 
 tqdm.monitor_interval = 0
 

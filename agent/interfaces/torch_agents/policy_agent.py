@@ -13,7 +13,7 @@ __author__ = 'cnheider'
 import torch
 
 import agent.utilities as U
-from agent.agents.abstract.torch_agent import TorchAgent
+from agent.interfaces.torch_agent import TorchAgent
 
 
 class PolicyAgent(TorchAgent):

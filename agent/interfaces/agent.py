@@ -2,20 +2,15 @@
 # -*- coding: utf-8 -*-
 import time
 from itertools import count
-from pathlib import Path
 from typing import Any
-from warnings import warn
 
-import draugr
-import numpy
-from neodroid.utilities import ActionSpace, logging
+from neodroid.utilities import ActionSpace
 from tqdm import tqdm
-from warg import (NamedOrderedDictionary,
-                  get_upper_case_vars_or_protected_of, check_for_duplicates_in_args,
+from warg import (get_upper_case_vars_or_protected_of, check_for_duplicates_in_args,
                   AppPath,
                   )
 
-from agent.utilities.exceptions.exceptions import HasNoEnvError
+from agent.exceptions.exceptions import HasNoEnvError
 from agent.utilities.specifications.training_resume import TrainingResume, TR
 
 tqdm.monitor_interval = 0
@@ -163,14 +158,11 @@ Tries to infer input and output size from env if either _input_shape or _output_
 
 :rtype: object
 '''
-    self._observation_space = env.space
-    self._action_space = env.action_space
-
     if self._input_shape is None or self._input_shape == -1:
-      if len(env.space.shape) >= 1:
-        self._input_shape = env.space.shape
+      if len(env.observation_space.shape) >= 1:
+        self._input_shape = env.observation_space.shape
       else:
-        self._input_shape = (env.space.n, 1)
+        self._input_shape = (env.observation_space.space.n, 1)
 
     if self._output_shape is None or self._output_shape == -1:
       if isinstance(env.action_space, ActionSpace):

@@ -23,7 +23,7 @@ import numpy as np
 import torch
 import tensorboardX as tx
 from agent import utilities as U
-from agent.agents.abstract.torch_agent import TorchAgent
+from agent.interfaces.torch_agent import TorchAgent
 
 
 class ValueAgent(TorchAgent):
@@ -64,7 +64,7 @@ All value iteration agents should inherit from this class
     super().build(env, **kwargs)
     with tx.SummaryWriter(str(self._log_directory))as writer:
       dummy_in = torch.rand(
-          1, *self._observation_space.shape)
+          1, *self.input_shape)
 
       model = copy.deepcopy(self._value_model)
       model.to('cpu')

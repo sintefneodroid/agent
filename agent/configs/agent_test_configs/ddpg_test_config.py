@@ -2,7 +2,8 @@
 # -*- coding: utf-8 -*-
 from agent.agents.ddpg_agent import DDPGAgent
 from agent.architectures import DDPGActorArchitecture, DDPGCriticArchitecture
-from agent.utilities import OrnsteinUhlenbeckProcess, TransitionBuffer
+from agent.utilities.exploration.sampling import OrnsteinUhlenbeckProcess
+from agent.utilities import TransitionBuffer
 from .base_test_config import *
 
 __author__ = 'cnheider'

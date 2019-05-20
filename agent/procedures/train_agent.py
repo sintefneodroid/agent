@@ -5,11 +5,11 @@ from collections import Iterable
 from itertools import count
 
 import draugr
+from agent.exceptions.exceptions import NoTrainingProcedure
+from neodroid.api_wrappers.gym_wrapper.gym_wrapper import NeodroidWrapper
 from trolls.multiple_environments_wrapper import SubProcessEnvironments, make_env
 from warg import get_upper_case_vars_or_protected_of
-from neodroid.wrappers import VectorWrap, NeodroidWrapper, BinaryActionEncodingWrapper
 from warg import parse_arguments
-from agent.utilities.exceptions.exceptions import NoTrainingProcedure
 
 __author__ = 'cnheider'
 import glob
