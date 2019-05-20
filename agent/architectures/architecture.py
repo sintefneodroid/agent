@@ -11,3 +11,11 @@ class Architecture(nn.Module, ABC):
 
   def __init__(self, **kwargs):
     super().__init__()
+
+  @property
+  def input_shape(self):
+    return self._input_shape
+
+  @property
+  def output_shape(self):
+    return self._output_shape

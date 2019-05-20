@@ -15,18 +15,18 @@ CONFIG_FILE = __file__
 
 # Architecture
 POLICY_ARCH_SPEC = GDCS(CategoricalMLP, NOD(**{
-  'input_size':             None,  # Obtain from environment
+  'input_shape':             None,  # Obtain from environment
   'hidden_layer_activation':torch.tanh,
   'hidden_layers':          [128, 64, 32, 16],
-  'output_size':            None,  # Obtain from environment,
+  'output_shape':            None,  # Obtain from environment,
   'use_bias':               False,
   }))
 
 VALUE_ARCH_PARAMS = GDCS(MLP, NOD(**{
-  'input_size':             None,  # Obtain from environment
+  'input_shape':             None,  # Obtain from environment
   'hidden_layer_activation':torch.tanh,
   'hidden_layers':          [128, 64, 32, 16],
-  'output_size':            None,  # Obtain from environment
+  'output_shape':            None,  # Obtain from environment
   'use_bias':               False,
   }))
 

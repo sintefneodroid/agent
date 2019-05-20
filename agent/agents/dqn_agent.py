@@ -38,9 +38,9 @@ class DQNAgent(ValueAgent):
     self._evaluation_function = F.smooth_l1_loss
 
     self._value_arch_spec = GDCS(MLP, NamedOrderedDictionary({
-      'input_size':             None,  # Obtain from environment
+      'input_shape':             None,  # Obtain from environment
       'hidden_layers':          None,
-      'output_size':            None,  # Obtain from environment
+      'output_shape':            None,  # Obtain from environment
       'hidden_layer_activation':torch.tanh,
       'use_bias':               True,
       }))
@@ -120,7 +120,7 @@ class DQNAgent(ValueAgent):
 '''
     states = U.to_tensor(batch.state,
                          dtype=self._state_type,
-                         device=self._device).view(-1, *self._input_size)
+                         device=self._device).view(-1, *self._input_shape)
 
     true_signals = U.to_tensor(batch.signal,
                                dtype=self._value_type,
@@ -136,7 +136,7 @@ class DQNAgent(ValueAgent):
 
     successor_states = U.to_tensor(batch.successor_state,
                                    dtype=self._state_type,
-                                   device=self._device).view(-1, *self._input_size)
+                                   device=self._device).view(-1, *self._input_shape)
 
     # Calculate Q of successors
     with torch.no_grad():

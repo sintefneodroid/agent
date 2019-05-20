@@ -31,15 +31,15 @@ USE_LOGGING = True
 # class EnvironmentConfig(object):
 #  pass
 
-input_size = None  # Obtain from environment
-hidden_layers = None  # Obtain from input and output size
-output_size = None  # Obtain from environment
+input_shape = None  # Obtain from environment
+hidden_layers = (2)  # Obtain from input and output size
+output_shape = None  # Obtain from environment
 
 # Architecture
 POLICY_ARCH_SPEC = GDCS(CategoricalMLP, NOD(
-    input_size=input_size,
+    input_shape=input_shape,
     hidden_layers=hidden_layers,
-    output_size=output_size,
+    output_shape=output_shape,
     hidden_layer_activation=torch.relu,
     use_bias=True
     ))

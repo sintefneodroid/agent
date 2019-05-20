@@ -117,7 +117,12 @@ Has access to perfect location information about the obstructions and target in 
 
 
 # Contributing
-See guidelines for contributing [here](CONTRIBUTING.md).
+See guidelines for contributing [here](.github/CONTRIBUTING.md).
+
+
+# Licensing
+
+This project is licensed under the Apache V2 License. See [LICENSE](LICENSE.md) for more information.
 
 # Citation
 

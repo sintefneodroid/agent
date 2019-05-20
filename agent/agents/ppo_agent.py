@@ -71,17 +71,17 @@ class PPOAgent(ActorCriticAgent):
     self._optimiser_spec = GDCS(torch.optim.Adam, {})
 
     self._actor_arch_spec = GDCS(DDPGActorArchitecture, kwargs=NOD({
-      'input_size':       None,  # Obtain from environment
+      'input_shape':       None,  # Obtain from environment
       'hidden_layers':    None,
       'output_activation':None,
-      'output_size':      None,  # Obtain from environment
+      'output_shape':      None,  # Obtain from environment
       }))
 
     self._critic_arch_spec = GDCS(DDPGCriticArchitecture, kwargs=NOD({
-      'input_size':       None,  # Obtain from environment
+      'input_shape':       None,  # Obtain from environment
       'hidden_layers':    None,
       'output_activation':None,
-      'output_size':      None,  # Obtain from environment
+      'output_shape':      None,  # Obtain from environment
       }))
 
     self._optimiser = None
@@ -319,7 +319,7 @@ class PPOAgent(ActorCriticAgent):
   def evaluate(self, batch, discrete=False, **kwargs):
     # region Tensorise
 
-    states = U.to_tensor(batch.state, device=self._device).view(-1, self._input_size[0])
+    states = U.to_tensor(batch.state, device=self._device).view(-1, self._input_shape[0])
 
     value_estimates = U.to_tensor(batch.value_estimate, device=self._device)
 
@@ -327,7 +327,7 @@ class PPOAgent(ActorCriticAgent):
 
     discounted_returns = U.to_tensor(batch.discounted_return, device=self._device)
 
-    action_probs_old = U.to_tensor(batch.action_prob, device=self._device).view(-1, self._output_size[0])
+    action_probs_old = U.to_tensor(batch.action_prob, device=self._device).view(-1, self._output_shape[0])
 
     # endregion
 
@@ -336,7 +336,7 @@ class PPOAgent(ActorCriticAgent):
     *_, action_probs_new, distribution = self._sample_model(states)
 
     if discrete:
-      actions = U.to_tensor(batch.action, device=self._device).view(-1, self._output_size[0])
+      actions = U.to_tensor(batch.action, device=self._device).view(-1, self._output_shape[0])
       action_probs_old = action_probs_old.gather(1, actions)
       action_probs_new = action_probs_new.gather(1, actions)
 
@@ -404,7 +404,7 @@ class PPOAgent(ActorCriticAgent):
     returns = torch.cat(returns_).view(-1, 1).detach()
     log_probs = torch.cat(self._transitions_.action_prob).detach()
     values = torch.cat(self._transitions_.value_estimate).detach()
-    states = torch.cat(self._transitions_.state).view(-1, self._input_size[0])
+    states = torch.cat(self._transitions_.state).view(-1, self._input_shape[0])
     actions = torch.cat(self._transitions_.action)
 
     advantage = returns - values

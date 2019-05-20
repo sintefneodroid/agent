@@ -8,10 +8,11 @@ from warnings import warn
 
 import draugr
 import numpy
-from neodroid.utilities import ActionSpace
+from neodroid.utilities import ActionSpace, logging
 from tqdm import tqdm
 from warg import (NamedOrderedDictionary,
                   get_upper_case_vars_or_protected_of, check_for_duplicates_in_args,
+                  AppPath,
                   )
 
 from agent.utilities.exceptions.exceptions import HasNoEnvError
@@ -34,19 +35,15 @@ All agent should inherit from this class
   def __init__(self,
                config=None,
                environment=None,
-               verbose=False,
-               *args,
                **kwargs):
-    self._input_size = None
-    self._output_size = None
+    self._input_shape = None
+    self._output_shape = None
     self._step_i = 0
     self._rollout_i = 0
     self._end_training = False
     self._divide_by_zero_safety = 1e-10
     self._environment = environment
-    self._log_directory = Path.home() / 'Models' / 'Neodroid' / str(int(time.time()))
-
-    self._verbose = verbose
+    self._log_directory = AppPath('NeodroidAgent').user_data / str(int(time.time()))
 
     self.__defaults__()
 
@@ -130,20 +127,20 @@ All agent should inherit from this class
     self.__parse_set_attr(**kwargs)
 
   @property
-  def input_size(self):
-    return self._input_size
+  def input_shape(self):
+    return self._input_shape
 
-  @input_size.setter
-  def input_size(self, input_size):
-    self._input_size = input_size
+  @input_shape.setter
+  def input_shape(self, input_shape):
+    self._input_shape = input_shape
 
   @property
-  def output_size(self):
-    return self._output_size
+  def output_shape(self):
+    return self._output_shape
 
-  @output_size.setter
-  def output_size(self, output_size):
-    self._output_size = output_size
+  @output_shape.setter
+  def output_shape(self, output_shape):
+    self._output_shape = output_shape
 
   # endregion
 
@@ -157,67 +154,50 @@ All agent should inherit from this class
       raise HasNoEnvError
 
   def _maybe_infer_sizes(self, env) -> None:
-    self._maybe_infer_input_output_sizes(env)
-    self._maybe_infer_hidden_layers()
+    self._maybe_infer_input_output_shapes(env)
 
-  def _maybe_infer_input_output_sizes(self, env) -> None:
+  def _maybe_infer_input_output_shapes(self, env) -> None:
 
     '''
-Tries to infer input and output size from env if either _input_size or _output_size, is None or -1 (int)
+Tries to infer input and output size from env if either _input_shape or _output_shape, is None or -1 (int)
 
 :rtype: object
 '''
     self._observation_space = env.observation_space
     self._action_space = env.action_space
 
-    if self._input_size is None or self._input_size == -1:
+    if self._input_shape is None or self._input_shape == -1:
       if len(env.observation_space.shape) >= 1:
-        self._input_size = env.observation_space.shape
+        self._input_shape = env.observation_space.shape
       else:
-        self._input_size = (env.observation_space.n, 1)
+        self._input_shape = (env.observation_space.n, 1)
 
-    if self._output_size is None or self._output_size == -1:
+    if self._output_shape is None or self._output_shape == -1:
       if isinstance(env.action_space, ActionSpace):
         if env.action_space.is_discrete:
-          self._output_size = (env.action_space.num_discrete_actions, 1)
+          self._output_shape = (env.action_space.num_discrete_actions, 1)
         else:
-          self._output_size = (env.action_space.n, 1)
+          self._output_shape = (env.action_space.n, 1)
       elif len(env.action_space.shape) >= 1:
-        self._output_size = env.action_space.shape
+        self._output_shape = env.action_space.shape
       else:
-        self._output_size = (env.action_space.n, 1)
+        self._output_shape = (env.action_space.n, 1)
 
     # region print
-
-    draugr.sprint(f'observation dimensions: {self._input_size}\n'
+    '''
+    draugr.sprint(f'observation dimensions: {self._input_shape}\n'
                   f'observation_space: {env.observation_space}\n',
                   color='green',
                   bold=True,
                   highlight=True)
 
-    draugr.sprint(f'action dimensions: {self._output_size}\n'
+    draugr.sprint(f'action dimensions: {self._output_shape}\n'
                   f'action_space: {env.action_space}\n',
                   color='yellow',
                   bold=True,
                   highlight=True)
+    '''
     # endregion
-
-  def _maybe_infer_hidden_layers(self,
-                                 input_multiplier=8,
-                                 output_multiplier=6):
-    if self._hidden_layers is None or self._hidden_layers == -1:
-      if self._input_size and self._output_size:
-
-        h_1_size = int(self._input_size[0] * input_multiplier)
-        h_3_size = int(self._output_size[0] * output_multiplier)
-
-        h_2_size = int(numpy.sqrt(h_1_size * h_3_size))
-        self._hidden_layers = NamedOrderedDictionary([h_1_size,
-                                                      h_2_size,
-                                                      h_3_size
-                                                      ]).as_list()
-      else:
-        warn('No input or output size')
 
   # endregion
 

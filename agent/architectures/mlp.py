@@ -23,21 +23,21 @@ from torch.nn import functional as F
 
 class MLP(Architecture):
   '''
-OOOO input_size
+OOOO input_shape
 |XX|                                        fc1
 OOOO hidden_layer_size * (Weights,Biases)
 |XX|                                        fc2
 OOOO hidden_layer_size * (Weights,Biases)
 |XX|                                        fc3
-0000 output_size * (Weights,Biases)
+0000 output_shape * (Weights,Biases)
 '''
 
   def __init__(self,
                *,
-               input_size: Sequence = (10,),
+               input_shape: Sequence = (10,),
                hidden_layers: Sequence = None,
                hidden_layer_activation: callable = torch.relu,
-               output_size: Sequence = (2,),
+               output_shape: Sequence = (2,),
                use_bias: bool = True,
                auto_build_hidden_layers_if_none=True,
                input_multiplier=32,
@@ -46,30 +46,30 @@ OOOO hidden_layer_size * (Weights,Biases)
                ):
     super().__init__(**kwargs)
 
-    assert input_size is not None
-    assert output_size is not None
+    assert input_shape is not None
+    assert output_shape is not None
 
-    if isinstance(input_size, Sequence):
-      assert len(input_size) > 0, f'Got length {len(input_size)}'
-      if len(input_size) > 1:
-        self._input_size = input_size[0] * input_size[1]
+    if isinstance(input_shape, Sequence):
+      assert len(input_shape) > 0, f'Got length {len(input_shape)}'
+      if len(input_shape) > 1:
+        self._input_shape = input_shape[0] * input_shape[1]
       else:
-        self._input_size = input_size[0]
+        self._input_shape = input_shape[0]
     else:
-      self._input_size = input_size
+      self._input_shape = input_shape
 
-    if isinstance(output_size, Sequence):
-      assert len(output_size) > 0, f'Got length {len(output_size)}'
-      if len(output_size) > 1:
-        self._output_size = prod(output_size)
+    if isinstance(output_shape, Sequence):
+      assert len(output_shape) > 0, f'Got length {len(output_shape)}'
+      if len(output_shape) > 1:
+        self._output_shape = prod(output_shape)
       else:
-        self._output_size = output_size[0]
+        self._output_shape = output_shape[0]
     else:
-      self._output_size = output_size
+      self._output_shape = output_shape
 
     if not hidden_layers and auto_build_hidden_layers_if_none:
-      h_1_size = int(self._input_size * input_multiplier)
-      h_3_size = int(self._output_size * output_multiplier)
+      h_1_size = int(self._input_shape * input_multiplier)
+      h_3_size = int(self._output_shape * output_multiplier)
 
       h_2_size = int(numpy.sqrt(h_1_size * h_3_size))
 
@@ -78,12 +78,17 @@ OOOO hidden_layer_size * (Weights,Biases)
                                              h_3_size
                                              ).as_list()
 
+    if not isinstance(hidden_layers, Sequence):
+      hidden_layers = (hidden_layers,)
+
     self._hidden_layers = hidden_layers
+
+
     self._hidden_layer_activation = hidden_layer_activation
 
     self._use_bias = use_bias
 
-    previous_layer_size = self._input_size
+    previous_layer_size = self._input_shape
 
     self.num_of_layer = len(self._hidden_layers)
     if self.num_of_layer > 0:
@@ -96,7 +101,7 @@ OOOO hidden_layer_size * (Weights,Biases)
         previous_layer_size = self._hidden_layers[i - 1]
 
     self._head = nn.Linear(previous_layer_size,
-                           self._output_size,
+                           self._output_shape,
                            bias=self._use_bias)
     # fan_in_init(self._head.weight)
 
@@ -146,7 +151,7 @@ class MultiHeadedMLP(MLP):
     self.num_of_heads = len(self._heads)
     if self.num_of_heads > 0:
       for i in range(1, self.num_of_heads + 1):
-        head_hidden = nn.Linear(self._output_size,
+        head_hidden = nn.Linear(self._output_shape,
                                 self._heads_hidden_sizes[i - 1],
                                 bias=self._use_bias)
         setattr(self, f'subhead{str(i)}_hidden', head_hidden)
@@ -187,10 +192,10 @@ class RecurrentCategoricalMLP(MLP):
   def __init__(self, r_hidden_layers=10, **kwargs):
     super().__init__(**kwargs)
     self._r_hidden_layers = r_hidden_layers
-    self._r_input_size = self._output_size + r_hidden_layers
+    self._r_input_shape = self._output_shape + r_hidden_layers
 
-    self.hidden = nn.Linear(self._r_input_size, r_hidden_layers, bias=self._use_bias)
-    self.out = nn.Linear(self._r_input_size, r_hidden_layers, bias=self._use_bias)
+    self.hidden = nn.Linear(self._r_input_shape, r_hidden_layers, bias=self._use_bias)
+    self.out = nn.Linear(self._r_input_shape, r_hidden_layers, bias=self._use_bias)
 
     self._prev_hidden_x = torch.zeros(r_hidden_layers)
 

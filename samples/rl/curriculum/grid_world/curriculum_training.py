@@ -2,13 +2,11 @@
 # -*- coding: utf-8 -*-
 import draugr
 from agent.agents.pg_agent import PGAgent
-from agent.procedures.curriculum import (display_actor_configurations,
-                                         estimate_entire_state_space,
-                                         estimate_value,
-                                         get_initial_configuration_from_goal,
-                                         )
-
-__author__ = 'cnheider'
+from samples.rl.curriculum import (display_actor_configurations,
+                                   estimate_entire_state_space,
+                                   estimate_value,
+                                   get_initial_configuration_from_goal,
+                                   )
 import time
 
 import torch
@@ -18,12 +16,16 @@ from neodroid.wrappers.utility_wrappers.action_encoding_wrappers import \
   (BinaryActionEncodingCurriculumEnvironment, NeodroidWrapper,
    )
 
-tqdm.monitor_interval = 0
+
 
 import agent.configs.curriculum.curriculum_config as C
 
 from agent import utilities as U, configs
 
+__author__ = 'cnheider'
+
+
+tqdm.monitor_interval = 0
 torch.manual_seed(C.SEED)
 # neo.seed(C.SEED)
 

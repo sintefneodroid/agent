@@ -39,9 +39,9 @@ ENVIRONMENT_NAME = 'c2d'
 
 # Architecture
 POLICY_ARCH_PARAMS = {
-  'input_size':             None,  # Obtain from environment
+  'input_shape':             None,  # Obtain from environment
   'hidden_layers':          None,
-  'output_size':            None,  # Obtain from environment
+  'output_shape':            None,  # Obtain from environment
   'hidden_layer_activation':torch.tanh,
   'use_bias':               True,
   }

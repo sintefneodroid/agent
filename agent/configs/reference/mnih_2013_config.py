@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+import pathlib
+
 __author__ = 'cnheider'
 '''
 Description: Config for training
@@ -30,7 +32,7 @@ VISDOM_SERVER = 'http://localhost'
 
 # Paths
 DATA_SET = 'neodroid'
-DATA_SET_DIRECTORY = pathlib.Path.joinpath('/home/heider/Datasets', DATA_SET)
+DATA_SET_DIRECTORY = pathlib.Path('/home/heider/Datasets')/ DATA_SET
 TARGET_FILE_NAME = 'target_position_rotation.csv'
 DEPTH_IMAGES_DIRECTORY = 'depth'
 MODEL_DIRECTORY = 'models'
@@ -69,9 +71,9 @@ EPSILON = 0.01
 
 # Architecture
 ARCHITECTURE_CONFIGURATION = NOD(
-    input_size=-1,
+    input_shape=-1,
     hidden_layers=[64, 32, 16],
-    output_size=-1
+    output_shape=-1
     )
 
 # Layer, Input,  Filter size,	Stride,	Number of filters,	Activation,	Output

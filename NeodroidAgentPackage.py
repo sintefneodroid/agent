@@ -1,9 +1,10 @@
+import pathlib
+
 from setuptools import find_packages
 
-import os
 import re
 
-with open(pathlib.Path.joinpath(os.path.dirname(__file__), "agent/version.py"), "r") as f:
+with open(pathlib.Path(__file__).parent / "agent" / "version.py", "r") as f:
   # get version string from module
   version = re.search(r"__version__ = ['\"]([^'\"]*)['\"]", f.read(), re.M).group(1)
 
@@ -159,3 +160,7 @@ class NeodroidAgentPackage:
   @property
   def version(self):
     return version
+
+
+if __name__ == '__main__':
+  print(version)

@@ -34,10 +34,10 @@ class DDPGActorArchitecture(MLP):
 
 class ContinuousActorArchitecture(MLP):
 
-  def __init__(self, *, output_size, std=0.0, **kwargs):
-    super().__init__(output_size=output_size, **kwargs)
+  def __init__(self, *, output_shape, std=0.0, **kwargs):
+    super().__init__(output_shape=output_shape, **kwargs)
 
-    self._log_std = torch.nn.Parameter(torch.ones(1, output_size[0]) * std)
+    self._log_std = torch.nn.Parameter(torch.ones(1, output_shape[0]) * std)
     self.apply(init_weights)
 
   def forward(self, x, **kwargs):

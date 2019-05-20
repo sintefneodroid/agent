@@ -7,6 +7,7 @@ import draugr
 from draugr import TensorBoardWriter
 from neodroid.models import EnvironmentState
 from agent.utilities.exceptions.exceptions import NoTrajectoryException
+from neodroid.utilities.transformations.encodings import to_one_hot
 from warg import NOD
 
 from agent.architectures import CategoricalMLP
@@ -45,9 +46,9 @@ class PGAgent(PolicyAgent):
     self._trajectory_trace = U.TrajectoryTraceBuffer()
 
     self._policy_arch_spec = GDCS(CategoricalMLP, NOD(**{
-      'input_size':             None,  # Obtain from environment
+      'input_shape':             None,  # Obtain from environment
       'hidden_layers':          None,
-      'output_size':            None,  # Obtain from environment
+      'output_shape':            None,  # Obtain from environment
       'hidden_layer_activation':torch.relu,
       'use_bias':               True,
       }))
@@ -238,28 +239,27 @@ class PGAgent(PolicyAgent):
     else:
       state = initial_state
 
-    T = count(1)
-    T = tqdm(T, f'Rollout #{self._rollout_i}', leave=False)
+    with draugr.scroll_plot_class(self._policy_model.output_shape, render=render) as s:
+      for t in tqdm(count(1), f'Rollout #{self._rollout_i}', leave=False):
+        action, action_log_probs, entropy, *_ = self.sample_action(state)
 
-    for t in T:
-      action, action_log_probs, entropy, *_ = self.sample_action(state)
+        state, signal, terminated, *_ = environment.react(action)
 
-      state, signal, terminated, *_ = environment.react(action)
+        if self._signal_clipping:
+          signal = np.clip(signal, self._signal_clip_low, self._signal_clip_high)
 
-      if self._signal_clipping:
-        signal = np.clip(signal, self._signal_clip_low, self._signal_clip_high)
+        episode_signal.append(signal)
+        episode_entropy.append(entropy.to('cpu').numpy())
+        if train:
+          self._trajectory_trace.add_trace(signal, action_log_probs, entropy)
 
-      episode_signal.append(signal)
-      episode_entropy.append(entropy.to('cpu').numpy())
-      if train:
-        self._trajectory_trace.add_trace(signal, action_log_probs, entropy)
+        if render:
+          environment.render()
+          s.draw(to_one_hot(self._policy_model.output_shape,action))
 
-      if render:
-        environment.render()
-
-      if np.array(terminated).all() or (max_length and t > max_length):
-        episode_length = t
-        break
+        if np.array(terminated).all() or (max_length and t > max_length):
+          episode_length = t
+          break
 
     if train:
       self.update()

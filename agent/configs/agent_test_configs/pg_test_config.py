@@ -22,9 +22,9 @@ PG_ENTROPY_REG = 1e-4
 
 # Architecture
 POLICY_ARCH_SPEC = GDCS(MLP, NOD(**{
-  'input_size':             None,  # Obtain from environment
+  'input_shape':             None,  # Obtain from environment
   'hidden_layer_activation':torch.tanh,
   'hidden_layers':          None,
-  'output_size':            None,  # Obtain from environment
+  'output_shape':            None,  # Obtain from environment
   'use_bias':               True,
   }))

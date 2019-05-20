@@ -81,29 +81,29 @@ All value iteration agents should inherit from this class
   def _maybe_infer_sizes(self, env):
     super()._maybe_infer_sizes(env)
 
-    if ('input_size' not in self._actor_arch_spec.kwargs or
-        not self._actor_arch_spec.kwargs['input_size']):
-      self._actor_arch_spec.kwargs['input_size'] = self._input_size
+    if ('input_shape' not in self._actor_arch_spec.kwargs or
+        not self._actor_arch_spec.kwargs['input_shape']):
+      self._actor_arch_spec.kwargs['input_shape'] = self._input_shape
 
     if ('hidden_layers' not in self._actor_arch_spec.kwargs or
         not self._actor_arch_spec.kwargs['hidden_layers']):
       self._actor_arch_spec.kwargs['hidden_layers'] = self._hidden_layers
 
-    if ('output_size' not in self._actor_arch_spec.kwargs or
-        not self._actor_arch_spec.kwargs['output_size']):
-      self._actor_arch_spec.kwargs['output_size'] = self._output_size
+    if ('output_shape' not in self._actor_arch_spec.kwargs or
+        not self._actor_arch_spec.kwargs['output_shape']):
+      self._actor_arch_spec.kwargs['output_shape'] = self._output_shape
 
-    if ('input_size' not in self._critic_arch_spec.kwargs or
-        not self._critic_arch_spec.kwargs['input_size']):
-      self._critic_arch_spec.kwargs['input_size'] = self._input_size
+    if ('input_shape' not in self._critic_arch_spec.kwargs or
+        not self._critic_arch_spec.kwargs['input_shape']):
+      self._critic_arch_spec.kwargs['input_shape'] = self._input_shape
 
     if ('hidden_layers' not in self._critic_arch_spec.kwargs or
         not self._critic_arch_spec.kwargs['hidden_layers']):
       self._critic_arch_spec.kwargs['hidden_layers'] = self._hidden_layers
 
-    if ('output_size' not in self._critic_arch_spec.kwargs or
-        not self._critic_arch_spec.kwargs['output_size']):
-      self._critic_arch_spec.kwargs['output_size'] = self._output_size
+    if ('output_shape' not in self._critic_arch_spec.kwargs or
+        not self._critic_arch_spec.kwargs['output_shape']):
+      self._critic_arch_spec.kwargs['output_shape'] = self._output_shape
 
   # endregion
 

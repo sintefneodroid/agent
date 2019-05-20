@@ -2,26 +2,44 @@
 # -*- coding: utf-8 -*-
 import datetime
 import os
+import sys
 from warnings import warn
 
 __author__ = "cnheider"
-__version__ = "0.1.0"
-__doc__ = """
+__version__ = "0.1.4"
+__doc__ = r"""
 Created on 27/04/2019
 
 @author: cnheider
 """
 
-RELEASE = False
-DEBUG = False
+'''
+def dist_is_editable(dist):
+    # type: (Distribution) -> bool
+    """
+    Return True if given Distribution is an editable install.
+    """
+    for path_item in sys.path:
+        egg_link = os.path.join(path_item, dist.project_name + '.egg-link')
+        if os.path.isfile(egg_link):
+            return True
+    return False
+'''
+
+from pip._internal.utils.misc import dist_is_editable
+import pkg_resources
+
+distributions = {v.key:v for v in pkg_resources.working_set}
+distribution = distributions['neodroidagent']
+DEVELOP = dist_is_editable(distribution)
 
 
-def get_version(append_time=False):
+def get_version(append_time=DEVELOP):
   version = __version__
   if not version:
     version = os.getenv("VERSION", "0.0.0")
 
-  if append_time or not RELEASE:
+  if append_time:
     now = datetime.datetime.utcnow()
     date_version = now.strftime("%Y%m%d%H%M%S")
     # date_version = time.time()
@@ -30,7 +48,11 @@ def get_version(append_time=False):
       # Most git tags are prefixed with 'v' (example: v1.2.3) this is
       # never desirable for artifact repositories, so we strip the
       # leading 'v' if it's present.
-      version = version[1:] if isinstance(version, str) and version.startswith("v") else version
+      version = (
+        version[1:]
+        if isinstance(version, str) and version.startswith("v")
+        else version
+      )
     else:
       # Default version is an ISO8601 compliant datetime. PyPI doesn't allow
       # the colon ':' character in its versions, and time is required to allow
@@ -42,7 +64,9 @@ def get_version(append_time=False):
       #
       # Publications using datetime versions should only be made from master
       # to represent the HEAD moving forward.
-      warn(f"Environment variable VERSION is not set, only using datetime: {date_version}")
+      warn(
+          f"Environment variable VERSION is not set, only using datetime: {date_version}"
+          )
 
       # warn(f'Environment variable VERSION is not set, only using timestamp: {version}')
 
@@ -52,9 +76,6 @@ def get_version(append_time=False):
 
 
 if __version__ is None:
-  __version__ = get_version()
+  __version__ = get_version(append_time=True)
 
-
-@property
-def debug():
-  return DEBUG
+__version_info__ = tuple(int(segment) for segment in __version__.split("."))

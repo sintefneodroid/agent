@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-from agents.pg_agent import PGAgent
+from agent.agents.pg_agent import PGAgent
 from warg import parse_arguments, get_upper_case_vars_or_protected_of
 
 import draugr
@@ -75,7 +75,7 @@ if __name__ == '__main__':
       print(f'{key} = {arg}')
     input('\nPress Enter to begin... ')
 
-  _agent = PGAgent(C)
+  _agent = C.AGENT_SPEC.constructor(C)
 
   try:
     train_agent(C, _agent)

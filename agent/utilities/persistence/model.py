@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+import pathlib
+
 __author__ = 'cnheider'
 import datetime
 import os
@@ -33,10 +35,10 @@ def save_model(model, configuration, *, name=''):
     f'{model_date.strftime("%y%m%d%H%M")}.model')
 
   ensure_directory_exist(configuration.MODEL_DIRECTORY)
-  model_path = pathlib.Path.joinpath(configuration.MODEL_DIRECTORY, model_name)
+  model_path = configuration.MODEL_DIRECTORY/ model_name
 
   ensure_directory_exist(configuration.CONFIG_DIRECTORY)
-  config_path = pathlib.Path.joinpath(configuration.CONFIG_DIRECTORY, model_name)
+  config_path = pathlib.Path(configuration.CONFIG_DIRECTORY)/ model_name
   try:
     save_model_and_configuration(model=model, model_path=model_path, config_path=config_path,
                                  configuration=configuration)
@@ -45,7 +47,7 @@ def save_model(model, configuration, *, name=''):
     saved = False
     while not saved:
       file_path = input('Enter another file path: ')
-      model_path = pathlib.Path.joinpath(file_path, model_name)
+      model_path = pathlib.Path(file_path)/ model_name
       try:
         saved = save_model_and_configuration(model=model, model_path=model_path,
                                              config_path=config_path,
@@ -66,9 +68,9 @@ def save_model_and_configuration(*, model, model_path, config_path, configuratio
 
 
 def save_config(new_path, configuration):
-  config_path = pathlib.Path.joinpath(
-      os.path.dirname(os.path.abspath(configuration.CONFIG_FILE)), configuration.CONFIG_FILE
-      )
+  config_path = pathlib.Path(
+      os.path.dirname(os.path.abspath(configuration.CONFIG_FILE)))/configuration.CONFIG_FILE
+
   shutil.copyfile(config_path, new_path + '.py')
 
 

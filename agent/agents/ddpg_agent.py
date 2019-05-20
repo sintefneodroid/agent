@@ -56,14 +56,14 @@ class DDPGAgent(ActorCriticAgent):
     self._evaluation_function = F.smooth_l1_loss
 
     self._actor_arch_spec = ArchitectureSpecification(DDPGActorArchitecture, kwargs=NamedOrderedDictionary({
-      'input_size':       None,  # Obtain from environment
+      'input_shape':       None,  # Obtain from environment
       'output_activation':torch.tanh,
-      'output_size':      None,  # Obtain from environment
+      'output_shape':      None,  # Obtain from environment
       }))
 
     self._critic_arch_spec = ArchitectureSpecification(DDPGCriticArchitecture, kwargs=NamedOrderedDictionary({
-      'input_size': None,  # Obtain from environment
-      'output_size':None,  # Obtain from environment
+      'input_shape': None,  # Obtain from environment
+      'output_shape':None,  # Obtain from environment
       }))
 
     self._discount_factor = 0.99
@@ -95,8 +95,8 @@ class DDPGAgent(ActorCriticAgent):
      self._actor_optimiser,
      self._critic_optimiser) = None, None, None, None, None, None
 
-    (self._input_size,
-     self._output_size) = None, None
+    (self._input_shape,
+     self._output_shape) = None, None
 
   # endregion
 
@@ -118,13 +118,13 @@ class DDPGAgent(ActorCriticAgent):
      non_terminal_batch) = batch
     states = U.to_tensor(state_batch,
                          device=self._device,
-                         dtype=self._state_type).view(-1, self._input_size[0])
+                         dtype=self._state_type).view(-1, self._input_shape[0])
     next_states = U.to_tensor(next_state_batch,
                               device=self._device,
-                              dtype=self._state_type).view(-1, self._input_size[0])
+                              dtype=self._state_type).view(-1, self._input_shape[0])
     actions = U.to_tensor(action_batch,
                           device=self._device,
-                          dtype=self._action_type).view(-1, self._output_size[0])
+                          dtype=self._action_type).view(-1, self._output_shape[0])
     signals = U.to_tensor(signal_batch,
                           device=self._device,
                           dtype=self._value_type).view(-1, 1)

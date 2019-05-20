@@ -15,15 +15,15 @@ class CNN(Architecture):
 
   def __init__(self,
                *,
-               input_size,
+               input_shape,
                hidden_layers: Collection,
-               output_size,
+               output_shape,
                activation: callable = F.relu,
                **kwargs):
     super().__init__(**kwargs)
 
-    self._input_channels = input_size
-    self._output_size = output_size
+    self._input_channels = input_shape
+    self._output_shape = output_shape
     self._activation = activation
 
     self.conv1 = nn.Conv2d(3, 16, kernel_size=5, stride=2)

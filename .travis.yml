@@ -11,4 +11,5 @@ install:
 script:
   - pytest #--cov=warg
   - coveralls
+  #- scripts/build_and_upload_package.sh
 

@@ -57,7 +57,7 @@ All value iteration agents should inherit from this class
     return self.sample_random_process(state)
 
   def sample_random_process(self, state):
-    sample = np.random.choice(np.arange(self._output_size[0]), len(state))
+    sample = np.random.choice(np.arange(self._output_shape[0]), len(state))
     return sample
 
   def build(self, env, **kwargs):
@@ -75,6 +75,9 @@ All value iteration agents should inherit from this class
         p.numel() for p in self._value_model.parameters() if p.requires_grad)
     draugr.sprint(f'trainable/num_params: {num_trainable_params}/{num_params}\n', highlight=True,
                   color='cyan')
+
+  def models(self):
+    return [self._value_model]
 
   def epsilon_random(self, steps_taken):
     '''
@@ -171,7 +174,7 @@ All value iteration agents should inherit from this class
                              render_frequency=100,
                              stat_frequency=100,
                              **kwargs
-                             ) -> NamedOrderedDictionary:
+                             ) -> TR:
     '''
       :param _environment:
       :type _environment:,0
@@ -220,7 +223,7 @@ All value iteration agents should inherit from this class
       if self._end_training:
         break
 
-    return NamedOrderedDictionary(model=self._value_model, stats=stats)
+    return TR(model=self._value_model, stats=stats)
 
   # endregion
 
@@ -234,11 +237,11 @@ All value iteration agents should inherit from this class
 
   # region Protected
 
-  def _maybe_infer_input_output_sizes(self, env, **kwargs):
-    super()._maybe_infer_input_output_sizes(env)
+  def _maybe_infer_input_output_shapes(self, env, **kwargs):
+    super()._maybe_infer_input_output_shapes(env)
 
-    self._value_arch_spec.kwargs['input_size'] = self._input_size
-    self._value_arch_spec.kwargs['output_size'] = self._output_size
+    self._value_arch_spec.kwargs['input_shape'] = self._input_shape
+    self._value_arch_spec.kwargs['output_shape'] = self._output_shape
 
   def _maybe_infer_hidden_layers(self, **kwargs):
     super()._maybe_infer_hidden_layers()

@@ -79,11 +79,11 @@ class PolicyAgent(TorchAgent):
 
   # region Protected
 
-  def _maybe_infer_input_output_sizes(self, env, **kwargs):
-    super()._maybe_infer_input_output_sizes(env)
+  def _maybe_infer_input_output_shapes(self, env, **kwargs):
+    super()._maybe_infer_input_output_shapes(env)
 
-    self._policy_arch_spec.kwargs['input_size'] = self._input_size
-    self._policy_arch_spec.kwargs['output_size'] = self._output_size
+    self._policy_arch_spec.kwargs['input_shape'] = self._input_shape
+    self._policy_arch_spec.kwargs['output_shape'] = self._output_shape
 
   def _maybe_infer_hidden_layers(self, **kwargs):
     super()._maybe_infer_hidden_layers()
