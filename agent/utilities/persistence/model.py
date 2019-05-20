@@ -70,7 +70,7 @@ def save_model_and_configuration(*, model, model_path, config_path, configuratio
 def save_config(new_path, configuration):
   config_path = pathlib.Path(configuration.CONFIG_FILE).absolute().parent/configuration.CONFIG_FILE
 
-  shutil.copyfile(str(config_path), new_path + '.py')
+  shutil.copyfile(str(config_path), str(new_path) + '.py')
 
 
 def convert_to_cpu(path=''):

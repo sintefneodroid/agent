@@ -163,14 +163,14 @@ Tries to infer input and output size from env if either _input_shape or _output_
 
 :rtype: object
 '''
-    self._observation_space = env.observation_space
+    self._observation_space = env.space
     self._action_space = env.action_space
 
     if self._input_shape is None or self._input_shape == -1:
-      if len(env.observation_space.shape) >= 1:
-        self._input_shape = env.observation_space.shape
+      if len(env.space.shape) >= 1:
+        self._input_shape = env.space.shape
       else:
-        self._input_shape = (env.observation_space.n, 1)
+        self._input_shape = (env.space.n, 1)
 
     if self._output_shape is None or self._output_shape == -1:
       if isinstance(env.action_space, ActionSpace):

@@ -19,7 +19,7 @@ class NoisyWrapper(gym.ObservationWrapper):
     :param bottom_margin:
     '''
     super().__init__(env)
-    self.original_shape = env.observation_space.shape
+    self.original_shape = env.space.shape
     new_side = int(round(max(self.original_shape[:-1]) * 100. / (100. - percent_pad)))
     self.new_shape = [new_side, new_side, 3]
     self.observation_space = Box(0.0, 255.0, self.new_shape)

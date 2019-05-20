@@ -172,7 +172,7 @@ if __name__ == '__main__':
     import random
 
     env = gym.make('Taxi-v2').env
-    q_table = np.zeros([env.observation_space.n, env.action_space.n])
+    q_table = np.zeros([env.space.n, env.action_space.n])
 
     def training():
       # Hyparameters
@@ -225,7 +225,7 @@ if __name__ == '__main__':
     # env = PuddleWorld(
     #   world_file_path='/home/heider/Neodroid/agent/draugr_utilities/exclude/saved_maps/PuddleWorldA.dat')
     env = gym.make('FrozenLake-v0')
-    agent = TabularQAgent(observation_space=env.observation_space,
+    agent = TabularQAgent(observation_space=env.space,
                           action_space=env.action_space,
                           environment=env)
     agent.build(env)
