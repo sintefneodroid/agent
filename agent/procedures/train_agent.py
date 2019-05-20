@@ -223,7 +223,7 @@ def agent_test_main(agent,
           setattr(config, key, arg)
 
   if has_x_server:
-    display_env = os.environ['DISPLAY']
+    display_env = os.getenv('DISPLAY',None)
     if display_env is None:
       config.RENDER_ENVIRONMENT = False
 

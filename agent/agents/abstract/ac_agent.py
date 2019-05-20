@@ -152,6 +152,9 @@ All value iteration agents should inherit from this class
                               * target_param.data
                               )
 
+  def models(self):
+    return self._actor,self._critic
+
   # endregion
 
   # region Protected
