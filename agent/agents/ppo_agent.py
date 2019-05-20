@@ -71,17 +71,17 @@ class PPOAgent(ActorCriticAgent):
     self._optimiser_spec = GDCS(torch.optim.Adam, {})
 
     self._actor_arch_spec = GDCS(DDPGActorArchitecture, kwargs=NOD({
-      'input_shape':       None,  # Obtain from environment
+      'input_shape':      None,  # Obtain from environment
       'hidden_layers':    None,
       'output_activation':None,
-      'output_shape':      None,  # Obtain from environment
+      'output_shape':     None,  # Obtain from environment
       }))
 
     self._critic_arch_spec = GDCS(DDPGCriticArchitecture, kwargs=NOD({
-      'input_shape':       None,  # Obtain from environment
+      'input_shape':      None,  # Obtain from environment
       'hidden_layers':    None,
       'output_activation':None,
-      'output_shape':      None,  # Obtain from environment
+      'output_shape':     None,  # Obtain from environment
       }))
 
     self._optimiser = None
@@ -675,7 +675,7 @@ class PPOAgent(ActorCriticAgent):
 
 
 # region Test
-def ppo_test(rollouts=None):
+def ppo_test(rollouts=None, skip=True):
   import agent.configs.agent_test_configs.ppo_test_config as C
 
   if rollouts:
@@ -685,7 +685,8 @@ def ppo_test(rollouts=None):
                   C,
                   training_procedure=parallel_train_agent_procedure(
                       auto_reset_on_terminal_state=True),
-                  parse_args=False)
+                  parse_args=False,
+                  skip_confirmation=skip)
 
 
 if __name__ == '__main__':

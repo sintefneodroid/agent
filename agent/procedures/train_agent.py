@@ -226,6 +226,7 @@ def agent_test_main(agent,
     display_env = os.getenv('DISPLAY',None)
     if display_env is None:
       config.RENDER_ENVIRONMENT = False
+      has_x_server = False
 
   draugr.sprint(f'\nUsing config: {config}\n', highlight=True, color='yellow')
   if not skip_confirmation:

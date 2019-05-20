@@ -310,14 +310,15 @@ def test_cnn_dqn_agent(config):
   plt.show()
 
 
-def dqn_test(rollouts=None):
+def dqn_test(rollouts=None,skip=True):
   import agent.configs.agent_test_configs.dqn_test_config as C
 
   # import configs.cnn_dqn_config as C
   if rollouts:
     C.ROLLOUTS = rollouts
 
-  agent_test_main(DQNAgent, C, parse_args=False, training_procedure=parallel_train_agent_procedure)
+  agent_test_main(DQNAgent, C, parse_args=False, training_procedure=parallel_train_agent_procedure,
+                  skip_confirmation=skip)
   # test_cnn_dqn_agent(C)
 
 

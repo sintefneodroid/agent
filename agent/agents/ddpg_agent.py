@@ -310,7 +310,7 @@ def test_ddpg_agent(config):
   U.save_model(critic_model, config, name='critic')
 
 
-def ddpg_test(rollouts=None):
+def ddpg_test(rollouts=None,skip=True):
   import agent.configs.agent_test_configs.ddpg_test_config as C
   if rollouts:
     C.ROLLOUTS = rollouts
@@ -318,7 +318,7 @@ def ddpg_test(rollouts=None):
   agent_test_main(DDPGAgent,
                   C,
                   training_procedure=parallel_train_agent_procedure(auto_reset_on_terminal_state=True),
-                  parse_args=False)
+                  parse_args=False,skip_confirmation=skip)
 
 
 if __name__ == '__main__':

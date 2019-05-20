@@ -360,13 +360,17 @@ class PGAgent(PolicyAgent):
 
 
 # region Test
-def pg_test(rollouts=None):
+def pg_test(rollouts=None,skip=True):
   import agent.configs.agent_test_configs.pg_test_config as C
 
   if rollouts:
     C.ROLLOUTS = rollouts
 
-  agent_test_main(PGAgent, C, parse_args=False, training_procedure=parallel_train_agent_procedure)
+  agent_test_main(PGAgent,
+                  C,
+                  parse_args=False,
+                  training_procedure=parallel_train_agent_procedure,
+                  skip_confirmation=skip)
 
 
 if __name__ == '__main__':
