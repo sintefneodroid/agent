@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-from collections import Collection
+from collections.abc import Collection
 
 from .architecture import Architecture
 
