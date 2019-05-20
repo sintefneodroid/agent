@@ -3,6 +3,9 @@
 
 __author__ = 'cnheider'
 
-from agent.utilities.specifications.exclude.optimiser_specification import *
+from .training_specification import *
 from .training_resume import *
-from agent.utilities.specifications.exclude.architecture_specification import *
+from .generalised_delayed_construction_specification import *
+from .exploration_specification import *
+from .architecture_specification import *
+from .optimiser_specification import *
