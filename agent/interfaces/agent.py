@@ -4,14 +4,13 @@ import time
 from itertools import count
 from typing import Any
 
-from neodroid.utilities import ActionSpace
 from tqdm import tqdm
-from warg import (get_upper_case_vars_or_protected_of, check_for_duplicates_in_args,
-                  AppPath,
-                  )
 
 from agent.exceptions.exceptions import HasNoEnvError
-from agent.utilities.specifications.training_resume import TrainingResume, TR
+from agent.specifications import TR, TrainingResume
+from neodroid.utilities import ActionSpace
+from warg.app_path import AppPath
+from warg.arguments import get_upper_case_vars_or_protected_of, check_for_duplicates_in_args
 
 tqdm.monitor_interval = 0
 

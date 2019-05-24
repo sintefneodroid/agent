@@ -1,10 +1,10 @@
 import os.path as osp
 import tempfile
 
+import filelock
 import numpy as np
 from gym import Env
 from gym.spaces import Box, Discrete
-import filelock
 
 
 class MnistEnv(Env):

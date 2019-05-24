@@ -3,16 +3,16 @@
 from warnings import warn
 
 import draugr
+from agent.architectures import CategoricalMLP
+from agent.exceptions.exceptions import NoTrajectoryException
+from agent.memory import TrajectoryBuffer
+from agent.procedures.train_agent import agent_test_main, parallel_train_agent_procedure
+from agent.specifications import TR
+from agent.specifications.generalised_delayed_construction_specification import GDCS
 from draugr import TensorBoardWriter
 from neodroid.models import EnvironmentState
-from agent.exceptions.exceptions import NoTrajectoryException
 from neodroid.utilities.transformations.encodings import to_one_hot
-from warg import NOD
-
-from agent.architectures import CategoricalMLP
-from agent.procedures.train_agent import agent_test_main, parallel_train_agent_procedure
-from agent.utilities.specifications.generalised_delayed_construction_specification import GDCS
-from agent.utilities.specifications.training_resume import TR
+from warg.named_ordered_dictionary import NOD
 
 __author__ = 'cnheider'
 
@@ -42,7 +42,7 @@ class PGAgent(PolicyAgent):
 
     self._accumulated_error = U.to_tensor(0.0, device=self._device)
     self._evaluation_function = torch.nn.CrossEntropyLoss()
-    self._trajectory_trace = U.TrajectoryTraceBuffer()
+    self._trajectory_trace = TrajectoryBuffer()
 
     self._policy_arch_spec = GDCS(CategoricalMLP, NOD(**{
       'input_shape':             None,  # Obtain from environment
@@ -238,23 +238,27 @@ class PGAgent(PolicyAgent):
     else:
       state = initial_state
 
-    with draugr.scroll_plot_class(self._policy_model.output_shape, render=render) as s:
+    with draugr.scroll_plot_class(self._policy_model.output_shape,
+                                  render=render,
+                                  window_length=50) as s:
       for t in tqdm(count(1), f'Rollout #{self._rollout_i}', leave=False):
         action, action_log_probs, entropy, *_ = self.sample_action(state)
 
         state, signal, terminated, *_ = environment.react(action)
 
         if self._signal_clipping:
-          signal = np.clip(signal, self._signal_clip_low, self._signal_clip_high)
+          signal = np.clip(signal,
+                           self._signal_clip_low,
+                           self._signal_clip_high)
 
         episode_signal.append(signal)
         episode_entropy.append(entropy.to('cpu').numpy())
         if train:
-          self._trajectory_trace.add_trace(signal, action_log_probs, entropy)
+          self._trajectory_trace.add_point(signal, action_log_probs, entropy)
 
         if render:
           environment.render()
-          s.draw(to_one_hot(self._policy_model.output_shape,action))
+          s.draw(to_one_hot(self._policy_model.output_shape,action)[0])
 
         if np.array(terminated).all() or (max_length and t > max_length):
           episode_length = t
@@ -368,6 +372,20 @@ def pg_test(rollouts=None,skip=True):
   agent_test_main(PGAgent,
                   C,
                   parse_args=False,
+                  training_procedure=parallel_train_agent_procedure,
+                  skip_confirmation=skip)
+
+def pg_run(rollouts=None,skip=True):
+  import agent.configs.agent_test_configs.pg_test_config as C
+
+  if rollouts:
+    C.ROLLOUTS = rollouts
+
+  C.CONNECT_TO_RUNNING = True
+  C.ENVIRONMENT_NAME = ""
+
+  agent_test_main(PGAgent,
+                  C,
                   training_procedure=parallel_train_agent_procedure,
                   skip_confirmation=skip)
 

@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-from agent.agents.ddpg_agent import DDPGAgent
 from agent.architectures import SingleDistributionMLP
 
 __author__ = 'cnheider'

@@ -1,15 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-import abc
-from collections import Iterable
-from itertools import count
 
-import draugr
-from agent.exceptions.exceptions import NoTrainingProcedure
-from neodroid.api_wrappers.gym_wrapper.gym_wrapper import NeodroidWrapper
-from trolls.multiple_environments_wrapper import SubProcessEnvironments, make_env
-from warg import get_upper_case_vars_or_protected_of
-from warg import parse_arguments
 
 __author__ = 'cnheider'
 import glob
@@ -18,7 +9,18 @@ import os
 import torch
 from agent import utilities as U
 import gym
+import abc
+from collections import Iterable
+from itertools import count
 
+import draugr
+from draugr.stopping_key import add_early_stopping_key_combination
+from agent.exceptions.exceptions import NoTrainingProcedure
+from neodroid.api_wrappers.action_encoding_wrappers import BinaryActionEncodingWrapper
+from neodroid.api_wrappers.gym_wrapper.gym_wrapper import NeodroidWrapper
+from trolls.multiple_environments_wrapper import SubProcessEnvironments, make_gym_env
+from trolls.wrappers.vector_environments import VectorWrap
+from warg.arguments import get_upper_case_vars_or_protected_of, parse_arguments
 
 class TrainingProcedure(abc.ABC):
   def __init__(self, **kwargs):
@@ -105,7 +107,7 @@ class parallel_train_agent_procedure(TrainingProcedure):
       if '-v' in config.ENVIRONMENT_NAME:
 
         if self.default_num_train_envs > 0:
-          self.environments = [make_env(config.ENVIRONMENT_NAME) for _ in
+          self.environments = [make_gym_env(config.ENVIRONMENT_NAME) for _ in
                                range(self.default_num_train_envs)]
           self.environments = NeodroidWrapper(SubProcessEnvironments(self.environments,
                                                                      auto_reset_on_terminal=self.auto_reset_on_terminal))
@@ -117,7 +119,7 @@ class parallel_train_agent_procedure(TrainingProcedure):
       if '-v' in config.ENVIRONMENT_NAME:
 
         if self.default_num_test_envs > 0:
-          self.test_environments = [make_env(config.ENVIRONMENT_NAME) for _ in
+          self.test_environments = [make_gym_env(config.ENVIRONMENT_NAME) for _ in
                                     range(self.default_num_test_envs)]
           self.test_environments = NeodroidWrapper(SubProcessEnvironments(self.test_environments))
 
@@ -131,7 +133,7 @@ class parallel_train_agent_procedure(TrainingProcedure):
     agent = agent_type(config)
     agent.build(self.environments)
 
-    listener = U.add_early_stopping_key_combination(agent.stop_training, has_x_server=has_x_server)
+    listener = add_early_stopping_key_combination(agent.stop_training, has_x_server=has_x_server)
 
     if listener:
       listener.start()

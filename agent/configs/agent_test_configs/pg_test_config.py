@@ -1,10 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-import torch
-from warg import NOD
-from .base_test_config import *
-
 from agent.architectures import MLP
+from .base_test_config import *
 
 __author__ = 'cnheider'
 

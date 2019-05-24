@@ -2,10 +2,10 @@ import time
 from itertools import count
 from typing import Any, Tuple
 
-import draugr
+from agent.agents.abstract.torch_agent import TorchAgent
 from tqdm import tqdm
 
-from agent.agents.abstract.torch_agent import TorchAgent
+import draugr
 
 
 class RandomAgent(TorchAgent):
@@ -76,7 +76,7 @@ class RandomAgent(TorchAgent):
   # region Public
 
   def sample_action(self, state, *args, **kwargs) -> Any:
-    return self._environment.action_space.sample()
+    return self._environment.action_space._sample()
 
   def update(self, *args, **kwargs) -> None:
     pass

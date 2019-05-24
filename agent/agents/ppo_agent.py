@@ -6,11 +6,11 @@ from typing import Any, Tuple
 import numpy
 
 from agent.architectures import DDPGActorArchitecture, DDPGCriticArchitecture
-from agent.procedures.train_agent import agent_test_main, parallel_train_agent_procedure
-from agent.utilities.specifications.generalised_delayed_construction_specification import GDCS
-from agent.utilities.specifications.training_resume import TR
 from agent.interfaces.torch_agents.ac_agent import ActorCriticAgent
-from warg import NOD
+from agent.procedures.train_agent import agent_test_main, parallel_train_agent_procedure
+from agent.specifications import TR, ValuedTransition
+from agent.specifications.generalised_delayed_construction_specification import GDCS
+from warg.named_ordered_dictionary import NOD
 
 __author__ = 'cnheider'
 
@@ -163,7 +163,7 @@ class PPOAgent(ActorCriticAgent):
     distribution = torch.distributions.Normal(mean, std)
 
     with torch.no_grad():
-      action = distribution.sample()
+      action = distribution._sample()
 
     action_log_prob = distribution.log_prob(action)
 
@@ -198,7 +198,7 @@ class PPOAgent(ActorCriticAgent):
       self._step_i += 1
       dist, value_estimates, *_ = self.sample_action(state)
 
-      action = dist.sample()
+      action = dist._sample()
       action_prob = dist.log_prob(action)
 
       next_state, signal, terminated, _ = environment.react(action)
@@ -231,6 +231,9 @@ class PPOAgent(ActorCriticAgent):
 
     return transitions, accumulated_signal, terminated, state
 
+  def react(self):
+    pass
+
   def rollout(self,
               initial_state,
               environment,
@@ -251,7 +254,7 @@ class PPOAgent(ActorCriticAgent):
 
       dist, value_estimates, *_ = self.sample_action(state)
 
-      action = dist.sample()
+      action = dist._sample()
       action_prob = dist.log_prob(action)
 
       next_state, signal, terminated, _ = environment.react(action)
@@ -259,18 +262,14 @@ class PPOAgent(ActorCriticAgent):
       if render:
         environment.render()
 
-      successor_state = None
-      if not terminated:  # If environment terminated then there is no successor state
-        successor_state = next_state
-
       transitions.append(
-          U.ValuedTransition(state,
+          ValuedTransition(state,
                              action,
                              action_prob,
                              value_estimates,
                              signal,
-                             successor_state,
-                             not terminated,
+                             next_state,
+                             terminated,
                              )
           )
       state = next_state
@@ -502,7 +501,7 @@ class PPOAgent(ActorCriticAgent):
         advantage_memories = self.back_trace_advantages(transitions)
 
         for memory in advantage_memories:
-          self._memory_buffer.add(memory)
+          self._memory_buffer._add(memory)
 
         self.update()
         self._memory_buffer.clear()

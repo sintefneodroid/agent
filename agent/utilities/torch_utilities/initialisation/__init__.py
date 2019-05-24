@@ -4,11 +4,11 @@
 __author__ = 'cnheider'
 import random
 
+import torch.nn as nn
+
 from .atari_weight_init import *
 from .fan_in_init import *
 from .ortho_weight_init import *
-
-import torch.nn as nn
 
 
 def set_seeds(seed):

@@ -1,18 +1,14 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 import copy
-import time
 from abc import abstractmethod
 from typing import Any
 
-import draugr
-from draugr import TensorBoardWriter
 from tqdm import tqdm
-from warg import NamedOrderedDictionary
 
-from agent.utilities.specifications.exploration_specification import ExplorationSpecification
-from agent.utilities.specifications.generalised_delayed_construction_specification import GDCS
-from agent.utilities.specifications.training_resume import TR
+import draugr
+from agent.specifications import ExplorationSpecification, GDCS, TR
+from draugr import TensorBoardWriter
 
 __author__ = 'cnheider'
 

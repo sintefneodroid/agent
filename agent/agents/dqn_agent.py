@@ -2,14 +2,14 @@
 # -*- coding: utf-8 -*-
 import matplotlib
 
-from agent.interfaces.torch_agents.value_agent import ValueAgent
-from warg import NOD, NamedOrderedDictionary
-
 from agent.architectures import MLP
+from agent.interfaces.torch_agents.value_agent import ValueAgent
+from agent.memory import ReplayBuffer
 from agent.procedures.train_agent import agent_test_main, parallel_train_agent_procedure
+from agent.specifications.generalised_delayed_construction_specification import GDCS
 from agent.utilities import get_screen
-from agent.utilities.specifications.generalised_delayed_construction_specification import GDCS
-from agent.utilities.visualisation.experimental.statistics_plot import plot_durations
+from draugr.visualisation.visualisation.experimental.statistics_plot import plot_durations
+from warg.named_ordered_dictionary import NOD, NamedOrderedDictionary
 
 __author__ = 'cnheider'
 from itertools import count
@@ -31,7 +31,7 @@ class DQNAgent(ValueAgent):
   # region Protected
 
   def __defaults__(self) -> None:
-    self._memory_buffer = U.ReplayBuffer(10000)
+    self._memory_buffer = ReplayBuffer(10000)
     # self._memory = U.PrioritisedReplayMemory(config.REPLAY_MEMORY_SIZE)  # Cuda trouble
 
     self._use_cuda = False
@@ -121,43 +121,44 @@ class DQNAgent(ValueAgent):
 '''
     states = U.to_tensor(batch.state,
                          dtype=self._state_type,
-                         device=self._device).view(-1, *self._input_shape)
+                         device=self._device).transpose(0, 1)
 
     true_signals = U.to_tensor(batch.signal,
                                dtype=self._value_type,
-                               device=self._device).view(-1, 1)
+                               device=self._device).transpose(0, 1)
 
     action_indices = U.to_tensor(batch.action,
                                  dtype=self._action_type,
-                                 device=self._device).view(-1, 1)
+                                 device=self._device).transpose(0, 1)
 
-    non_terminal_mask = U.to_tensor(batch.non_terminal,
+    non_terminal_mask = U.to_tensor(batch.non_terminal_numerical,
                                     dtype=torch.float,
-                                    device=self._device).view(-1, 1)
+                                    device=self._device).transpose(0, 1)
 
     successor_states = U.to_tensor(batch.successor_state,
                                    dtype=self._state_type,
-                                   device=self._device).view(-1, *self._input_shape)
+                                   device=self._device).transpose(0, 1)
 
     # Calculate Q of successors
     with torch.no_grad():
       Q_successors = self._value_model(successor_states)
 
     Q_successors_max_action_indices = Q_successors.max(-1)[1]
-    Q_successors_max_action_indices = Q_successors_max_action_indices.view(-1, 1)
+    Q_successors_max_action_indices = Q_successors_max_action_indices.unsqueeze(-1)
     if self._use_double_dqn:
       with torch.no_grad():
         Q_successors = self._target_value_model(successor_states)
 
-    max_next_values = Q_successors.gather(1, Q_successors_max_action_indices)
+    max_next_values = Q_successors.gather(-1, Q_successors_max_action_indices).squeeze(-1)
     # a = Q_max_successor[non_terminal_mask]
     Q_max_successor = max_next_values * non_terminal_mask
 
     # Integrate with the true signal
-    Q_expected = true_signals + (self._discount_factor * Q_max_successor).view(-1, 1)
+    Q_expected = true_signals + (self._discount_factor * Q_max_successor)
 
     # Calculate Q of state
-    Q_state = self._value_model(states).gather(1, action_indices)
+    action_indices = action_indices.unsqueeze(-1)
+    Q_state = self._value_model(states).gather(-1, action_indices).squeeze(-1)
 
     return self._evaluation_function(Q_state, Q_expected)
 
@@ -178,7 +179,7 @@ class DQNAgent(ValueAgent):
   def rollout(self, initial_state, environment, render=False, train=True, random_sample=True, **kwargs):
     self._rollout_i += 1
 
-    state = np.array(initial_state)
+    state = initial_state
     episode_signal = []
     episode_length = []
     episode_td_error = []
@@ -198,15 +199,11 @@ class DQNAgent(ValueAgent):
       if self._signal_clipping:
         signal = np.clip(signal, -1.0, 1.0)
 
-      successor_state = np.array(next_state)
-
-      terminated = np.array(terminated)
-
       self._memory_buffer.add_transition(state,
                                          action,
                                          signal,
-                                         successor_state,
-                                         [not t for t in terminated]
+                                         next_state,
+                                          terminated
                                          )
 
       td_error = 0
@@ -218,14 +215,11 @@ class DQNAgent(ValueAgent):
 
         td_error = self.update()
 
-        # T.set_description(f'TD error: {td_error}')
-
       if (self._use_double_dqn
           and self._step_i % self._sync_target_model_frequency == 0
       ):
         self._target_value_model = U.copy_state(target=self._target_value_model, source=self._value_model)
-        if self._verbose:
-          T.write('Target Model Synced')
+        T.write('Target Model Synced')
 
       episode_signal.append(signal)
       episode_td_error.append(td_error)
@@ -322,6 +316,18 @@ def dqn_test(rollouts=None,skip=True):
                   skip_confirmation=skip)
   # test_cnn_dqn_agent(C)
 
+def dqn_run(rollouts=None,skip=True):
+  import agent.configs.agent_test_configs.dqn_test_config as C
+
+  if rollouts:
+    C.ROLLOUTS = rollouts
+
+  C.CONNECT_TO_RUNNING = True
+
+  agent_test_main(DQNAgent,
+                  C,
+                  training_procedure=parallel_train_agent_procedure,
+                  skip_confirmation=skip)
 
 if __name__ == '__main__':
   dqn_test()

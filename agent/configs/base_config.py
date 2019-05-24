@@ -1,17 +1,15 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-import os
 import time
 from pathlib import Path
 
 import torch
 import torch.nn.functional as F
-from warg import NOD
 
-from agent.agents.pg_agent import PGAgent
 from agent.architectures import CategoricalMLP
-from agent.utilities.specifications.exploration_specification import ExplorationSpecification
-from agent.utilities.specifications.generalised_delayed_construction_specification import GDCS
+from agent.specifications.exploration_specification import ExplorationSpecification
+from agent.specifications.generalised_delayed_construction_specification import GDCS
+from warg.named_ordered_dictionary import NOD
 
 __author__ = 'cnheider'
 '''
@@ -25,11 +23,7 @@ CONFIG_FILE = __file__
 VERBOSE = False
 USE_LOGGING = True
 
-# class LearningConfig(object):
-#  pass
 
-# class EnvironmentConfig(object):
-#  pass
 
 input_shape = None  # Obtain from environment
 hidden_layers = (2)  # Obtain from input and output size

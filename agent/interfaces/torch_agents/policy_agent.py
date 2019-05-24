@@ -4,9 +4,10 @@ from abc import abstractmethod
 from typing import Any
 
 import draugr
-from agent.utilities.specifications.generalised_delayed_construction_specification import GDCS
 from agent.architectures import Architecture
-from warg import NamedOrderedDictionary
+from agent.specifications import TR
+from agent.specifications.generalised_delayed_construction_specification import GDCS
+from warg.named_ordered_dictionary import NOD
 
 __author__ = 'cnheider'
 
@@ -90,7 +91,7 @@ class PolicyAgent(TorchAgent):
 
     self._policy_arch_spec.kwargs['hidden_layers'] = self._hidden_layers
 
-  def _train_procedure(self, *args, **kwargs) -> NamedOrderedDictionary:
+  def _train_procedure(self, *args, **kwargs) -> NOD:
     return self.train_episodically(*args, **kwargs)
 
   # endregion
@@ -102,7 +103,7 @@ class PolicyAgent(TorchAgent):
     raise NotImplementedError
 
   @abstractmethod
-  def train_episodically(self, rollout, *args, **kwargs) -> U.TR:
+  def train_episodically(self, rollout, *args, **kwargs) -> TR:
     raise NotImplementedError
 
   # endregion

@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 from agent.architectures import MLP
 from agent.utilities import ReplayBuffer
-from agent.agents.dqn_agent import DQNAgent
 
 __author__ = 'cnheider'
 '''

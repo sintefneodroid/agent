@@ -4,11 +4,12 @@ from abc import abstractmethod
 from itertools import count
 from typing import Any
 
-import draugr
 from tqdm import tqdm
 
-from agent.utilities.specifications.generalised_delayed_construction_specification import GDCS
+import draugr
 from agent.interfaces.torch_agent import TorchAgent
+from agent.memory import TransitionBuffer
+from agent.specifications.generalised_delayed_construction_specification import GDCS
 
 __author__ = 'cnheider'
 import torch
@@ -32,7 +33,7 @@ All value iteration agents should inherit from this class
     self._signal_clipping = False
     self._action_clipping = False
 
-    self._memory_buffer = U.TransitionBuffer()
+    self._memory_buffer = TransitionBuffer()
 
     self._actor_optimiser_spec: GDCS = GDCS(constructor=torch.optim.Adam,
                                             kwargs={'lr':3e-4}

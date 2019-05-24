@@ -3,7 +3,6 @@
 from torch.nn import MSELoss
 
 from agent.architectures import ContinuousActorArchitecture, MLP
-from agent.utilities.specifications.generalised_delayed_construction_specification import GDCS
 from .base_test_config import *
 
 __author__ = 'cnheider'

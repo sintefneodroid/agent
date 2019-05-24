@@ -1,10 +1,10 @@
 import time
 from typing import Any, Tuple
 
-import draugr
+from agent.agents.abstract.evo_agent import EVOAgent
 from tqdm import tqdm
 
-from agent.agents.abstract.evo_agent import EVOAgent
+import draugr
 from agent.procedures import agent_test_main
 
 
@@ -76,7 +76,7 @@ class CMAAgent(EVOAgent):
   # region Public
 
   def sample_action(self, state, *args, **kwargs) -> Any:
-    return self._environment.action_space.sample()
+    return self._environment.action_space._sample()
 
   def update(self, *args, **kwargs) -> None:
     pass

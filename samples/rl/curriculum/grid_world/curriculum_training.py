@@ -1,26 +1,22 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+import time
+
+import torch
+from neodroid.wrappers.utility_wrappers.action_encoding_wrappers import \
+  (BinaryActionEncodingCurriculumEnvironment, NeodroidWrapper,
+   )
+from tqdm import tqdm
+
+import agent.configs.curriculum.curriculum_config as C
 import draugr
+from agent import configs, utilities as U
 from agent.agents.pg_agent import PGAgent
 from samples.rl.curriculum import (display_actor_configurations,
                                    estimate_entire_state_space,
                                    estimate_value,
                                    get_initial_configuration_from_goal,
                                    )
-import time
-
-import torch
-from tqdm import tqdm
-
-from neodroid.wrappers.utility_wrappers.action_encoding_wrappers import \
-  (BinaryActionEncodingCurriculumEnvironment, NeodroidWrapper,
-   )
-
-
-
-import agent.configs.curriculum.curriculum_config as C
-
-from agent import utilities as U, configs
 
 __author__ = 'cnheider'
 

@@ -1,12 +1,11 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-from typing import Sequence
 
 from .mlp import MLP
 
 __author__ = 'cnheider'
 import torch
-from torch import nn, Tensor
+from torch import nn
 from torch.nn import init
 
 

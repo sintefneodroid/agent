@@ -5,7 +5,6 @@ import pytest
 from agent.agents.ddpg_agent import ddpg_test
 from agent.agents.dqn_agent import dqn_test
 from agent.agents.pg_agent import pg_test
-from agent.agents.ppo_agent import ppo_test
 
 __author__ = 'cnheider'
 __doc__ = ''

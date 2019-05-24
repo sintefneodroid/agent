@@ -1,6 +1,6 @@
 import numpy as np
 from gym import Env
-from gym.spaces import Discrete
+
 from neodroid.models import Range, Space
 
 

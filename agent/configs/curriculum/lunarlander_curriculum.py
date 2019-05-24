@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from warg import NOD
+from warg.named_ordered_dictionary import NOD
 
 __author__ = 'cnheider'
 
