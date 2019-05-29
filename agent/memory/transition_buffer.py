@@ -7,7 +7,6 @@ from warg import namedtuple_args
 __author__ = 'cnheider'
 
 
-
 class TransitionBuffer(ExpandableCircularBuffer):
 
   def add_transitions(self, transitions):
@@ -24,4 +23,3 @@ class TransitionBuffer(ExpandableCircularBuffer):
       batch = Transition(*zip(*self._sample(num)))
       return batch
     return [None] * Transition._fields.__len__()
-

@@ -20,7 +20,6 @@ from samples.rl.curriculum import (display_actor_configurations,
 
 __author__ = 'cnheider'
 
-
 tqdm.monitor_interval = 0
 torch.manual_seed(C.SEED)
 # neo.seed(C.SEED)
@@ -71,7 +70,7 @@ def main(config, agent, full_state_evaluation_frequency=20):
                                                       )
 
   train_session = range(1, config.ROLLOUTS + 1)
-  train_session = tqdm(train_session, leave=False)
+  train_session = tqdm(train_session, leave=False, disable=False)
 
   for i in train_session:
     if not env.is_connected:
@@ -90,7 +89,7 @@ def main(config, agent, full_state_evaluation_frequency=20):
                                   # statistics=None,
                                   save_snapshot=save_snapshot)
 
-    num_candidates = tqdm(range(1, C.CANDIDATE_SET_SIZE + 1), leave=False)
+    num_candidates = tqdm(range(1, C.CANDIDATE_SET_SIZE + 1), leave=False, disable=False)
     for c in num_candidates:
       if _plot_stats:
         # draugr.terminal_plot_stats_shared_x(stats, printer=train_session.write)

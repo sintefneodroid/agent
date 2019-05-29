@@ -7,7 +7,7 @@ from typing import Any
 from tqdm import tqdm
 
 import draugr
-from agent.interfaces.torch_agent import TorchAgent
+from agent.specifications.interfaces.torch_agent import TorchAgent
 from agent.memory import TransitionBuffer
 from agent.specifications.generalised_delayed_construction_specification import GDCS
 
@@ -79,8 +79,7 @@ All value iteration agents should inherit from this class
     draugr.sprint(f'trainable/critic_num_params: {critic_num_trainable_params}/{critic_num_params}\n',
                   highlight=True, color='magenta')
 
-  def _maybe_infer_sizes(self, env):
-    super()._maybe_infer_sizes(env)
+  def _post_io_inference(self, env):
 
     if ('input_shape' not in self._actor_arch_spec.kwargs or
         not self._actor_arch_spec.kwargs['input_shape']):
@@ -97,14 +96,6 @@ All value iteration agents should inherit from this class
     if ('input_shape' not in self._critic_arch_spec.kwargs or
         not self._critic_arch_spec.kwargs['input_shape']):
       self._critic_arch_spec.kwargs['input_shape'] = self._input_shape
-
-    if ('hidden_layers' not in self._critic_arch_spec.kwargs or
-        not self._critic_arch_spec.kwargs['hidden_layers']):
-      self._critic_arch_spec.kwargs['hidden_layers'] = self._hidden_layers
-
-    if ('output_shape' not in self._critic_arch_spec.kwargs or
-        not self._critic_arch_spec.kwargs['output_shape']):
-      self._critic_arch_spec.kwargs['output_shape'] = self._output_shape
 
   # endregion
 
@@ -154,7 +145,7 @@ All value iteration agents should inherit from this class
                               )
 
   def models(self):
-    return self._actor,self._critic
+    return self._actor, self._critic
 
   # endregion
 
@@ -173,13 +164,13 @@ All value iteration agents should inherit from this class
               render=False,
               train=True,
               **kwargs):
-    self._rollout_i += 1
+    self._update_i += 1
 
     state = initial_state
     episode_signal = []
     episode_length = 0
 
-    T = tqdm(count(1), f'Rollout #{self._rollout_i}', leave=False)
+    T = tqdm(count(1), f'Rollout #{self._update_i}', leave=False, disable=not render)
     for t in T:
       self._step_i += 1
 

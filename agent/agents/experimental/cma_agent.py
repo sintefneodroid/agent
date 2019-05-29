@@ -37,7 +37,7 @@ class CMAAgent(EVOAgent):
                        **kwargs) -> Tuple[Any, Any]:
     training_start_timestamp = time.time()
     E = range(1, rollouts)
-    E = tqdm(E, f'Episode: {1}', leave=False)
+    E = tqdm(E, f'Episode: {1}', leave=False, disable=not render)
 
     stats = draugr.StatisticCollection(stats=('signal', 'duration'))
 

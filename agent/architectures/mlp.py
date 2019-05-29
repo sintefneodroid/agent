@@ -73,15 +73,14 @@ OOOO hidden_layer_size * (Weights,Biases)
       h_2_size = int(numpy.sqrt(h_1_size * h_3_size))
 
       hidden_layers = NOD(h_1_size,
-                                             h_2_size,
-                                             h_3_size
-                                             ).as_list()
+                          h_2_size,
+                          h_3_size
+                          ).as_list()
 
     if not isinstance(hidden_layers, Sequence):
       hidden_layers = (hidden_layers,)
 
     self._hidden_layers = hidden_layers
-
 
     self._hidden_layer_activation = hidden_layer_activation
 
@@ -120,7 +119,7 @@ OOOO hidden_layer_size * (Weights,Biases)
     #      layer = getattr(self, 'fc' + str(i))
     #      x = F.relu(layer(x))
 
-    val = x#.view(x.size(0), -1)
+    val = x  # .view(x.size(0), -1)
     for i in range(1, self.num_of_layer + 1):
       layer = getattr(self, f'_fc{i}')
       val = layer(val)

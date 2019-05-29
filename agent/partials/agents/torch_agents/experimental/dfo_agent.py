@@ -3,7 +3,7 @@
 from abc import ABC
 
 __author__ = 'cnheider'
-from agent.interfaces.torch_agent import TorchAgent
+from agent.specifications.interfaces.torch_agent import TorchAgent
 
 
 class DFOAgent(TorchAgent, ABC):

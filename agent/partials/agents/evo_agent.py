@@ -33,7 +33,7 @@ class EVOAgent(Agent, ABC):
               random_sample=True,
               **kwargs) -> Any:
     if train:
-      self._rollout_i += 1
+      self._update_i += 1
 
     episode_signal = 0
     episode_length = 0
@@ -41,7 +41,7 @@ class EVOAgent(Agent, ABC):
     state = initial_state
 
     T = count(1)
-    T = tqdm(T, f'Rollout #{self._rollout_i}', leave=False)
+    T = tqdm(T, f'Rollout #{self._update_i}', leave=False, disable=not render)
 
     for t in T:
       action = int(self.sample_action(state)[0])

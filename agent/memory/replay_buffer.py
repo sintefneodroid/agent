@@ -10,6 +10,7 @@ from agent.memory import ExpandableCircularBuffer
 from agent.specifications import TrajectoryPoint, Transition
 from warg.arguments import namedtuple_args
 
+
 class ReplayBuffer(object):
 
   def __init__(self, capacity=int(3e6)):
@@ -33,6 +34,7 @@ class ReplayBuffer(object):
     values = self.sample(num)
     batch = Transition(*zip(*values))
     return batch
+
 
 class TransitionBuffer(ExpandableCircularBuffer):
 

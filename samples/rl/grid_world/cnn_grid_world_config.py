@@ -39,10 +39,10 @@ ENVIRONMENT_NAME = 'grd_camera'
 
 
 POLICY_ARCH_PARAMS = {
-  'input_shape':             None,  # Obtain from environment
+  'input_shape':            None,  # Obtain from environment
   'hidden_layer_activation':F.leaky_relu,
   'hidden_layers':          [128, 64, 32, 16],
-  'output_shape':            None,  # Obtain from environment
+  'output_shape':           None,  # Obtain from environment
   'use_bias':               True,
   }
 POLICY_ARCH = CategoricalCNN

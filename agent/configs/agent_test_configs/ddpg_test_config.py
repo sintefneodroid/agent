@@ -61,10 +61,10 @@ ROLLOUTS = 1000
 
 # Architecture
 ACTOR_ARCH_SPEC = GDCS(DDPGActorArchitecture, NOD(**{
-  'input_shape':       None,  # Obtain from environment
+  'input_shape':      None,  # Obtain from environment
   # 'hidden_layers' : [256],
   'output_activation':torch.tanh,
-  'output_shape':      None,  # Obtain from environment
+  'output_shape':     None,  # Obtain from environment
   }))
 
 CRITIC_ARCH_SPEC = GDCS(DDPGCriticArchitecture, NOD(**{

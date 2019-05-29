@@ -3,6 +3,5 @@
 
 __author__ = 'cnheider'
 
-from .parallel_train_agent import *
+from agent.procedures.experimental.parallel_train_agent import *
 from .train_agent import *
-

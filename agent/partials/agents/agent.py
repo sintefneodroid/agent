@@ -33,7 +33,7 @@ All agent should inherit from this class
     self._input_shape = None
     self._output_shape = None
     self._step_i = 0
-    self._rollout_i = 0
+    self._update_i = 0
     self._end_training = False
     self._divide_by_zero_safety = 1e-10
     self._environment = environment
@@ -75,14 +75,14 @@ All agent should inherit from this class
   def run(self, environment, render=True, *args, **kwargs) -> None:
 
     E = count(1)
-    E = tqdm(E, leave=False)
+    E = tqdm(E, leave=False, disable=not render)
     for episode_i in E:
       E.set_description(f'Episode {episode_i}')
 
       state = environment.reset()
 
       F = count(1)
-      F = tqdm(F, leave=False)
+      F = tqdm(F, leave=False, disable=not render)
       for frame_i in F:
         F.set_description(f'Frame {frame_i}')
 
@@ -99,19 +99,8 @@ All agent should inherit from this class
 
   def build(self, env, **kwargs) -> None:
     self._environment = env
-    self._maybe_infer_sizes(self._environment)
+    self._infer_io_shapes(env)
     self._build(**kwargs)
-
-  def train(self, env, test_env, **kwargs) -> TR:
-    training_start_timestamp = time.time()
-
-    training_resume = self._train_procedure(env, test_env, **kwargs)
-
-    time_elapsed = time.time() - training_start_timestamp
-    end_message = f'Training done, time elapsed: {time_elapsed // 60:.0f}m {time_elapsed % 60:.0f}s'
-    print(f'\n{"-" * 9} {end_message} {"-" * 9}\n')
-
-    return training_resume
 
   def set_config_attributes(self, config, **kwargs) -> None:
     if config:
@@ -147,16 +136,16 @@ All agent should inherit from this class
     else:
       raise HasNoEnvError
 
-  def _maybe_infer_sizes(self, env) -> None:
-    self._maybe_infer_input_output_shapes(env)
+  def _post_io_inference(self, env) -> None:
+    pass
 
-  def _maybe_infer_input_output_shapes(self, env) -> None:
-
+  def _infer_io_shapes(self, env) -> None:
     '''
 Tries to infer input and output size from env if either _input_shape or _output_shape, is None or -1 (int)
 
 :rtype: object
-'''
+    '''
+
     if self._input_shape is None or self._input_shape == -1:
       if len(env.observation_space.shape) >= 1:
         self._input_shape = env.observation_space.shape
@@ -173,6 +162,8 @@ Tries to infer input and output size from env if either _input_shape or _output_
         self._output_shape = env.action_space.shape
       else:
         self._output_shape = (env.action_space.n, 1)
+
+    self._post_io_inference(env)
 
     # region print
     '''
@@ -228,10 +219,6 @@ Tries to infer input and output size from env if either _input_shape or _output_
 
   @abstractmethod
   def _optimise_wrt(self, error, *args, **kwargs) -> None:
-    raise NotImplementedError
-
-  @abstractmethod
-  def _train_procedure(self, *args, **kwargs) -> TrainingResume:
     raise NotImplementedError
 
   # endregion

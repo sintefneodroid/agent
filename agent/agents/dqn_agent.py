@@ -3,9 +3,9 @@
 import matplotlib
 
 from agent.architectures import MLP
-from agent.interfaces.torch_agents.value_agent import ValueAgent
 from agent.memory import ReplayBuffer
-from agent.procedures.train_agent import agent_test_main, parallel_train_agent_procedure
+from agent.partials.agents.torch_agents.value_agent import ValueAgent
+from agent.procedures.train_agent import agent_test_main, parallelised_training
 from agent.specifications.generalised_delayed_construction_specification import GDCS
 from agent.utilities import get_screen
 from draugr.visualisation.visualisation.experimental.statistics_plot import plot_durations
@@ -39,9 +39,9 @@ class DQNAgent(ValueAgent):
     self._evaluation_function = F.smooth_l1_loss
 
     self._value_arch_spec = GDCS(MLP, NamedOrderedDictionary({
-      'input_shape':             None,  # Obtain from environment
+      'input_shape':            None,  # Obtain from environment
       'hidden_layers':          None,
-      'output_shape':            None,  # Obtain from environment
+      'output_shape':           None,  # Obtain from environment
       'hidden_layer_activation':torch.tanh,
       'use_bias':               True,
       }))
@@ -75,14 +75,13 @@ class DQNAgent(ValueAgent):
     self._value_model = self._value_arch_spec.constructor(**self._value_arch_spec.kwargs).to(self._device)
 
     self._target_value_model = self._value_arch_spec.constructor(**self._value_arch_spec.kwargs).to(
-      self._device)
+        self._device)
     self._target_value_model = U.copy_state(target=self._target_value_model, source=self._value_model)
     self._target_value_model.eval()
 
-    self._optimiser = self._optimiser_spec.constructor(
-        self._value_model.parameters(),
-        **self._optimiser_spec.kwargs
-        )
+    self._optimiser = self._optimiser_spec.constructor(self._value_model.parameters(),
+                                                       **self._optimiser_spec.kwargs
+                                                       )
 
   def _optimise_wrt(self, error, **kwargs):
     '''
@@ -176,8 +175,16 @@ class DQNAgent(ValueAgent):
 
     return error
 
-  def rollout(self, initial_state, environment, render=False, train=True, random_sample=True, **kwargs):
-    self._rollout_i += 1
+  def rollout(self,
+              initial_state,
+              environment,
+              *,
+              render=False,
+              stat_writer=None,
+              train=True,
+              random_sample=True,
+              **kwargs):
+    self._update_i += 1
 
     state = initial_state
     episode_signal = []
@@ -185,13 +192,13 @@ class DQNAgent(ValueAgent):
     episode_td_error = []
 
     T = count(1)
-    T = tqdm(T, f'Rollout #{self._rollout_i}', leave=False)
+    T = tqdm(T, f'Rollout #{self._update_i}', leave=False, disable=not render)
 
     for t in T:
       self._step_i += 1
 
       action = self.sample_action(state, random_sample=random_sample)
-      next_state, signal, terminated, *_ = environment.react(action)
+      next_state, signal, terminated, *_ = environment.react(action).to_gym_like_output()
 
       if render:
         environment.render()
@@ -203,7 +210,7 @@ class DQNAgent(ValueAgent):
                                          action,
                                          signal,
                                          next_state,
-                                          terminated
+                                         terminated
                                          )
 
       td_error = 0
@@ -215,11 +222,10 @@ class DQNAgent(ValueAgent):
 
         td_error = self.update()
 
-      if (self._use_double_dqn
-          and self._step_i % self._sync_target_model_frequency == 0
-      ):
+      if self._use_double_dqn and self._step_i % self._sync_target_model_frequency == 0:
         self._target_value_model = U.copy_state(target=self._target_value_model, source=self._value_model)
-        T.write('Target Model Synced')
+        if stat_writer:
+          stat_writer.scalar('Target Model Synced',self._step_i,self._step_i)
 
       episode_signal.append(signal)
       episode_td_error.append(td_error)
@@ -233,6 +239,13 @@ class DQNAgent(ValueAgent):
     ep = np.array(episode_signal).mean()
     el = episode_length
     ee = np.array(episode_td_error).mean()
+
+    if stat_writer:
+      stat_writer.scalar('duration', el, self._update_i)
+      stat_writer.scalar('signal', ep, self._update_i)
+      stat_writer.scalar('td_error', ee, self._update_i)
+      stat_writer.scalar('current_eps_threshold', self._current_eps_threshold, self._update_i)
+
     return ep, el, ee
 
   def infer(self, state, **kwargs):
@@ -266,7 +279,7 @@ def test_cnn_dqn_agent(config):
   agent = DQNAgent(config)
   agent.build(env)
 
-  episodes = tqdm(range(config.ROLLOUTS), leave=False)
+  episodes = tqdm(range(config.ROLLOUTS), leave=False, disable=False)
   for episode_i in episodes:
     episodes.set_description(f'Episode:{episode_i}')
     env.reset()
@@ -305,18 +318,22 @@ def test_cnn_dqn_agent(config):
   plt.show()
 
 
-def dqn_test(rollouts=None,skip=True):
+def dqn_test(rollouts=None, skip=True):
   import agent.configs.agent_test_configs.dqn_test_config as C
 
   # import configs.cnn_dqn_config as C
   if rollouts:
     C.ROLLOUTS = rollouts
 
-  agent_test_main(DQNAgent, C, parse_args=False, training_procedure=parallel_train_agent_procedure,
+  agent_test_main(DQNAgent,
+                  C,
+                  parse_args=False,
+                  training_procedure=parallelised_training,
                   skip_confirmation=skip)
   # test_cnn_dqn_agent(C)
 
-def dqn_run(rollouts=None,skip=True):
+
+def dqn_run(rollouts=None, skip=True):
   import agent.configs.agent_test_configs.dqn_test_config as C
 
   if rollouts:
@@ -326,8 +343,9 @@ def dqn_run(rollouts=None,skip=True):
 
   agent_test_main(DQNAgent,
                   C,
-                  training_procedure=parallel_train_agent_procedure,
+                  training_procedure=parallelised_training,
                   skip_confirmation=skip)
+
 
 if __name__ == '__main__':
   dqn_test()

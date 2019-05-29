@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 from agent.architectures import DDPGActorArchitecture, DDPGCriticArchitecture
 from agent.memory import TransitionBuffer
-from agent.procedures.train_agent import agent_test_main, parallel_train_agent_procedure
+from agent.procedures.train_agent import agent_test_main, parallelised_training
 from agent.specifications import ArchitectureSpecification, TR
 from agent.exploration.sampling import OrnsteinUhlenbeckProcess
 from draugr.stopping_key import add_early_stopping_key_combination
@@ -19,7 +19,7 @@ from tqdm import tqdm
 tqdm.monitor_interval = 0
 
 from agent import utilities as U
-from agent.interfaces.torch_agents.ac_agent import ActorCriticAgent
+from agent.specifications.interfaces.torch_agents.ac_agent import ActorCriticAgent
 
 
 class DDPGAgent(ActorCriticAgent):
@@ -57,9 +57,9 @@ class DDPGAgent(ActorCriticAgent):
     self._evaluation_function = F.smooth_l1_loss
 
     self._actor_arch_spec = ArchitectureSpecification(DDPGActorArchitecture, kwargs=NOD({
-      'input_shape':       None,  # Obtain from environment
+      'input_shape':      None,  # Obtain from environment
       'output_activation':torch.tanh,
-      'output_shape':      None,  # Obtain from environment
+      'output_shape':     None,  # Obtain from environment
       }))
 
     self._critic_arch_spec = ArchitectureSpecification(DDPGCriticArchitecture, kwargs=NOD({
@@ -237,20 +237,20 @@ class DDPGAgent(ActorCriticAgent):
 
     return action_out
 
-  def _train_procedure(self,
-                       env,
-                       test_env,
-                       *,
-                       rollouts=1000,
-                       render=False,
-                       render_frequency=10,
-                       stat_frequency=10
-                       ):
+  def _inner_train(self,
+                   env,
+                   test_env,
+                   *,
+                   rollouts=1000,
+                   render=False,
+                   render_frequency=10,
+                   stat_frequency=10
+                   ):
 
     # stats = draugr.StatisticCollection(stats=('signal', 'duration'))
 
     E = range(1, rollouts)
-    E = tqdm(E, desc='', leave=False)
+    E = tqdm(E, desc='', leave=False, disable=not render)
 
     for episode_i in E:
       state = env.reset()
@@ -311,15 +311,15 @@ def test_ddpg_agent(config):
   U.save_model(critic_model, config, name='critic')
 
 
-def ddpg_test(rollouts=None,skip=True):
+def ddpg_test(rollouts=None, skip=True):
   import agent.configs.agent_test_configs.ddpg_test_config as C
   if rollouts:
     C.ROLLOUTS = rollouts
 
   agent_test_main(DDPGAgent,
                   C,
-                  training_procedure=parallel_train_agent_procedure(auto_reset_on_terminal_state=True),
-                  parse_args=False,skip_confirmation=skip)
+                  training_procedure=parallelised_training(auto_reset_on_terminal_state=True),
+                  parse_args=False, skip_confirmation=skip)
 
 
 if __name__ == '__main__':

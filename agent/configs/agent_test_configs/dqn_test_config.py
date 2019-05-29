@@ -31,9 +31,9 @@ OPTIMISER_SPEC = GDCS(torch.optim.RMSprop, {})  # torch.optim.Adam
 
 # Architecture
 VALUE_ARCH_SPEC = GDCS(MLP, NOD(**{
-  'input_shape':             None,  # Obtain from environment
+  'input_shape':            None,  # Obtain from environment
   'hidden_layers':          None,
-  'output_shape':            None,  # Obtain from environment
+  'output_shape':           None,  # Obtain from environment
   'hidden_layer_activation':torch.relu,
   'use_bias':               True,
   }))

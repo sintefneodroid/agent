@@ -52,17 +52,17 @@ SURROGATE_CLIP_FUNC = lambda a:SURROGATE_CLIPPING_VALUE * (1. - a)  # clip range
 
 # Architecture
 ACTOR_ARCH_SPEC = GDCS(ContinuousActorArchitecture, NOD(**{
-  'input_shape':             None,  # Obtain from environment
+  'input_shape':            None,  # Obtain from environment
   'hidden_layers':          [256],
   'hidden_layer_activation':torch.relu,
-  'output_shape':            None,  # Obtain from environment
+  'output_shape':           None,  # Obtain from environment
   }))
 
 CRITIC_ARCH_SPEC = GDCS(MLP, NOD(**{
-  'input_shape':             None,  # Obtain from environment
+  'input_shape':            None,  # Obtain from environment
   'hidden_layers':          [256],
   'hidden_layer_activation':torch.relu,
-  'output_shape':            None,  # Obtain from environment
+  'output_shape':           None,  # Obtain from environment
   }))
 
 ACTOR_OPTIMISER_SPEC = GDCS(constructor=torch.optim.Adam,

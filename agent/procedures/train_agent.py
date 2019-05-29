@@ -1,8 +1,14 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-
 __author__ = 'cnheider'
+__doc__ = ''
+
+import time
+
+from agent.procedures.funs import train_episodically
+
+
 import glob
 import os
 
@@ -22,15 +28,17 @@ from trolls.multiple_environments_wrapper import SubProcessEnvironments, make_gy
 from trolls.wrappers.vector_environments import VectorWrap
 from warg.arguments import get_upper_case_vars_or_protected_of, parse_arguments
 
+
 class TrainingProcedure(abc.ABC):
-  def __init__(self, **kwargs):
+  def __init__(self, *, fun, **kwargs):
+    self.fun = fun
     pass
 
   def __call__(self, *args, **kwargs):
     pass
 
 
-class single_train_agent_procedure(TrainingProcedure):
+class linear_training(TrainingProcedure):
 
   def __call__(self,
                agent_type,
@@ -56,15 +64,16 @@ class single_train_agent_procedure(TrainingProcedure):
     agent = agent_type(config)
     agent.build(environment)
 
-    listener = U.add_early_stopping_key_combination(agent.stop_training, has_x_server=save)
+    listener = add_early_stopping_key_combination(agent.stop_training, has_x_server=save)
 
     if listener:
       listener.start()
     try:
-      training_resume = agent.train(environment,
-                                    test_env=environment,
-                                    rollouts=config.ROLLOUTS,
-                                    render=config.RENDER_ENVIRONMENT)
+      training_resume = self.fun(C,
+                                 agent,
+                                 environment,
+                                 rollouts=config.ROLLOUTS,
+                                 render=config.RENDER_ENVIRONMENT)
     finally:
       if listener:
         listener.stop()
@@ -86,20 +95,16 @@ class single_train_agent_procedure(TrainingProcedure):
     environment.close()
 
 
-class parallel_train_agent_procedure(TrainingProcedure):
+class parallelised_training(TrainingProcedure):
   def __init__(self,
                *,
                environments=None,
-               test_environments=None,
                default_num_train_envs=4,
-               default_num_test_envs=1,
                auto_reset_on_terminal_state=False,
                **kwargs):
     super().__init__(**kwargs)
     self.environments = environments
-    self.test_environments = test_environments
     self.default_num_train_envs = default_num_train_envs
-    self.default_num_test_envs = default_num_test_envs
     self.auto_reset_on_terminal = auto_reset_on_terminal_state
 
   def __call__(self, agent_type, config, save=True, has_x_server=False):
@@ -115,17 +120,6 @@ class parallel_train_agent_procedure(TrainingProcedure):
       else:
         self.environments = BinaryActionEncodingWrapper(name=config.ENVIRONMENT_NAME,
                                                         connect_to_running=config.CONNECT_TO_RUNNING)
-    if not self.test_environments:
-      if '-v' in config.ENVIRONMENT_NAME:
-
-        if self.default_num_test_envs > 0:
-          self.test_environments = [make_gym_env(config.ENVIRONMENT_NAME) for _ in
-                                    range(self.default_num_test_envs)]
-          self.test_environments = NeodroidWrapper(SubProcessEnvironments(self.test_environments))
-
-      else:
-        self.test_environments = BinaryActionEncodingWrapper(name=config.ENVIRONMENT_NAME,
-                                                             connect_to_running=config.CONNECT_TO_RUNNING)
 
     U.set_seeds(config.SEED)
     self.environments.seed(config.SEED)
@@ -135,13 +129,16 @@ class parallel_train_agent_procedure(TrainingProcedure):
 
     listener = add_early_stopping_key_combination(agent.stop_training, has_x_server=has_x_server)
 
+    training_start_timestamp = time.time()
+
+    training_resume = None
     if listener:
       listener.start()
     try:
-      training_resume = agent.train(self.environments,
-                                    self.test_environments,
-                                    rollouts=config.ROLLOUTS,
-                                    render=config.RENDER_ENVIRONMENT)
+      training_resume = self.fun(config,
+                                 agent,
+                                 self.environments,
+                                 rollouts=config.ROLLOUTS)
     except KeyboardInterrupt:
       for identifier, model in enumerate(agent.models):
         U.save_model(model, config, name=f'{agent}-{identifier}-interrupted')
@@ -150,7 +147,11 @@ class parallel_train_agent_procedure(TrainingProcedure):
       if listener:
         listener.stop()
 
-    if save:
+    time_elapsed = time.time() - training_start_timestamp
+    end_message = f'Training done, time elapsed: {time_elapsed // 60:.0f}m {time_elapsed % 60:.0f}s'
+    print(f'\n{"-" * 9} {end_message} {"-" * 9}\n')
+
+    if save and training_resume:
       if isinstance(training_resume.models, Iterable):
         for identifier, model in enumerate(training_resume.models):
           U.save_model(model, config, name=f'{agent}-{identifier}')
@@ -165,7 +166,6 @@ class parallel_train_agent_procedure(TrainingProcedure):
                                      directory=config.LOG_DIRECTORY)
 
     self.environments.close()
-    self.test_environments.close()
 
 
 class agent_test_gym(TrainingProcedure):
@@ -193,7 +193,7 @@ class agent_test_gym(TrainingProcedure):
 def agent_test_main(agent,
                     config,
                     *,
-                    training_procedure=single_train_agent_procedure,
+                    training_procedure=linear_training,
                     parse_args=True,
                     save=True,
                     has_x_server=True,
@@ -206,7 +206,7 @@ def agent_test_main(agent,
   if training_procedure is None:
     raise NoTrainingProcedure
   elif isinstance(training_procedure, type):
-    training_procedure = training_procedure()
+    training_procedure = training_procedure(fun=train_episodically)
 
   if parse_args:
     args = parse_arguments(f'{type(agent)}', config)
@@ -225,17 +225,17 @@ def agent_test_main(agent,
           setattr(config, key, arg)
 
   if has_x_server:
-    display_env = os.getenv('DISPLAY',None)
+    display_env = os.getenv('DISPLAY', None)
     if display_env is None:
       config.RENDER_ENVIRONMENT = False
       has_x_server = False
 
-  draugr.sprint(f'\nUsing config: {config}\n', highlight=True, color='yellow')
   if not skip_confirmation:
+    draugr.sprint(f'\nUsing config: {config}\n', highlight=True, color='yellow')
     for key, arg in get_upper_case_vars_or_protected_of(config).items():
       print(f'{key} = {arg}')
 
-    print(f'\n.. Also save:{save}, has_x_server:{has_x_server}')
+    draugr.sprint(f'\n.. Also save:{save}, has_x_server:{has_x_server}')
     input('\nPress Enter to begin... ')
 
   try:
@@ -254,4 +254,4 @@ if __name__ == '__main__':
                                     connect_to_running=C.CONNECT_TO_RUNNING)
   env.seed(C.SEED)
 
-  single_train_agent_procedure()(agent_type=PGAgent, config=C, environment=env)
+  linear_training()(agent_type=PGAgent, config=C, environment=env)

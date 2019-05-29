@@ -6,8 +6,8 @@ from typing import Any, Tuple
 import numpy
 
 from agent.architectures import DDPGActorArchitecture, DDPGCriticArchitecture
-from agent.interfaces.torch_agents.ac_agent import ActorCriticAgent
-from agent.procedures.train_agent import agent_test_main, parallel_train_agent_procedure
+from agent.specifications.interfaces.torch_agents.ac_agent import ActorCriticAgent
+from agent.procedures.train_agent import agent_test_main, parallelised_training
 from agent.specifications import TR, ValuedTransition
 from agent.specifications.generalised_delayed_construction_specification import GDCS
 from warg.named_ordered_dictionary import NOD
@@ -169,7 +169,7 @@ class PPOAgent(ActorCriticAgent):
 
     return action, action_log_prob, value_estimate, distribution
 
-  def _train_procedure(self, *args, **kwargs):
+  def _inner_train(self, *args, **kwargs):
 
     # num_updates = int(args.num_frames) // args.num_steps // args.num_processes
 
@@ -192,7 +192,7 @@ class PPOAgent(ActorCriticAgent):
 
     transitions = []
     terminated = False
-    T = tqdm(range(1, n + 1), f'Step #{self._step_i} - {0}/{n}', leave=False)
+    T = tqdm(range(1, n + 1), f'Step #{self._step_i} - {0}/{n}', leave=False, disable=not render)
     for t in T:
       # T.set_description(f'Step #{self._step_i} - {t}/{n}')
       self._step_i += 1
@@ -211,14 +211,14 @@ class PPOAgent(ActorCriticAgent):
         successor_state = next_state
 
       transitions.append(
-          U.ValuedTransition(state,
-                             action,
-                             action_prob,
-                             value_estimates,
-                             signal,
-                             successor_state,
-                             not terminated,
-                             )
+          ValuedTransition(state,
+                           action,
+                           action_prob,
+                           value_estimates,
+                           signal,
+                           successor_state,
+                           not terminated,
+                           )
           )
 
       state = next_state
@@ -248,7 +248,7 @@ class PPOAgent(ActorCriticAgent):
     episode_length = 0
     transitions = []
 
-    T = tqdm(count(1), f'Rollout #{self._rollout_i}', leave=False)
+    T = tqdm(count(1), f'Rollout #{self._rollout_i}', leave=False, disable=not render)
     for t in T:
       self._step_i += 1
 
@@ -257,20 +257,20 @@ class PPOAgent(ActorCriticAgent):
       action = dist._sample()
       action_prob = dist.log_prob(action)
 
-      next_state, signal, terminated, _ = environment.react(action)
+      next_state, signal, terminated, *_ = environment.react(action)
 
       if render:
         environment.render()
 
       transitions.append(
-          ValuedTransition(state,
-                             action,
-                             action_prob,
-                             value_estimates,
-                             signal,
-                             next_state,
-                             terminated,
-                             )
+          ValuedTransition(state=state,
+                           action=action,
+                           action_prob=action_prob,
+                           value_estimate=value_estimates,
+                           signal=signal,
+                           successor_state=next_state,
+                           terminal=terminated
+                           )
           )
       state = next_state
 
@@ -283,7 +283,7 @@ class PPOAgent(ActorCriticAgent):
     return transitions, episode_signal, terminated, state, episode_length
 
   def back_trace_advantages(self, transitions):
-    n_step_summary = U.ValuedTransition(*zip(*transitions))
+    n_step_summary = ValuedTransition(*zip(*transitions))
 
     advantages = U.advantage_estimate(n_step_summary.signal,
                                       n_step_summary.non_terminal,
@@ -300,15 +300,16 @@ class PPOAgent(ActorCriticAgent):
     i = 0
     advantage_memories = []
     for step in zip(*n_step_summary):
-      step = U.ValuedTransition(*step)
+      step = ValuedTransition(*step)
       advantage_memories.append(
-          U.AdvantageMemory(
+          ValuedTransition(
               step.state,
               step.action,
-              step.action_prob,
-              step.value_estimate,
-              advantages[i],
               discounted_returns[i],
+              step.successor_state,
+              step.terminal,
+              step.action_prob,
+              advantages[i]
               )
           )
       i += 1
@@ -477,7 +478,8 @@ class PPOAgent(ActorCriticAgent):
 
     initial_state = env.reset()
 
-    B = tqdm(range(1, rollouts + 1), f'Batch {0}, {rollouts} - Rollout {self._rollout_i}', leave=False)
+    B = tqdm(range(1, rollouts + 1), f'Batch {0}, {rollouts} - Rollout {self._rollout_i}', leave=False,
+             disable=not render)
     for batch_i in B:
       if self._end_training or batch_i > rollouts:
         break
@@ -529,7 +531,7 @@ class PPOAgent(ActorCriticAgent):
 
     state = environments.reset()
 
-    S = tqdm(range(rollouts), leave=False)
+    S = tqdm(range(rollouts), leave=False, disable=not render)
     for i in S:
       S.set_description(f'Rollout {i}')
       if self._end_training:
@@ -543,7 +545,7 @@ class PPOAgent(ActorCriticAgent):
 
       state = U.to_tensor(state, device=self._device)
 
-      I = tqdm(range(num_steps), leave=False)
+      I = tqdm(range(num_steps), leave=False, disable=not render)
       for _ in I:
 
         action, action_log_prob, value_estimate = self.sample_action(state)
@@ -682,7 +684,7 @@ def ppo_test(rollouts=None, skip=True):
 
   agent_test_main(PPOAgent,
                   C,
-                  training_procedure=parallel_train_agent_procedure(
+                  training_procedure=parallelised_training(
                       auto_reset_on_terminal_state=True),
                   parse_args=False,
                   skip_confirmation=skip)

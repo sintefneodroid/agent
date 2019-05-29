@@ -10,15 +10,17 @@ from warg.mixins import IterValuesMixin
 __author__ = 'cnheider'
 
 
-
-
 @dataclass
 class Transition(IterValuesMixin):
-  state: Any = None
-  action: Any = None
-  signal: Any = None
-  successor_state: Any = None
-  terminal: Any = None
+  '''
+    __slots__=['state','action','signal','successor_state','terminal']
+  '''
+  __slots__=['state','action','signal','successor_state','terminal']
+  state: Any
+  action: Any
+  signal: Any
+  successor_state: Any
+  terminal: Any
 
   def __post_init__(self):
     if self.terminal:
@@ -35,5 +37,9 @@ class Transition(IterValuesMixin):
 
 @dataclass
 class ValuedTransition(Transition):
-  action_prob = None
-  value_estimate = None
+  '''
+    __slots__=['state','action','signal','successor_state','terminal','action_prob','value_estimate']
+  '''
+  __slots__=['state','action','signal','successor_state','terminal','action_prob','value_estimate']
+  action_prob: Any
+  value_estimate :Any

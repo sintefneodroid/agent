@@ -128,7 +128,7 @@ def estimate_value(candidate,
 
   rollout_signals = 0
   rollout_session = range(1, N_c_r + 1)
-  rollout_session = tqdm(rollout_session, leave=False)
+  rollout_session = tqdm(rollout_session, leave=False, disable=False)
   for j in rollout_session:
     rollout_session.set_description(f'Candidate rollout #{j} of {N_c_r} | '
                                     f'Est: {rollout_signals / N_c_r}'

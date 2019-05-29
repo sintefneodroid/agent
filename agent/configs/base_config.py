@@ -23,20 +23,19 @@ CONFIG_FILE = __file__
 VERBOSE = False
 USE_LOGGING = True
 
-
-
 input_shape = None  # Obtain from environment
-hidden_layers = (2)  # Obtain from input and output size
+hidden_layers = None  # Obtain from input and output size
 output_shape = None  # Obtain from environment
 
 # Architecture
-POLICY_ARCH_SPEC = GDCS(CategoricalMLP, NOD(
-    input_shape=input_shape,
-    hidden_layers=hidden_layers,
-    output_shape=output_shape,
-    hidden_layer_activation=torch.relu,
-    use_bias=True
-    ))
+POLICY_ARCH_SPEC = GDCS(CategoricalMLP,
+                        NOD(input_shape=input_shape,
+                            hidden_layers=hidden_layers,
+                            output_shape=output_shape,
+                            hidden_layer_activation=torch.relu,
+                            use_bias=True
+                            )
+                        )
 
 # Environment Related Parameters
 CONNECT_TO_RUNNING = False
@@ -67,14 +66,13 @@ ACTION_TYPE = torch.long
 EVALUATION_FUNCTION = F.smooth_l1_loss
 
 # Optimiser
-OPTIMISER_SPEC = GDCS(torch.optim.Adam, NOD(
-    lr=0.0025,
-    weight_decay=1e-5,
-    eps=1e-02))
+OPTIMISER_SPEC = GDCS(torch.optim.Adam, NOD(lr=3e-4,
+                                            weight_decay=1e-6,
+                                            eps=1e-2))
 
 # Paths
 # PROJECT_DIRECTORY = Path.cwd()
-PROJECT_DIRECTORY = Path.home() / 'Models' / 'Neodroid' / str(int(time.time()))
+PROJECT_DIRECTORY = Path.home() / 'Models' / 'Neodroid' / ENVIRONMENT_NAME / str(int(time.time()))
 MODEL_DIRECTORY = PROJECT_DIRECTORY / 'models'
 CONFIG_DIRECTORY = PROJECT_DIRECTORY / 'configs'
 LOG_DIRECTORY = PROJECT_DIRECTORY / 'logs'
