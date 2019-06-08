@@ -1,12 +1,14 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+import logging
+
 import matplotlib
 
 from agent.architectures import MLP
 from agent.memory import ReplayBuffer
-from agent.partials.agents.torch_agents.value_agent import ValueAgent
-from agent.procedures.train_agent import agent_test_main, parallelised_training
-from agent.specifications.generalised_delayed_construction_specification import GDCS
+from agent.interfaces.partials import ValueAgent
+from agent.interfaces.specifications.generalised_delayed_construction_specification import GDCS
+from agent.training.train_agent import parallelised_training, train_agent
 from agent.utilities import get_screen
 from draugr.visualisation.visualisation.experimental.statistics_plot import plot_durations
 from warg.named_ordered_dictionary import NOD, NamedOrderedDictionary
@@ -83,7 +85,7 @@ class DQNAgent(ValueAgent):
                                                        **self._optimiser_spec.kwargs
                                                        )
 
-  def _optimise_wrt(self, error, **kwargs):
+  def _optimise(self, error, **kwargs):
     '''
 
 :param error:
@@ -110,7 +112,7 @@ class DQNAgent(ValueAgent):
 
   # region Public
 
-  def evaluate(self, batch, *args, **kwargs):
+  def evaluate(self, batch, **kwargs):
     '''
 
 :param batch:
@@ -161,19 +163,20 @@ class DQNAgent(ValueAgent):
 
     return self._evaluation_function(Q_state, Q_expected)
 
-  def update(self):
-    error = 0
+  def update_models(self, *, stat_writer = None, **kwargs):
     if self._batch_size < len(self._memory_buffer):
       # indices, transitions = self._memory.sample_transitions(self.C.BATCH_SIZE)
       transitions = self._memory_buffer.sample_transitions(self._batch_size)
 
       td_error = self.evaluate(transitions)
-      self._optimise_wrt(td_error)
+      self._optimise(td_error)
 
-      error = td_error.item()
-      # self._memory.batch_update(indices, errors.tolist())  # Cuda trouble
+      if stat_writer:
+        stat_writer.scalar('td_error',td_error.mean().item())
 
-    return error
+      # self._memory.batch_update(indices, td_error.tolist())  # Cuda trouble
+    else:
+      logging.warning('Batch size is larger than current memory size')
 
   def rollout(self,
               initial_state,
@@ -189,7 +192,6 @@ class DQNAgent(ValueAgent):
     state = initial_state
     episode_signal = []
     episode_length = []
-    episode_td_error = []
 
     T = count(1)
     T = tqdm(T, f'Rollout #{self._update_i}', leave=False, disable=not render)
@@ -197,7 +199,7 @@ class DQNAgent(ValueAgent):
     for t in T:
       self._step_i += 1
 
-      action = self.sample_action(state, random_sample=random_sample)
+      action = self.sample_action(state, disallow_random_sample=random_sample)
       next_state, signal, terminated, *_ = environment.react(action).to_gym_like_output()
 
       if render:
@@ -220,7 +222,7 @@ class DQNAgent(ValueAgent):
           and self._step_i % self._learning_frequency == 0
       ):
 
-        td_error = self.update()
+        self.update_models()
 
       if self._use_double_dqn and self._step_i % self._sync_target_model_frequency == 0:
         self._target_value_model = U.copy_state(target=self._target_value_model, source=self._value_model)
@@ -228,7 +230,6 @@ class DQNAgent(ValueAgent):
           stat_writer.scalar('Target Model Synced',self._step_i,self._step_i)
 
       episode_signal.append(signal)
-      episode_td_error.append(td_error)
 
       if terminated.all():
         episode_length = t
@@ -236,17 +237,15 @@ class DQNAgent(ValueAgent):
 
       state = next_state
 
-    ep = np.array(episode_signal).mean()
+    ep = np.array(episode_signal).sum(axis=0).mean()
     el = episode_length
-    ee = np.array(episode_td_error).mean()
 
     if stat_writer:
       stat_writer.scalar('duration', el, self._update_i)
       stat_writer.scalar('signal', ep, self._update_i)
-      stat_writer.scalar('td_error', ee, self._update_i)
       stat_writer.scalar('current_eps_threshold', self._current_eps_threshold, self._update_i)
 
-    return ep, el, ee
+    return ep, el
 
   def infer(self, state, **kwargs):
     model_input = U.to_tensor(state, device=self._device, dtype=self._state_type)
@@ -304,7 +303,7 @@ def test_cnn_dqn_agent(config):
 
       agent._memory_buffer.add_transition(state, action, signal, successor_state, not terminated)
 
-      agent.update()
+      agent.update_models()
       if terminated:
         episode_durations.append(t + 1)
         plot_durations(episode_durations=episode_durations)
@@ -325,11 +324,11 @@ def dqn_test(rollouts=None, skip=True):
   if rollouts:
     C.ROLLOUTS = rollouts
 
-  agent_test_main(DQNAgent,
-                  C,
-                  parse_args=False,
-                  training_procedure=parallelised_training,
-                  skip_confirmation=skip)
+  train_agent(DQNAgent,
+              C,
+              parse_args=False,
+              training_procedure=parallelised_training,
+              skip_confirmation=skip)
   # test_cnn_dqn_agent(C)
 
 
@@ -341,10 +340,10 @@ def dqn_run(rollouts=None, skip=True):
 
   C.CONNECT_TO_RUNNING = True
 
-  agent_test_main(DQNAgent,
-                  C,
-                  training_procedure=parallelised_training,
-                  skip_confirmation=skip)
+  train_agent(DQNAgent,
+              C,
+              training_procedure=parallelised_training,
+              skip_confirmation=skip)
 
 
 if __name__ == '__main__':

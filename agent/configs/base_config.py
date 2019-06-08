@@ -7,8 +7,8 @@ import torch
 import torch.nn.functional as F
 
 from agent.architectures import CategoricalMLP
-from agent.specifications.exploration_specification import ExplorationSpecification
-from agent.specifications.generalised_delayed_construction_specification import GDCS
+from agent.interfaces.specifications.exploration_specification import ExplorationSpecification
+from agent.interfaces.specifications.generalised_delayed_construction_specification import GDCS
 from warg.named_ordered_dictionary import NOD
 
 __author__ = 'cnheider'
@@ -23,15 +23,11 @@ CONFIG_FILE = __file__
 VERBOSE = False
 USE_LOGGING = True
 
-input_shape = None  # Obtain from environment
-hidden_layers = None  # Obtain from input and output size
-output_shape = None  # Obtain from environment
-
 # Architecture
 POLICY_ARCH_SPEC = GDCS(CategoricalMLP,
-                        NOD(input_shape=input_shape,
-                            hidden_layers=hidden_layers,
-                            output_shape=output_shape,
+                        NOD(input_shape= None,  # Obtain from environment
+                            hidden_layers= None,  # Estimate from input and output size
+                            output_shape=None,  # Obtain from environment
                             hidden_layer_activation=torch.relu,
                             use_bias=True
                             )
@@ -81,6 +77,10 @@ LOG_DIRECTORY = PROJECT_DIRECTORY / 'logs'
 USE_CUDA = True
 if USE_CUDA:  # If available
   USE_CUDA = torch.cuda.is_available()
+
+DEVICE = 'cpu'
+if USE_CUDA:
+  DEVICE = 'cuda'
 
 # Visualisation
 USE_VISDOM = False

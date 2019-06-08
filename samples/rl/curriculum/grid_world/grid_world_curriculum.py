@@ -88,14 +88,14 @@ def estimate_entire_state_space(env,
     env.reset()
     state_ob, info = env.configure(conf_reaction)
     if not info.terminated:
-      est, _, _ = estimate_value(info,
-                                 env,
-                                 agent,
-                                 C,
-                                 save_snapshot=save_snapshot,
-                                 statistics=statistics,
-                                 train=False,
-                                 random_sample=False)
+      est, _, _ = estimate_initial_state_expected_return(info,
+                                                         env,
+                                                         agent,
+                                                         C,
+                                                         save_snapshot=save_snapshot,
+                                                         statistics=statistics,
+                                                         train=False,
+                                                         random_sample=False)
 
       vec3 = (configuration[0].configurable_value,
               0,  # configuration[1].configurable_value,
@@ -113,15 +113,15 @@ _episode_i = 0
 _step_i = 0
 
 
-def estimate_value(candidate,
-                   env,
-                   agent,
-                   C,
-                   *,
-                   save_snapshot=False,
-                   statistics=None,
-                   random_sample=False,
-                   train=False):
+def estimate_initial_state_expected_return(candidate,
+                                           env,
+                                           agent,
+                                           C,
+                                           *,
+                                           save_snapshot=False,
+                                           statistics=None,
+                                           random_sample=False,
+                                           train=False):
   global _step_i, _episode_i
 
   N_c_r = C.CANDIDATE_ROLLOUTS

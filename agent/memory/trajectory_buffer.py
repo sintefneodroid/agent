@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 from agent.memory import ExpandableCircularBuffer
-from agent.specifications import TrajectoryPoint
+from agent.interfaces.specifications import TrajectoryPoint
 from warg import namedtuple_args
 
 __author__ = 'cnheider'

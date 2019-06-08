@@ -6,10 +6,12 @@ from typing import Any, Tuple
 import numpy
 
 from agent.architectures import DDPGActorArchitecture, DDPGCriticArchitecture
-from agent.specifications.interfaces.torch_agents.ac_agent import ActorCriticAgent
-from agent.procedures.train_agent import agent_test_main, parallelised_training
-from agent.specifications import TR, ValuedTransition
-from agent.specifications.generalised_delayed_construction_specification import GDCS
+from agent.interfaces.partials.agents.torch_agents.actor_critic_agent import ActorCriticAgent
+from agent.interfaces.specifications import ValuedTransition
+from agent.interfaces.specifications.generalised_delayed_construction_specification import GDCS
+from agent.training.procedures import batched_training
+from agent.training.train_agent import parallelised_training, train_agent
+from agent.utilities import to_tensor
 from warg.named_ordered_dictionary import NOD
 
 __author__ = 'cnheider'
@@ -54,6 +56,7 @@ class PPOAgent(ActorCriticAgent):
     self._rollouts = 10000
 
     self._ppo_epochs = 4
+    self._current_kl_beta = 1.00
 
     self._state_type = torch.float
     self._value_type = torch.float
@@ -70,26 +73,31 @@ class PPOAgent(ActorCriticAgent):
 
     self._optimiser_spec = GDCS(torch.optim.Adam, {})
 
-    self._actor_arch_spec = GDCS(DDPGActorArchitecture, kwargs=NOD({
-      'input_shape':      None,  # Obtain from environment
-      'hidden_layers':    None,
-      'output_activation':None,
-      'output_shape':     None,  # Obtain from environment
-      }))
+    self._actor_arch_spec = GDCS(DDPGActorArchitecture,
+                                 kwargs=NOD({'input_shape':      None,  # Obtain from environment
+                                             'hidden_layers':    None,
+                                             'output_activation':None,
+                                             'output_shape':     None,  # Obtain from environment
+                                             }))
 
-    self._critic_arch_spec = GDCS(DDPGCriticArchitecture, kwargs=NOD({
-      'input_shape':      None,  # Obtain from environment
-      'hidden_layers':    None,
-      'output_activation':None,
-      'output_shape':     None,  # Obtain from environment
-      }))
+    self._critic_arch_spec = GDCS(DDPGCriticArchitecture,
+                                  kwargs=NOD({'input_shape':      None,  # Obtain from environment
+                                              'hidden_layers':    None,
+                                              'output_activation':None,
+                                              'output_shape':     None,  # Obtain from environment
+                                              }))
 
     self._optimiser = None
 
     self._update_early_stopping = None
     # self._update_early_stopping = self.kl_target_stop
 
-  def kl_target_stop(self, old_log_probs, new_log_probs):
+  def kl_target_stop(self,
+                     old_log_probs,
+                     new_log_probs,
+                     kl_target=0.03,
+                     beta_max=20,
+                     beta_min=1 / 20):
 
     '''
     TRPO
@@ -104,31 +112,30 @@ class PPOAgent(ActorCriticAgent):
     Adaptive kl_target = 0.01
     Adaptive kl_target = 0.03
 
+    :param kl_target:
+    :param beta_max:
+    :param beta_min:
     :param old_log_probs:
     :param new_log_probs:
     :return:
     '''
-    self.kl_target = 0.003
-    self.beta = 1.0
-    self.beta_max = 20
-    self.beta_min = 1 / 20
-    self.learning_rate = 1
+
     kl_now = torch.distributions.kl_divergence(old_log_probs, new_log_probs)
-    if kl_now > 4 * self.kl_target:
+    if kl_now > 4 * kl_target:
       return True
 
-    if kl_now < self.kl_target / 1.5:
-      self.beta /= 2
-    elif kl_now > self.kl_target * 1.5:
-      self.beta *= 2
-    self.beta = numpy.clip(self.beta, self.beta_min, self.beta_max)
+    if kl_now < kl_target / 1.5:
+      self._current_kl_beta /= 2
+    elif kl_now > kl_target * 1.5:
+      self._current_kl_beta *= 2
+    self._current_kl_beta = numpy.clip(self._current_kl_beta, beta_min, beta_max)
     return False
 
   # endregion
 
   # region Protected
 
-  def _optimise_wrt(self, cost, **kwargs):
+  def _optimise(self, cost, **kwargs):
     self._optimiser.zero_grad()
 
     cost.backward()
@@ -139,7 +146,7 @@ class PPOAgent(ActorCriticAgent):
 
     self._optimiser.step()
 
-  def _sample_model(self, state, **kwargs):
+  def _sample_model(self, state, *args, **kwargs):
     '''
       continuous
         randomly sample from normal distribution, whose mean and variance come from policy network.
@@ -163,18 +170,11 @@ class PPOAgent(ActorCriticAgent):
     distribution = torch.distributions.Normal(mean, std)
 
     with torch.no_grad():
-      action = distribution._sample()
+      action = distribution.sample()
 
     action_log_prob = distribution.log_prob(action)
 
-    return action, action_log_prob, value_estimate, distribution
-
-  def _inner_train(self, *args, **kwargs):
-
-    # num_updates = int(args.num_frames) // args.num_steps // args.num_processes
-
-    # return self.train_episodically(*args, **kwargs)
-    return self.train_step_batched(*args, **kwargs)
+    return action.detach().to('cpu').numpy(), action_log_prob, value_estimate, distribution
 
   # endregion
 
@@ -234,53 +234,7 @@ class PPOAgent(ActorCriticAgent):
   def react(self):
     pass
 
-  def rollout(self,
-              initial_state,
-              environment,
-              render=False,
-              train=True,
-              **kwargs):
-    self._rollout_i += 1
 
-    state = initial_state
-    episode_signal = 0
-    terminated = False
-    episode_length = 0
-    transitions = []
-
-    T = tqdm(count(1), f'Rollout #{self._rollout_i}', leave=False, disable=not render)
-    for t in T:
-      self._step_i += 1
-
-      dist, value_estimates, *_ = self.sample_action(state)
-
-      action = dist._sample()
-      action_prob = dist.log_prob(action)
-
-      next_state, signal, terminated, *_ = environment.react(action)
-
-      if render:
-        environment.render()
-
-      transitions.append(
-          ValuedTransition(state=state,
-                           action=action,
-                           action_prob=action_prob,
-                           value_estimate=value_estimates,
-                           signal=signal,
-                           successor_state=next_state,
-                           terminal=terminated
-                           )
-          )
-      state = next_state
-
-      episode_signal += signal
-
-      if terminated:
-        episode_length = t
-        break
-
-    return transitions, episode_signal, terminated, state, episode_length
 
   def back_trace_advantages(self, transitions):
     n_step_summary = ValuedTransition(*zip(*transitions))
@@ -316,7 +270,7 @@ class PPOAgent(ActorCriticAgent):
 
     return advantage_memories
 
-  def evaluate(self, batch, discrete=False, **kwargs):
+  def evaluate3(self, batch, discrete=False, **kwargs):
     # region Tensorise
 
     states = U.to_tensor(batch.state, device=self._device).view(-1, self._input_shape[0])
@@ -392,20 +346,27 @@ class PPOAgent(ActorCriticAgent):
     loss = self._value_reg_coef * critic_loss + actor_loss - entropy + self._entropy_reg_coef
     return loss, new_log_probs, old_log_probs
 
-  def update(self):
+  def update_targets(self, *args, **kwargs) -> None:
+    self.update_target(target_model=self._target_actor,
+                       source_model=self._actor,
+                       target_update_tau=self._target_update_tau)
+    self.update_target(target_model=self._target_critic,
+                       source_model=self._critic,
+                       target_update_tau=self._target_update_tau)
 
-    returns_ = U.compute_gae(self._last_value_estimate,
-                             self._transitions_.signal,
-                             self._transitions_.non_terminal,
-                             self._transitions_.value_estimate,
+  def evaluate(self, batch, _last_value_estimate, discrete=False, **kwargs):
+    returns_ = U.compute_gae(_last_value_estimate,
+                             batch.signal,
+                             batch.non_terminal,
+                             batch.value_estimate,
                              discount_factor=self._discount_factor,
                              tau=self._gae_tau)
 
-    returns = torch.cat(returns_).view(-1, 1).detach()
-    log_probs = torch.cat(self._transitions_.action_prob).detach()
-    values = torch.cat(self._transitions_.value_estimate).detach()
-    states = torch.cat(self._transitions_.state).view(-1, self._input_shape[0])
-    actions = torch.cat(self._transitions_.action)
+    returns = torch.cat(returns_).detach()
+    log_probs = torch.cat(batch.action_prob).detach()
+    values = torch.cat(batch.value_estimate).detach()
+    states = torch.cat(batch.state).view(-1, self._input_shape[0])
+    actions = to_tensor(batch.action).view(-1,self._output_shape[0])
 
     advantage = returns - values
 
@@ -415,14 +376,13 @@ class PPOAgent(ActorCriticAgent):
                           returns,
                           advantage)
 
-    if self._rollout_i % self._update_target_interval == 0:
-      self.update_target(target_model=self._target_actor,
-                         source_model=self._actor,
-                         target_update_tau=self._target_update_tau)
-      self.update_target(target_model=self._target_critic,
-                         source_model=self._critic,
-                         target_update_tau=self._target_update_tau)
+    if self._step_i % self._update_target_interval == 0:
+      self.update_targets()
 
+    return returns,log_probs,values,states,actions,advantage
+
+  def update_models(self, *, stat_writer = None, **kwargs) -> None:
+    pass
     '''
     batch = U.AdvantageMemory(*zip(*self._memory_buffer.sample()))
     collective_cost, actor_loss, critic_loss = self.evaluate(batch)
@@ -461,199 +421,9 @@ class PPOAgent(ActorCriticAgent):
         if self._update_early_stopping(old_log_probs, new_log_probs):
           break
 
-  def sample_action(self, state, **kwargs) -> Tuple[Any, Any, Any]:
-    action, action_log_prob, value_estimate, *_ = self._sample_model(state)
 
-    return action, action_log_prob, value_estimate
 
-  def train_episodically(self,
-                         env,
-                         rollouts=10000,
-                         render=False,
-                         render_frequency=1000,
-                         stat_frequency=10,
-                         **kwargs):
 
-    self._rollout_i = 1
-
-    initial_state = env.reset()
-
-    B = tqdm(range(1, rollouts + 1), f'Batch {0}, {rollouts} - Rollout {self._rollout_i}', leave=False,
-             disable=not render)
-    for batch_i in B:
-      if self._end_training or batch_i > rollouts:
-        break
-
-      if batch_i % stat_frequency == 0:
-        B.set_description(f'Batch {batch_i}, {rollouts} - Rollout {self._rollout_i}')
-
-      if render and batch_i % render_frequency == 0:
-        transitions, accumulated_signal, terminated, *_ = self.rollout(initial_state,
-                                                                       env,
-                                                                       render=render
-                                                                       )
-      else:
-        transitions, accumulated_signal, terminated, *_ = self.rollout(initial_state,
-                                                                       env
-                                                                       )
-
-      initial_state = env.reset()
-
-      if batch_i >= self._initial_observation_period:
-        advantage_memories = self.back_trace_advantages(transitions)
-
-        for memory in advantage_memories:
-          self._memory_buffer._add(memory)
-
-        self.update()
-        self._memory_buffer.clear()
-
-        if self._rollout_i % self._update_target_interval == 0:
-          self.update_target(target_model=self._target_actor, source_model=self._actor,
-                             target_update_tau=self._target_update_tau)
-          self.update_target(target_model=self._target_critic, source_model=self._critic,
-                             target_update_tau=self._target_update_tau)
-
-      if self._end_training:
-        break
-
-    return self._actor, self._critic, []
-
-  def train_step_batched(self,
-                         environments,
-                         test_environments,
-                         *,
-                         num_steps=200,
-                         rollouts=10000,
-                         render=True
-                         ) -> TR:
-    # stats = draugr.StatisticCollection(stats=('batch_signal', 'test_signal', 'entropy'))
-
-    state = environments.reset()
-
-    S = tqdm(range(rollouts), leave=False, disable=not render)
-    for i in S:
-      S.set_description(f'Rollout {i}')
-      if self._end_training:
-        break
-
-      batch_signal = []
-
-      transitions = []
-
-      successor_state = None
-
-      state = U.to_tensor(state, device=self._device)
-
-      I = tqdm(range(num_steps), leave=False, disable=not render)
-      for _ in I:
-
-        action, action_log_prob, value_estimate = self.sample_action(state)
-
-        a = action.to('cpu').numpy()
-        successor_state, signal, terminated, *_ = environments.react(a)
-
-        batch_signal.append(signal)
-
-        successor_state = U.to_tensor(successor_state, device=self._device)
-        signal_ = U.to_tensor(signal, device=self._device)
-        not_terminated = U.to_tensor([not t for t in terminated], device=self._device)
-
-        transitions.append(U.ValuedTransition(state,
-                                              action,
-                                              action_log_prob,
-                                              value_estimate,
-                                              signal_,
-                                              successor_state,
-                                              not_terminated
-                                              )
-                           )
-
-        state = successor_state
-
-        self._step_i += 1
-
-        if self._step_i % self._test_interval == 0 and test_environments:
-          test_signals = self.test_agent(test_environments, render=render)
-          test_signal = test_signals
-          # test_signal = numpy.mean(test_signals)
-          # stats.test_signal.append(test_signal)
-
-          # draugr.styled_terminal_plot_stats_shared_x(stats, printer=S.write)
-
-          if test_signal > self._solved_threshold and self._early_stop:
-            self._end_training = True
-
-        # stats.batch_signal.append(batch_signal)
-
-      # only calculate value of next state for the last step this time
-      *_, self._last_value_estimate, _ = self._sample_model(successor_state)
-
-      self._transitions_ = U.ValuedTransition(*zip(*transitions))
-
-      if len(self._transitions_) > 100:
-        self.update()
-
-    return TR((self._actor, self._critic), None)
-
-  def old_batched_training(self):
-    '''
-        B = tqdm(range(1, num_updates + 1), f'Batch {0}, {num_batches} - Episode {self._rollout_i}',
-        leave=False)
-        for batch_i in B:
-          if batch_i % stat_frequency == 0:
-            B.set_description(f'Batch {batch_i}, {num_batches} - Episode {self._rollout_i}')
-
-          if render and batch_i % render_frequency == 0:
-            transitions, accumulated_signal, terminated, initial_state = self.take_n_steps(
-                initial_state, env, render=render, n=batch_length
-                )
-          else:
-            transitions, accumulated_signal, terminated, initial_state = self.take_n_steps(
-                initial_state, env, n=batch_length
-                )
-
-          if batch_i >= self._initial_observation_period:
-            advantage_memories = self.back_trace(transitions)
-            for m in advantage_memories:
-              self._experience_buffer.add(m)
-
-            self.update()
-            self._experience_buffer.clear()
-
-            if self._rollout_i % self._update_target_interval == 0:
-              self._actor_critic_target.load_state_dict(
-                  self._actor_critic.state_dict()
-                  )
-
-          if self._end_training:
-            break
-
-        return self._actor_critic, []
-
-      '''
-    pass
-
-  def test_agent(self, test_environment, render=False):
-    state = test_environment.reset()
-    if render:
-      test_environment.render()
-    terminal = False
-    out_signal = 0
-    while not terminal:
-      state = U.to_tensor(state, device=self._device)
-      with torch.no_grad():
-        action, *_ = self.sample_action(state)
-        next_state, signal, terminal = test_environment.react(action)
-
-      # terminal = terminal.all()
-      state = next_state
-      if render:
-        test_environment.render()
-
-      out_signal = signal
-      # out_signal += signal.mean()
-    return out_signal
 
   @staticmethod
   def ppo_mini_batch_iter(mini_batch_size: int,
@@ -682,12 +452,12 @@ def ppo_test(rollouts=None, skip=True):
   if rollouts:
     C.ROLLOUTS = rollouts
 
-  agent_test_main(PPOAgent,
-                  C,
-                  training_procedure=parallelised_training(
-                      auto_reset_on_terminal_state=True),
-                  parse_args=False,
-                  skip_confirmation=skip)
+  train_agent(PPOAgent,
+              C,
+              training_procedure=parallelised_training(training_procedure=batched_training,
+                                                       auto_reset_on_terminal_state=True),
+              parse_args=False,
+              skip_confirmation=skip)
 
 
 if __name__ == '__main__':

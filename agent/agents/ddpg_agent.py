@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 from agent.architectures import DDPGActorArchitecture, DDPGCriticArchitecture
-from agent.memory import TransitionBuffer
-from agent.procedures.train_agent import agent_test_main, parallelised_training
-from agent.specifications import ArchitectureSpecification, TR
 from agent.exploration.sampling import OrnsteinUhlenbeckProcess
-from draugr.stopping_key import add_early_stopping_key_combination
-from neodroid.models import EnvironmentState
+from agent.memory import TransitionBuffer
+from agent.interfaces.partials import ActorCriticAgent
+from agent.interfaces.specifications import ArchitectureSpecification
+from agent.training.procedures import train_episodically
+from agent.training.train_agent import parallelised_training, train_agent
 from warg.named_ordered_dictionary import NOD
 
 __author__ = 'cnheider'
@@ -19,7 +19,6 @@ from tqdm import tqdm
 tqdm.monitor_interval = 0
 
 from agent import utilities as U
-from agent.specifications.interfaces.torch_agents.ac_agent import ActorCriticAgent
 
 
 class DDPGAgent(ActorCriticAgent):
@@ -56,16 +55,20 @@ class DDPGAgent(ActorCriticAgent):
 
     self._evaluation_function = F.smooth_l1_loss
 
-    self._actor_arch_spec = ArchitectureSpecification(DDPGActorArchitecture, kwargs=NOD({
-      'input_shape':      None,  # Obtain from environment
-      'output_activation':torch.tanh,
-      'output_shape':     None,  # Obtain from environment
-      }))
+    self._actor_arch_spec = ArchitectureSpecification(DDPGActorArchitecture,
+                                                      kwargs=NOD(
+                                                          {'input_shape':      None,
+                                                           # Obtain from environment
+                                                           'output_activation':torch.tanh,
+                                                           'output_shape':     None,
+                                                           # Obtain from environment
+                                                           }))
 
-    self._critic_arch_spec = ArchitectureSpecification(DDPGCriticArchitecture, kwargs=NOD({
-      'input_shape': None,  # Obtain from environment
-      'output_shape':None,  # Obtain from environment
-      }))
+    self._critic_arch_spec = ArchitectureSpecification(DDPGCriticArchitecture,
+                                                       kwargs=NOD(
+                                                           {'input_shape': None,  # Obtain from environment
+                                                            'output_shape':None,  # Obtain from environment
+                                                            }))
 
     self._discount_factor = 0.99
 
@@ -151,7 +154,7 @@ class DDPGAgent(ActorCriticAgent):
 
     return td_error, states
 
-  def update(self):
+  def update_models(self):
     '''
   Update the target networks
 
@@ -163,7 +166,7 @@ class DDPGAgent(ActorCriticAgent):
 
     batch = self._memory_buffer.sample_transitions(self._batch_size)
     td_error, state_batch_var = self.evaluate(batch)
-    loss = self._optimise_wrt_ac(td_error, state_batch_var)
+    critic_loss = self._optimise(td_error, state_batch_var)
 
     self.update_target(target_model=self._target_critic,
                        source_model=self._critic,
@@ -172,47 +175,42 @@ class DDPGAgent(ActorCriticAgent):
                        source_model=self._actor,
                        target_update_tau=self._target_update_tau)
 
-    return td_error, loss
-
-  def optimise_critic_wrt(self, error):
-    self._critic_optimiser.zero_grad()
-    error.backward()
-    self._critic_optimiser.step()  # Optimize the critic
-
-  def optimise_actor_wrt(self, loss):
-    self._actor_optimiser.zero_grad()
-    loss.backward()
-    self._actor_optimiser.step()  # Optimize the actor
+    return td_error, critic_loss
 
   # endregion
 
   # region Protected
 
-  def _optimise_wrt(self,
-                    td_error,
-                    **kwargs):
-    pass
-
-  def _optimise_wrt_ac(self,
-                       td_error,
-                       state_batch,
-                       **kwargs):
+  def _optimise(self,
+                temporal_difference_error,
+                state_batch,
+                **kwargs):
     '''
 
     :type kwargs: object
     '''
-    self.optimise_critic_wrt(td_error)
+    self._optimise_critic(temporal_difference_error)
 
     ### Actor ###
     action_batch = self._actor(state_batch)
     loss = -self._critic(state_batch, actions=action_batch).mean()
     # loss = -torch.sum(self.critic(state_batch, self.actor(state_batch)))
 
-    self.optimise_actor_wrt(loss)
+    self._optimise_actor(loss)
 
     # self._memory.batch_update(indices, errors.tolist())  # Cuda trouble
 
     return loss
+
+  def _optimise_critic(self, error):
+    self._critic_optimiser.zero_grad()
+    error.backward()
+    self._critic_optimiser.step()  # Optimize the critic
+
+  def _optimise_actor(self, loss):
+    self._actor_optimiser.zero_grad()
+    loss.backward()
+    self._actor_optimiser.step()  # Optimize the actor
 
   def _sample_model(self,
                     state,
@@ -237,78 +235,19 @@ class DDPGAgent(ActorCriticAgent):
 
     return action_out
 
-  def _inner_train(self,
-                   env,
-                   test_env,
-                   *,
-                   rollouts=1000,
-                   render=False,
-                   render_frequency=10,
-                   stat_frequency=10
-                   ):
-
-    # stats = draugr.StatisticCollection(stats=('signal', 'duration'))
-
-    E = range(1, rollouts)
-    E = tqdm(E, desc='', leave=False, disable=not render)
-
-    for episode_i in E:
-      state = env.reset()
-      if isinstance(state, EnvironmentState):
-        state = state.observables
-      self._random_process.reset()
-
-      if episode_i % stat_frequency == 0:
-        # draugr.styled_terminal_plot_stats_shared_x(stats, printer=E.write)
-        E.set_description(f'Epi: {episode_i}, '
-                          # f'Sig: {stats.signal[-1]:.3f}'
-                          )
-
-      signal, dur, *rollout_stats = self.rollout(state, env)
-
-      if render and episode_i % render_frequency == 0:
-        state = test_env.reset()
-        signal, dur, *rollout_stats = self.rollout(state, test_env, render=render, train=False)
-
-      # stats.append(signal, dur)
-
-      if self._end_training:
-        break
-
-    return TR((self._actor, self._critic), None)
-
   # endregion
+
+  def rollout(self,
+              initial_state,
+              environment,
+              render=False,
+              train=True,
+              **kwargs):
+    self._random_process.reset()
+    super().rollout(initial_state, environment, render, train)
 
 
 # region Test
-def test_ddpg_agent(config):
-  '''
-
-:rtype: object
-'''
-  import gym
-
-  env = gym.make(config.ENVIRONMENT_NAME)
-  # env = NormaliseActionsWrapper(env)
-  # env = neo.make('satellite',connect_to_running=False)
-
-  agent = DDPGAgent(config)
-  agent.build(env)
-  listener = add_early_stopping_key_combination(agent.stop_training)
-
-  if listener:
-    listener.start()
-  try:
-    (actor_model, critic_model), stats = agent.train(env,
-                                                     config.ROLLOUTS,
-                                                     render=config.RENDER_ENVIRONMENT
-                                                     )
-  finally:
-    if listener:
-      listener.stop()
-
-  U.save_model(actor_model, config, name='actor')
-  U.save_model(critic_model, config, name='critic')
 
 
 def ddpg_test(rollouts=None, skip=True):
@@ -316,10 +255,11 @@ def ddpg_test(rollouts=None, skip=True):
   if rollouts:
     C.ROLLOUTS = rollouts
 
-  agent_test_main(DDPGAgent,
-                  C,
-                  training_procedure=parallelised_training(auto_reset_on_terminal_state=True),
-                  parse_args=False, skip_confirmation=skip)
+  train_agent(DDPGAgent,
+              C,
+              training_procedure=parallelised_training(training_procedure=train_episodically,
+                                                       auto_reset_on_terminal_state=True),
+              parse_args=False, skip_confirmation=skip)
 
 
 if __name__ == '__main__':

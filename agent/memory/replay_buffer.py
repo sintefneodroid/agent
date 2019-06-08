@@ -7,7 +7,7 @@ __author__ = 'cnheider'
 import random
 from collections import deque
 from agent.memory import ExpandableCircularBuffer
-from agent.specifications import TrajectoryPoint, Transition
+from agent.interfaces.specifications import TrajectoryPoint, Transition
 from warg.arguments import namedtuple_args
 
 

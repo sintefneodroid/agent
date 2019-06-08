@@ -1,14 +1,15 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-from warnings import warn
+from logging import warning
 
 import draugr
 from agent.architectures import CategoricalMLP
 from agent.exceptions.exceptions import NoTrajectoryException
+from agent.interfaces.partials.agents.torch_agents.policy_agent import PolicyAgent
+from agent.interfaces.specifications.generalised_delayed_construction_specification import GDCS
 from agent.memory import TrajectoryBuffer
-from agent.partials.agents.torch_agents.policy_agent import PolicyAgent
-from agent.procedures.train_agent import agent_test_main, parallelised_training, train_episodically
-from agent.specifications.generalised_delayed_construction_specification import GDCS
+from agent.training.procedures import train_episodically
+from agent.training.train_agent import parallelised_training, train_agent
 from neodroid.models import EnvironmentState
 from neodroid.utilities.transformations.encodings import to_one_hot
 from warg.named_ordered_dictionary import NOD
@@ -54,7 +55,7 @@ class PGAgent(PolicyAgent):
     self._discount_factor = 0.99
     self._use_batched_updates = False
     self._batch_size = 5
-    self._pg_entropy_reg = 1e-4
+    self._policy_entropy_regularisation = 1
     self._signal_clipping = False
     self._signal_clip_low = -1.0
     self._signal_clip_high = -self._signal_clip_low
@@ -80,7 +81,7 @@ class PGAgent(PolicyAgent):
     self.optimiser = self._optimiser_spec.constructor(self._distribution_parameter_regressor.parameters(),
                                                       **self._optimiser_spec.kwargs)
 
-  def _optimise_wrt(self, loss, **kwargs):
+  def _optimise(self, loss, **kwargs):
     self.optimiser.zero_grad()
     loss.backward()
     if self._grad_clip:
@@ -88,19 +89,19 @@ class PGAgent(PolicyAgent):
         params.grad.data.clamp_(self._grad_clip_low, self._grad_clip_high)
     self.optimiser.step()
 
-  # endregion
-
-  # region Public
-
-  def sample_action(self, state, *args, **kwargs):
-    return self._sample_model(state)
-
   def _sample_model(self, state, *args, **kwargs):
 
     if self._discrete:
       return self.sample_discrete_action(state)
 
     return (*self.sample_continuous_action(state), None)
+
+  # endregion
+
+  # region Public
+
+  def sample_action(self, state, *args, **kwargs):
+    return self._sample_model(state)
 
   def sample_discrete_action(self, state):
     state_var = U.to_tensor(state, device=self._device, dtype=self._state_type)
@@ -173,17 +174,20 @@ class PGAgent(PolicyAgent):
       stddev = signals.std()
       signals = (signals - signals.mean()) / (stddev + self._divide_by_zero_safety)
     elif signals.shape[0] == 0:
-      warn(f'No signals received, got signals.shape[0]:{signals.shape[0]}')
+      warning(f'No signals received, got signals.shape[0]:{signals.shape[0]}')
 
     for log_prob, signal, entropy in zip(log_probs, signals, entropies):
-      policy_loss.append(-log_prob * signal - self._pg_entropy_reg * entropy)
+      maximisation_term = signal + self._policy_entropy_regularisation * entropy
+      expected_reward = - log_prob * maximisation_term
+      policy_loss.append(expected_reward)
 
     loss = torch.cat(policy_loss).sum()
     return loss
 
-  def update(self, *args, **kwargs):
+  def update_models(self, *, stat_writer=None, **kwargs):
     '''
 
+    :param stat_writer:
     :param args:
     :param kwargs:
 
@@ -192,14 +196,17 @@ class PGAgent(PolicyAgent):
 
     error = self.evaluate()
 
+    if stat_writer:
+      stat_writer.scalar('Error', error)
+
     if error is not None:
       if self._use_batched_updates:
         self._accumulated_error += error
         if self._update_i % self._batch_size == 0:
-          self._optimise_wrt(self._accumulated_error / self._batch_size)
+          self._optimise(self._accumulated_error / self._batch_size)
           self._accumulated_error = U.to_tensor(0.0, device=self._device)
       else:
-        self._optimise_wrt(error)
+        self._optimise(error)
 
   def rollout(self,
               initial_state,
@@ -212,6 +219,8 @@ class PGAgent(PolicyAgent):
               **kwargs):
     '''Perform a single rollout until termination in environment
 
+    :param disable_stdout:
+    :param stat_writer:
     :type max_length: int
     :param max_length:
     :type train: bool
@@ -242,7 +251,7 @@ class PGAgent(PolicyAgent):
 
     with draugr.scroll_plot_class(self._distribution_parameter_regressor.output_shape,
                                   render=render,
-                                  window_length=50) as s:
+                                  window_length=66) as s:
       for t in tqdm(count(1), f'Update #{self._update_i}', leave=False, disable=disable_stdout):
         action, action_log_prob, entropy, probs = self.sample_action(state, render=render)
 
@@ -268,11 +277,11 @@ class PGAgent(PolicyAgent):
           break
 
     if train:
-      self.update()
+      self.update_models()
 
-    ep = np.array(episode_signal).mean()
+    ep = np.array(episode_signal).sum(axis=0).mean()
     el = episode_length
-    ee = np.array(episode_entropy).mean()
+    ee = np.array(episode_entropy).mean(axis=0).mean()
     pr = np.array(episode_probs)
     pr_mean = pr.mean(axis=0)[0]
     pr_std = pr.std(axis=0)[0]
@@ -311,11 +320,11 @@ def pg_test(rollouts=None, skip=True):
   if rollouts:
     C.ROLLOUTS = rollouts
 
-  agent_test_main(PGAgent,
-                  C,
-                  parse_args=False,
-                  training_procedure=parallelised_training,
-                  skip_confirmation=skip)
+  train_agent(PGAgent,
+              C,
+              parse_args=False,
+              training_procedure=parallelised_training,
+              skip_confirmation=skip)
 
 
 def pg_run(rollouts=None, skip=True):
@@ -327,13 +336,13 @@ def pg_run(rollouts=None, skip=True):
   C.CONNECT_TO_RUNNING = True
   C.ENVIRONMENT_NAME = ""
 
-  agent_test_main(PGAgent,
-                  C,
-                  training_procedure=parallelised_training(fun=train_episodically),
-                  skip_confirmation=skip)
+  train_agent(PGAgent,
+              C,
+              training_procedure=parallelised_training(training_procedure=train_episodically),
+              skip_confirmation=skip)
 
 
 if __name__ == '__main__':
-  # pg_test()
-  pg_run()
+  pg_test()
+  # pg_run()
 # endregion
