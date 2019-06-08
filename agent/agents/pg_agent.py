@@ -1,18 +1,18 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-from warnings import warn
+from logging import warning
 
 import draugr
-from draugr import TensorBoardWriter
-from neodroid.models import EnvironmentState
-from agent.exceptions.exceptions import NoTrajectoryException
-from neodroid.utilities.transformations.encodings import to_one_hot
-from warg import NOD
-
 from agent.architectures import CategoricalMLP
-from agent.procedures.train_agent import agent_test_main, parallel_train_agent_procedure
-from agent.utilities.specifications.generalised_delayed_construction_specification import GDCS
-from agent.utilities.specifications.training_resume import TR
+from agent.exceptions.exceptions import NoTrajectoryException
+from agent.interfaces.partials.agents.torch_agents.policy_agent import PolicyAgent
+from agent.interfaces.specifications.generalised_delayed_construction_specification import GDCS
+from agent.memory import TrajectoryBuffer
+from agent.training.procedures import train_episodically
+from agent.training.train_agent import parallelised_training, train_agent
+from neodroid.models import EnvironmentState
+from neodroid.utilities.transformations.encodings import to_one_hot
+from warg.named_ordered_dictionary import NOD
 
 __author__ = 'cnheider'
 
@@ -24,7 +24,6 @@ from torch.distributions import Categorical, Normal
 from tqdm import tqdm
 
 from agent import utilities as U
-from agent.interfaces.torch_agents.policy_agent import PolicyAgent
 
 tqdm.monitor_interval = 0
 
@@ -42,12 +41,12 @@ class PGAgent(PolicyAgent):
 
     self._accumulated_error = U.to_tensor(0.0, device=self._device)
     self._evaluation_function = torch.nn.CrossEntropyLoss()
-    self._trajectory_trace = U.TrajectoryTraceBuffer()
+    self._trajectory_trace = TrajectoryBuffer()
 
     self._policy_arch_spec = GDCS(CategoricalMLP, NOD(**{
-      'input_shape':             None,  # Obtain from environment
+      'input_shape':            None,  # Obtain from environment
       'hidden_layers':          None,
-      'output_shape':            None,  # Obtain from environment
+      'output_shape':           None,  # Obtain from environment
       'hidden_layer_activation':torch.relu,
       'use_bias':               True,
       }))
@@ -56,7 +55,7 @@ class PGAgent(PolicyAgent):
     self._discount_factor = 0.99
     self._use_batched_updates = False
     self._batch_size = 5
-    self._pg_entropy_reg = 1e-4
+    self._policy_entropy_regularisation = 1
     self._signal_clipping = False
     self._signal_clip_low = -1.0
     self._signal_clip_high = -self._signal_clip_low
@@ -76,18 +75,26 @@ class PGAgent(PolicyAgent):
   # region Protected
 
   def _build(self, **kwargs) -> None:
-    self._policy_model = self._policy_arch_spec.constructor(**self._policy_arch_spec.kwargs).to(self._device)
+    self._distribution_parameter_regressor = self._policy_arch_spec.constructor(
+        **self._policy_arch_spec.kwargs).to(self._device)
 
-    self.optimiser = self._optimiser_spec.constructor(self._policy_model.parameters(),
+    self.optimiser = self._optimiser_spec.constructor(self._distribution_parameter_regressor.parameters(),
                                                       **self._optimiser_spec.kwargs)
 
-  def _optimise_wrt(self, loss, **kwargs):
+  def _optimise(self, loss, **kwargs):
     self.optimiser.zero_grad()
     loss.backward()
     if self._grad_clip:
-      for params in self._policy_model.parameters():
+      for params in self._distribution_parameter_regressor.parameters():
         params.grad.data.clamp_(self._grad_clip_low, self._grad_clip_high)
     self.optimiser.step()
+
+  def _sample_model(self, state, *args, **kwargs):
+
+    if self._discrete:
+      return self.sample_discrete_action(state)
+
+    return (*self.sample_continuous_action(state), None)
 
   # endregion
 
@@ -96,17 +103,10 @@ class PGAgent(PolicyAgent):
   def sample_action(self, state, *args, **kwargs):
     return self._sample_model(state)
 
-  def _sample_model(self, state, *args, **kwargs):
-
-    if self._discrete:
-      return self.sample_discrete_action(state)
-
-    return self.sample_continuous_action(state)
-
   def sample_discrete_action(self, state):
     state_var = U.to_tensor(state, device=self._device, dtype=self._state_type)
 
-    probs = self._policy_model(state_var)
+    probs = self._distribution_parameter_regressor(state_var)
     distribution = Categorical(logits=probs)
     action_sample = distribution.sample()
     log_prob = distribution.log_prob(action_sample)
@@ -114,12 +114,12 @@ class PGAgent(PolicyAgent):
       action = action_sample.to('cpu').numpy()
       entropy = distribution.entropy()
 
-    return action, log_prob, entropy
+    return action, log_prob, entropy, probs
 
   def sample_continuous_action(self, state):
     model_input = U.to_tensor(state, device=self._device, dtype=self._state_type)
 
-    mean, log_std = self._policy_model(model_input)
+    mean, log_std = self._distribution_parameter_regressor(model_input)
 
     std = log_std.exp().expand_as(mean)
     distribution = Normal(mean, std)
@@ -174,17 +174,20 @@ class PGAgent(PolicyAgent):
       stddev = signals.std()
       signals = (signals - signals.mean()) / (stddev + self._divide_by_zero_safety)
     elif signals.shape[0] == 0:
-      warn(f'No signals received, got signals.shape[0]:{signals.shape[0]}')
+      warning(f'No signals received, got signals.shape[0]:{signals.shape[0]}')
 
     for log_prob, signal, entropy in zip(log_probs, signals, entropies):
-      policy_loss.append(-log_prob * signal - self._pg_entropy_reg * entropy)
+      maximisation_term = signal + self._policy_entropy_regularisation * entropy
+      expected_reward = - log_prob * maximisation_term
+      policy_loss.append(expected_reward)
 
     loss = torch.cat(policy_loss).sum()
     return loss
 
-  def update(self, *args, **kwargs):
+  def update_models(self, *, stat_writer=None, **kwargs):
     '''
 
+    :param stat_writer:
     :param args:
     :param kwargs:
 
@@ -193,24 +196,31 @@ class PGAgent(PolicyAgent):
 
     error = self.evaluate()
 
+    if stat_writer:
+      stat_writer.scalar('Error', error)
+
     if error is not None:
       if self._use_batched_updates:
         self._accumulated_error += error
-        if self._rollout_i % self._batch_size == 0:
-          self._optimise_wrt(self._accumulated_error / self._batch_size)
+        if self._update_i % self._batch_size == 0:
+          self._optimise(self._accumulated_error / self._batch_size)
           self._accumulated_error = U.to_tensor(0.0, device=self._device)
       else:
-        self._optimise_wrt(error)
+        self._optimise(error)
 
   def rollout(self,
               initial_state,
               environment,
               render: bool = False,
+              stat_writer=None,
               train: bool = True,
               max_length: int = None,
+              disable_stdout=False,
               **kwargs):
     '''Perform a single rollout until termination in environment
 
+    :param disable_stdout:
+    :param stat_writer:
     :type max_length: int
     :param max_length:
     :type train: bool
@@ -227,46 +237,62 @@ class PGAgent(PolicyAgent):
     '''
 
     if train:
-      self._rollout_i += 1
+      self._update_i += 1
 
     episode_signal = []
     episode_length = 0
     episode_entropy = []
+    episode_probs = []
 
     if isinstance(initial_state, EnvironmentState):
       state = initial_state.observables
     else:
       state = initial_state
 
-    with draugr.scroll_plot_class(self._policy_model.output_shape, render=render) as s:
-      for t in tqdm(count(1), f'Rollout #{self._rollout_i}', leave=False):
-        action, action_log_probs, entropy, *_ = self.sample_action(state)
+    with draugr.scroll_plot_class(self._distribution_parameter_regressor.output_shape,
+                                  render=render,
+                                  window_length=66) as s:
+      for t in tqdm(count(1), f'Update #{self._update_i}', leave=False, disable=disable_stdout):
+        action, action_log_prob, entropy, probs = self.sample_action(state, render=render)
 
-        state, signal, terminated, *_ = environment.react(action)
+        state, signal, terminated, *_ = environment.step(action)
 
         if self._signal_clipping:
-          signal = np.clip(signal, self._signal_clip_low, self._signal_clip_high)
+          signal = np.clip(signal,
+                           self._signal_clip_low,
+                           self._signal_clip_high)
 
         episode_signal.append(signal)
         episode_entropy.append(entropy.to('cpu').numpy())
+        episode_probs.append(probs.detach().to('cpu').numpy())
         if train:
-          self._trajectory_trace.add_trace(signal, action_log_probs, entropy)
+          self._trajectory_trace.add_point(signal, action_log_prob, entropy)
 
         if render:
           environment.render()
-          s.draw(to_one_hot(self._policy_model.output_shape,action))
+          s.draw(to_one_hot(self._distribution_parameter_regressor.output_shape, action)[0])
 
         if np.array(terminated).all() or (max_length and t > max_length):
           episode_length = t
           break
 
     if train:
-      self.update()
+      self.update_models()
 
-    ep = np.array(episode_signal).mean()
+    ep = np.array(episode_signal).sum(axis=0).mean()
     el = episode_length
-    ee = np.array(episode_entropy).mean()
-    return ep, el, ee
+    ee = np.array(episode_entropy).mean(axis=0).mean()
+    pr = np.array(episode_probs)
+    pr_mean = pr.mean(axis=0)[0]
+    pr_std = pr.std(axis=0)[0]
+
+    if stat_writer:
+      stat_writer.scalar('duration', el, self._update_i)
+      stat_writer.scalar('signal', ep, self._update_i)
+      stat_writer.scalar('entropy', ee, self._update_i)
+      stat_writer.bar('probs', pr_mean, self._update_i, yerr=pr_std)
+
+    return ep, el, ee, pr_mean, pr_std
 
   def infer(self, env, render=True):
 
@@ -284,94 +310,39 @@ class PGAgent(PolicyAgent):
         if terminated:
           break
 
-  def train_episodically(self,
-                         env,
-                         test_env,
-                         *,
-                         rollouts=2000,
-                         render=False,
-                         render_frequency=100,
-                         stat_frequency=10,
-                         ) -> TR:
-
-    E = range(1, rollouts)
-    E = tqdm(E, f'Episode: {1}', leave=False)
-
-    with TensorBoardWriter(str(self._log_directory)) as stat_writer:
-
-      for episode_i in E:
-        initial_state = env.reset()
-
-        if render and episode_i % render_frequency == 0:
-          signal, dur, entropy, *extras = self.rollout(initial_state, env, render=render)
-        else:
-          signal, dur, entropy, *extras = self.rollout(initial_state, env)
-
-        stat_writer.scalar('duration', dur, episode_i)
-        stat_writer.scalar('signal', signal, episode_i)
-        stat_writer.scalar('entropy', entropy, episode_i)
-
-        if self._end_training:
-          break
-
-    return TR(self._policy_model, None)
-
-  def train_episodically_old(self,
-                             env,
-                             test_env,
-                             *,
-                             rollouts=2000,
-                             render=False,
-                             render_frequency=100,
-                             stat_frequency=10,
-                             ) -> TR:
-
-    E = range(1, rollouts)
-    E = tqdm(E, f'Episode: {1}', leave=False)
-
-    stats = draugr.StatisticCollection(stats=('signal', 'duration', 'entropy'))
-
-    for episode_i in E:
-      initial_state = env.reset()
-
-      if episode_i % stat_frequency == 0:
-        draugr.styled_terminal_plot_stats_shared_x(stats,
-                                                   printer=E.write)
-
-        E.set_description(f'Epi: {episode_i}, '
-                          f'Sig: {stats.signal.running_value[-1]:.3f}, '
-                          f'Dur: {stats.duration.running_value[-1]:.1f}')
-
-      if render and episode_i % render_frequency == 0:
-        signal, dur, entropy, *extras = self.rollout(initial_state, env, render=render)
-      else:
-        signal, dur, entropy, *extras = self.rollout(initial_state, env)
-
-      stats.duration.append(dur)
-      stats.signal.append(signal)
-      stats.entropy.append(entropy)
-
-      if self._end_training:
-        break
-
-    return NOD(model=self._policy_model, stats=stats)
   # endregion
 
 
 # region Test
-def pg_test(rollouts=None,skip=True):
+def pg_test(rollouts=None, skip=True):
   import agent.configs.agent_test_configs.pg_test_config as C
 
   if rollouts:
     C.ROLLOUTS = rollouts
 
-  agent_test_main(PGAgent,
-                  C,
-                  parse_args=False,
-                  training_procedure=parallel_train_agent_procedure,
-                  skip_confirmation=skip)
+  train_agent(PGAgent,
+              C,
+              parse_args=False,
+              training_procedure=parallelised_training,
+              skip_confirmation=skip)
+
+
+def pg_run(rollouts=None, skip=True):
+  import agent.configs.agent_test_configs.pg_test_config as C
+
+  if rollouts:
+    C.ROLLOUTS = rollouts
+
+  C.CONNECT_TO_RUNNING = True
+  C.ENVIRONMENT_NAME = ""
+
+  train_agent(PGAgent,
+              C,
+              training_procedure=parallelised_training(training_procedure=train_episodically),
+              skip_confirmation=skip)
 
 
 if __name__ == '__main__':
   pg_test()
+  # pg_run()
 # endregion

@@ -2,10 +2,10 @@ import time
 from itertools import count
 from typing import Any, Tuple
 
-import draugr
+from agent.agents.abstract.torch_agent import TorchAgent
 from tqdm import tqdm
 
-from agent.agents.abstract.torch_agent import TorchAgent
+import draugr
 
 
 class RandomAgent(TorchAgent):
@@ -37,7 +37,7 @@ class RandomAgent(TorchAgent):
                        **kwargs) -> Tuple[Any, Any]:
     training_start_timestamp = time.time()
     E = range(1, rollouts)
-    E = tqdm(E, f'Episode: {1}', leave=False)
+    E = tqdm(E, f'Episode: {1}', leave=False, disable=not render)
 
     stats = draugr.StatisticCollection(stats=('signal', 'duration'))
 
@@ -76,7 +76,7 @@ class RandomAgent(TorchAgent):
   # region Public
 
   def sample_action(self, state, *args, **kwargs) -> Any:
-    return self._environment.action_space.sample()
+    return self._environment.action_space._sample()
 
   def update(self, *args, **kwargs) -> None:
     pass
@@ -94,7 +94,7 @@ class RandomAgent(TorchAgent):
     state = initial_state
 
     T = count(1)
-    T = tqdm(T, f'Rollout #{self._rollout_i}', leave=False)
+    T = tqdm(T, f'Rollout #{self._rollout_i}', leave=False, disable=not render)
 
     for t in T:
       action = int(self.sample_action(state)[0])

@@ -8,6 +8,7 @@ matplotlib
 tqdm
 torch
 torchvision
+torchsnooper
 six
 Pillow
 pynput

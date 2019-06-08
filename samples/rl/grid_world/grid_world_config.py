@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 from agent.architectures import MLP
 from agent.utilities import ReplayBuffer
-from agent.agents.dqn_agent import DQNAgent
 
 __author__ = 'cnheider'
 '''
@@ -20,9 +19,9 @@ LEARNING_FREQUENCY = 1
 REPLAY_MEMORY_SIZE = 10000
 MEMORY = ReplayBuffer(REPLAY_MEMORY_SIZE)
 
-EXPLORATION_SPEC=ExplorationSpecification(0,0,0)
+EXPLORATION_SPEC = ExplorationSpecification(0, 0, 0)
 
-AGENT_SPEC = GDCS(PGAgent,{})
+AGENT_SPEC = GDCS(PGAgent, {})
 
 BATCH_SIZE = 128
 DISCOUNT_FACTOR = 0.999

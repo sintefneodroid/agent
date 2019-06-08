@@ -1,11 +1,11 @@
 import time
 from typing import Any, Tuple
 
-import draugr
+from agent.agents.abstract.evo_agent import EVOAgent
 from tqdm import tqdm
 
-from agent.agents.abstract.evo_agent import EVOAgent
-from agent.procedures import agent_test_main
+import draugr
+from agent.training.procedures import train_agent
 
 
 class CMAAgent(EVOAgent):
@@ -37,7 +37,7 @@ class CMAAgent(EVOAgent):
                        **kwargs) -> Tuple[Any, Any]:
     training_start_timestamp = time.time()
     E = range(1, rollouts)
-    E = tqdm(E, f'Episode: {1}', leave=False)
+    E = tqdm(E, f'Episode: {1}', leave=False, disable=not render)
 
     stats = draugr.StatisticCollection(stats=('signal', 'duration'))
 
@@ -76,7 +76,7 @@ class CMAAgent(EVOAgent):
   # region Public
 
   def sample_action(self, state, *args, **kwargs) -> Any:
-    return self._environment.action_space.sample()
+    return self._environment.action_space._sample()
 
   def update(self, *args, **kwargs) -> None:
     pass
@@ -100,7 +100,7 @@ def cma_test():
   C.CONNECT_TO_RUNNING = False
   C.ENVIRONMENT_NAME = 'mab'
 
-  agent_test_main(CMAAgent, C)
+  train_agent(CMAAgent, C)
 
 
 if __name__ == '__main__':

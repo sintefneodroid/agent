@@ -1,17 +1,15 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-import os
 import time
 from pathlib import Path
 
 import torch
 import torch.nn.functional as F
-from warg import NOD
 
-from agent.agents.pg_agent import PGAgent
 from agent.architectures import CategoricalMLP
-from agent.utilities.specifications.exploration_specification import ExplorationSpecification
-from agent.utilities.specifications.generalised_delayed_construction_specification import GDCS
+from agent.interfaces.specifications.exploration_specification import ExplorationSpecification
+from agent.interfaces.specifications.generalised_delayed_construction_specification import GDCS
+from warg.named_ordered_dictionary import NOD
 
 __author__ = 'cnheider'
 '''
@@ -25,24 +23,15 @@ CONFIG_FILE = __file__
 VERBOSE = False
 USE_LOGGING = True
 
-# class LearningConfig(object):
-#  pass
-
-# class EnvironmentConfig(object):
-#  pass
-
-input_shape = None  # Obtain from environment
-hidden_layers = (2)  # Obtain from input and output size
-output_shape = None  # Obtain from environment
-
 # Architecture
-POLICY_ARCH_SPEC = GDCS(CategoricalMLP, NOD(
-    input_shape=input_shape,
-    hidden_layers=hidden_layers,
-    output_shape=output_shape,
-    hidden_layer_activation=torch.relu,
-    use_bias=True
-    ))
+POLICY_ARCH_SPEC = GDCS(CategoricalMLP,
+                        NOD(input_shape= None,  # Obtain from environment
+                            hidden_layers= None,  # Estimate from input and output size
+                            output_shape=None,  # Obtain from environment
+                            hidden_layer_activation=torch.relu,
+                            use_bias=True
+                            )
+                        )
 
 # Environment Related Parameters
 CONNECT_TO_RUNNING = False
@@ -73,14 +62,13 @@ ACTION_TYPE = torch.long
 EVALUATION_FUNCTION = F.smooth_l1_loss
 
 # Optimiser
-OPTIMISER_SPEC = GDCS(torch.optim.Adam, NOD(
-    lr=0.0025,
-    weight_decay=1e-5,
-    eps=1e-02))
+OPTIMISER_SPEC = GDCS(torch.optim.Adam, NOD(lr=3e-4,
+                                            weight_decay=1e-6,
+                                            eps=1e-2))
 
 # Paths
 # PROJECT_DIRECTORY = Path.cwd()
-PROJECT_DIRECTORY = Path.home() / 'Models' / 'Neodroid' / str(int(time.time()))
+PROJECT_DIRECTORY = Path.home() / 'Models' / 'Neodroid' / ENVIRONMENT_NAME / str(int(time.time()))
 MODEL_DIRECTORY = PROJECT_DIRECTORY / 'models'
 CONFIG_DIRECTORY = PROJECT_DIRECTORY / 'configs'
 LOG_DIRECTORY = PROJECT_DIRECTORY / 'logs'
@@ -89,6 +77,10 @@ LOG_DIRECTORY = PROJECT_DIRECTORY / 'logs'
 USE_CUDA = True
 if USE_CUDA:  # If available
   USE_CUDA = torch.cuda.is_available()
+
+DEVICE = 'cpu'
+if USE_CUDA:
+  DEVICE = 'cuda'
 
 # Visualisation
 USE_VISDOM = False

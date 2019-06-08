@@ -5,9 +5,8 @@ from typing import Any, Tuple
 
 import gym
 import numpy as np
-from tqdm import tqdm
-
 from agent.agents.abstract.value_agent import ValueAgent
+from tqdm import tqdm
 
 
 class TabularQAgent(ValueAgent):
@@ -54,7 +53,7 @@ class TabularQAgent(ValueAgent):
     if hasattr(self._environment.action_space, 'signed_one_hot_sample'):
       return self._environment.action_space.signed_one_hot_sample()
     else:
-      return self._environment.action_space.sample()
+      return self._environment.action_space._sample()
 
   def rollout(self,
               initial_state,
@@ -194,7 +193,7 @@ if __name__ == '__main__':
 
         while not done:
           if random.uniform(0, 1) < epsilon:
-            action = env.action_space.sample()
+            action = env.action_space._sample()
           else:
             action = np.argmax(q_table[state])
 

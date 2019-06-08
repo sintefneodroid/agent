@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-import scipy
-from scipy.signal import lfilter
 
 __author__ = 'cnheider'
 import torch

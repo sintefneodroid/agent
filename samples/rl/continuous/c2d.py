@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+
 import draugr
-from neodroid.wrappers import SingleEnvironmentWrapper
+from neodroid.api_wrappers import SingleEnvironmentWrapper
 
 __author__ = 'cnheider'
 

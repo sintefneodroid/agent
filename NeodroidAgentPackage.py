@@ -1,8 +1,7 @@
 import pathlib
+import re
 
 from setuptools import find_packages
-
-import re
 
 with open(pathlib.Path(__file__).parent / "agent" / "version.py", "r") as f:
   # get version string from module
@@ -85,8 +84,10 @@ class NeodroidAgentPackage:
         'neodroid-tab = agent.agents.experimental.tabular_q_agent:tabular_test',
         'neodroid-rnd = agent.agents.experimental.random_agent:random_test',
         'neodroid-ppo = agent.agents.ppo_agent:ppo_test',
-        'neodroid-dqn = agent.agents.dqn_agent:dqn_test',
-        'neodroid-pg = agent.agents.pg_agent:pg_test',
+        'neodroid-dqn-gym = agent.agents.dqn_agent:dqn_test',
+        'neodroid-pg-gym = agent.agents.pg_agent:pg_test',
+        'neodroid-dqn = agent.agents.dqn_agent:dqn_run',
+        'neodroid-pg = agent.agents.pg_agent:pg_run',
         'neodroid-ddpg = agent.agents.dppg_agent:ddpg_test',
         'neodroid-cma = agent.agents.experimental.cma_agent:cma_test'
         # 'neodroid-evo = agents.evo_agent:main'

@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 import math
 import random
+from typing import Iterable, Sequence
 
 import numpy
 import torch
@@ -28,24 +29,29 @@ def add_indent(s_, numSpaces):
   return s
 
 
-def entropy(prob):
-  return -torch.sum(prob * torch.log(prob), 1)
+def shannon_entropy(prob):
+  return - torch.sum(prob * torch.log2(prob), -1)
 
 
-def log_entropy(log_prob):
-  return -torch.sum(torch.exp(log_prob) * log_prob, 1)
+def log_shannon_entropy(log_prob):
+  return - torch.sum(torch.pow(2, log_prob) * log_prob, -1)
+  # return - torch.sum(torch.exp(log_prob) * log_prob, -1)
 
 
 def to_tensor(obj, dtype=torch.float, device='cpu'):
   if not torch.is_tensor(obj):
     if isinstance(obj, numpy.ndarray):
       return torch.from_numpy(numpy.array(obj)).to(device=device, dtype=dtype)
+    elif not isinstance(obj, Sequence):
+      obj = [obj]
+    elif not isinstance(obj, list) and isinstance(obj, Iterable):
+      obj = [*obj]
     return torch.tensor(obj, device=device, dtype=dtype)
   else:
     return obj.type(dtype).to(device)
 
 
-def pi_torch(device='cpu'):
+def torch_pi(device='cpu'):
   return to_tensor([numpy.math.pi], device=device)
 
 
@@ -60,7 +66,11 @@ def normal(x, mean, sigma_sq, device='cpu'):
 def normal_entropy(std):
   var = std.pow(2)
   ent = 0.5 + 0.5 * torch.log(2 * var * math.pi)
-  return ent.sum(1, keepdim=True)
+  return ent.sum(dim=-1, keepdim=True)
+
+
+def differential_entropy_gaussian(std):
+  return torch.log(std * torch.sqrt(2 * torch_pi())) + .5
 
 
 def normal_log_density(x, mean, log_std, std):
@@ -69,14 +79,11 @@ def normal_log_density(x, mean, log_std, std):
   return log_density.sum(1, keepdim=True)
 
 
-import torch
-
-
 def identity(x):
   return x
 
 
-def _discount_reward(self, signals, value):
+def discount_signal(self, signals, value):
   discounted_r = numpy.zeros_like(signals)
   running_add = value
   for t in reversed(range(0, len(signals))):
@@ -110,3 +117,11 @@ def channel_transform(inp):
   inp = numpy.clip(inp, 0, 1)
   inp = inp.transpose((2, 0, 1))
   return inp
+
+
+if __name__ == '__main__':
+  eq = to_tensor([0.5, 0.5])
+  print(shannon_entropy(eq))
+  print(log_shannon_entropy(torch.log2(eq)))
+  print(differential_entropy_gaussian(to_tensor(1)))
+  print(normal_entropy(to_tensor(1)))

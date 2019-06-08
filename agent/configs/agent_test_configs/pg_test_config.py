@@ -1,10 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-import torch
-from warg import NOD
-from .base_test_config import *
-
 from agent.architectures import MLP
+from .base_test_config import *
 
 __author__ = 'cnheider'
 
@@ -16,15 +13,14 @@ RENDER_ENVIRONMENT = True
 
 EVALUATION_FUNCTION = torch.nn.CrossEntropyLoss
 
-DISCOUNT_FACTOR = 0.99
-OPTIMISER_LEARNING_RATE = 1e-4
-PG_ENTROPY_REG = 1e-4
+DISCOUNT_FACTOR = 0.98
+PG_ENTROPY_REG = 3e-3
 
 # Architecture
 POLICY_ARCH_SPEC = GDCS(MLP, NOD(**{
-  'input_shape':             None,  # Obtain from environment
+  'input_shape':            None,  # Obtain from environment
   'hidden_layer_activation':torch.tanh,
   'hidden_layers':          None,
-  'output_shape':            None,  # Obtain from environment
+  'output_shape':           None,  # Obtain from environment
   'use_bias':               True,
   }))

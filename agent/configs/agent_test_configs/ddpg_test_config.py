@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-from agent.agents.ddpg_agent import DDPGAgent
 from agent.architectures import DDPGActorArchitecture, DDPGCriticArchitecture
-from agent.utilities.exploration.sampling import OrnsteinUhlenbeckProcess
-from agent.utilities import TransitionBuffer
+from agent.memory import TransitionBuffer
+from agent.exploration import OrnsteinUhlenbeckProcess
 from .base_test_config import *
 
 __author__ = 'cnheider'
@@ -62,10 +61,10 @@ ROLLOUTS = 1000
 
 # Architecture
 ACTOR_ARCH_SPEC = GDCS(DDPGActorArchitecture, NOD(**{
-  'input_shape':       None,  # Obtain from environment
+  'input_shape':      None,  # Obtain from environment
   # 'hidden_layers' : [256],
   'output_activation':torch.tanh,
-  'output_shape':      None,  # Obtain from environment
+  'output_shape':     None,  # Obtain from environment
   }))
 
 CRITIC_ARCH_SPEC = GDCS(DDPGCriticArchitecture, NOD(**{

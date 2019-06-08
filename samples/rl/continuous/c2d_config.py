@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-from agent.agents.ddpg_agent import DDPGAgent
 from agent.architectures import SingleDistributionMLP
 
 __author__ = 'cnheider'
@@ -39,9 +38,9 @@ ENVIRONMENT_NAME = 'c2d'
 
 # Architecture
 POLICY_ARCH_PARAMS = {
-  'input_shape':             None,  # Obtain from environment
+  'input_shape':            None,  # Obtain from environment
   'hidden_layers':          None,
-  'output_shape':            None,  # Obtain from environment
+  'output_shape':           None,  # Obtain from environment
   'hidden_layer_activation':torch.tanh,
   'use_bias':               True,
   }

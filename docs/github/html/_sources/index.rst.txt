@@ -1,0 +1,25 @@
+.. toctree::
+    :glob:
+    :hidden:
+    :maxdepth: 1
+    :caption: Notes
+
+    getting_started
+    concepts
+    cli
+
+.. toctree::
+    :glob:
+    :hidden:
+    :maxdepth: 1
+    :caption: API
+
+    api/*
+
+.. include:: ../../README.rst
+
+What's next?
+-------------
+
+Read the :ref:`Getting Started Guide <getting_started>` or see some
+ready-to-run :ref:`experiments`.
