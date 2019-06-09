@@ -6,7 +6,7 @@ SPHINXOPTS    =
 SPHINXBUILD   = sphinx-build
 SPHINXPROJ    = Agent
 SOURCEDIR     = source
-BUILDDIR      = github
+BUILDDIR      = ../docs/github
 PYCMD 				= python
 
 # Put it first so that "make" without argument is like "make help".

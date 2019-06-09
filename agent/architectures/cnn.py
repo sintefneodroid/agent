@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 from collections.abc import Collection
 
-from .architecture import Architecture
+from agent.interfaces.architecture import Architecture
 
 __author__ = 'cnheider'
 from torch import nn

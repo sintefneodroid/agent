@@ -7,7 +7,7 @@ from numpy import prod
 
 from agent.utilities import xavier_init
 from warg.named_ordered_dictionary import NOD
-from .architecture import Architecture
+from agent.interfaces.architecture import Architecture
 
 __author__ = 'cnheider'
 

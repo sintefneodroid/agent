@@ -13,7 +13,7 @@ This document is a glossary for core concepts.
 Agent
 -----
 
-:class:`~agent.agents.abstract.agent.Agent` is an abstract
+:class:`~agent.interfaces.partials.agent.Agent` is an abstract
 class which defines an agent that can interact with an Environment_.
 
 .. _Environment:
