@@ -3,5 +3,4 @@
 __author__ = 'cnheider'
 
 from .torch_utilities import *
-from .torch_utilities import *
 from .transformation import *

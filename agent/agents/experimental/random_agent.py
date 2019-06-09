@@ -2,10 +2,10 @@ import time
 from itertools import count
 from typing import Any, Tuple
 
-from agent.agents.abstract.torch_agent import TorchAgent
 from tqdm import tqdm
 
 import draugr
+from agent.interfaces.partials.agents.torch_agent import TorchAgent
 
 
 class RandomAgent(TorchAgent):

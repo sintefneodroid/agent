@@ -3,7 +3,6 @@
 __author__ = 'cnheider'
 
 from .actor import *
-from .architecture import *
 from .cnn import *
 from .critic import *
 from .lstm import *

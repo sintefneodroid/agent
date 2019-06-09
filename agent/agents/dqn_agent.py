@@ -5,8 +5,8 @@ import logging
 import matplotlib
 
 from agent.architectures import MLP
+from agent.interfaces.partials.agents.torch_agents.value_agent import ValueAgent
 from agent.memory import ReplayBuffer
-from agent.interfaces.partials import ValueAgent
 from agent.interfaces.specifications.generalised_delayed_construction_specification import GDCS
 from agent.training.train_agent import parallelised_training, train_agent
 from agent.utilities import get_screen

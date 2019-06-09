@@ -7,6 +7,9 @@
     getting_started
     concepts
     cli
+    experiments
+    readme
+
 
 .. toctree::
     :glob:
@@ -16,7 +19,7 @@
 
     api/*
 
-.. include:: ../../README.rst
+
 
 What's next?
 -------------

@@ -1,11 +1,12 @@
 import time
 from typing import Any, Tuple
 
-from agent.agents.abstract.evo_agent import EVOAgent
+
 from tqdm import tqdm
 
 import draugr
-from agent.training.procedures import train_agent
+from agent.interfaces.partials.agents.evo_agent import EVOAgent
+from agent.training.train_agent import train_agent
 
 
 class CMAAgent(EVOAgent):

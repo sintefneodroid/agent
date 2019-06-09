@@ -17,9 +17,10 @@
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
-# import os
-# import sys
-# sys.path.insert(0, os.path.abspath('.'))
+import os
+import sys
+
+sys.path.insert(0, os.path.abspath('.'))
 
 # -- General configuration ------------------------------------------------
 
@@ -30,18 +31,22 @@
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
-extensions = [
-  'sphinx.ext.autodoc',
-  'sphinx.ext.autosummary',
-  'sphinx.ext.napoleon',
-  'sphinx.ext.doctest',
-  'sphinx.ext.intersphinx',
-  'sphinx.ext.todo',
-  'sphinx.ext.coverage',
-  'sphinx.ext.mathjax',
-  'sphinx.ext.viewcode',
-  'sphinx.ext.githubpages',
-  ]
+
+extensions = ['m2r',
+              # 'recommonmark',
+              'sphinxcontrib.programoutput',
+              'sphinx.ext.autodoc',
+              'sphinx.ext.autosummary',
+              'sphinx.ext.napoleon',
+              'sphinx.ext.doctest',
+              'sphinx.ext.intersphinx',
+              'sphinx.ext.todo',
+              'sphinx.ext.coverage',
+              'sphinx.ext.mathjax',
+              'sphinx.ext.viewcode',
+              'sphinx.ext.githubpages',
+              'sphinx.ext.graphviz',
+              ]
 
 napoleon_use_ivar = True
 
@@ -52,13 +57,21 @@ templates_path = ['_templates']
 # You can specify multiple suffix as a list of string:
 #
 # source_suffix = ['.rst', '.md']
-source_suffix = '.rst'
+# source_suffix = '.rst'
+source_suffix = {'.rst':'restructuredtext',
+                 '.txt':'markdown',
+                 '.md': 'markdown',
+                 }
+
+# source_parsers = {
+#    '.md': CommonMarkParser,
+# }
 
 # The master toctree document.
 master_doc = 'index'
 
 # General information about the project.
-project = 'Neo'
+project = 'Agent'
 author = 'Christian Heider Nielsen'
 copyright = '2017, {author}'.format(author=author)
 
@@ -85,7 +98,7 @@ exclude_patterns = []
 pygments_style = 'sphinx'
 
 # If true, `todo` and `todoList` produce output, else they produce nothing.
-todo_include_todos = False
+todo_include_todos = True
 
 # -- Options for HTML output ----------------------------------------------
 
@@ -105,10 +118,12 @@ html_theme = 'alabaster'
 # so a file named 'default.css' will overwrite the builtin 'default.css'.
 html_static_path = ['_static']
 
+html_baseurl = 'agent.neodroid.ml'
+
 # -- Options for HTMLHelp output ------------------------------------------
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'Neodoc'
+htmlhelp_basename = 'Agentdoc'
 
 # -- Options for LaTeX output ---------------------------------------------
 
@@ -130,32 +145,33 @@ latex_elements = {
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
-latex_documents = [
-  (master_doc, 'Neo.tex', 'Neo Documentation', 'Christian Heider Nielsen', 'manual')
-  ]
+latex_documents = [(master_doc,
+                    'Agent.tex',
+                    'Agent Documentation',
+                    'Christian Heider Nielsen',
+                    'manual')
+                   ]
 
 # -- Options for manual page output ---------------------------------------
 
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
-man_pages = [(master_doc, 'neo', 'Neo Documentation', [author], 1)]
+man_pages = [(master_doc, 'agent', 'Agent Documentation', [author], 1)]
 
 # -- Options for Texinfo output -------------------------------------------
 
 # Grouping the document tree into Texinfo files. List of tuples
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
-texinfo_documents = [
-  (
-    master_doc,
-    'Neo',
-    'Neo Documentation',
-    author,
-    'Neo',
-    'One line description of project.',
-    'Miscellaneous',
-    )
-  ]
+texinfo_documents = [(master_doc,
+                      'agent',
+                      'Agent Documentation',
+                      author,
+                      'Agent',
+                      'One line description of project.',
+                      'Miscellaneous',
+                      )
+                     ]
 
 # -- Options for Epub output ----------------------------------------------
 

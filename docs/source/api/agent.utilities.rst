@@ -1,21 +1,21 @@
 agents.utilities package
-=====================
+========================
 
 Submodules
 ----------
 
-agents.utilities.architecture module
--------------------------------
+agents.architectures module
+---------------------------
 
-.. automodule:: agents.utilities.architecture
+.. automodule:: agent.architectures
     :members:
     :undoc-members:
     :show-inheritance:
 
-agents.utilities.curriculum module
--------------------------
+agents.training.procedures.curriculum module
+--------------------------------------------
 
-.. automodule:: agents.utilities.curriculum
+.. automodule:: agent.training.procedures.curriculum
     :members:
     :undoc-members:
     :show-inheritance:
@@ -23,7 +23,7 @@ agents.utilities.curriculum module
 Module contents
 ---------------
 
-.. automodule:: agents.utilities
+.. automodule:: agent.utilities
     :members:
     :undoc-members:
     :show-inheritance:

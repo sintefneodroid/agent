@@ -2,8 +2,8 @@
 # -*- coding: utf-8 -*-
 from agent.architectures import DDPGActorArchitecture, DDPGCriticArchitecture
 from agent.exploration.sampling import OrnsteinUhlenbeckProcess
+from agent.interfaces.partials.agents.torch_agents.actor_critic_agent import ActorCriticAgent
 from agent.memory import TransitionBuffer
-from agent.interfaces.partials import ActorCriticAgent
 from agent.interfaces.specifications import ArchitectureSpecification
 from agent.training.procedures import train_episodically
 from agent.training.train_agent import parallelised_training, train_agent
