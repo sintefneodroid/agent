@@ -36,8 +36,8 @@ class OrnsteinUhlenbeckProcess(AnnealedGaussianProcess):
     x = self.x_prev + self.theta * (self.mean - self.x_prev) * self.dt + self.current_sigma * np.sqrt(self.dt
                                                                                                       ) * \
         np.random.normal(
-      size=self.size
-      )
+            size=self.size
+            )
     self.x_prev = x
     self.n_steps += 1
     return x

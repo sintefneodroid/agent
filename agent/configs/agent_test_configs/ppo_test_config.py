@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+from agent.architectures import ContinuousActorArchitecture, MLP
 from torch.nn import MSELoss
 
-from agent.architectures import ContinuousActorArchitecture, MLP
 from .base_test_config import *
 
 __author__ = 'cnheider'

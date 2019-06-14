@@ -17,3 +17,5 @@ tensorboardX
 scikit-image
 filelock
 pip
+scipy
+numba

@@ -21,15 +21,13 @@ from itertools import count
 import draugr
 from draugr.stopping_key import add_early_stopping_key_combination
 from agent.exceptions.exceptions import NoTrainingProcedure
-from neodroid.api_wrappers.action_encoding_wrappers import BinaryActionEncodingWrapper
+from neodroid.api_wrappers.action_encoding_wrappers import DiscreteActionEncodingWrapper
 from neodroid.api_wrappers.gym_wrapper.gym_wrapper import NeodroidWrapper
 from trolls.multiple_environments_wrapper import SubProcessEnvironments, make_gym_env
 from trolls.wrappers.vector_environments import VectorWrap
 from warg.arguments import get_upper_case_vars_or_protected_of, parse_arguments
 
 
-class multi_training(TrainingSession):
-  pass
 
 class linear_training(TrainingSession):
 
@@ -45,11 +43,11 @@ class linear_training(TrainingSession):
         if '-v' in config.ENVIRONMENT_NAME:
           environment = VectorWrap(NeodroidWrapper(gym.make(config.ENVIRONMENT_NAME)))
         else:
-          environment = VectorWrap(BinaryActionEncodingWrapper(name=config.ENVIRONMENT_NAME,
-                                                               connect_to_running=config.CONNECT_TO_RUNNING))
+          environment = VectorWrap(DiscreteActionEncodingWrapper(name=config.ENVIRONMENT_NAME,
+                                                                 connect_to_running=config.CONNECT_TO_RUNNING))
     else:
-      environment = VectorWrap(BinaryActionEncodingWrapper(name=config.ENVIRONMENT_NAME,
-                                                           connect_to_running=config.CONNECT_TO_RUNNING))
+      environment = VectorWrap(DiscreteActionEncodingWrapper(name=config.ENVIRONMENT_NAME,
+                                                             connect_to_running=config.CONNECT_TO_RUNNING))
 
     U.set_seeds(config.SEED)
     environment.seed(config.SEED)
@@ -113,8 +111,8 @@ class parallelised_training(TrainingSession):
                                                                      auto_reset_on_terminal=self.auto_reset_on_terminal))
 
       else:
-        self.environments = BinaryActionEncodingWrapper(name=config.ENVIRONMENT_NAME,
-                                                        connect_to_running=config.CONNECT_TO_RUNNING)
+        self.environments = DiscreteActionEncodingWrapper(name=config.ENVIRONMENT_NAME,
+                                                          connect_to_running=config.CONNECT_TO_RUNNING)
 
     U.set_seeds(config.SEED)
     self.environments.seed(config.SEED)
@@ -245,8 +243,8 @@ if __name__ == '__main__':
   import agent.configs.agent_test_configs.pg_test_config as C
   from agent.agents.pg_agent import PGAgent
 
-  env = BinaryActionEncodingWrapper(name=C.ENVIRONMENT_NAME,
-                                    connect_to_running=C.CONNECT_TO_RUNNING)
+  env = DiscreteActionEncodingWrapper(name=C.ENVIRONMENT_NAME,
+                                      connect_to_running=C.CONNECT_TO_RUNNING)
   env.seed(C.SEED)
 
   linear_training(training_procedure=train_episodically)(agent_type=PGAgent, config=C, environment=env)

@@ -5,7 +5,6 @@ from pathlib import Path
 
 import torch
 import torch.nn.functional as F
-
 from agent.architectures import CategoricalMLP
 from agent.interfaces.specifications.exploration_specification import ExplorationSpecification
 from agent.interfaces.specifications.generalised_delayed_construction_specification import GDCS
@@ -25,8 +24,8 @@ USE_LOGGING = True
 
 # Architecture
 POLICY_ARCH_SPEC = GDCS(CategoricalMLP,
-                        NOD(input_shape= None,  # Obtain from environment
-                            hidden_layers= None,  # Estimate from input and output size
+                        NOD(input_shape=None,  # Obtain from environment
+                            hidden_layers=None,  # Estimate from input and output size
                             output_shape=None,  # Obtain from environment
                             hidden_layer_activation=torch.relu,
                             use_bias=True

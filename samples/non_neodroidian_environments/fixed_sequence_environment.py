@@ -1,9 +1,11 @@
 import numpy as np
 from gym import Env
 from gym.spaces import Discrete
+from samples.non_neodroidian_environments.constant_environment import NoRenderEnv
 
 
-class FixedSequenceEnvironment(Env):
+class FixedSequenceEnvironment(NoRenderEnv):
+
   def __init__(self,
                n_actions=10,
                seed=0,

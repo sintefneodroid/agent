@@ -1,12 +1,10 @@
 import time
 from typing import Any, Tuple
 
-
-from tqdm import tqdm
-
 import draugr
 from agent.interfaces.partials.agents.evo_agent import EVOAgent
 from agent.training.train_agent import train_agent
+from tqdm import tqdm
 
 
 class CMAAgent(EVOAgent):
@@ -63,7 +61,7 @@ class CMAAgent(EVOAgent):
       stats.duration.append(dur)
       stats.signal.append(signal)
 
-      if self._end_training:
+      if self.end_training:
         break
 
     time_elapsed = time.time() - training_start_timestamp

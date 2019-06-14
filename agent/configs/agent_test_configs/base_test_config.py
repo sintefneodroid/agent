@@ -12,10 +12,21 @@ from agent.configs.base_config import *
 CONFIG_NAME = __name__
 CONFIG_FILE = __file__
 
+# Architecture
+POLICY_ARCH_SPEC = GDCS(CategoricalMLP,
+                        NOD(input_shape=None,  # Obtain from environment
+                            hidden_layers=(32,32),  # Estimate from input and output size
+                            output_shape=None,  # Obtain from environment
+                            hidden_layer_activation=torch.relu,
+                            use_bias=True
+                            )
+                        )
+
 ROLLOUTS = 10000
 
-ENVIRONMENT_NAME = 'CartPole-v1'
-# ENVIRONMENT_NAME = ' '
+#ENVIRONMENT_NAME = 'CartPole-v1'
+ENVIRONMENT_NAME = 'Acrobot-v1'
+#ENVIRONMENT_NAME = 'MountainCar-v0'
 
 ENVIRONMENTS = {
 

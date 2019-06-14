@@ -3,11 +3,10 @@
 import logging
 
 import matplotlib
-
 from agent.architectures import MLP
 from agent.interfaces.partials.agents.torch_agents.value_agent import ValueAgent
-from agent.memory import ReplayBuffer
 from agent.interfaces.specifications.generalised_delayed_construction_specification import GDCS
+from agent.memory import ReplayBuffer
 from agent.training.train_agent import parallelised_training, train_agent
 from agent.utilities import get_screen
 from draugr.visualisation.visualisation.experimental.statistics_plot import plot_durations
@@ -163,7 +162,7 @@ class DQNAgent(ValueAgent):
 
     return self._evaluation_function(Q_state, Q_expected)
 
-  def update_models(self, *, stat_writer = None, **kwargs):
+  def update_models(self, *, stat_writer=None, **kwargs):
     if self._batch_size < len(self._memory_buffer):
       # indices, transitions = self._memory.sample_transitions(self.C.BATCH_SIZE)
       transitions = self._memory_buffer.sample_transitions(self._batch_size)
@@ -172,7 +171,7 @@ class DQNAgent(ValueAgent):
       self._optimise(td_error)
 
       if stat_writer:
-        stat_writer.scalar('td_error',td_error.mean().item())
+        stat_writer.scalar('td_error', td_error.mean().item())
 
       # self._memory.batch_update(indices, td_error.tolist())  # Cuda trouble
     else:
@@ -227,7 +226,7 @@ class DQNAgent(ValueAgent):
       if self._use_double_dqn and self._step_i % self._sync_target_model_frequency == 0:
         self._target_value_model = U.copy_state(target=self._target_value_model, source=self._value_model)
         if stat_writer:
-          stat_writer.scalar('Target Model Synced',self._step_i,self._step_i)
+          stat_writer.scalar('Target Model Synced', self._step_i, self._step_i)
 
       episode_signal.append(signal)
 

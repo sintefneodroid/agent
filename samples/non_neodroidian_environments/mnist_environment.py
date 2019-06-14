@@ -5,9 +5,14 @@ import filelock
 import numpy as np
 from gym import Env
 from gym.spaces import Box, Discrete
-
+import matplotlib.pyplot as plt
 
 class MnistEnv(Env):
+  def render(self, mode='human'):
+    plt.imshow(self.state[0])
+    plt.title(self.state[1])
+    plt.show()
+
   def __init__(self,
                seed=0,
                episode_len=None,
@@ -49,6 +54,8 @@ class MnistEnv(Env):
       terminal = True
 
     return self.state[0], signal, terminal, {}
+
+
 
   def train_mode(self):
     self.dataset = self.mnist.train

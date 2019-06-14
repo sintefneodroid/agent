@@ -2,9 +2,8 @@
 # -*- coding: utf-8 -*-
 __author__ = 'cnheider'
 
-import numpy as np
-
 import neodroid
+import numpy as np
 
 
 def calculate_difficulty(current_difficulty, signal, steps_taken, configuration):

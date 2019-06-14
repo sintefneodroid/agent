@@ -3,8 +3,8 @@
 from agent.architectures import DDPGActorArchitecture, DDPGCriticArchitecture
 from agent.exploration.sampling import OrnsteinUhlenbeckProcess
 from agent.interfaces.partials.agents.torch_agents.actor_critic_agent import ActorCriticAgent
-from agent.memory import TransitionBuffer
 from agent.interfaces.specifications import ArchitectureSpecification
+from agent.memory import TransitionBuffer
 from agent.training.procedures import train_episodically
 from agent.training.train_agent import parallelised_training, train_agent
 from warg.named_ordered_dictionary import NOD
@@ -86,11 +86,11 @@ class DDPGAgent(ActorCriticAgent):
     self._early_stopping_condition = None
     self._optimiser = None
 
-    self._end_training = False
+    self.end_training = False
 
     self._batch_size = 64
 
-    self._end_training = False
+    self.end_training = False
 
     (self._actor,
      self._target_actor,

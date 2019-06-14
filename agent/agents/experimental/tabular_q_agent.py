@@ -5,9 +5,8 @@ from typing import Any, Tuple
 
 import gym
 import numpy as np
-from tqdm import tqdm
-
 from agent.interfaces.partials.agents.torch_agents.value_agent import ValueAgent
+from tqdm import tqdm
 
 
 class TabularQAgent(ValueAgent):

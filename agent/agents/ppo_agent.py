@@ -1,23 +1,22 @@
 #!/usr/local/bin/python
 # coding: utf-8
-from itertools import count
-from typing import Any, Tuple
+import logging
+from typing import Any
 
 import numpy
-
 from agent.architectures import DDPGActorArchitecture, DDPGCriticArchitecture
 from agent.interfaces.partials.agents.torch_agents.actor_critic_agent import ActorCriticAgent
-from agent.interfaces.specifications import ValuedTransition
+from agent.interfaces.specifications import AdvantageDiscountedTransition, ValuedTransition
 from agent.interfaces.specifications.generalised_delayed_construction_specification import GDCS
 from agent.training.procedures import batched_training
 from agent.training.train_agent import parallelised_training, train_agent
 from agent.utilities import to_tensor
+from torch.utils.data import DataLoader, Dataset
 from warg.named_ordered_dictionary import NOD
 
 __author__ = 'cnheider'
 
 import torch
-from torch import nn
 from tqdm import tqdm
 import torch.nn.functional as F
 
@@ -56,7 +55,6 @@ class PPOAgent(ActorCriticAgent):
     self._rollouts = 10000
 
     self._ppo_epochs = 4
-    self._current_kl_beta = 1.00
 
     self._state_type = torch.float
     self._value_type = torch.float
@@ -89,46 +87,35 @@ class PPOAgent(ActorCriticAgent):
 
     self._optimiser = None
 
-    self._update_early_stopping = None
-    # self._update_early_stopping = self.kl_target_stop
+  def tpro_kl_target_stop(self,
+                          old_log_probs,
+                          new_log_probs,
+                          kl_target=3e-2,
 
-  def kl_target_stop(self,
-                     old_log_probs,
-                     new_log_probs,
-                     kl_target=0.03,
-                     beta_max=20,
-                     beta_min=1 / 20):
+                          kl_coef_min=1e-4,
+                          kl_coef_max=10):
 
     '''
-    TRPO
-
-    negloss = -tf.reduce_mean(self.advantages_ph * tf.exp(self.logp - self.prev_logp))
-    negloss += tf.reduce_mean(self.beta_ph * self.kl_divergence)
-    negloss += tf.reduce_mean(self.ksi_ph * tf.square(tf.maximum(0.0, self.kl_divergence - 2 *
-    self.kl_target)))
-
-    self.ksi = 10
-
-    Adaptive kl_target = 0.01
-    Adaptive kl_target = 0.03
 
     :param kl_target:
-    :param beta_max:
-    :param beta_min:
+    :param kl_coef_max:
+    :param kl_coef_min:
     :param old_log_probs:
     :param new_log_probs:
     :return:
     '''
 
-    kl_now = torch.distributions.kl_divergence(old_log_probs, new_log_probs)
-    if kl_now > 4 * kl_target:
+    #kl_divergence = torch.distributions.kl_divergence(old_log_probs, new_log_probs)
+    kl_divergence = (old_log_probs -new_log_probs).mean()
+    if kl_divergence > 4 * kl_target:
       return True
 
-    if kl_now < kl_target / 1.5:
-      self._current_kl_beta /= 2
-    elif kl_now > kl_target * 1.5:
-      self._current_kl_beta *= 2
-    self._current_kl_beta = numpy.clip(self._current_kl_beta, beta_min, beta_max)
+    if kl_divergence < kl_target / 1.5:
+      self._kl_reg_coef /= 2
+    elif kl_divergence > kl_target * 1.5:
+      self._kl_reg_coef *= 2
+    self._kl_reg_coef = numpy.clip(self._kl_reg_coef, kl_coef_min, kl_coef_max)
+
     return False
 
   # endregion
@@ -136,6 +123,14 @@ class PPOAgent(ActorCriticAgent):
   # region Protected
 
   def _optimise(self, cost, **kwargs):
+
+    self._actor_optimiser.zero_grad()
+    self._critic_optimiser.zero_grad()
+    cost.backward(retain_graph=True)
+    self._actor_optimiser.step()
+    self._critic_optimiser.step()
+
+    '''
     self._optimiser.zero_grad()
 
     cost.backward()
@@ -145,6 +140,7 @@ class PPOAgent(ActorCriticAgent):
       nn.utils.clip_grad_norm(self._critic.parameters(), self._max_grad_norm)
 
     self._optimiser.step()
+    '''
 
   def _sample_model(self, state, *args, **kwargs):
     '''
@@ -184,8 +180,7 @@ class PPOAgent(ActorCriticAgent):
                    initial_state,
                    environment,
                    n=100,
-                   render=False,
-                   render_frequency=100):
+                   render=False):
     state = initial_state
 
     accumulated_signal = 0
@@ -196,30 +191,26 @@ class PPOAgent(ActorCriticAgent):
     for t in T:
       # T.set_description(f'Step #{self._step_i} - {t}/{n}')
       self._step_i += 1
-      dist, value_estimates, *_ = self.sample_action(state)
-
-      action = dist._sample()
-      action_prob = dist.log_prob(action)
+      action, action_prob, value_estimates, *_ = self.sample_action(state)
 
       next_state, signal, terminated, _ = environment.react(action)
 
-      if render and self._rollout_i % render_frequency == 0:
+      if render:
         environment.render()
 
       successor_state = None
       if not terminated:  # If environment terminated then there is no successor state
         successor_state = next_state
 
-      transitions.append(
-          ValuedTransition(state,
-                           action,
-                           action_prob,
-                           value_estimates,
-                           signal,
-                           successor_state,
-                           not terminated,
-                           )
-          )
+      transitions.append(ValuedTransition(state,
+                                          action,
+                                          action_prob,
+                                          value_estimates,
+                                          signal,
+                                          successor_state,
+                                          terminated,
+                                          )
+                         )
 
       state = next_state
 
@@ -227,222 +218,125 @@ class PPOAgent(ActorCriticAgent):
 
       if terminated:
         state = environment.reset()
-        self._rollout_i += 1
 
     return transitions, accumulated_signal, terminated, state
 
-  def react(self):
-    pass
-
-
-
   def back_trace_advantages(self, transitions):
-    n_step_summary = ValuedTransition(*zip(*transitions))
 
-    advantages = U.advantage_estimate(n_step_summary.signal,
-                                      n_step_summary.non_terminal,
-                                      n_step_summary.value_estimate,
+    advantages = U.advantage_estimate(transitions.signal,
+                                      transitions.non_terminal,
+                                      transitions.value_estimate,
                                       discount_factor=self._discount_factor,
                                       tau=self._gae_tau,
                                       device=self._device
                                       )
 
-    value_estimates = U.to_tensor(n_step_summary.value_estimate, device=self._device)
+    value_estimates = U.to_tensor(transitions.value_estimate, device=self._device)
 
     discounted_returns = value_estimates + advantages
 
     i = 0
     advantage_memories = []
-    for step in zip(*n_step_summary):
+    for step in zip(*transitions):
       step = ValuedTransition(*step)
-      advantage_memories.append(
-          ValuedTransition(
-              step.state,
-              step.action,
-              discounted_returns[i],
-              step.successor_state,
-              step.terminal,
-              step.action_prob,
-              advantages[i]
-              )
-          )
+      advantage_memories.append(AdvantageDiscountedTransition(step.state,
+                                                              step.action,
+                                                              step.successor_state,
+                                                              step.terminal,
+                                                              step.action_prob,
+                                                              value_estimates,
+                                                              discounted_returns[i],
+                                                              advantages[i]
+                                                              )
+                                )
       i += 1
 
-    return advantage_memories
+    return AdvantageDiscountedTransition(*zip(*advantage_memories))
 
-  def evaluate3(self, batch, discrete=False, **kwargs):
+  def evaluate(self, batch: AdvantageDiscountedTransition, discrete=False, **kwargs):
     # region Tensorise
 
-    states = U.to_tensor(batch.state, device=self._device).view(-1, self._input_shape[0])
-
-    value_estimates = U.to_tensor(batch.value_estimate, device=self._device)
-
-    advantages = U.to_tensor(batch.advantage, device=self._device)
-
-    discounted_returns = U.to_tensor(batch.discounted_return, device=self._device)
-
-    action_probs_old = U.to_tensor(batch.action_prob, device=self._device).view(-1, self._output_shape[0])
+    states = to_tensor(batch.state, device=self._device)
+    value_estimates = to_tensor(batch.value_estimate, device=self._device)
+    advantages = to_tensor(batch.advantage, device=self._device)
+    discounted_returns = to_tensor(batch.discounted_return, device=self._device)
+    action_log_probs_old = to_tensor(batch.action_prob, device=self._device)
 
     # endregion
 
     advantage = (advantages - advantages.mean()) / (advantages.std() + self._divide_by_zero_safety)
 
-    *_, action_probs_new, distribution = self._sample_model(states)
+    *_, action_log_probs_new, distribution = self._sample_model(states)
 
     if discrete:
       actions = U.to_tensor(batch.action, device=self._device).view(-1, self._output_shape[0])
-      action_probs_old = action_probs_old.gather(1, actions)
-      action_probs_new = action_probs_new.gather(1, actions)
+      action_log_probs_old = action_log_probs_old.gather(1, actions)
+      action_log_probs_new = action_log_probs_new.gather(1, actions)
 
-    ratio = (action_probs_new - action_probs_old).exp()
+    ratio = (action_log_probs_new - action_log_probs_old).exp()
     # Generated action probs from (new policy) and (old policy).
     # Values of [0..1] means that actions less likely with the new policy,
     # while values [>1] mean action a more likely now
-
     surrogate = ratio * advantage
-
     clamped_ratio = torch.clamp(ratio,
                                 min=1. - self._surrogate_clipping_value,
                                 max=1. + self._surrogate_clipping_value)
     surrogate_clipped = clamped_ratio * advantage  # (L^CLIP)
 
-    policy_loss = -torch.min(surrogate, surrogate_clipped).mean()
+    policy_loss = torch.min(surrogate, surrogate_clipped).mean()
+    entropy_loss = distribution.entropy().mean() * self._entropy_reg_coef
+    policy_loss -= entropy_loss
 
-    entropy_loss = distribution.entropy().mean()
+    value_error = F.mse_loss(value_estimates, discounted_returns) * self._value_reg_coef
+    collective_cost = policy_loss + value_error
 
-    # value_error = (value_estimates - discounted_returns).pow(2).mean()
-    value_error = F.mse_loss(value_estimates, discounted_returns)
-
-    collective_cost = policy_loss + value_error * self._value_reg_coef - entropy_loss * self._entropy_reg_coef
-
-    return collective_cost, policy_loss, value_error
-
-  def evaluate2(self,
-                *,
-                states,
-                actions,
-                log_probs,
-                returns,
-                advantage,
-                **kwargs):
-    action_out, action_log_prob, value_estimate, distribution = self._sample_model(states)
-
-    old_log_probs = log_probs
-    new_log_probs = distribution.log_prob(actions)
-
-    ratio = (new_log_probs - old_log_probs).exp()
-    surrogate = ratio * advantage
-    surrogate_clipped = (torch.clamp(ratio,
-                                     1.0 - self._surrogate_clipping_value,
-                                     1.0 + self._surrogate_clipping_value)
-                         * advantage)
-
-    actor_loss = - torch.min(surrogate, surrogate_clipped).mean()
-    # critic_loss = (value_estimate-returns).pow(2).mean()
-    critic_loss = F.mse_loss(value_estimate, returns)
-
-    entropy = distribution.entropy().mean()
-
-    loss = self._value_reg_coef * critic_loss + actor_loss - entropy + self._entropy_reg_coef
-    return loss, new_log_probs, old_log_probs
+    return collective_cost, policy_loss, value_error,
 
   def update_targets(self, *args, **kwargs) -> None:
     self.update_target(target_model=self._target_actor,
                        source_model=self._actor,
                        target_update_tau=self._target_update_tau)
+
     self.update_target(target_model=self._target_critic,
                        source_model=self._critic,
                        target_update_tau=self._target_update_tau)
 
-  def evaluate(self, batch, _last_value_estimate, discrete=False, **kwargs):
-    returns_ = U.compute_gae(_last_value_estimate,
-                             batch.signal,
-                             batch.non_terminal,
-                             batch.value_estimate,
-                             discount_factor=self._discount_factor,
-                             tau=self._gae_tau)
+  def update_models(self, *, stat_writer=None, **kwargs) -> None:
 
-    returns = torch.cat(returns_).detach()
-    log_probs = torch.cat(batch.action_prob).detach()
-    values = torch.cat(batch.value_estimate).detach()
-    states = torch.cat(batch.state).view(-1, self._input_shape[0])
-    actions = to_tensor(batch.action).view(-1,self._output_shape[0])
-
-    advantage = returns - values
-
-    self.inner_ppo_update(states,
-                          actions,
-                          log_probs,
-                          returns,
-                          advantage)
+    self.ppo_updates(self.transitions)
 
     if self._step_i % self._update_target_interval == 0:
       self.update_targets()
 
-    return returns,log_probs,values,states,actions,advantage
+  def ppo_updates(self,
+                  batch,
+                  mini_batches=16
+                  ):
+    batch_size = len(batch) // mini_batches
+    #mini_batch_generator = DataLoader(batch, batch_size=batch_size, shuffle=True)
+    mini_batch_generator = self.ppo_mini_batch_iter(batch_size,batch)
+    for i in range(self._ppo_epochs):
+      for mini_batch in mini_batch_generator:
+        mini_batch_adv = self.back_trace_advantages(mini_batch)
+        loss, new_log_probs, old_log_probs = self.evaluate(mini_batch_adv)
 
-  def update_models(self, *, stat_writer = None, **kwargs) -> None:
-    pass
-    '''
-    batch = U.AdvantageMemory(*zip(*self._memory_buffer.sample()))
-    collective_cost, actor_loss, critic_loss = self.evaluate(batch)
+        self._optimise(loss)
 
-    self._optimise_wrt(collective_cost)
-    '''
+        #if self.tpro_kl_target_stop(old_log_probs, new_log_probs):
+        #  logging.info(f'Early stopping at update {i} due to reaching max kl.')
+        #  break
 
-  def inner_ppo_update(self,
-                       states,
-                       actions,
-                       log_probs,
-                       returns,
-                       advantages,
-                       ):
-    mini_batch_gen = self.ppo_mini_batch_iter(self._mini_batch_size,
-                                              states,
-                                              actions,
-                                              log_probs,
-                                              returns,
-                                              advantages)
-    for _ in range(self._ppo_epochs):
-      try:
-        batch = mini_batch_gen.__next__()
-      except StopIteration:
-        return
-
-      loss, new_log_probs, old_log_probs = self.evaluate2(**batch.as_dict())
-
-      self._actor_optimiser.zero_grad()
-      self._critic_optimiser.zero_grad()
-      loss.backward()
-      self._actor_optimiser.step()
-      self._critic_optimiser.step()
-
-      if self._update_early_stopping:
-        if self._update_early_stopping(old_log_probs, new_log_probs):
-          break
-
-
-
-
+  # endregion
 
   @staticmethod
   def ppo_mini_batch_iter(mini_batch_size: int,
-                          states: Any,
-                          actions: Any,
-                          log_probs: Any,
-                          returns: Any,
-                          advantage: Any) -> iter:
+                          batch) -> iter:
 
-    batch_size = actions.size(0)
+    batch_size = len(batch)
     for _ in range(batch_size // mini_batch_size):
       rand_ids = numpy.random.randint(0, batch_size, mini_batch_size)
-      yield NOD(states=states[rand_ids, :],
-                actions=actions[rand_ids, :],
-                log_probs=log_probs[rand_ids, :],
-                returns=returns[rand_ids, :],
-                advantage=advantage[rand_ids, :])
-
-  # endregion
+      a = batch[:, rand_ids]
+      yield ValuedTransition(*a)
 
 
 # region Test

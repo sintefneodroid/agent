@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 from agent.architectures import DDPGActorArchitecture, DDPGCriticArchitecture
-from agent.memory import TransitionBuffer
 from agent.exploration import OrnsteinUhlenbeckProcess
+from agent.memory import TransitionBuffer
+
 from .base_test_config import *
 
 __author__ = 'cnheider'

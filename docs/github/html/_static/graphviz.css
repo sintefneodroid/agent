@@ -10,10 +10,10 @@
  */
 
 img.graphviz {
-    border: 0;
-    max-width: 100%;
+  border: 0;
+  max-width: 100%;
 }
 
 object.graphviz {
-    max-width: 100%;
+  max-width: 100%;
 }

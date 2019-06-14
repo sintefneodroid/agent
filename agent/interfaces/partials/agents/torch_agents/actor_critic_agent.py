@@ -5,12 +5,11 @@ from abc import abstractmethod
 from itertools import count
 from typing import Any
 
-from tqdm import tqdm
-
 import draugr
 from agent.interfaces.partials.agents.torch_agent import TorchAgent
-from agent.interfaces.specifications import GDCS, ValuedTransition
+from agent.interfaces.specifications import GDCS
 from agent.memory import TransitionBuffer
+from tqdm import tqdm
 
 __author__ = 'cnheider'
 import torch
@@ -71,11 +70,11 @@ All value iteration agents should inherit from this class
 
       model = copy.deepcopy(self._critic)
       model.to('cpu')
-      #writer._graph(model, dummy_in)
+      # writer._graph(model, dummy_in)
 
       model = copy.deepcopy(self._actor)
       model.to('cpu')
-      #writer._graph(model, dummy_in)
+      # writer._graph(model, dummy_in)
 
     if verbose:
       actor_num_params = sum(param.numel() for param in self._actor.parameters())
@@ -185,7 +184,7 @@ All value iteration agents should inherit from this class
     for t in T:
       self._step_i += 1
 
-      action,*_ = self.sample_action(state, disallow_random_sample=not train)
+      action, *_ = self.sample_action(state, disallow_random_sample=not train)
       successor_state, signal, terminated, *_ = environment.step(action)
 
       if render:
