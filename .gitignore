@@ -118,5 +118,8 @@ ENV/
 agent/logs/*.csv
 
 
-exclude/
+*[Ee]xcluded.*
+*[Ee]xclude.*
+*[Ee]xcluded*
+*[Ee]xclude*
 /.project

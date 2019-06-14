@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-from tqdm import tqdm
-
+import draugr
 from agent.interfaces.specifications import TR, ValuedTransition
 from agent.utilities import to_tensor
+from tqdm import tqdm
 
 __author__ = 'cnheider'
 __doc__ = ''
@@ -15,71 +15,70 @@ def batched_training(C,
                      *,
                      num_steps=200,
                      rollouts=10000,
-                     render=True
+test_interval = 100,
+                     render_frequency=100,
+  disable_stdout = False
                      ) -> TR:
-  state = environment.reset()
-  state = state.observables
+  with draugr.TensorBoardXWriter(str(C.LOG_DIRECTORY)) as stat_writer:
+    state = environment.reset()
+    state = state.observables
 
-  B = range(1, rollouts)
-  B = tqdm(B, leave=False, disable=not render)
-  for i in B:
-    if agent._end_training:
-      break
+    B = range(1, rollouts)
+    B = tqdm(B, leave=False, disable=disable_stdout)
+    for i in B:
+      if agent.end_training:
+        break
 
-    batch_signal = []
-    transitions = []
+      batch_signal = []
+      transitions = []
 
-    state = to_tensor(state, device=C.DEVICE)
-    successor_state = None
+      state = to_tensor(state, device=C.DEVICE)
+      successor_state = None
 
-    S = range(num_steps)
-    S = tqdm(S, leave=False, disable=not render)
-    for _ in S:
+      S = range(num_steps)
+      S = tqdm(S, leave=False, disable=disable_stdout)
+      for aaaa in S:
 
-      action, action_log_prob, value_estimate,*_ = agent.sample_action(state)
+        action, action_log_prob, value_estimate, *_ = agent.sample_action(state)
 
-      successor_state, signal, terminated, *_ = environment.step(action)
+        successor_state, signal, terminated, *_ = environment.step(action)
 
-      batch_signal.append(signal)
+        batch_signal.append(signal)
 
-      successor_state = to_tensor(successor_state, device=C.DEVICE)
-      signal_ = to_tensor(signal, device=C.DEVICE)
-      terminated = to_tensor(terminated, device=C.DEVICE)
+        successor_state = to_tensor(successor_state, device=C.DEVICE)
+        signal_ = to_tensor(signal, device=C.DEVICE)
+        terminated = to_tensor(terminated, device=C.DEVICE)
 
-      transitions.append(ValuedTransition(state,
-                                          action,
-                                          signal_,
-                                          successor_state,
-                                          terminated,
-                                          value_estimate,
-                                          action_log_prob,
-                                          )
-                         )
+        transitions.append(ValuedTransition(state,
+                                            action,
+                                            signal_,
+                                            successor_state,
+                                            terminated,
+                                            value_estimate,
+                                            action_log_prob,
+                                            )
+                           )
 
-      state = successor_state
+        state = successor_state
 
-      agent._step_i += 1
+        #if i % test_interval == 0:
+          #test_signal, *_ = agent.rollout(successor_state, environment, render=True)
 
-      if agent._step_i % agent._test_interval == 0:
-        test_signal,*_ = agent.rollout(successor_state, environment,render=render)
+          #if test_signal > agent._solved_threshold and agent._early_stop:
+          #  agent.end_training = True
 
-        if test_signal > agent._solved_threshold and agent._early_stop:
-          agent._end_training = True
+      # stats.batch_signal.append(batch_signal)
 
-    # stats.batch_signal.append(batch_signal)
+      # only calculate value of next state for the last step this time
+      *_, agent._last_value_estimate, _ = agent._sample_model(successor_state)
 
-    # only calculate value of next state for the last step this time
-    *_, agent._last_value_estimate, _ = agent._sample_model(successor_state)
+      batch = ValuedTransition(*zip(*transitions))
 
-    batch = ValuedTransition(*zip(*transitions))
+      if len(batch) > 100:
+        agent.transitions=batch
+        agent.update_models()
 
-    if len(batch) > 100:
-      agent.evaluate(batch, agent._last_value_estimate)
-
-
-  return TR((agent._actor, agent._critic), None)
-
-
+  return TR(agent.models, None)
 
 
 '''
@@ -98,7 +97,7 @@ def train_episodically(self,
   B = tqdm(range(1, rollouts + 1), f'Batch {0}, {rollouts} - Rollout {self._rollout_i}', leave=False,
            disable=not render)
   for batch_i in B:
-    if self._end_training or batch_i > rollouts:
+    if self.end_training or batch_i > rollouts:
       break
 
     if batch_i % stat_frequency == 0:
@@ -131,7 +130,7 @@ def train_episodically(self,
         self.update_target(target_model=self._target_critic, source_model=self._critic,
                            target_update_tau=self._target_update_tau)
 
-    if self._end_training:
+    if self.end_training:
       break
 
   return self._actor, self._critic, []

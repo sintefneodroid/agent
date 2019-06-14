@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 from agent.architectures import MLP
+
 from .base_test_config import *
 
 __author__ = 'cnheider'

@@ -4,10 +4,9 @@ import time
 from itertools import count
 from typing import Any
 
-from tqdm import tqdm
-
 from agent.exceptions.exceptions import HasNoEnvError
 from neodroid.utilities import ActionSpace
+from tqdm import tqdm
 from warg.app_path import AppPath
 from warg.arguments import check_for_duplicates_in_args, get_upper_case_vars_or_protected_of
 
@@ -23,6 +22,8 @@ class Agent(ABC):
 All agent should inherit from this class
 '''
 
+  end_training = False  # End Training flag
+
   # region Private
 
   def __init__(self,
@@ -33,7 +34,7 @@ All agent should inherit from this class
     self._output_shape = None
     self._step_i = 0
     self._update_i = 0
-    self._end_training = False
+
     self._divide_by_zero_safety = 1e-10
     self._environment = environment
     self._log_directory = AppPath('NeodroidAgent').user_data / str(int(time.time()))
@@ -88,7 +89,7 @@ All agent should inherit from this class
       for frame_i in F:
         F.set_description(f'Frame {frame_i}')
 
-        action, *_ = self.sample_action(state,disallow_random_sample=True)
+        action, *_ = self.sample_action(state, disallow_random_sample=True)
         state, signal, terminated, info = environment.step(action)
         if render:
           environment.render()
@@ -97,7 +98,7 @@ All agent should inherit from this class
           break
 
   def stop_training(self) -> None:
-    self._end_training = True
+    self.end_training = True
 
   def build(self, env, **kwargs) -> None:
     self._environment = env
@@ -224,7 +225,7 @@ Tries to infer input and output size from env if either _input_shape or _output_
     raise NotImplementedError
 
   @abstractmethod
-  def update_models(self, *, stat_writer = None, **kwargs) -> None:
+  def update_models(self, *, stat_writer=None, **kwargs) -> None:
     raise NotImplementedError
 
   @abstractmethod

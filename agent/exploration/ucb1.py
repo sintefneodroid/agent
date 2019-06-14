@@ -1,4 +1,5 @@
 import math
+import sys
 
 from warg.named_ordered_dictionary import NOD
 
@@ -9,33 +10,34 @@ def index_of_max(x):
 
 
 class UCB1:
-  def __init__(self, n_arms):
-    self._counts = [0 for _ in range(n_arms)]
-    self._values = [0.0 for _ in range(n_arms)]
+  def __init__(self, n_options):
+    self._counts = [0 for _ in range(n_options)]
+    self._values = [1 / n_options for _ in range(n_options)]
 
   def select_arm(self):
-    n_arms = len(self._counts)
+    n_options = len(self._counts)
 
-    for arm in range(n_arms):
-      if self._counts[arm] == 0:
-        return arm
+    for option in range(n_options):
+      if self._counts[option] == 0:
+        return option
 
-    ucb_values = [0.0 for _ in range(n_arms)]
+    ucb_values = [0.0 for _ in range(n_options)]
     total_counts = sum(self._counts)
 
-    for arm in range(n_arms):
-      bonus = math.sqrt((2 * math.log(total_counts)) / float(self._counts[arm]))
-      ucb_values[arm] = self._values[arm] + bonus
+    for option in range(n_options):
+      bonus = math.sqrt((2 * math.log(total_counts)) / float(self._counts[option]))
+      ucb_values[option] = self._values[option] + bonus
 
     return index_of_max(ucb_values)
 
-  def update_belief(self, arm_index, signal):
-    self._counts[arm_index] = arm_draws = self._counts[arm_index] + 1
-    arm_draws_float = float(arm_draws)
+  def update_belief(self, option_index, signal):
+    self._counts[option_index] = options_counts_int = self._counts[option_index] + 1
+    options_counts_float = float(options_counts_int)
 
-    value = self._values[arm_index]
-    new_value = ((arm_draws - 1) / arm_draws_float) * value + (1 / arm_draws_float) * signal
-    self._values[arm_index] = new_value
+    value = self._values[option_index]
+    new_value = ((options_counts_float - 1) / options_counts_float) * value + (
+          1 / options_counts_float) * signal
+    self._values[option_index] = new_value
 
   @property
   def counts(self):
@@ -44,6 +46,13 @@ class UCB1:
   @property
   def values(self):
     return self._values
+
+  @property
+  def normalised_values(self):
+    normed = self._values.copy()
+    for i in range(len(self._values)):
+      normed[i] = self._values[i] / (sum(self._values) + sys.float_info.epsilon)
+    return normed
 
   def train(self,
             arms,

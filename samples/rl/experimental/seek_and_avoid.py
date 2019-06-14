@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 import draugr
+from draugr.stopping_key import add_early_stopping_key_combination
+from neodroid import NeodroidGymWrapper
 
 __author__ = 'cnheider'
 
@@ -10,22 +12,20 @@ from tqdm import tqdm
 
 tqdm.monitor_interval = 0
 
-from neodroid.wrappers.gym_wrapper import NeodroidGymWrapper as neo
 from agent import utilities as U
 
 
 def train_agent(config, agent):
-  neo.seed(config.SEED)
   torch.manual_seed(config.SEED)
 
-  env = neo(environment_name=config.ENVIRONMENT_NAME,
-            connect_to_running=config.CONNECT_TO_RUNNING
-            )
+  env = NeodroidGymWrapper(environment_name=config.ENVIRONMENT_NAME,
+                           connect_to_running=config.CONNECT_TO_RUNNING
+                           )
   env.seed(config.SEED)
 
   agent.build(env)
 
-  listener = U.add_early_stopping_key_combination(agent.stop_training)
+  listener = add_early_stopping_key_combination(agent.stop_training)
 
   listener.start()
   try:

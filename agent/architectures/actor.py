@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 import torch
+from agent.utilities import init_weights
 from torch import nn
 
-from agent.utilities import init_weights
 from .mlp import MLP
 
 __author__ = 'cnheider'

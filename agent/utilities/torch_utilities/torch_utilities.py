@@ -6,6 +6,7 @@ from typing import Iterable, Sequence
 
 import numpy
 import torch
+from torch.utils.data import Dataset
 
 __author__ = 'cnheider'
 
@@ -41,11 +42,18 @@ def log_shannon_entropy(log_prob):
 def to_tensor(obj, dtype=torch.float, device='cpu'):
   if not torch.is_tensor(obj):
     if isinstance(obj, numpy.ndarray):
-      return torch.from_numpy(numpy.array(obj)).to(device=device, dtype=dtype)
+      if torch.is_tensor(obj[0]):
+        return torch.cat(obj.tolist())
+      return torch.from_numpy(obj).to(device=device, dtype=dtype)
     elif not isinstance(obj, Sequence):
       obj = [obj]
     elif not isinstance(obj, list) and isinstance(obj, Iterable):
       obj = [*obj]
+      if torch.is_tensor(obj[0]) and len(obj[0].size()) >0:
+        return torch.cat(obj)
+    elif isinstance(obj, list):
+      if torch.is_tensor(obj[0]):
+        return torch.cat(obj)
     return torch.tensor(obj, device=device, dtype=dtype)
   else:
     return obj.type(dtype).to(device)
@@ -118,6 +126,35 @@ def channel_transform(inp):
   inp = inp.transpose((2, 0, 1))
   return inp
 
+
+class NonSequentialDataset(Dataset):
+  """
+   * ``N`` - number of parallel environments
+   * ``T`` - number of time steps explored in environments
+
+  Dataset that flattens ``N*T*...`` arrays into ``B*...`` (where ``B`` is equal to ``N*T``) and returns
+  such rows
+  one by one. So basically we loose information about sequence order and we return
+  for example one state, action and reward per row.
+
+  It can be used for ``Model``'s that does not need to keep the order of events like MLP models.
+
+  For ``LSTM`` use another implementation that will slice the dataset differently
+  """
+
+  def __init__(self, *arrays: numpy.ndarray) -> None:
+    """
+    :param arrays: arrays to be flattened from ``N*T*...`` to ``B*...`` and returned in each call to get
+    item
+    """
+    super().__init__()
+    self.arrays = [array.reshape(-1, *array.shape[2:]) for array in arrays]
+
+  def __getitem__(self, index):
+    return [array[index] for array in self.arrays]
+
+  def __len__(self):
+    return len(self.arrays[0])
 
 if __name__ == '__main__':
   eq = to_tensor([0.5, 0.5])

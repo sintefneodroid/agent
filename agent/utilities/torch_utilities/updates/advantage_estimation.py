@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+import numpy
+import scipy
+from scipy.signal import lfilter
 
 __author__ = 'cnheider'
 
@@ -66,11 +69,11 @@ def advantage_estimate(signal,
   return advantages
 
 
-def compute_gae(next_value,
+def compute_gae(*,
                 signals,
                 masks,
                 values,
-                *,
+                next_value,
                 discount_factor=0.99,
                 tau=0.95):
   with torch.no_grad():
@@ -82,3 +85,56 @@ def compute_gae(next_value,
       gae = delta + discount_factor * tau * masks[step] * gae
       returns.insert(0, gae + values[step])
   return returns
+
+def discount_cumsum(x, discount):
+  # See https://docs.scipy.org/doc/scipy/reference/tutorial/signal.html#difference-equation-filtering
+  # Here, we have y[t] - discount*y[t+1] = x[t]
+  # or rev(y)[t] - discount*rev(y)[t-1] = rev(x)[t]
+  return lfilter([1], [1, float(-discount)], x[::-1], axis=0)[::-1]
+
+
+def discount_return(x, discount):
+  return numpy.sum(x * (discount ** numpy.arange(len(x))))
+
+def compute_gae3(*,
+                signals,
+                masks,
+                values,
+                next_value,
+                discount_factor=0.99,
+                tau=0.95):
+  with torch.no_grad():
+    rews = numpy.append(signals, next_value)
+    vals = numpy.append(values, next_value)
+
+    # the next two lines implement GAE-Lambda advantage calculation
+    deltas = rews[:-1] + discount_factor * vals[1:] - vals[:-1]
+    GAELambdaAdv = discount_cumsum(deltas, discount_factor * tau)
+
+    # the next line computes rewards-to-go, to be targets for the value function
+    signals_to_go = discount_cumsum(rews, discount_factor)[:-1]
+
+
+def compute_gae2(rewards, values, bootstrap_values, terminals, gamma, lam):
+  # (N, T) -> (T, N)
+  rewards = numpy.transpose(rewards, [1, 0])
+  values = numpy.transpose(values, [1, 0])
+  values = numpy.vstack((values, [bootstrap_values]))
+  terminals = numpy.transpose(terminals, [1, 0])
+  # compute delta
+  deltas = []
+  for i in reversed(range(rewards.shape[0])):
+    V = rewards[i] + (1.0 - terminals[i]) * gamma * values[i + 1]
+    delta = V - values[i]
+    deltas.append(delta)
+  deltas = np.array(list(reversed(deltas)))
+  # compute gae
+  A = deltas[-1, :]
+  advantages = [A]
+  for i in reversed(range(deltas.shape[0] - 1)):
+    A = deltas[i] + (1.0 - terminals[i]) * gamma * lam * A
+    advantages.append(A)
+  advantages = reversed(advantages)
+  # (T, N) -> (N, T)
+  advantages = numpy.transpose(list(advantages), [1, 0])
+  return advantages

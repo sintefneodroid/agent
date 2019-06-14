@@ -16,6 +16,7 @@ TrainingSpecification = namedtuple('TrainingSpecification',
                                    ['constructor',
                                     'kwargs'])
 
+
 class TrainingSession(abc.ABC):
   def __init__(self, *, training_procedure, **kwargs):
     self._training_procedure = training_procedure

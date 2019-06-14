@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-from neodroid.wrappers import BinaryActionEncodingWrapper, NeodroidWrapper
-
 import draugr
+from neodroid.wrappers import BinaryActionEncodingWrapper, NeodroidWrapper
 from warg import get_upper_case_vars_or_protected_of, parse_arguments
 
 __author__ = 'cnheider'

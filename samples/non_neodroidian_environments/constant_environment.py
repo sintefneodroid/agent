@@ -66,10 +66,10 @@ if __name__ == '__main__':
   obs = env.reset()
   total = 0
   for t in range(10000):
-    gpu_stats = env.action_space.sample()
-    obs, signal, term, info = env.step(gpu_stats)
+    ac = env.action_space.sample()
+    obs, signal, term, info = env.step(ac)
     total += signal
-    print(gpu_stats, obs, signal, term, total)
+    print(ac, obs, signal, term, total)
     if term:
       obs = env.reset()
       total = 0

@@ -3,11 +3,10 @@
 from typing import Sequence
 
 import numpy
-from numpy import prod
-
-from agent.utilities import xavier_init
-from warg.named_ordered_dictionary import NOD
 from agent.interfaces.architecture import Architecture
+from agent.utilities import xavier_init
+from numpy import prod
+from warg.named_ordered_dictionary import NOD
 
 __author__ = 'cnheider'
 
@@ -39,7 +38,7 @@ OOOO hidden_layer_size * (Weights,Biases)
                output_shape: Sequence = (2,),
                use_bias: bool = True,
                auto_build_hidden_layers_if_none=True,
-               input_multiplier=32,
+               input_multiplier=16,
                output_multiplier=16,
                **kwargs
                ):

@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 from agent.architectures import CNN
 from agent.utilities import ReplayBuffer
+
 from .base_test_config import *
 
 __author__ = 'cnheider'

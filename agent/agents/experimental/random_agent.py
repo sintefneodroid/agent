@@ -2,10 +2,9 @@ import time
 from itertools import count
 from typing import Any, Tuple
 
-from tqdm import tqdm
-
 import draugr
 from agent.interfaces.partials.agents.torch_agent import TorchAgent
+from tqdm import tqdm
 
 
 class RandomAgent(TorchAgent):
@@ -62,7 +61,7 @@ class RandomAgent(TorchAgent):
       stats.duration.append(dur)
       stats.signal.append(signal)
 
-      if self._end_training:
+      if self.end_training:
         break
 
     time_elapsed = time.time() - training_start_timestamp
