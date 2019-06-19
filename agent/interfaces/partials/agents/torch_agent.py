@@ -32,12 +32,18 @@ All agent should inherit from this class
     super().__init__(*args, **kwargs)
 
   @property
-  def device(self):
+  def device(self) -> torch.device:
     return self._device
+
+
+
+  # endregion
+
+  # Abstract Public
 
   @property
   @abstractmethod
-  def models(self):
+  def models(self) -> tuple:
     raise NotImplementedError
 
   # endregion

@@ -1,14 +1,15 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 import time
-from pathlib import Path
 
 import torch
 import torch.nn.functional as F
 from agent.architectures import CategoricalMLP
 from agent.interfaces.specifications.exploration_specification import ExplorationSpecification
 from agent.interfaces.specifications.generalised_delayed_construction_specification import GDCS
+from agent.version import PROJECT_APP_PATH
 from warg.named_ordered_dictionary import NOD
+
 
 __author__ = 'cnheider'
 '''
@@ -16,9 +17,13 @@ Description: Config for training
 Author: Christian Heider Nielsen
 '''
 
-PROJECT = 'Neodroid'
 CONFIG_NAME = __name__
 CONFIG_FILE = __file__
+CONFIG_AUTHOR = __author__
+# APP_PATH = Path.cwd()
+# APP_PATH = Path.home()
+LOAD_TIME = str(int(time.time()))
+
 VERBOSE = False
 USE_LOGGING = True
 
@@ -66,11 +71,10 @@ OPTIMISER_SPEC = GDCS(torch.optim.Adam, NOD(lr=3e-4,
                                             eps=1e-2))
 
 # Paths
-# PROJECT_DIRECTORY = Path.cwd()
-PROJECT_DIRECTORY = Path.home() / 'Models' / 'Neodroid' / ENVIRONMENT_NAME / str(int(time.time()))
-MODEL_DIRECTORY = PROJECT_DIRECTORY / 'models'
-CONFIG_DIRECTORY = PROJECT_DIRECTORY / 'configs'
-LOG_DIRECTORY = PROJECT_DIRECTORY / 'logs'
+
+MODEL_DIRECTORY = PROJECT_APP_PATH.user_data / ENVIRONMENT_NAME / LOAD_TIME / 'models'
+CONFIG_DIRECTORY = PROJECT_APP_PATH.user_data / ENVIRONMENT_NAME / LOAD_TIME / 'configs'
+LOG_DIRECTORY = PROJECT_APP_PATH.user_log / ENVIRONMENT_NAME / LOAD_TIME
 
 # CUDA
 USE_CUDA = True

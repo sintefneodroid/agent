@@ -39,24 +39,29 @@ def log_shannon_entropy(log_prob):
   # return - torch.sum(torch.exp(log_prob) * log_prob, -1)
 
 
-def to_tensor(obj, dtype=torch.float, device='cpu'):
-  if not torch.is_tensor(obj):
-    if isinstance(obj, numpy.ndarray):
-      if torch.is_tensor(obj[0]):
-        return torch.cat(obj.tolist())
-      return torch.from_numpy(obj).to(device=device, dtype=dtype)
-    elif not isinstance(obj, Sequence):
-      obj = [obj]
-    elif not isinstance(obj, list) and isinstance(obj, Iterable):
-      obj = [*obj]
-      if torch.is_tensor(obj[0]) and len(obj[0].size()) >0:
-        return torch.cat(obj)
-    elif isinstance(obj, list):
-      if torch.is_tensor(obj[0]):
-        return torch.cat(obj)
-    return torch.tensor(obj, device=device, dtype=dtype)
-  else:
-    return obj.type(dtype).to(device)
+def to_tensor(obj, dtype=torch.float, device='cpu', non_blocking=True):
+  if torch.is_tensor(obj):
+    return obj.to(device, dtype=dtype,non_blocking=non_blocking)
+
+  if isinstance(obj, numpy.ndarray):
+    if torch.is_tensor(obj[0]):
+      return torch.cat(obj.tolist())
+    return torch.from_numpy(obj).to(device=device,
+                                    dtype=dtype,
+                                    non_blocking=non_blocking)
+
+  if not isinstance(obj, Sequence):
+    obj = [obj]
+  elif not isinstance(obj, list) and isinstance(obj, Iterable):
+    obj = [*obj]
+
+  if isinstance(obj, list):
+    if torch.is_tensor(obj[0]) and len(obj[0].size()) > 0:
+      return torch.cat(obj)
+
+  return torch.tensor(obj, device=device, dtype=dtype)
+
+
 
 
 def torch_pi(device='cpu'):

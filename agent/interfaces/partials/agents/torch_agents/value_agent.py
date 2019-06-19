@@ -64,8 +64,9 @@ All value iteration agents should inherit from this class
       draugr.sprint(f'trainable/num_params: {num_trainable_params}/{num_params}\n', highlight=True,
                     color='cyan')
 
+  @property
   def models(self):
-    return [self._value_model]
+    return (self._value_model,)
 
   def epsilon_random(self, steps_taken):
     '''

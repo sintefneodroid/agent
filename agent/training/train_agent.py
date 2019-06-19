@@ -1,32 +1,28 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-from agent.interfaces.specifications import TrainingSession
-
-__author__ = 'cnheider'
-__doc__ = ''
-
-import time
-
-from agent.training.procedures import train_episodically
-
 import glob
 import os
-
-import torch
-from agent import utilities as U
-import gym
+import time
 from collections import Iterable
 from itertools import count
 
 import draugr
-from draugr.stopping_key import add_early_stopping_key_combination
+import gym
+import torch
+from agent import utilities as U
 from agent.exceptions.exceptions import NoTrainingProcedure
-from neodroid.api_wrappers.action_encoding_wrappers import DiscreteActionEncodingWrapper
-from neodroid.api_wrappers.gym_wrapper.gym_wrapper import NeodroidWrapper
+from agent.interfaces.specifications import TrainingSession
+from agent.training.procedures import train_episodically
+from agent.utilities import save_model
+from draugr.stopping_key import add_early_stopping_key_combination
+from neodroid.wrappers import NeodroidWrapper
+from neodroid.wrappers.action_encoding_wrappers import DiscreteActionEncodingWrapper
 from trolls.multiple_environments_wrapper import SubProcessEnvironments, make_gym_env
 from trolls.wrappers.vector_environments import VectorWrap
 from warg.arguments import get_upper_case_vars_or_protected_of, parse_arguments
 
+__author__ = 'cnheider'
+__doc__ = ''
 
 
 class linear_training(TrainingSession):
@@ -134,7 +130,7 @@ class parallelised_training(TrainingSession):
                                                  rollouts=config.ROLLOUTS)
     except KeyboardInterrupt:
       for identifier, model in enumerate(agent.models):
-        U.save_model(model, config, name=f'{agent}-{identifier}-interrupted')
+        save_model(model, config, name=f'{agent}-{identifier}-interrupted')
       exit()
     finally:
       if listener:
@@ -147,11 +143,11 @@ class parallelised_training(TrainingSession):
     if save and training_resume:
       if isinstance(training_resume.models, Iterable):
         for identifier, model in enumerate(training_resume.models):
-          U.save_model(model, config, name=f'{agent}-{identifier}')
+          save_model(model, config, name=f'{agent}-{identifier}')
       else:
-        U.save_model(training_resume.models,
-                     config,
-                     name=f'{agent}-0')
+        save_model(training_resume.models,
+                   config,
+                   name=f'{agent}-0')
 
         if 'stats' in training_resume:
           training_resume.stats.save(project_name=config.PROJECT,

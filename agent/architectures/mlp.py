@@ -118,7 +118,7 @@ OOOO hidden_layer_size * (Weights,Biases)
     #      layer = getattr(self, 'fc' + str(i))
     #      x = F.relu(layer(x))
 
-    val = x  # .view(x.size(0), -1)
+    val = x
     for i in range(1, self.num_of_layer + 1):
       layer = getattr(self, f'_fc{i}')
       val = layer(val)

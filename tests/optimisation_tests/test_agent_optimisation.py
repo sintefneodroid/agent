@@ -13,28 +13,28 @@ __doc__ = 'Tests of agents'
 
 
 @pytest.mark.slow
-def test_pg_agent():
+def test_pg_agent_optimisation():
   env = NeodroidWrapper(None)
   agent = PGAgent()
   # agent_test(agent,env)
 
 
 @pytest.mark.slow
-def test_dqn_agent():
+def test_dqn_agent_optimisation():
   env = NeodroidWrapper(None)
   agent = DQNAgent()
   # agent_test(agent,env)
 
 
 @pytest.mark.slow
-def test_ppo_agent():
+def test_ppo_agent_optimisation():
   env = NeodroidWrapper(None)
   agent = PPOAgent()
   # agent_test(agent,env)
 
 
 @pytest.mark.slow
-def test_ddpg_agent():
+def test_ddpg_agent_optimisation():
   env = NeodroidWrapper(None)
   agent = DDPGAgent()
   # agent_test(agent, env)

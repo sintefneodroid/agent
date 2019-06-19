@@ -4,8 +4,10 @@ import time
 from itertools import count
 from typing import Any
 
+import draugr
 from agent.exceptions.exceptions import HasNoEnvError
-from neodroid.utilities import ActionSpace
+from neodroid.environments.environment import Environment
+from neodroid.interfaces.spaces import ActionSpace
 from tqdm import tqdm
 from warg.app_path import AppPath
 from warg.arguments import check_for_duplicates_in_args, get_upper_case_vars_or_protected_of
@@ -142,7 +144,7 @@ All agent should inherit from this class
   def _post_io_inference(self, env) -> None:
     pass
 
-  def _infer_io_shapes(self, env) -> None:
+  def _infer_io_shapes(self, env: Environment, print_inferred_io_shapes=True) -> None:
     '''
 Tries to infer input and output size from env if either _input_shape or _output_shape, is None or -1 (int)
 
@@ -153,35 +155,36 @@ Tries to infer input and output size from env if either _input_shape or _output_
       if len(env.observation_space.shape) >= 1:
         self._input_shape = env.observation_space.shape
       else:
-        self._input_shape = (env.observation_space.space.n, 1)
+        self._input_shape = (env.observation_space.space.n, )
 
     if self._output_shape is None or self._output_shape == -1:
       if isinstance(env.action_space, ActionSpace):
         if env.action_space.is_discrete:
           self._output_shape = (env.action_space.num_discrete_actions, 1)
         else:
-          self._output_shape = (env.action_space.n, 1)
+          self._output_shape = (env.action_space.n, )
       elif len(env.action_space.shape) >= 1:
         self._output_shape = env.action_space.shape
       else:
-        self._output_shape = (env.action_space.n, 1)
+        self._output_shape = (env.action_space.n, )
 
     self._post_io_inference(env)
 
     # region print
-    '''
-    draugr.sprint(f'observation dimensions: {self._input_shape}\n'
-                  f'observation_space: {env.observation_space}\n',
-                  color='green',
-                  bold=True,
-                  highlight=True)
 
-    draugr.sprint(f'action dimensions: {self._output_shape}\n'
-                  f'action_space: {env.action_space}\n',
-                  color='yellow',
-                  bold=True,
-                  highlight=True)
-    '''
+    if print_inferred_io_shapes:
+      draugr.sprint(f'observation dimensions: {self._input_shape}\n'
+                    f'observation_space: {env.observation_space}\n',
+                    color='green',
+                    bold=True,
+                    highlight=True)
+
+      draugr.sprint(f'action dimensions: {self._output_shape}\n'
+                    f'action_space: {env.action_space}\n',
+                    color='yellow',
+                    bold=True,
+                    highlight=True)
+
     # endregion
 
   # endregion

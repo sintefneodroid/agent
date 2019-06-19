@@ -4,8 +4,11 @@ import re
 from setuptools import find_packages
 
 with open(pathlib.Path(__file__).parent / "agent" / "version.py", "r") as f:
+  content = f.read()
   # get version string from module
-  version = re.search(r"__version__ = ['\"]([^'\"]*)['\"]", f.read(), re.M).group(1)
+  version = re.search(r"__version__ = ['\"]([^'\"]*)['\"]", content, re.M).group(1)
+
+  project_name = re.search(r"PROJECT_NAME = ['\"]([^'\"]*)['\"]", content, re.M).group(1)
 
 
 class NeodroidAgentPackage:
@@ -25,7 +28,7 @@ class NeodroidAgentPackage:
 
   @property
   def package_name(self) -> str:
-    return 'NeodroidAgent'
+    return project_name
 
   @property
   def url(self) -> str:
@@ -89,7 +92,8 @@ class NeodroidAgentPackage:
         'neodroid-dqn = agent.agents.dqn_agent:dqn_run',
         'neodroid-pg = agent.agents.pg_agent:pg_run',
         'neodroid-ddpg = agent.agents.dppg_agent:ddpg_test',
-        'neodroid-cma = agent.agents.experimental.cma_agent:cma_test'
+        'neodroid-cma = agent.agents.experimental.cma_agent:cma_test',
+        'neodroid-tb = agent.utilities.extra_entry_points.tensorboard_entry_point:main',
         # 'neodroid-evo = agents.evo_agent:main'
         ]
       }
@@ -164,4 +168,5 @@ class NeodroidAgentPackage:
 
 
 if __name__ == '__main__':
+  print(project_name)
   print(version)

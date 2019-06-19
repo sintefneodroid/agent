@@ -10,7 +10,7 @@ from agent.interfaces.specifications.generalised_delayed_construction_specificat
 from agent.memory import TrajectoryBuffer
 from agent.training.procedures import train_episodically
 from agent.training.train_agent import parallelised_training, train_agent
-from neodroid.models import EnvironmentState
+from neodroid.interfaces.environment_models import EnvironmentState
 from neodroid.utilities.transformations.encodings import to_one_hot
 from warg.named_ordered_dictionary import NOD
 
@@ -43,13 +43,14 @@ class PGAgent(PolicyAgent):
     self._evaluation_function = torch.nn.CrossEntropyLoss()
     self._trajectory_trace = TrajectoryBuffer()
 
-    self._policy_arch_spec = GDCS(CategoricalMLP, NOD(**{
-      'input_shape':            None,  # Obtain from environment
-      'hidden_layers':          None,
-      'output_shape':           None,  # Obtain from environment
-      'hidden_layer_activation':torch.relu,
-      'use_bias':               True,
-      }))
+    self._policy_arch_spec = GDCS(CategoricalMLP, NOD(**{'input_shape':            None,
+                                                         # Obtain from environment
+                                                         'hidden_layers':          None,
+                                                         'output_shape':           None,
+                                                         # Obtain from environment
+                                                         'hidden_layer_activation':torch.relu,
+                                                         'use_bias':               True,
+                                                         }))
 
     self._use_cuda = False
     self._discount_factor = 0.99
@@ -91,10 +92,10 @@ class PGAgent(PolicyAgent):
 
   def _sample_model(self, state, *args, **kwargs):
 
-    if self._discrete:
+    if self._policy_arch_spec.kwargs['discrete']:
       return self.sample_discrete_action(state)
 
-    return (*self.sample_continuous_action(state), None)
+    return self.sample_continuous_action(state)
 
   # endregion
 
@@ -130,7 +131,8 @@ class PGAgent(PolicyAgent):
       entropy = distribution.entropy()  # .mean()
       action = action.to('cpu').numpy().tolist()
 
-    '''eps = torch.randn(mean.size()).to(self._device)
+    '''
+    eps = torch.randn(mean.size()).to(self._device)
     # calculate the probability
     a = mean + sigma_sq.sqrt() * eps
     action = a.data
@@ -148,7 +150,7 @@ class PGAgent(PolicyAgent):
     log_prob = prob.log()
     '''
 
-    return action, log_prob, entropy
+    return action, log_prob, entropy, distribution
 
   def evaluate(self, **kwargs):
     if not len(self._trajectory_trace) > 0:
@@ -343,6 +345,6 @@ def pg_run(rollouts=None, skip=True):
 
 
 if __name__ == '__main__':
-  pg_test()
-  # pg_run()
+  #pg_test()
+  pg_run()
 # endregion

@@ -15,9 +15,9 @@ def batched_training(C,
                      *,
                      num_steps=200,
                      rollouts=10000,
-test_interval = 100,
+                     test_interval=100,
                      render_frequency=100,
-  disable_stdout = False
+                     disable_stdout=False
                      ) -> TR:
   with draugr.TensorBoardXWriter(str(C.LOG_DIRECTORY)) as stat_writer:
     state = environment.reset()
@@ -61,11 +61,11 @@ test_interval = 100,
 
         state = successor_state
 
-        #if i % test_interval == 0:
-          #test_signal, *_ = agent.rollout(successor_state, environment, render=True)
+        # if i % test_interval == 0:
+        # test_signal, *_ = agent.rollout(successor_state, environment, render=True)
 
-          #if test_signal > agent._solved_threshold and agent._early_stop:
-          #  agent.end_training = True
+        # if test_signal > agent._solved_threshold and agent._early_stop:
+        #  agent.end_training = True
 
       # stats.batch_signal.append(batch_signal)
 
@@ -75,7 +75,7 @@ test_interval = 100,
       batch = ValuedTransition(*zip(*transitions))
 
       if len(batch) > 100:
-        agent.transitions=batch
+        agent.transitions = batch
         agent.update_models()
 
   return TR(agent.models, None)

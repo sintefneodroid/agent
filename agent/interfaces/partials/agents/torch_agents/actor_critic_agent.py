@@ -154,6 +154,7 @@ All value iteration agents should inherit from this class
     self._critic = self._critic.to(self._device)
     self._target_critic = self._target_critic.to(self._device)
 
+  @property
   def models(self):
     return self._actor, self._critic
 

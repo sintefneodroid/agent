@@ -1,9 +1,8 @@
 #!/usr/local/bin/python
 # coding: utf-8
-import logging
-from typing import Any
 
 import numpy
+
 from agent.architectures import DDPGActorArchitecture, DDPGCriticArchitecture
 from agent.interfaces.partials.agents.torch_agents.actor_critic_agent import ActorCriticAgent
 from agent.interfaces.specifications import AdvantageDiscountedTransition, ValuedTransition
@@ -11,7 +10,6 @@ from agent.interfaces.specifications.generalised_delayed_construction_specificat
 from agent.training.procedures import batched_training
 from agent.training.train_agent import parallelised_training, train_agent
 from agent.utilities import to_tensor
-from torch.utils.data import DataLoader, Dataset
 from warg.named_ordered_dictionary import NOD
 
 __author__ = 'cnheider'
@@ -105,8 +103,8 @@ class PPOAgent(ActorCriticAgent):
     :return:
     '''
 
-    #kl_divergence = torch.distributions.kl_divergence(old_log_probs, new_log_probs)
-    kl_divergence = (old_log_probs -new_log_probs).mean()
+    # kl_divergence = torch.distributions.kl_divergence(old_log_probs, new_log_probs)
+    kl_divergence = (old_log_probs - new_log_probs).mean()
     if kl_divergence > 4 * kl_target:
       return True
 
@@ -313,8 +311,8 @@ class PPOAgent(ActorCriticAgent):
                   mini_batches=16
                   ):
     batch_size = len(batch) // mini_batches
-    #mini_batch_generator = DataLoader(batch, batch_size=batch_size, shuffle=True)
-    mini_batch_generator = self.ppo_mini_batch_iter(batch_size,batch)
+    # mini_batch_generator = DataLoader(batch, batch_size=batch_size, shuffle=True) #pin_memory=True
+    mini_batch_generator = self.ppo_mini_batch_iter(batch_size, batch)
     for i in range(self._ppo_epochs):
       for mini_batch in mini_batch_generator:
         mini_batch_adv = self.back_trace_advantages(mini_batch)
@@ -322,7 +320,7 @@ class PPOAgent(ActorCriticAgent):
 
         self._optimise(loss)
 
-        #if self.tpro_kl_target_stop(old_log_probs, new_log_probs):
+        # if self.tpro_kl_target_stop(old_log_probs, new_log_probs):
         #  logging.info(f'Early stopping at update {i} due to reaching max kl.')
         #  break
 
@@ -330,7 +328,7 @@ class PPOAgent(ActorCriticAgent):
 
   @staticmethod
   def ppo_mini_batch_iter(mini_batch_size: int,
-                          batch) -> iter:
+                          batch: ValuedTransition) -> iter:
 
     batch_size = len(batch)
     for _ in range(batch_size // mini_batch_size):

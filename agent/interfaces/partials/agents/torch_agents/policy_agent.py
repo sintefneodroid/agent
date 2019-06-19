@@ -8,6 +8,7 @@ import draugr
 from agent.architectures import Architecture
 from agent.interfaces.partials.agents.torch_agent import TorchAgent
 from agent.interfaces.specifications import GDCS
+from neodroid.environments.environment import Environment
 
 __author__ = 'cnheider'
 
@@ -82,9 +83,10 @@ class PolicyAgent(TorchAgent):
 
   # region Protected
 
-  def _post_io_inference(self, env):
+  def _post_io_inference(self, env:Environment):
     self._policy_arch_spec.kwargs['input_shape'] = self._input_shape
     self._policy_arch_spec.kwargs['output_shape'] = self._output_shape
+    self._policy_arch_spec.kwargs['discrete'] = env.action_space.is_discrete
 
   # endregion
 

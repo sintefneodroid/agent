@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+from agent.interfaces.specifications import TR
 
 __author__ = 'cnheider'
 __doc__ = ''
@@ -15,7 +16,7 @@ def step_wise_training(C,
                        num_updates,
                        num_batches,
                        stat_frequency,
-                       render_frequency):
+                       render_frequency) -> TR:
   B = range(1, num_updates + 1)
   B = tqdm(B, f'Batch {0}, {num_batches} - Episode {agent._rollout_i}',
            leave=False)
@@ -59,4 +60,4 @@ def step_wise_training(C,
     if agent.end_training:
       break
 
-  return agent._actor_critic, []
+  return TR(agent.models, [])
