@@ -2,20 +2,21 @@
 # -*- coding: utf-8 -*-
 import time
 
+import torch
+from neodroid.wrappers.curriculum_wrapper.curriculum_wrapper import \
+  BinaryActionEncodingCurriculumEnvironment
+from tqdm import tqdm
+
 import agent.configs.curriculum.curriculum_config as C
 import draugr
-import torch
 from agent.agents.pg_agent import PGAgent
 from agent.exploration import sample
 from neodroid import NeodroidWrapper
-from neodroid.api_wrappers.curriculum_wrapper.curriculum_wrapper import \
-  BinaryActionEncodingCurriculumEnvironment
 from samples.rl.curriculum.grid_world import (display_actor_configurations,
                                               estimate_entire_state_space,
                                               estimate_initial_state_expected_return,
                                               get_initial_configuration_from_goal,
                                               )
-from tqdm import tqdm
 from warg.arguments import get_upper_case_vars_or_protected_of
 
 __author__ = 'cnheider'

@@ -18,6 +18,7 @@ INITIAL_OBSERVATION_PERIOD = 0
 LEARNING_FREQUENCY = 1
 REPLAY_MEMORY_SIZE = 10000
 MEMORY = ReplayBuffer(REPLAY_MEMORY_SIZE)
+EXPLORATION_SPEC = ExplorationSpecification(0.99, 0.05, 10000)
 
 BATCH_SIZE = 128
 DISCOUNT_FACTOR = 0.999
@@ -31,10 +32,9 @@ SYNC_TARGET_MODEL_FREQUENCY = 1000
 OPTIMISER_SPEC = GDCS(torch.optim.RMSprop, {})  # torch.optim.Adam
 
 # Architecture
-VALUE_ARCH_SPEC = GDCS(MLP, NOD(**{
-  'input_shape':            None,  # Obtain from environment
-  'hidden_layers':          None,
-  'output_shape':           None,  # Obtain from environment
-  'hidden_layer_activation':torch.relu,
-  'use_bias':               True,
-  }))
+VALUE_ARCH_SPEC = GDCS(MLP, NOD(**{'input_shape':            None,  # Obtain from environment
+                                   'hidden_layers':          None,
+                                   'output_shape':           None,  # Obtain from environment
+                                   'hidden_layer_activation':torch.relu,
+                                   'use_bias':               True,
+                                   }))

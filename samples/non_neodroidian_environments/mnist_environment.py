@@ -2,10 +2,11 @@ import os.path as osp
 import tempfile
 
 import filelock
+import matplotlib.pyplot as plt
 import numpy as np
 from gym import Env
 from gym.spaces import Box, Discrete
-import matplotlib.pyplot as plt
+
 
 class MnistEnv(Env):
   def render(self, mode='human'):
@@ -54,8 +55,6 @@ class MnistEnv(Env):
       terminal = True
 
     return self.state[0], signal, terminal, {}
-
-
 
   def train_mode(self):
     self.dataset = self.mnist.train

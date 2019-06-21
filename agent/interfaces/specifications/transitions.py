@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-from typing import Any, Iterable, Sequence
+from typing import Any, Sequence
 
 import numpy
 import torch
 from attr import dataclass
 from torch import Tensor
-from warg.mixins import IterValuesMixin, IndexDictTuplesMixin
+
+from warg.mixins import IndexDictTuplesMixin, IterValuesMixin
 
 __author__ = 'cnheider'
 
@@ -29,7 +30,7 @@ class Transition(IterValuesMixin, IndexDictTuplesMixin):
 
   @property
   def non_terminal(self):
-    if isinstance(self.terminal, (numpy.ndarray,Sequence)):
+    if isinstance(self.terminal, (numpy.ndarray, Sequence)):
       if isinstance(self.terminal[0], Tensor):
         return [1 - t for t in self.terminal]
       return [numpy.invert(t) for t in self.terminal]
@@ -65,13 +66,14 @@ class ValuedTransition(Transition):
   action_prob: Any
   value_estimate: Any
 
+
 @dataclass
 class AdvantageDiscountedTransition(IterValuesMixin):
   '''
     __slots__=['state','action','signal','successor_state','terminal','action_prob','value_estimate']
   '''
-  __slots__ = ['state','action','successor_state','terminal','action_prob',
-               'value_estimate','discounted_return','advantage']
+  __slots__ = ['state', 'action', 'successor_state', 'terminal', 'action_prob',
+               'value_estimate', 'discounted_return', 'advantage']
   state: Any
   action: Any
   successor_state: Any

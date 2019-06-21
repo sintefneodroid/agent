@@ -2,9 +2,10 @@ import time
 from itertools import count
 from typing import Any, Tuple
 
-import draugr
-from agent.interfaces.partials.agents.torch_agent import TorchAgent
 from tqdm import tqdm
+
+import draugr
+from agent.interfaces.partials.agents.torch_agents.torch_agent import TorchAgent
 
 
 class RandomAgent(TorchAgent):
@@ -21,10 +22,10 @@ class RandomAgent(TorchAgent):
   def _build(self, **kwargs) -> None:
     pass
 
-  def _optimise_wrt(self, error, *args, **kwargs) -> None:
+  def _optimise_wrt(self, error, **kwargs) -> None:
     pass
 
-  def _sample_model(self, state, *args, **kwargs) -> Any:
+  def _sample_model(self, state, **kwargs) -> Any:
     pass
 
   def _train_procedure(self,

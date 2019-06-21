@@ -1,25 +1,28 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+from tqdm import tqdm
+
 import draugr
 from agent.interfaces.specifications import TR, ValuedTransition
 from agent.utilities import to_tensor
-from tqdm import tqdm
 
 __author__ = 'cnheider'
 __doc__ = ''
 
 
-def batched_training(C,
-                     agent,
+def batched_training(agent,
                      environment,
                      *,
+                     device,
+                     log_directory,
                      num_steps=200,
                      rollouts=10000,
-                     test_interval=100,
+                     stat_frequency=100,
                      render_frequency=100,
-                     disable_stdout=False
+                     disable_stdout=False,
+                     **kwargs
                      ) -> TR:
-  with draugr.TensorBoardXWriter(str(C.LOG_DIRECTORY)) as stat_writer:
+  with draugr.TensorBoardXWriter(str(log_directory)) as stat_writer:
     state = environment.reset()
     state = state.observables
 
@@ -32,22 +35,29 @@ def batched_training(C,
       batch_signal = []
       transitions = []
 
-      state = to_tensor(state, device=C.DEVICE)
+      state = to_tensor(state, device=device)
       successor_state = None
 
       S = range(num_steps)
       S = tqdm(S, leave=False, disable=disable_stdout)
-      for aaaa in S:
+      for _ in S:
 
         action, action_log_prob, value_estimate, *_ = agent.sample_action(state)
 
         successor_state, signal, terminated, *_ = environment.step(action)
 
+        if render_frequency and i % render_frequency == 0:
+          environment.render()
+
+        if stat_frequency and i % stat_frequency == 0:
+          pass
+          # stat_writer.scalar()
+
         batch_signal.append(signal)
 
-        successor_state = to_tensor(successor_state, device=C.DEVICE)
-        signal_ = to_tensor(signal, device=C.DEVICE)
-        terminated = to_tensor(terminated, device=C.DEVICE)
+        successor_state = to_tensor(successor_state, device=device)
+        signal_ = to_tensor(signal, device=device)
+        terminated = to_tensor(terminated, device=device)
 
         transitions.append(ValuedTransition(state,
                                             action,

@@ -5,12 +5,16 @@ import os
 import time
 from collections import Iterable
 from itertools import count
+from typing import Callable, Mapping, Type
 
-import draugr
 import gym
 import torch
+
+import draugr
 from agent import utilities as U
 from agent.exceptions.exceptions import NoTrainingProcedure
+from agent.interfaces.partials.agents.agent import Agent
+from agent.interfaces.partials.agents.torch_agents.torch_agent import TorchAgent
 from agent.interfaces.specifications import TrainingSession
 from agent.training.procedures import train_episodically
 from agent.utilities import save_model
@@ -19,7 +23,7 @@ from neodroid.wrappers import NeodroidWrapper
 from neodroid.wrappers.action_encoding_wrappers import DiscreteActionEncodingWrapper
 from trolls.multiple_environments_wrapper import SubProcessEnvironments, make_gym_env
 from trolls.wrappers.vector_environments import VectorWrap
-from warg.arguments import get_upper_case_vars_or_protected_of, parse_arguments
+from warg.arguments import parse_arguments, config_to_mapping
 
 __author__ = 'cnheider'
 __doc__ = ''
@@ -28,27 +32,30 @@ __doc__ = ''
 class linear_training(TrainingSession):
 
   def __call__(self,
-               agent_type,
-               config,
+               agent_type : Type[Agent],
+               *,
                environment=None,
                save=False,
-               has_x_server=False):
+               has_x_server=False,
+               **kwargs):
 
-    if not config.CONNECT_TO_RUNNING:
+    kwargs = draugr.NOD(**kwargs)
+
+    if not kwargs.connect_to_running:
       if not environment:
-        if '-v' in config.ENVIRONMENT_NAME:
-          environment = VectorWrap(NeodroidWrapper(gym.make(config.ENVIRONMENT_NAME)))
+        if '-v' in kwargs.environment_name:
+          environment = VectorWrap(NeodroidWrapper(gym.make(kwargs.environment_name)))
         else:
-          environment = VectorWrap(DiscreteActionEncodingWrapper(name=config.ENVIRONMENT_NAME,
-                                                                 connect_to_running=config.CONNECT_TO_RUNNING))
+          environment = VectorWrap(DiscreteActionEncodingWrapper(name= kwargs.environment_name,
+                                                                 connect_to_running= kwargs.connect_to_running))
     else:
-      environment = VectorWrap(DiscreteActionEncodingWrapper(name=config.ENVIRONMENT_NAME,
-                                                             connect_to_running=config.CONNECT_TO_RUNNING))
+      environment = VectorWrap(DiscreteActionEncodingWrapper(name= kwargs.environment_name,
+                                                             connect_to_running=kwargs.connect_to_running))
 
-    U.set_seeds(config.SEED)
-    environment.seed(config.SEED)
+    U.set_seeds(kwargs['SEED'])
+    environment.seed(kwargs['SEED'])
 
-    agent = agent_type(config)
+    agent = agent_type(kwargs)
     agent.build(environment)
 
     listener = add_early_stopping_key_combination(agent.stop_training, has_x_server=save)
@@ -56,11 +63,10 @@ class linear_training(TrainingSession):
     if listener:
       listener.start()
     try:
-      training_resume = self._training_procedure(C,
-                                                 agent,
+      training_resume = self._training_procedure(agent,
                                                  environment,
-                                                 rollouts=config.ROLLOUTS,
-                                                 render=config.RENDER_ENVIRONMENT)
+                                                 render=kwargs.render_environment,
+                                                 **kwargs)
     finally:
       if listener:
         listener.stop()
@@ -69,15 +75,15 @@ class linear_training(TrainingSession):
       identifier = count()
       if isinstance(training_resume.models, Iterable):
         for model in training_resume.models:
-          U.save_model(model, config, name=f'{agent.__class__.__name__}-{identifier.__next__()}')
+          U.save_model(model, name=f'{agent.__class__.__name__}-{identifier.__next__()}',**kwargs)
       else:
-        U.save_model(training_resume.models, config,
-                     name=f'{agent.__class__.__name__}-{identifier.__next__()}')
+        U.save_model(training_resume.models,
+                     name=f'{agent.__class__.__name__}-{identifier.__next__()}',**kwargs)
 
       if training_resume.stats:
-        training_resume.stats.save(project_name=config.PROJECT,
-                                   config_name=config.CONFIG_NAME,
-                                   directory=config.LOG_DIRECTORY)
+        training_resume.stats.save(project_name=kwargs.project,
+                                   config_name=kwargs.config_name,
+                                   directory=kwargs.log_directory)
 
     environment.close()
 
@@ -85,6 +91,7 @@ class linear_training(TrainingSession):
 class parallelised_training(TrainingSession):
   def __init__(self,
                *,
+
                environments=None,
                default_num_train_envs=4,
                auto_reset_on_terminal_state=False,
@@ -94,26 +101,32 @@ class parallelised_training(TrainingSession):
     self.default_num_train_envs = default_num_train_envs
     self.auto_reset_on_terminal = auto_reset_on_terminal_state
 
-  def __call__(self, agent_type,
-               config, save=True,
-               has_x_server=False):
+  def __call__(self,
+               agent_type : Type[TorchAgent],
+               *,
+               save=True,
+               has_x_server=False,
+               **kwargs):
+
+    kwargs = draugr.NOD(**kwargs)
+
     if not self.environments:
-      if '-v' in config.ENVIRONMENT_NAME:
+      if '-v' in kwargs.environment_name:
 
         if self.default_num_train_envs > 0:
-          self.environments = [make_gym_env(config.ENVIRONMENT_NAME) for _ in
+          self.environments = [make_gym_env(kwargs.environment_name) for _ in
                                range(self.default_num_train_envs)]
           self.environments = NeodroidWrapper(SubProcessEnvironments(self.environments,
                                                                      auto_reset_on_terminal=self.auto_reset_on_terminal))
 
       else:
-        self.environments = DiscreteActionEncodingWrapper(name=config.ENVIRONMENT_NAME,
-                                                          connect_to_running=config.CONNECT_TO_RUNNING)
+        self.environments = DiscreteActionEncodingWrapper(name=kwargs.environment_name,
+                                                          connect_to_running=kwargs.connect_to_running)
 
-    U.set_seeds(config.SEED)
-    self.environments.seed(config.SEED)
+    U.set_seeds(kwargs.seed)
+    self.environments.seed(kwargs.seed)
 
-    agent = agent_type(config)
+    agent = agent_type(kwargs)
     agent.build(self.environments)
 
     listener = add_early_stopping_key_combination(agent.stop_training, has_x_server=has_x_server)
@@ -124,13 +137,12 @@ class parallelised_training(TrainingSession):
     if listener:
       listener.start()
     try:
-      training_resume = self._training_procedure(config,
-                                                 agent,
+      training_resume = self._training_procedure(agent,
                                                  self.environments,
-                                                 rollouts=config.ROLLOUTS)
+                                                 **kwargs)
     except KeyboardInterrupt:
       for identifier, model in enumerate(agent.models):
-        save_model(model, config, name=f'{agent}-{identifier}-interrupted')
+        save_model(model, name=f'{agent}-{identifier}-interrupted',**kwargs)
       exit()
     finally:
       if listener:
@@ -143,16 +155,16 @@ class parallelised_training(TrainingSession):
     if save and training_resume:
       if isinstance(training_resume.models, Iterable):
         for identifier, model in enumerate(training_resume.models):
-          save_model(model, config, name=f'{agent}-{identifier}')
+          save_model(model,  name=f'{agent}-{identifier}',**kwargs)
       else:
         save_model(training_resume.models,
-                   config,
-                   name=f'{agent}-0')
+
+                   name=f'{agent}-0',**kwargs)
 
         if 'stats' in training_resume:
-          training_resume.stats.save(project_name=config.PROJECT,
-                                     config_name=config.CONFIG_NAME,
-                                     directory=config.LOG_DIRECTORY)
+          training_resume.stats.save(project_name=kwargs.project,
+                                     config_name=kwargs.config_name,
+                                     directory=kwargs.log_directory)
 
     self.environments.close()
 
@@ -179,23 +191,23 @@ class agent_test_gym(TrainingSession):
     _agent.infer(_environment)
 
 
-def train_agent(agent,
-                config,
+def train_agent(agent: Type[Agent],
+                config: object,
                 *,
-                training_procedure=linear_training,
-                parse_args=True,
-                save=True,
-                has_x_server=True,
-                skip_confirmation=False
+                training_session: TrainingSession = linear_training,
+                parse_args: bool = True,
+                save: bool = True,
+                has_x_server: bool = True,
+                skip_confirmation: bool = False
                 ):
   '''
 
 '''
 
-  if training_procedure is None:
+  if training_session is None:
     raise NoTrainingProcedure
-  elif isinstance(training_procedure, type):
-    training_procedure = training_procedure(training_procedure=train_episodically)
+  elif isinstance(training_session, type):
+    training_session = training_session(training_procedure=train_episodically)
 
   if parse_args:
     args = parse_arguments(f'{type(agent)}', config)
@@ -219,16 +231,21 @@ def train_agent(agent,
       config.RENDER_ENVIRONMENT = False
       has_x_server = False
 
+  config_mapping = config_to_mapping(config)
+
   if not skip_confirmation:
     draugr.sprint(f'\nUsing config: {config}\n', highlight=True, color='yellow')
-    for key, arg in get_upper_case_vars_or_protected_of(config).items():
+    for key, arg in config_mapping:
       print(f'{key} = {arg}')
 
     draugr.sprint(f'\n.. Also save:{save}, has_x_server:{has_x_server}')
     input('\nPress Enter to begin... ')
 
   try:
-    training_procedure(agent, config, save=save, has_x_server=has_x_server)
+    training_session(agent,
+                     save=save,
+                     has_x_server=has_x_server,
+                     **config_mapping)
   except KeyboardInterrupt:
     print('Stopping')
 

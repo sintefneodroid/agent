@@ -3,7 +3,7 @@
 
 import numpy
 
-from agent.architectures import DDPGActorArchitecture, DDPGCriticArchitecture
+from agent.architectures import DDPGActorArchitecture, DDPGCriticArchitecture, ContinuousActorArchitecture
 from agent.interfaces.partials.agents.torch_agents.actor_critic_agent import ActorCriticAgent
 from agent.interfaces.specifications import AdvantageDiscountedTransition, ValuedTransition
 from agent.interfaces.specifications.generalised_delayed_construction_specification import GDCS
@@ -69,7 +69,7 @@ class PPOAgent(ActorCriticAgent):
 
     self._optimiser_spec = GDCS(torch.optim.Adam, {})
 
-    self._actor_arch_spec = GDCS(DDPGActorArchitecture,
+    self._actor_arch_spec = GDCS(ContinuousActorArchitecture,
                                  kwargs=NOD({'input_shape':      None,  # Obtain from environment
                                              'hidden_layers':    None,
                                              'output_activation':None,
@@ -159,12 +159,14 @@ class PPOAgent(ActorCriticAgent):
     model_input = U.to_tensor(state, device=self._device, dtype=self._state_type)
 
     mean, std = self._actor(model_input)
-    value_estimate = self._critic(model_input)
+
 
     distribution = torch.distributions.Normal(mean, std)
 
     with torch.no_grad():
       action = distribution.sample()
+
+    value_estimate = self._critic(model_input,actions=action)
 
     action_log_prob = distribution.log_prob(action)
 
@@ -216,6 +218,8 @@ class PPOAgent(ActorCriticAgent):
 
       if terminated:
         state = environment.reset()
+
+    self.transitions = transitions
 
     return transitions, accumulated_signal, terminated, state
 
@@ -290,7 +294,7 @@ class PPOAgent(ActorCriticAgent):
 
     return collective_cost, policy_loss, value_error,
 
-  def update_targets(self, *args, **kwargs) -> None:
+  def update_targets(self) -> None:
     self.update_target(target_model=self._target_actor,
                        source_model=self._actor,
                        target_update_tau=self._target_update_tau)
@@ -346,8 +350,8 @@ def ppo_test(rollouts=None, skip=True):
 
   train_agent(PPOAgent,
               C,
-              training_procedure=parallelised_training(training_procedure=batched_training,
-                                                       auto_reset_on_terminal_state=True),
+              training_session=parallelised_training(training_procedure=batched_training,
+                                                     auto_reset_on_terminal_state=True),
               parse_args=False,
               skip_confirmation=skip)
 

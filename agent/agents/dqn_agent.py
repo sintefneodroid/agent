@@ -2,14 +2,11 @@
 # -*- coding: utf-8 -*-
 import logging
 
-import matplotlib
 from agent.architectures import MLP
 from agent.interfaces.partials.agents.torch_agents.value_agent import ValueAgent
 from agent.interfaces.specifications.generalised_delayed_construction_specification import GDCS
 from agent.memory import ReplayBuffer
 from agent.training.train_agent import parallelised_training, train_agent
-from agent.utilities import get_screen
-from draugr.visualisation.visualisation.experimental.statistics_plot import plot_durations
 from warg.named_ordered_dictionary import NOD, NamedOrderedDictionary
 
 __author__ = 'cnheider'
@@ -19,7 +16,6 @@ import numpy as np
 import torch
 import torch.nn.functional as F
 from tqdm import tqdm
-import matplotlib.pyplot as plt
 
 from agent import utilities as U
 
@@ -184,7 +180,7 @@ class DQNAgent(ValueAgent):
               render=False,
               stat_writer=None,
               train=True,
-              random_sample=True,
+              disallow_random_sample=False,
               **kwargs):
     self._update_i += 1
 
@@ -198,7 +194,7 @@ class DQNAgent(ValueAgent):
     for t in T:
       self._step_i += 1
 
-      action = self.sample_action(state, disallow_random_sample=random_sample)
+      action = self.sample_action(state, disallow_random_sample=disallow_random_sample)
       next_state, signal, terminated, *_ = environment.react(action).to_gym_like_output()
 
       if render:
@@ -260,60 +256,6 @@ class DQNAgent(ValueAgent):
 
 
 # region Test
-def test_cnn_dqn_agent(config):
-  import gym
-
-  env = gym.make(config.ENVIRONMENT_NAME).unwrapped
-  env.seed(config.SEED)
-
-  is_ipython = 'inline' in matplotlib.get_backend()
-  if is_ipython:
-    pass
-
-  plt.ion()
-
-  episode_durations = []
-
-  agent = DQNAgent(config)
-  agent.build(env)
-
-  episodes = tqdm(range(config.ROLLOUTS), leave=False, disable=False)
-  for episode_i in episodes:
-    episodes.set_description(f'Episode:{episode_i}')
-    env.reset()
-    last_screen = U.transform_screen(get_screen(env), agent.device)
-    current_screen = U.transform_screen(get_screen(env), agent.device)
-    state = current_screen - last_screen
-
-    rollout = tqdm(count(), leave=False)
-    for t in rollout:
-
-      action, (_, signal, terminated, *_) = agent.step(state, env)
-
-      last_screen = current_screen
-      current_screen = U.transform_screen(get_screen(env), agent.device)
-
-      successor_state = None
-      if not terminated:
-        successor_state = current_screen - last_screen
-
-      if agent._signal_clipping:
-        signal = np.clip(signal, -1.0, 1.0)
-
-      agent._memory_buffer.add_transition(state, action, signal, successor_state, not terminated)
-
-      agent.update_models()
-      if terminated:
-        episode_durations.append(t + 1)
-        plot_durations(episode_durations=episode_durations)
-        break
-
-      state = successor_state
-
-  env.render()
-  env.close()
-  plt.ioff()
-  plt.show()
 
 
 def dqn_test(rollouts=None, skip=True):
@@ -326,7 +268,7 @@ def dqn_test(rollouts=None, skip=True):
   train_agent(DQNAgent,
               C,
               parse_args=False,
-              training_procedure=parallelised_training,
+              training_session=parallelised_training,
               skip_confirmation=skip)
   # test_cnn_dqn_agent(C)
 
@@ -341,7 +283,7 @@ def dqn_run(rollouts=None, skip=True):
 
   train_agent(DQNAgent,
               C,
-              training_procedure=parallelised_training,
+              training_session=parallelised_training,
               skip_confirmation=skip)
 
 

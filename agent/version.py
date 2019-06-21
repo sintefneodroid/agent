@@ -3,8 +3,9 @@
 import datetime
 import os
 from warnings import warn
-from pip._internal.utils.misc import dist_is_editable
+
 import pkg_resources
+from pip._internal.utils.misc import dist_is_editable
 
 from warg.app_path import AppPath
 
@@ -31,8 +32,7 @@ def dist_is_editable(dist):
 
 PROJECT_NAME = 'NeodroidAgent'
 PROJECT_AUTHOR = __author__
-PROJECT_APP_PATH = AppPath(app_name=PROJECT_NAME,app_author=PROJECT_AUTHOR)
-
+PROJECT_APP_PATH = AppPath(app_name=PROJECT_NAME, app_author=PROJECT_AUTHOR)
 
 distributions = {v.key:v for v in pkg_resources.working_set}
 if PROJECT_NAME in distributions:

@@ -3,7 +3,8 @@
 import argparse
 
 from agent.exploration.ucb1 import UCB1
-from neodroid import SingleEnvironmentWrapper, messaging
+from neodroid import  messaging
+from neodroid.wrappers import SingleEnvironmentWrapper
 
 __author__ = 'cnheider'
 

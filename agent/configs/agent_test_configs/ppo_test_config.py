@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-from agent.architectures import ContinuousActorArchitecture, MLP
 from torch.nn import MSELoss
 
+from agent.architectures import ContinuousActorArchitecture, MLP
 from .base_test_config import *
 
 __author__ = 'cnheider'
@@ -20,6 +20,10 @@ ENVIRONMENT_NAME = 'Pendulum-v0'
 CONNECT_TO_RUNNING = False
 RENDER_ENVIRONMENT = True
 TEST_INTERVAL = 1000
+
+MODEL_DIRECTORY = PROJECT_APP_PATH.user_data / ENVIRONMENT_NAME / LOAD_TIME / 'models'
+CONFIG_DIRECTORY = PROJECT_APP_PATH.user_data / ENVIRONMENT_NAME / LOAD_TIME / 'configs'
+LOG_DIRECTORY = PROJECT_APP_PATH.user_log / ENVIRONMENT_NAME / LOAD_TIME
 
 INITIAL_OBSERVATION_PERIOD = 0
 

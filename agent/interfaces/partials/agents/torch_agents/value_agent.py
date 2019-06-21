@@ -5,7 +5,7 @@ from abc import abstractmethod
 from typing import Any
 
 import draugr
-from agent.interfaces.partials.agents.torch_agent import TorchAgent
+from agent.interfaces.partials.agents.torch_agents.torch_agent import TorchAgent
 from agent.interfaces.specifications import ExplorationSpecification, GDCS
 
 __author__ = 'cnheider'
@@ -39,8 +39,8 @@ All value iteration agents should inherit from this class
 
   def sample_action(self, state, disallow_random_sample=False, **kwargs):
     self._step_i += 1
-    if ((self.epsilon_random(self._step_i) and
-         self._step_i > self._initial_observation_period) or
+    s = self.epsilon_random(self._step_i)
+    if ((s and self._step_i > self._initial_observation_period) or
         disallow_random_sample):
 
       return self._sample_model(state)
@@ -93,7 +93,7 @@ All value iteration agents should inherit from this class
     return sample > self._current_eps_threshold
 
   def save(self, C):
-    U.save_model(self._value_model, C)
+    U.save_model(self._value_model, **C)
 
   def load(self, model_path, evaluation):
     print('Loading latest model: ' + model_path)
@@ -112,7 +112,7 @@ All value iteration agents should inherit from this class
   # region Abstract
 
   @abstractmethod
-  def _sample_model(self, state, *args, **kwargs) -> Any:
+  def _sample_model(self, state, **kwargs) -> Any:
     raise NotImplementedError
 
   # endregion
@@ -124,7 +124,8 @@ All value iteration agents should inherit from this class
     self._value_arch_spec.kwargs['output_shape'] = self._output_shape
 
   def _sample_random_process(self, state):
-    sample = np.random.choice(np.arange(self._output_shape[0]), len(state))
+    r = np.arange(self._output_shape[0])
+    sample = np.random.choice(r, len(state))
     return sample
 
   # endregion

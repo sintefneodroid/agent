@@ -4,12 +4,12 @@ import time
 
 import torch
 import torch.nn.functional as F
+
 from agent.architectures import CategoricalMLP
 from agent.interfaces.specifications.exploration_specification import ExplorationSpecification
 from agent.interfaces.specifications.generalised_delayed_construction_specification import GDCS
-from agent.version import PROJECT_APP_PATH
+from agent.version import PROJECT_APP_PATH, PROJECT_NAME
 from warg.named_ordered_dictionary import NOD
-
 
 __author__ = 'cnheider'
 '''
@@ -17,6 +17,7 @@ Description: Config for training
 Author: Christian Heider Nielsen
 '''
 
+PROJECT_NAME = PROJECT_NAME
 CONFIG_NAME = __name__
 CONFIG_FILE = __file__
 CONFIG_AUTHOR = __author__
@@ -38,9 +39,9 @@ POLICY_ARCH_SPEC = GDCS(CategoricalMLP,
                         )
 
 # Environment Related Parameters
+ENVIRONMENT_NAME = 'grd'
 CONNECT_TO_RUNNING = False
 RENDER_ENVIRONMENT = False
-ENVIRONMENT_NAME = 'grd'
 SOLVED_REWARD = 0.9
 ACTION_MAGNITUDES = 10000
 

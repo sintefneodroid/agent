@@ -8,9 +8,9 @@ from agent.exceptions.exceptions import NoTrajectoryException
 from agent.interfaces.partials.agents.torch_agents.policy_agent import PolicyAgent
 from agent.interfaces.specifications.generalised_delayed_construction_specification import GDCS
 from agent.memory import TrajectoryBuffer
-from agent.training.procedures import train_episodically
+from agent.training.procedures import train_episodically, to_tensor
 from agent.training.train_agent import parallelised_training, train_agent
-from neodroid.interfaces.environment_models import EnvironmentState
+from neodroid.interfaces.environment_models import EnvironmentSnapshot
 from neodroid.utilities.transformations.encodings import to_one_hot
 from warg.named_ordered_dictionary import NOD
 
@@ -90,7 +90,7 @@ class PGAgent(PolicyAgent):
         params.grad.data.clamp_(self._grad_clip_low, self._grad_clip_high)
     self.optimiser.step()
 
-  def _sample_model(self, state, *args, **kwargs):
+  def _sample_model(self, state, **kwargs):
 
     if self._policy_arch_spec.kwargs['discrete']:
       return self.sample_discrete_action(state)
@@ -118,7 +118,7 @@ class PGAgent(PolicyAgent):
     return action, log_prob, entropy, probs
 
   def sample_continuous_action(self, state):
-    model_input = U.to_tensor(state, device=self._device, dtype=self._state_type)
+    model_input = to_tensor(state, device=self._device, dtype=self._state_type)
 
     mean, log_std = self._distribution_parameter_regressor(model_input)
 
@@ -246,7 +246,7 @@ class PGAgent(PolicyAgent):
     episode_entropy = []
     episode_probs = []
 
-    if isinstance(initial_state, EnvironmentState):
+    if isinstance(initial_state, EnvironmentSnapshot):
       state = initial_state.observables
     else:
       state = initial_state
@@ -325,7 +325,7 @@ def pg_test(rollouts=None, skip=True):
   train_agent(PGAgent,
               C,
               parse_args=False,
-              training_procedure=parallelised_training,
+              training_session=parallelised_training,
               skip_confirmation=skip)
 
 
@@ -340,11 +340,11 @@ def pg_run(rollouts=None, skip=True):
 
   train_agent(PGAgent,
               C,
-              training_procedure=parallelised_training(training_procedure=train_episodically),
+              training_session=parallelised_training(training_procedure=train_episodically),
               skip_confirmation=skip)
 
 
 if __name__ == '__main__':
-  #pg_test()
+  # pg_test()
   pg_run()
 # endregion

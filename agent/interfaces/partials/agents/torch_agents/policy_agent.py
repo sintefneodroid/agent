@@ -6,7 +6,7 @@ from typing import Any
 
 import draugr
 from agent.architectures import Architecture
-from agent.interfaces.partials.agents.torch_agent import TorchAgent
+from agent.interfaces.partials.agents.torch_agents.torch_agent import TorchAgent
 from agent.interfaces.specifications import GDCS
 from neodroid.environments.environment import Environment
 
@@ -66,7 +66,7 @@ class PolicyAgent(TorchAgent):
     return (self._distribution_parameter_regressor,)
 
   def save(self, C):
-    U.save_model(self._distribution_parameter_regressor, C)
+    U.save_model(self._distribution_parameter_regressor, **C)
 
   def load(self, model_file, evaluation=False):
     print(f'Loading model: {model_file}')
@@ -83,17 +83,20 @@ class PolicyAgent(TorchAgent):
 
   # region Protected
 
-  def _post_io_inference(self, env:Environment):
+  def _post_io_inference(self, env: Environment):
     self._policy_arch_spec.kwargs['input_shape'] = self._input_shape
     self._policy_arch_spec.kwargs['output_shape'] = self._output_shape
-    self._policy_arch_spec.kwargs['discrete'] = env.action_space.is_discrete
+    if hasattr(env.action_space,'is_discrete'):
+      self._policy_arch_spec.kwargs['discrete'] = env.action_space.is_discrete
+    else:
+      self._policy_arch_spec.kwargs['discrete'] = True
 
-  # endregion
+      # endregion
 
   # region Abstract
 
   @abstractmethod
-  def _sample_model(self, state, *args, **kwargs) -> Any:
+  def _sample_model(self, state, **kwargs) -> Any:
     raise NotImplementedError
 
   # endregion

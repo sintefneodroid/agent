@@ -3,7 +3,7 @@
 from agent.architectures import CNN
 from agent.utilities import ReplayBuffer
 
-from .base_test_config import *
+from agent.configs.agent_test_configs.base_test_config import *
 
 __author__ = 'cnheider'
 '''

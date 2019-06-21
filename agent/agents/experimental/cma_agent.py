@@ -1,10 +1,11 @@
 import time
 from typing import Any, Tuple
 
+from tqdm import tqdm
+
 import draugr
 from agent.interfaces.partials.agents.evo_agent import EVOAgent
 from agent.training.train_agent import train_agent
-from tqdm import tqdm
 
 
 class CMAAgent(EVOAgent):
@@ -21,10 +22,10 @@ class CMAAgent(EVOAgent):
   def _build(self, **kwargs) -> None:
     pass
 
-  def _optimise_wrt(self, error, *args, **kwargs) -> None:
+  def _optimise_wrt(self, error, **kwargs) -> None:
     pass
 
-  def _sample_model(self, state, *args, **kwargs) -> Any:
+  def _sample_model(self, state, **kwargs) -> Any:
     pass
 
   def _train_procedure(self,

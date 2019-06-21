@@ -1,21 +1,25 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+from pathlib import Path
+from typing import Union
 
 __author__ = 'cnheider'
 __doc__ = ''
-import draugr
-from agent.interfaces.specifications import TR
 from tqdm import tqdm
 
+import draugr
+from agent.interfaces.specifications import TR
 
-def train_episodically(C,
-                       agent,
+
+def train_episodically(agent,
                        environment,
                        *,
+                       log_directory: Union[str, Path],
                        rollouts=1000,
                        render_frequency=100,
                        stat_frequency=10,
-                       disable_stdout=False
+                       disable_stdout=False,
+                       **kwargs
                        ) -> TR:
   '''
     :param C: Config
@@ -39,9 +43,9 @@ def train_episodically(C,
   E = range(1, rollouts)
   E = tqdm(E, leave=False)
   # with torchsnooper.snoop():
-  with draugr.TensorBoardXWriter(str(C.LOG_DIRECTORY)) as stat_writer:
+  with draugr.TensorBoardXWriter(str(log_directory)) as stat_writer:
     for episode_i in E:
-      initial_state = environment.reset()
+      initial_state = environment.reset().observables
 
       if render_frequency and episode_i % render_frequency == 0:
         render = True

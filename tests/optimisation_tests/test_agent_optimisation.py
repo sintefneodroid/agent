@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 import pytest
+from neodroid.wrappers import NeodroidWrapper
 
 from agent.agents.ddpg_agent import DDPGAgent
 from agent.agents.dqn_agent import DQNAgent
 from agent.agents.pg_agent import PGAgent
 from agent.agents.ppo_agent import PPOAgent
-from neodroid.api_wrappers import NeodroidWrapper
 
 __author__ = 'cnheider'
 __doc__ = 'Tests of agents'

@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+from neodroid.wrappers import SingleEnvironmentWrapper
+
 import draugr
-from neodroid.api_wrappers import SingleEnvironmentWrapper
 
 __author__ = 'cnheider'
 
@@ -46,7 +47,7 @@ def train_agent(config, agent):
                         directory=C.LOG_DIRECTORY,
                         config_name=C.CONFIG_NAME,
                         project_name=C.PROJECT)
-  U.save_model(trained_model, config)
+  U.save_model(trained_model, **config)
 
   env.close()
 

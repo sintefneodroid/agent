@@ -3,9 +3,10 @@
 from typing import Sequence
 
 import numpy
+from numpy import prod
+
 from agent.interfaces.architecture import Architecture
 from agent.utilities import xavier_init
-from numpy import prod
 from warg.named_ordered_dictionary import NOD
 
 __author__ = 'cnheider'

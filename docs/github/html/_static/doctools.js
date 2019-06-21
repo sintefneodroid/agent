@@ -238,7 +238,7 @@ var Documentation = {
             highlight - link;
             '><a href=';
             Documentation.;
-            ' +;;
+            ' +;;;
             'hideSearchWords()' > ' + _(';
             Hide;
             Search;

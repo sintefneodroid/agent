@@ -91,7 +91,7 @@ class NeodroidAgentPackage:
         'neodroid-pg-gym = agent.agents.pg_agent:pg_test',
         'neodroid-dqn = agent.agents.dqn_agent:dqn_run',
         'neodroid-pg = agent.agents.pg_agent:pg_run',
-        'neodroid-ddpg = agent.agents.dppg_agent:ddpg_test',
+        'neodroid-ddpg = agent.agents.ddpg_agent:ddpg_test',
         'neodroid-cma = agent.agents.experimental.cma_agent:cma_test',
         'neodroid-tb = agent.utilities.extra_entry_points.tensorboard_entry_point:main',
         # 'neodroid-evo = agents.evo_agent:main'

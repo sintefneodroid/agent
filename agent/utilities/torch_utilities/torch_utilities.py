@@ -41,7 +41,7 @@ def log_shannon_entropy(log_prob):
 
 def to_tensor(obj, dtype=torch.float, device='cpu', non_blocking=True):
   if torch.is_tensor(obj):
-    return obj.to(device, dtype=dtype,non_blocking=non_blocking)
+    return obj.to(device, dtype=dtype, non_blocking=non_blocking)
 
   if isinstance(obj, numpy.ndarray):
     if torch.is_tensor(obj[0]):
@@ -60,8 +60,6 @@ def to_tensor(obj, dtype=torch.float, device='cpu', non_blocking=True):
       return torch.cat(obj)
 
   return torch.tensor(obj, device=device, dtype=dtype)
-
-
 
 
 def torch_pi(device='cpu'):
@@ -160,6 +158,7 @@ class NonSequentialDataset(Dataset):
 
   def __len__(self):
     return len(self.arrays[0])
+
 
 if __name__ == '__main__':
   eq = to_tensor([0.5, 0.5])

@@ -6,8 +6,7 @@ __author__ = 'cnheider'
 __doc__ = ''
 
 
-def main(keep_alive = True):
-
+def main(keep_alive=True):
   from draugr.writers.tensorboards.launcher import launch_tensorboard
   from contextlib import suppress
   from time import sleep

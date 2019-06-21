@@ -3,11 +3,12 @@
 
 __author__ = 'cnheider'
 import torch
-# LSTM Memory
-from agent.interfaces.architecture import Architecture
 from torch import nn
 from torch.autograd import Variable
 from torch.nn import functional as F
+
+# LSTM Memory
+from agent.interfaces.architecture import Architecture
 
 LSTM_MEMORY = 128
 

@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 import numpy
-import scipy
 from scipy.signal import lfilter
 
 __author__ = 'cnheider'
@@ -86,6 +85,7 @@ def compute_gae(*,
       returns.insert(0, gae + values[step])
   return returns
 
+
 def discount_cumsum(x, discount):
   # See https://docs.scipy.org/doc/scipy/reference/tutorial/signal.html#difference-equation-filtering
   # Here, we have y[t] - discount*y[t+1] = x[t]
@@ -96,13 +96,14 @@ def discount_cumsum(x, discount):
 def discount_return(x, discount):
   return numpy.sum(x * (discount ** numpy.arange(len(x))))
 
+
 def compute_gae3(*,
-                signals,
-                masks,
-                values,
-                next_value,
-                discount_factor=0.99,
-                tau=0.95):
+                 signals,
+                 masks,
+                 values,
+                 next_value,
+                 discount_factor=0.99,
+                 tau=0.95):
   with torch.no_grad():
     rews = numpy.append(signals, next_value)
     vals = numpy.append(values, next_value)

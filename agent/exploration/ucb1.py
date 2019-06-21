@@ -36,7 +36,7 @@ class UCB1:
 
     value = self._values[option_index]
     new_value = ((options_counts_float - 1) / options_counts_float) * value + (
-          1 / options_counts_float) * signal
+        1 / options_counts_float) * signal
     self._values[option_index] = new_value
 
   @property
@@ -49,8 +49,9 @@ class UCB1:
 
   @property
   def normalised_values(self):
-    normed = self._values.copy()
-    for i in range(len(self._values)):
+    s = len(self._values)
+    normed = [0] * s
+    for i in range(s):
       normed[i] = self._values[i] / (sum(self._values) + sys.float_info.epsilon)
     return normed
 
@@ -77,7 +78,9 @@ if __name__ == '__main__':
       return random.gauss(self.mu, self.sigma)
 
 
-  arms = [NormalDistributionArm(4.01, 2.0), NormalDistributionArm(4, 2.0), NormalDistributionArm(3.99, 2.0)]
+  arms = [NormalDistributionArm(4.01, 2.0),
+          NormalDistributionArm(4, 2.0),
+          NormalDistributionArm(3.99, 2.0)]
 
   ucb1 = UCB1(len(arms))
 

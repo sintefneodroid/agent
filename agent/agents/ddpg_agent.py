@@ -7,6 +7,7 @@ from agent.interfaces.specifications import ArchitectureSpecification
 from agent.memory import TransitionBuffer
 from agent.training.procedures import train_episodically
 from agent.training.train_agent import parallelised_training, train_agent
+from draugr.writers.writer import Writer
 from warg.named_ordered_dictionary import NOD
 
 __author__ = 'cnheider'
@@ -154,7 +155,15 @@ class DDPGAgent(ActorCriticAgent):
 
     return td_error, states
 
-  def update_models(self):
+  def update_targets(self):
+    self.update_target(target_model=self._target_critic,
+                       source_model=self._critic,
+                       target_update_tau=self._target_update_tau)
+    self.update_target(target_model=self._target_actor,
+                       source_model=self._actor,
+                       target_update_tau=self._target_update_tau)
+
+  def update_models(self, *, stat_writer: Writer = None, **kwargs):
     '''
   Update the target networks
 
@@ -166,14 +175,13 @@ class DDPGAgent(ActorCriticAgent):
 
     batch = self._memory_buffer.sample_transitions(self._batch_size)
     td_error, state_batch_var = self.evaluate(batch)
-    critic_loss = self._optimise(td_error, state_batch_var)
+    critic_loss = self._optimise(temporal_difference_error=td_error, state_batch=state_batch_var)
 
-    self.update_target(target_model=self._target_critic,
-                       source_model=self._critic,
-                       target_update_tau=self._target_update_tau)
-    self.update_target(target_model=self._target_actor,
-                       source_model=self._actor,
-                       target_update_tau=self._target_update_tau)
+    self.update_targets()
+
+    if stat_writer:
+      stat_writer.scalar('td_error', td_error)
+      stat_writer.scalar('critic_loss', critic_loss)
 
     return td_error, critic_loss
 
@@ -182,9 +190,10 @@ class DDPGAgent(ActorCriticAgent):
   # region Protected
 
   def _optimise(self,
+                *,
                 temporal_difference_error,
                 state_batch,
-                **kwargs):
+                **kwargs) -> float:
     '''
 
     :type kwargs: object
@@ -214,6 +223,7 @@ class DDPGAgent(ActorCriticAgent):
 
   def _sample_model(self,
                     state,
+                    *,
                     noise_factor=0.2,
                     low_action_clip=-1.0,
                     high_action_clip=1.0,
@@ -224,7 +234,6 @@ class DDPGAgent(ActorCriticAgent):
       action = self._actor(state)
 
     action_out = action.to('cpu').numpy()
-    # action_out = action.item()
 
     # Add action space noise for exploration, alternative is parameter space noise
     noise = self._random_process.sample()
@@ -257,9 +266,10 @@ def ddpg_test(rollouts=None, skip=True):
 
   train_agent(DDPGAgent,
               C,
-              training_procedure=parallelised_training(training_procedure=train_episodically,
-                                                       auto_reset_on_terminal_state=True),
-              parse_args=False, skip_confirmation=skip)
+              training_session=parallelised_training(training_procedure=train_episodically,
+                                                     auto_reset_on_terminal_state=True),
+              parse_args=False,
+              skip_confirmation=skip)
 
 
 if __name__ == '__main__':

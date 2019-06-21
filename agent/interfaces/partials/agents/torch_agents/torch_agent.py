@@ -5,7 +5,7 @@ from abc import ABC, abstractmethod
 import torch
 from tqdm import tqdm
 
-from .agent import Agent
+from agent.interfaces.partials.agents.agent import Agent
 
 tqdm.monitor_interval = 0
 
@@ -34,8 +34,6 @@ All agent should inherit from this class
   @property
   def device(self) -> torch.device:
     return self._device
-
-
 
   # endregion
 

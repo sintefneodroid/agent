@@ -45,7 +45,7 @@ def train_agent(config, agent):
   draugr.save_statistic(running_lengths, stat_name='running_lengths', directory=C.LOG_DIRECTORY,
                         config_name=C.CONFIG_NAME,
                         project_name=C.PROJECT_NAME)
-  U.save_model(trained_model, config)
+  U.save_model(trained_model, **config)
 
   env.close()
 

@@ -2,8 +2,9 @@
 # -*- coding: utf-8 -*-
 from abc import ABC
 
+from agent.interfaces.partials.agents.torch_agents.torch_agent import TorchAgent
+
 __author__ = 'cnheider'
-from agent.specifications.interfaces.torch_agent import TorchAgent
 
 
 class ImitationAgent(TorchAgent, ABC):
@@ -45,7 +46,7 @@ class ImitationAgent(TorchAgent, ABC):
   def __defaults__(self) -> None:
     pass
 
-  def _sample_model(self, state, *args, **kwargs):
+  def _sample_model(self, state, **kwargs):
     pass
 
   def _optimise_wrt(self, error, **kwargs):

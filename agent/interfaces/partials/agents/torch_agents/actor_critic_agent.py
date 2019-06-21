@@ -5,11 +5,12 @@ from abc import abstractmethod
 from itertools import count
 from typing import Any
 
+from tqdm import tqdm
+
 import draugr
-from agent.interfaces.partials.agents.torch_agent import TorchAgent
+from agent.interfaces.partials.agents.torch_agents.torch_agent import TorchAgent
 from agent.interfaces.specifications import GDCS
 from agent.memory import TransitionBuffer
-from tqdm import tqdm
 
 __author__ = 'cnheider'
 import torch
@@ -122,8 +123,8 @@ All value iteration agents should inherit from this class
   # region Public
 
   def save(self, C):
-    U.save_model(self._actor, C, name='actor')
-    U.save_model(self._critic, C, name='policy')
+    U.save_model(self._actor,  name='actor',**C)
+    U.save_model(self._critic,  name='policy',**C)
 
   def load(self,
            model_path,
@@ -158,16 +159,8 @@ All value iteration agents should inherit from this class
   def models(self):
     return self._actor, self._critic
 
-  # endregion
-
-  # region Protected
-
-  def sample_action(self, state, *args, **kwargs):
-    return self._sample_model(state, *args, *kwargs)
-
-  @abstractmethod
-  def _sample_model(self, state, *args, **kwargs) -> Any:
-    raise NotImplementedError
+  def sample_action(self, state, **kwargs):
+    return self._sample_model(state, **kwargs)
 
   def rollout(self,
               initial_state,
@@ -217,5 +210,13 @@ All value iteration agents should inherit from this class
     es = np.array(episode_signal).mean()
     el = episode_length
     return es, el
+
+  # endregion
+
+  # region Protected
+
+  @abstractmethod
+  def _sample_model(self, state, **kwargs) -> Any:
+    raise NotImplementedError
 
   # endregion

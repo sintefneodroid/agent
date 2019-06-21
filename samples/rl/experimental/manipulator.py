@@ -51,7 +51,7 @@ def train_agent(config, agent):
                         directory=C.LOG_DIRECTORY,
                         config_name=C.CONFIG_NAME,
                         project_name=C.PROJECT_NAME)
-  U.save_model(trained_model, config)
+  U.save_model(trained_model, **config)
 
   env.close()
 

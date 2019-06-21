@@ -4,13 +4,13 @@ import time
 from itertools import count
 from typing import Any
 
+from tqdm import tqdm
+
 import draugr
 from agent.exceptions.exceptions import HasNoEnvError
+from agent.version import PROJECT_APP_PATH
 from neodroid.environments.environment import Environment
 from neodroid.interfaces.spaces import ActionSpace
-from tqdm import tqdm
-from warg.app_path import AppPath
-from warg.arguments import check_for_duplicates_in_args, get_upper_case_vars_or_protected_of
 
 tqdm.monitor_interval = 0
 
@@ -29,7 +29,6 @@ All agent should inherit from this class
   # region Private
 
   def __init__(self,
-               config=None,
                environment=None,
                **kwargs):
     self._input_shape = None
@@ -39,12 +38,11 @@ All agent should inherit from this class
 
     self._divide_by_zero_safety = 1e-10
     self._environment = environment
-    self._log_directory = AppPath('NeodroidAgent').user_data / str(int(time.time()))
+    self._log_directory = PROJECT_APP_PATH.user_data / str(int(time.time()))
 
     self.__defaults__()
 
-    if config:
-      self.set_config_attributes(config, **kwargs)
+    self.set_attributes(**kwargs)
 
   def __next__(self):
     if self._environment:
@@ -62,13 +60,10 @@ All agent should inherit from this class
   def __repr__(self):
     return f'{self.__class__.__name__}'
 
-  def __parse_set_attr(self, **kwargs) -> None:
+  def __protected_set_attr(self, **kwargs) -> None:
     for k, v in kwargs.items():
-      if k.isupper():
-        k_lowered = f'_{k.lower()}'
-        self.__setattr__(k_lowered, v)
-      else:
-        self.__setattr__(k, v)
+      k_lowered = f'_{k.lstrip("_").lower()}'
+      self.__setattr__(k_lowered, v)
 
   # endregion
 
@@ -107,12 +102,9 @@ All agent should inherit from this class
     self._infer_io_shapes(env)
     self._build(**kwargs)
 
-  def set_config_attributes(self, config, **kwargs) -> None:
-    if config:
-      config_vars = get_upper_case_vars_or_protected_of(config)
-      check_for_duplicates_in_args(**config_vars)
-      self.__parse_set_attr(**config_vars)
-    self.__parse_set_attr(**kwargs)
+  def set_attributes(self, **kwargs) -> None:
+    self.__protected_set_attr(**kwargs)
+
 
   @property
   def input_shape(self):
@@ -155,18 +147,18 @@ Tries to infer input and output size from env if either _input_shape or _output_
       if len(env.observation_space.shape) >= 1:
         self._input_shape = env.observation_space.shape
       else:
-        self._input_shape = (env.observation_space.space.n, )
+        self._input_shape = (env.observation_space.space.n,)
 
     if self._output_shape is None or self._output_shape == -1:
       if isinstance(env.action_space, ActionSpace):
         if env.action_space.is_discrete:
           self._output_shape = (env.action_space.num_discrete_actions, 1)
         else:
-          self._output_shape = (env.action_space.n, )
+          self._output_shape = (env.action_space.n,)
       elif len(env.action_space.shape) >= 1:
         self._output_shape = env.action_space.shape
       else:
-        self._output_shape = (env.action_space.n, )
+        self._output_shape = (env.action_space.n,)
 
     self._post_io_inference(env)
 
@@ -236,7 +228,7 @@ Tries to infer input and output size from env if either _input_shape or _output_
     raise NotImplementedError
 
   @abstractmethod
-  def _optimise(self, error, *args, **kwargs) -> None:
+  def _optimise(self, **kwargs) -> Any:
     raise NotImplementedError
 
   # endregion
