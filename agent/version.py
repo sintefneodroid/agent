@@ -10,7 +10,7 @@ from pip._internal.utils.misc import dist_is_editable
 from warg.app_path import AppPath
 
 __author__ = "cnheider"
-__version__ = "0.2.1"
+__version__ = "0.2.2"
 __doc__ = r"""
 Created on 27/04/2019
 

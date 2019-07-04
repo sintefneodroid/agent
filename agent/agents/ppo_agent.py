@@ -33,7 +33,7 @@ class PPOAgent(ActorCriticAgent):
   def __defaults__(self) -> None:
     self._steps = 10
 
-    self._discount_factor = 0.99
+    self._discount_factor = 0.95
     self._gae_tau = 0.95
     # self._reached_horizon_penalty = -10.
 

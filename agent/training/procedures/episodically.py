@@ -3,6 +3,8 @@
 from pathlib import Path
 from typing import Union
 
+from neodroid.interfaces.environment_models import EnvironmentSnapshot
+
 __author__ = 'cnheider'
 __doc__ = ''
 from tqdm import tqdm
@@ -45,7 +47,10 @@ def train_episodically(agent,
   # with torchsnooper.snoop():
   with draugr.TensorBoardXWriter(str(log_directory)) as stat_writer:
     for episode_i in E:
-      initial_state = environment.reset().observables
+      initial_state = environment.reset()
+
+      if isinstance(initial_state, EnvironmentSnapshot):
+        initial_state = initial_state.observables
 
       if render_frequency and episode_i % render_frequency == 0:
         render = True

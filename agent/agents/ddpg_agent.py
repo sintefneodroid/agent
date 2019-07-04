@@ -71,7 +71,7 @@ class DDPGAgent(ActorCriticAgent):
                                                             'output_shape':None,  # Obtain from environment
                                                             }))
 
-    self._discount_factor = 0.99
+    self._discount_factor = 0.95
 
     self._initial_observation_period = 10000
     self._learning_frequency = 4

@@ -37,7 +37,7 @@ TARGET_UPDATE_TAU = 1.0
 MAX_GRADIENT_NORM = None
 
 GAE_TAU = 0.95
-DISCOUNT_FACTOR = 0.99
+DISCOUNT_FACTOR = 0.95
 
 REACHED_HORIZON_PENALTY = -10.
 
@@ -57,14 +57,14 @@ SURROGATE_CLIP_FUNC = lambda a:SURROGATE_CLIPPING_VALUE * (1. - a)  # clip range
 # Architecture
 ACTOR_ARCH_SPEC = GDCS(ContinuousActorArchitecture, NOD(**{
   'input_shape':            None,  # Obtain from environment
-  'hidden_layers':          [256],
+  'hidden_layers':          None,
   'hidden_layer_activation':torch.relu,
   'output_shape':           None,  # Obtain from environment
   }))
 
 CRITIC_ARCH_SPEC = GDCS(MLP, NOD(**{
   'input_shape':            None,  # Obtain from environment
-  'hidden_layers':          [256],
+  'hidden_layers':          None,
   'hidden_layer_activation':torch.relu,
   'output_shape':           None,  # Obtain from environment
   }))

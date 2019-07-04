@@ -5,6 +5,7 @@ from tqdm import tqdm
 import draugr
 from agent.interfaces.specifications import TR, ValuedTransition
 from agent.utilities import to_tensor
+from neodroid.interfaces.environment_models import EnvironmentSnapshot
 
 __author__ = 'cnheider'
 __doc__ = ''
@@ -24,7 +25,10 @@ def batched_training(agent,
                      ) -> TR:
   with draugr.TensorBoardXWriter(str(log_directory)) as stat_writer:
     state = environment.reset()
-    state = state.observables
+
+    if isinstance(state, EnvironmentSnapshot):
+      state = state.observables
+
 
     B = range(1, rollouts)
     B = tqdm(B, leave=False, disable=disable_stdout)

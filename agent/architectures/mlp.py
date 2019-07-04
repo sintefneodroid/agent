@@ -39,7 +39,7 @@ OOOO hidden_layer_size * (Weights,Biases)
                output_shape: Sequence = (2,),
                use_bias: bool = True,
                auto_build_hidden_layers_if_none=True,
-               input_multiplier=16,
+               input_multiplier=32,
                output_multiplier=16,
                **kwargs
                ):

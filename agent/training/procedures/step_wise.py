@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 import draugr
 from agent.interfaces.specifications import TR
+from neodroid.interfaces.environment_models import EnvironmentSnapshot
 
 __author__ = 'cnheider'
 __doc__ = ''
@@ -24,6 +25,9 @@ def step_wise_training(agent,
            leave=False)
 
   initial_state = environment.reset()
+  if isinstance(initial_state, EnvironmentSnapshot):
+    initial_state = initial_state.observables
+
   with draugr.TensorBoardXWriter(str(log_directory)) as stat_writer:
     for batch_i in B:
       if batch_i % stat_frequency == 0:

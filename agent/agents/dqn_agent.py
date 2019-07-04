@@ -45,7 +45,7 @@ class DQNAgent(ValueAgent):
 
     self._batch_size = 128
 
-    self._discount_factor = 0.99
+    self._discount_factor = 0.95
     self._learning_frequency = 1
     self._initial_observation_period = 0
     self._sync_target_model_frequency = 1000
@@ -171,7 +171,7 @@ class DQNAgent(ValueAgent):
 
       # self._memory.batch_update(indices, td_error.tolist())  # Cuda trouble
     else:
-      logging.warning('Batch size is larger than current memory size')
+      logging.info('Batch size is larger than current memory size, skipping update')
 
   def rollout(self,
               initial_state,

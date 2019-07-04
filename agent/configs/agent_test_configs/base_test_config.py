@@ -6,19 +6,10 @@ Description: Config for training
 Author: Christian Heider Nielsen
 '''
 
-
-
-
-
 from agent.configs.base_config import *
 
 CONFIG_NAME = __name__
 CONFIG_FILE = __file__
-
-
-ENVIRONMENT_NAME = 'CartPole-v1'
-# ENVIRONMENT_NAME = 'Acrobot-v1'
-# ENVIRONMENT_NAME = 'MountainCar-v0'
 
 # Mujoco
 # ENVIRONMENT_NAME = 'FetchPickAndPlace-v0'
@@ -68,4 +59,3 @@ POLICY_ARCH_SPEC = GDCS(CategoricalMLP,
                         )
 
 ROLLOUTS = 10000
-

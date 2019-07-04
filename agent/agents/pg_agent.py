@@ -53,7 +53,7 @@ class PGAgent(PolicyAgent):
                                                          }))
 
     self._use_cuda = False
-    self._discount_factor = 0.99
+    self._discount_factor = 0.95
     self._use_batched_updates = False
     self._batch_size = 5
     self._policy_entropy_regularisation = 1

@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+from agent.agents.pg_agent import PGAgent
 from agent.architectures import MLP
-from agent.utilities import ReplayBuffer
+from agent.memory import ReplayBuffer
 
 __author__ = 'cnheider'
 '''
@@ -24,7 +25,7 @@ EXPLORATION_SPEC = ExplorationSpecification(0, 0, 0)
 AGENT_SPEC = GDCS(PGAgent, {})
 
 BATCH_SIZE = 128
-DISCOUNT_FACTOR = 0.999
+DISCOUNT_FACTOR = 0.95
 RENDER_ENVIRONMENT = False
 SIGNAL_CLIPPING = True
 DOUBLE_DQN = False

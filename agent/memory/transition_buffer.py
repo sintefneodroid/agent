@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 from agent.interfaces.specifications import Transition
 from agent.memory import ExpandableCircularBuffer
-from warg import namedtuple_args
+from warg.arguments import namedtuple_args
 
 __author__ = 'cnheider'
 

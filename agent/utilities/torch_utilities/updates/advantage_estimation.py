@@ -14,7 +14,7 @@ def advantage_estimate(signal,
                        non_terminal,
                        value_estimate,
                        *,
-                       discount_factor=0.99,
+                       discount_factor=0.95,
                        tau=0.95,
                        device='cpu'
                        ):
@@ -73,7 +73,7 @@ def compute_gae(*,
                 masks,
                 values,
                 next_value,
-                discount_factor=0.99,
+                discount_factor=0.95,
                 tau=0.95):
   with torch.no_grad():
     values = values + (next_value,)
@@ -102,7 +102,7 @@ def compute_gae3(*,
                  masks,
                  values,
                  next_value,
-                 discount_factor=0.99,
+                 discount_factor=0.95,
                  tau=0.95):
   with torch.no_grad():
     rews = numpy.append(signals, next_value)
