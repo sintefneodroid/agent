@@ -9,7 +9,7 @@ from tqdm import tqdm
 
 import agent.configs.curriculum.curriculum_config as C
 import draugr
-from agent.agents.pg_agent import PGAgent
+from agent.agents.model_free.policy_optimisation.pg_agent import PGAgent
 from agent.exploration import sample
 from neodroid import NeodroidWrapper
 from samples.rl.curriculum.grid_world import (display_actor_configurations,

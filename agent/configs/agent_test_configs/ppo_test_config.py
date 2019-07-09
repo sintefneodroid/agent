@@ -55,7 +55,7 @@ SURROGATE_CLIPPING_VALUE = 0.2  # initial probability ratio clipping range
 SURROGATE_CLIP_FUNC = lambda a:SURROGATE_CLIPPING_VALUE * (1. - a)  # clip range schedule function
 
 # Architecture
-ACTOR_ARCH_SPEC = GDCS(ContinuousActorArchitecture, NOD(**{
+ACTOR_ARCH_SPEC = GDCS(MLP, NOD(**{
   'input_shape':            None,  # Obtain from environment
   'hidden_layers':          None,
   'hidden_layer_activation':torch.relu,

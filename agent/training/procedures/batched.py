@@ -46,7 +46,7 @@ def batched_training(agent,
       S = tqdm(S, leave=False, disable=disable_stdout)
       for _ in S:
 
-        action, action_log_prob, value_estimate, *_ = agent.sample_action(state)
+        action, action_log_prob, value_estimate, *_ = agent.sample(state)
 
         successor_state, signal, terminated, *_ = environment.step(action)
 
@@ -54,8 +54,7 @@ def batched_training(agent,
           environment.render()
 
         if stat_frequency and i % stat_frequency == 0:
-          pass
-          # stat_writer.scalar()
+          stat_writer.scalar('What bro',1)
 
         batch_signal.append(signal)
 
@@ -90,7 +89,7 @@ def batched_training(agent,
 
       if len(batch) > 100:
         agent.transitions = batch
-        agent.update_models()
+        agent.update()
 
   return TR(agent.models, None)
 

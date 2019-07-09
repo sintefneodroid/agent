@@ -79,7 +79,7 @@ def main():
       for k in count(1):
 
         # actions = _environment.action_space.sample()
-        observations, signal, terminated, info = _environment.sample_action()
+        observations, signal, terminated, info = _environment.sample()
 
         episode_reward += signal
 

@@ -3,10 +3,10 @@
 import pytest
 from neodroid.wrappers import NeodroidWrapper
 
-from agent.agents.ddpg_agent import DDPGAgent
-from agent.agents.dqn_agent import DQNAgent
-from agent.agents.pg_agent import PGAgent
-from agent.agents.ppo_agent import PPOAgent
+from agent.agents.model_free.hybrid.ddpg_agent import DDPGAgent
+from agent.agents.model_free.q_learning.dqn_agent import DQNAgent
+from agent.agents.model_free.policy_optimisation.pg_agent import PGAgent
+from agent.agents.model_free.policy_optimisation.ppo_agent import PPOAgent
 
 __author__ = 'cnheider'
 __doc__ = 'Tests of agents'

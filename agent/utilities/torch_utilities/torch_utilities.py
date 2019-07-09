@@ -8,6 +8,8 @@ import numpy
 import torch
 from torch.utils.data import Dataset
 
+from agent.utilities.torch_utilities.to_tensor import to_tensor
+
 __author__ = 'cnheider'
 
 
@@ -39,27 +41,6 @@ def log_shannon_entropy(log_prob):
   # return - torch.sum(torch.exp(log_prob) * log_prob, -1)
 
 
-def to_tensor(obj, dtype=torch.float, device='cpu', non_blocking=True):
-  if torch.is_tensor(obj):
-    return obj.to(device, dtype=dtype, non_blocking=non_blocking)
-
-  if isinstance(obj, numpy.ndarray):
-    if torch.is_tensor(obj[0]):
-      return torch.cat(obj.tolist())
-    return torch.from_numpy(obj).to(device=device,
-                                    dtype=dtype,
-                                    non_blocking=non_blocking)
-
-  if not isinstance(obj, Sequence):
-    obj = [obj]
-  elif not isinstance(obj, list) and isinstance(obj, Iterable):
-    obj = [*obj]
-
-  if isinstance(obj, list):
-    if torch.is_tensor(obj[0]) and len(obj[0].size()) > 0:
-      return torch.cat(obj)
-
-  return torch.tensor(obj, device=device, dtype=dtype)
 
 
 def torch_pi(device='cpu'):
@@ -158,6 +139,13 @@ class NonSequentialDataset(Dataset):
 
   def __len__(self):
     return len(self.arrays[0])
+
+class TensoriseMixin(object):
+  device = "cpu"
+  dtype = torch.float
+
+  def __setattr__(self, key, value):
+    super().__setattr__(key, to_tensor(value, dtype=self.dtype, device=self.device))
 
 
 if __name__ == '__main__':

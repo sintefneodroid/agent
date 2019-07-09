@@ -5,7 +5,7 @@ import os
 import time
 from collections import Iterable
 from itertools import count
-from typing import Callable, Mapping, Type
+from typing import Type
 
 import gym
 import torch
@@ -13,8 +13,7 @@ import torch
 import draugr
 from agent import utilities as U
 from agent.exceptions.exceptions import NoTrainingProcedure
-from agent.interfaces.partials.agents.agent import Agent
-from agent.interfaces.partials.agents.torch_agents.torch_agent import TorchAgent
+from agent.interfaces.agent import Agent
 from agent.interfaces.specifications import TrainingSession
 from agent.training.procedures import train_episodically
 from agent.utilities import save_model
@@ -55,7 +54,7 @@ class linear_training(TrainingSession):
     U.set_seeds(kwargs['SEED'])
     environment.seed(kwargs['SEED'])
 
-    agent = agent_type(kwargs)
+    agent = agent_type(**kwargs)
     agent.build(environment)
 
     listener = add_early_stopping_key_combination(agent.stop_training, has_x_server=save)
@@ -93,7 +92,7 @@ class parallelised_training(TrainingSession):
                *,
 
                environments=None,
-               default_num_train_envs=4,
+               default_num_train_envs=6,
                auto_reset_on_terminal_state=False,
                **kwargs):
     super().__init__(**kwargs)
@@ -102,7 +101,7 @@ class parallelised_training(TrainingSession):
     self.auto_reset_on_terminal = auto_reset_on_terminal_state
 
   def __call__(self,
-               agent_type : Type[TorchAgent],
+               agent_type : Type[Agent],
                *,
                save=True,
                has_x_server=False,
@@ -126,7 +125,7 @@ class parallelised_training(TrainingSession):
     U.set_seeds(kwargs.seed)
     self.environments.seed(kwargs.seed)
 
-    agent = agent_type(kwargs)
+    agent = agent_type(**kwargs)
     agent.build(self.environments)
 
     listener = add_early_stopping_key_combination(agent.stop_training, has_x_server=has_x_server)
@@ -176,7 +175,7 @@ class agent_test_gym(TrainingSession):
   '''
 
     import agent.configs.agent_test_configs.pg_test_config as C
-    from agent.agents.pg_agent import PGAgent
+    from agent.agents.model_free.policy_optimisation.pg_agent import PGAgent
 
     _environment = gym.make(C.ENVIRONMENT_NAME)
     _environment.seed(C.SEED)
@@ -254,7 +253,7 @@ def train_agent(agent: Type[Agent],
 
 if __name__ == '__main__':
   import agent.configs.agent_test_configs.pg_test_config as C
-  from agent.agents.pg_agent import PGAgent
+  from agent.agents.model_free.policy_optimisation.pg_agent import PGAgent
 
   env = DiscreteActionEncodingWrapper(name=C.ENVIRONMENT_NAME,
                                       connect_to_running=C.CONNECT_TO_RUNNING)

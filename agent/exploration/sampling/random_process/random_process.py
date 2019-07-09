@@ -10,5 +10,5 @@ class RandomProcess(ABC):
   def reset(self):
     raise NotImplementedError
 
-  def sample(self):
+  def sample(self, size):
     raise NotImplementedError

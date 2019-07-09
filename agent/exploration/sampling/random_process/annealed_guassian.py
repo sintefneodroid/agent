@@ -7,7 +7,7 @@ from .random_process import RandomProcess
 
 class AnnealedGaussianProcess(RandomProcess):
 
-  def sample(self):
+  def sample(self, size):
     pass
 
   def __init__(self, mean, sigma, sigma_min, n_steps_annealing):

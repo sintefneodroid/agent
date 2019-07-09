@@ -102,15 +102,20 @@ class NeodroidAgentPackageMeta(type):
         # "name_of_executable = module.with:function_to_execute"
         'neodroid-tab = agent.agents.experimental.tabular_q_agent:tabular_test',
         'neodroid-rnd = agent.agents.experimental.random_agent:random_test',
-        'neodroid-ppo = agent.agents.ppo_agent:ppo_test',
-        'neodroid-dqn-gym = agent.agents.dqn_agent:dqn_test',
-        'neodroid-pg-gym = agent.agents.pg_agent:pg_test',
-        'neodroid-dqn = agent.agents.dqn_agent:dqn_run',
-        'neodroid-pg = agent.agents.pg_agent:pg_run',
-        'neodroid-ddpg = agent.agents.ddpg_agent:ddpg_test',
+
+        'neodroid-ppo-gym = agent.agents.model_free.policy_optimisation.ppo_agent:ddpg_test',
+        'neodroid-dqn-gym = agent.agents.model_free.q_learning.dqn_agent:dqn_test',
+        'neodroid-pg-gym = agent.agents.model_free.policy_optimisation.pg_agent:pg_test',
+        'neodroid-ddpg-gym = agent.agents.model_free.hybrid.ddpg_agent:ddpg_test',
+
+        'neodroid-ppo = agent.agents.model_free.policy_optimisation.ppo_agent:ppo_run',
+        'neodroid-dqn = agent.agents.model_free.q_learning.dqn_agent:dqn_run',
+        'neodroid-pg = agent.agents.model_free.policy_optimisation.pg_agent:pg_run',
+        'neodroid-ddpg = agent.agents.model_free.hybrid.ddpg_agent:ddpg_run',
+
         'neodroid-cma = agent.agents.experimental.cma_agent:cma_test',
+
         'neodroid-tb = agent.utilities.extra_entry_points.tensorboard_entry_point:main',
-        # 'neodroid-evo = agents.evo_agent:main'
         ]
       }
 

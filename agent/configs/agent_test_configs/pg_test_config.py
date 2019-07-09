@@ -23,7 +23,7 @@ DISCOUNT_FACTOR = 0.95
 PG_ENTROPY_REG = 3e-3
 
 # Architecture
-POLICY_ARCH_SPEC = GDCS(MLP, NOD(**{
+POLICY_ARCH_SPEC = GDCS(CategoricalMLP, NOD(**{
   'input_shape':            None,  # Obtain from environment
   'hidden_layer_activation':torch.relu,
   'hidden_layers':          None,

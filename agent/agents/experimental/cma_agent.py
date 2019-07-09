@@ -4,7 +4,7 @@ from typing import Any, Tuple
 from tqdm import tqdm
 
 import draugr
-from agent.interfaces.partials.agents.evo_agent import EVOAgent
+from agent.agents.experimental.evo_agent import EVOAgent
 from agent.training.train_agent import train_agent
 
 
@@ -75,8 +75,8 @@ class CMAAgent(EVOAgent):
 
   # region Public
 
-  def sample_action(self, state, *args, **kwargs) -> Any:
-    return self._environment.action_space._sample()
+  def sample(self, state, *args, **kwargs) -> Any:
+    return self._last_connected_environment.action_space._sample()
 
   def update(self, *args, **kwargs) -> None:
     pass

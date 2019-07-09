@@ -5,7 +5,7 @@ import time
 import torch
 import torch.nn.functional as F
 
-from agent.architectures import CategoricalMLP
+from agent.architectures.distributional.categorical import CategoricalMLP
 from agent.interfaces.specifications.exploration_specification import ExplorationSpecification
 from agent.interfaces.specifications.generalised_delayed_construction_specification import GDCS
 from agent.version import PROJECT_APP_PATH, PROJECT_NAME

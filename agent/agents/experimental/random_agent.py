@@ -5,7 +5,7 @@ from typing import Any, Tuple
 from tqdm import tqdm
 
 import draugr
-from agent.interfaces.partials.agents.torch_agents.torch_agent import TorchAgent
+from agent.interfaces.torch_agent import TorchAgent
 
 
 class RandomAgent(TorchAgent):
@@ -75,8 +75,8 @@ class RandomAgent(TorchAgent):
 
   # region Public
 
-  def sample_action(self, state, *args, **kwargs) -> Any:
-    return self._environment.action_space._sample()
+  def sample(self, state, *args, **kwargs) -> Any:
+    return self._last_connected_environment.action_space._sample()
 
   def update(self, *args, **kwargs) -> None:
     pass
@@ -97,7 +97,7 @@ class RandomAgent(TorchAgent):
     T = tqdm(T, f'Rollout #{self._rollout_i}', leave=False, disable=not render)
 
     for t in T:
-      action = int(self.sample_action(state)[0])
+      action = int(self.sample(state)[0])
 
       state, signal, terminated, info = environment.act(action)
       episode_signal += signal

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-from agent.agents.pg_agent import PGAgent
+from agent.agents.model_free.policy_optimisation.pg_agent import PGAgent
 from agent.architectures import MLP
 from agent.memory import ReplayBuffer
 

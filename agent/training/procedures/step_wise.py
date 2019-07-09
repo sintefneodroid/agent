@@ -57,11 +57,11 @@ def step_wise_training(agent,
         for m in advantage_memories:
           agent._experience_buffer.add(m)
 
-        agent.update_models()
+        agent.update()
         agent._experience_buffer.clear()
 
         if agent._rollout_i % agent._update_target_interval == 0:
-          agent.update_targets()
+          agent._update_targets()
 
       if agent.end_training:
         break

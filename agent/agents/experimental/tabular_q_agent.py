@@ -7,7 +7,7 @@ import gym
 import numpy as np
 from tqdm import tqdm
 
-from agent.interfaces.partials.agents.torch_agents.value_agent import ValueAgent
+from agent.agents.model_free.q_learning.value_agent import ValueAgent
 
 
 class TabularQAgent(ValueAgent):
@@ -44,17 +44,17 @@ class TabularQAgent(ValueAgent):
   def save(self, *args, **kwargs) -> None:
     pass
 
-  def sample_action(self, state, **kwargs):
+  def sample(self, state, **kwargs):
     if not isinstance(state, str):
       state = str(state)
 
-    return super().sample_action(state)
+    return super().sample(state)
 
   def sample_random_process(self):
-    if hasattr(self._environment.action_space, 'signed_one_hot_sample'):
-      return self._environment.action_space.signed_one_hot_sample()
+    if hasattr(self._last_connected_environment.action_space, 'signed_one_hot_sample'):
+      return self._last_connected_environment.action_space.signed_one_hot_sample()
     else:
-      return self._environment.action_space._sample()
+      return self._last_connected_environment.action_space._sample()
 
   def rollout(self,
               initial_state,
@@ -67,7 +67,7 @@ class TabularQAgent(ValueAgent):
     ep_r = 0
     steps = 0
     for t in count():
-      action = self.sample_action(obs)
+      action = self.sample(obs)
 
       next_obs, signal, terminal, _ = environment.act(action)
 
@@ -129,10 +129,10 @@ class TabularQAgent(ValueAgent):
 
   def _build(self, **kwargs) -> None:
 
-    if hasattr(self._environment.action_space, 'num_binary_actions'):
-      self._action_n = self._environment.action_space.num_binary_actions
+    if hasattr(self._last_connected_environment.action_space, 'num_binary_actions'):
+      self._action_n = self._last_connected_environment.action_space.num_binary_actions
     else:
-      self._action_n = self._environment.action_space.n
+      self._action_n = self._last_connected_environment.action_space.n
 
     # self._verbose = True
 
