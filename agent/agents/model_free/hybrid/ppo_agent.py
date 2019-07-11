@@ -5,7 +5,8 @@ from typing import Any
 import numpy
 from torch import nn
 
-from agent.interfaces.torch_agent import TorchAgent
+from neodroid.environments.wrappers.vector_environment import VectorEnvironment
+from .actor_critic_agent import ActorCriticAgent
 from agent.interfaces.specifications import AdvantageDiscountedTransition, ValuedTransition
 from agent.training.procedures import to_tensor, step_wise_training, EnvironmentSnapshot
 from agent.training.train_agent import parallelised_training, train_agent
@@ -23,31 +24,12 @@ import torch.nn.functional as F
 from agent import utilities as U
 
 
-class PPOAgent(TorchAgent):
+class PPOAgent(ActorCriticAgent):
   '''
   PPO, Proximal Policy Optimization method
 
   See method __defaults__ for default parameters
 '''
-
-  def _build(self, **kwargs) -> None:
-    pass
-
-  def rollout(self, initial_state, environment, *, train=True, render=False, **kwargs) -> Any:
-    pass
-
-  def load(self, *args, **kwargs) -> None:
-    pass
-
-  def save(self, *args, **kwargs) -> None:
-    pass
-
-  def sample(self, state, *args, disallow_random_sample=False, stat_writer: Writer = None, **kwargs) -> Any:
-    pass
-
-  @property
-  def models(self) -> tuple:
-    return self._actor, self._critic
 
   # region Private
 
@@ -130,14 +112,12 @@ class PPOAgent(TorchAgent):
 
     model_input = to_tensor(state, device=self._device, dtype=self._state_type)
 
-    mean, std = self._actor(model_input)
-
-    distribution = torch.distributions.Normal(mean, std)
+    distribution = self._actor(model_input)[0]
 
     with torch.no_grad():
       action = distribution.sample()
 
-    value_estimate = self._critic(model_input, actions=action)
+    value_estimate = self._critic(model_input, action)[0]
 
     action_log_prob = distribution.log_prob(action)
 
@@ -184,7 +164,7 @@ class PPOAgent(TorchAgent):
 
   def take_n_steps(self,
                    initial_state: EnvironmentSnapshot,
-                   environment: Environment,
+                   environment: VectorEnvironment,
                    n:int=100,
                    *,
                    train:bool=False,
@@ -269,7 +249,10 @@ class PPOAgent(TorchAgent):
 
     return AdvantageDiscountedTransition(*zip(*advantage_memories))
 
-  def evaluate(self, batch: AdvantageDiscountedTransition, discrete:bool=False, **kwargs):
+  def evaluate(self,
+               batch: AdvantageDiscountedTransition,
+               discrete:bool=False,
+               **kwargs):
     # region Tensorise
 
     states = to_tensor(batch.state, device=self._device)

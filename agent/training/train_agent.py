@@ -17,9 +17,10 @@ from agent.interfaces.agent import Agent
 from agent.interfaces.specifications import TrainingSession
 from agent.training.procedures import train_episodically
 from agent.utilities import save_model
+from build.lib.neodroid.wrappers.action_encoding_wrappers import DiscreteActionEncodingWrapper
 from draugr.stopping_key import add_early_stopping_key_combination
-from neodroid.wrappers import NeodroidWrapper
-from neodroid.wrappers.action_encoding_wrappers import DiscreteActionEncodingWrapper
+from neodroid.environments.wrappers import NeodroidGymWrapper
+from neodroid.environments.wrappers.vector_environment import VectorEnvironment
 from trolls.multiple_environments_wrapper import SubProcessEnvironments, make_gym_env
 from trolls.wrappers.vector_environments import VectorWrap
 from warg.arguments import parse_arguments, config_to_mapping
@@ -43,13 +44,13 @@ class linear_training(TrainingSession):
     if not kwargs.connect_to_running:
       if not environment:
         if '-v' in kwargs.environment_name:
-          environment = VectorWrap(NeodroidWrapper(gym.make(kwargs.environment_name)))
+          environment = VectorWrap(NeodroidGymWrapper(gym.make(kwargs.environment_name)))
         else:
-          environment = VectorWrap(DiscreteActionEncodingWrapper(name= kwargs.environment_name,
-                                                                 connect_to_running= kwargs.connect_to_running))
+          environment = VectorEnvironment(name= kwargs.environment_name,
+                                          connect_to_running= kwargs.connect_to_running)
     else:
-      environment = VectorWrap(DiscreteActionEncodingWrapper(name= kwargs.environment_name,
-                                                             connect_to_running=kwargs.connect_to_running))
+      environment = VectorEnvironment(name= kwargs.environment_name,
+                                      connect_to_running=kwargs.connect_to_running)
 
     U.set_seeds(kwargs['SEED'])
     environment.seed(kwargs['SEED'])
@@ -115,12 +116,12 @@ class parallelised_training(TrainingSession):
         if self.default_num_train_envs > 0:
           self.environments = [make_gym_env(kwargs.environment_name) for _ in
                                range(self.default_num_train_envs)]
-          self.environments = NeodroidWrapper(SubProcessEnvironments(self.environments,
-                                                                     auto_reset_on_terminal=self.auto_reset_on_terminal))
+          self.environments = NeodroidGymWrapper(SubProcessEnvironments(self.environments,
+                                                                        auto_reset_on_terminal=self.auto_reset_on_terminal))
 
       else:
-        self.environments = DiscreteActionEncodingWrapper(name=kwargs.environment_name,
-                                                          connect_to_running=kwargs.connect_to_running)
+        self.environments = VectorEnvironment(name=kwargs.environment_name,
+                                              connect_to_running=kwargs.connect_to_running)
 
     U.set_seeds(kwargs.seed)
     self.environments.seed(kwargs.seed)
@@ -197,7 +198,7 @@ def train_agent(agent: Type[Agent],
                 parse_args: bool = True,
                 save: bool = True,
                 has_x_server: bool = True,
-                skip_confirmation: bool = False
+                skip_confirmation: bool = True
                 ):
   '''
 
@@ -212,7 +213,9 @@ def train_agent(agent: Type[Agent],
     args = parse_arguments(f'{type(agent)}', config)
     args_dict = args.__dict__
 
-    skip_confirmation = args.skip_confirmation
+    skip_confirmation = args.SKIP_CONFIRMATION
+
+    #TODo: load earlier model and inference flags
 
     if 'CONFIG' in args_dict.keys() and args_dict['CONFIG']:
       import importlib.util

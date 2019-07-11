@@ -73,7 +73,7 @@ All value iteration agents should inherit from this class
 
     super().__init__(*args, **kwargs)
 
-  def _build(self, stat_writer: Writer = None, **kwargs) -> None:
+  def _build(self, env, stat_writer:Writer=None, **kwargs) -> None:
     # Construct actor and critic
     self._actor = self._actor_arch_spec.constructor(**self._actor_arch_spec.kwargs).to(self._device)
     self._target_actor = self._actor_arch_spec.constructor(**self._actor_arch_spec.kwargs).to(
@@ -153,7 +153,7 @@ All value iteration agents should inherit from this class
            **kwargs):
     print('loading latest model: ' + model_path)
 
-    self._build(**kwargs)
+    self._build(None, **kwargs)
 
     self._actor.load_state_dict(torch.load(f'actor-{model_path}'))
     self._critic.load_state_dict(torch.load(f'critic-{model_path}'))
@@ -193,7 +193,7 @@ All value iteration agents should inherit from this class
               **kwargs):
     self._update_i += 1
 
-    state = initial_state
+    state = initial_state.observables
     episode_signal = []
     episode_length = 0
 

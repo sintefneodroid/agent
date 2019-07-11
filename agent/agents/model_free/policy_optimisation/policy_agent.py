@@ -6,8 +6,10 @@ from typing import Any
 
 import draugr
 from agent.architectures import Architecture
-from agent.interfaces.torch_agent import TorchAgent
+from agent.architectures.distributional.categorical import CategoricalMLP
+from agent.architectures.distributional.normal import MultiDimensionalNormalMLP, MultipleNormalMLP
 from agent.interfaces.specifications import GDCS
+from agent.interfaces.torch_agent import TorchAgent
 from draugr.writers.writer import Writer
 from neodroid.environments.environment import Environment
 
@@ -39,7 +41,7 @@ class PolicyAgent(TorchAgent):
 
     super().__init__(*args, **kwargs)
 
-  def _build(self, env, stat_writer: Writer = None, **kwargs):
+  def _build(self, env: Environment, stat_writer: Writer = None, **kwargs):
 
     if stat_writer:
       dummy_in = torch.rand(1, *self.input_shape)
@@ -86,12 +88,14 @@ class PolicyAgent(TorchAgent):
   # region Protected
 
   def _post_io_inference(self, env: Environment):
+
     self._policy_arch_spec.kwargs['input_shape'] = self._input_shape
-    self._policy_arch_spec.kwargs['output_shape'] = self._output_shape
-    if hasattr(env.action_space, 'is_discrete'):
-      self._policy_arch_spec.kwargs['discrete'] = env.action_space.is_discrete
+    if env.action_space.is_discrete:
+      self._policy_arch_spec = GDCS(CategoricalMLP,self._policy_arch_spec.kwargs)
+      self._policy_arch_spec.kwargs['output_shape'] = self._output_shape
     else:
-      self._policy_arch_spec.kwargs['discrete'] = True
+      self._policy_arch_spec=GDCS(MultiDimensionalNormalMLP, self._policy_arch_spec.kwargs)
+      self._policy_arch_spec.kwargs['output_shape'] = self._output_shape
 
       # endregion
 

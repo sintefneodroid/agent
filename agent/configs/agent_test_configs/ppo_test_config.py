@@ -2,7 +2,9 @@
 # -*- coding: utf-8 -*-
 from torch.nn import MSELoss
 
-from agent.architectures import ContinuousActorArchitecture, MLP
+from agent.architectures import MLP
+from agent.architectures.distributional.normal import MultipleNormalMLP, MultiDimensionalNormalMLP
+from agent.architectures.experimental.merged import MergedInputMLP
 from .base_test_config import *
 
 __author__ = 'cnheider'
@@ -55,14 +57,14 @@ SURROGATE_CLIPPING_VALUE = 0.2  # initial probability ratio clipping range
 SURROGATE_CLIP_FUNC = lambda a:SURROGATE_CLIPPING_VALUE * (1. - a)  # clip range schedule function
 
 # Architecture
-ACTOR_ARCH_SPEC = GDCS(MLP, NOD(**{
+ACTOR_ARCH_SPEC = GDCS(MultiDimensionalNormalMLP, NOD(**{
   'input_shape':            None,  # Obtain from environment
   'hidden_layers':          None,
   'hidden_layer_activation':torch.relu,
   'output_shape':           None,  # Obtain from environment
   }))
 
-CRITIC_ARCH_SPEC = GDCS(MLP, NOD(**{
+CRITIC_ARCH_SPEC = GDCS(MergedInputMLP, NOD(**{
   'input_shape':            None,  # Obtain from environment
   'hidden_layers':          None,
   'hidden_layer_activation':torch.relu,

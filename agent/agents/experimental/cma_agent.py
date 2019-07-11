@@ -19,7 +19,7 @@ class CMAAgent(EVOAgent):
 
   # region Protected
 
-  def _build(self, **kwargs) -> None:
+  def _build(self, env, **kwargs) -> None:
     pass
 
   def _optimise_wrt(self, error, **kwargs) -> None:

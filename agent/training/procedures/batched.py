@@ -26,10 +26,6 @@ def batched_training(agent,
   with draugr.TensorBoardXWriter(str(log_directory)) as stat_writer:
     state = environment.reset()
 
-    if isinstance(state, EnvironmentSnapshot):
-      state = state.observables
-
-
     B = range(1, rollouts)
     B = tqdm(B, leave=False, disable=disable_stdout)
     for i in B:

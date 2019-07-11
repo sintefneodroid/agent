@@ -127,7 +127,7 @@ class TabularQAgent(ValueAgent):
                     **kwargs) -> None:
     pass
 
-  def _build(self, **kwargs) -> None:
+  def _build(self, env, **kwargs) -> None:
 
     if hasattr(self._last_connected_environment.action_space, 'num_binary_actions'):
       self._action_n = self._last_connected_environment.action_space.num_binary_actions
@@ -155,8 +155,8 @@ class TabularQAgent(ValueAgent):
 
 # region Test
 def tabular_test():
-  import neodroid.wrappers.gym_wrapper as neo
-  env = neo.NeodroidGymWrapper(environment_name='mab')
+  import neodroid.environments.wrappers.gym_wrapper as neo
+  env = neo.NeodroidGymEnvironment(environment_name='mab')
   agent = TabularQAgent(observation_space=env.observation_space,
                         action_space=env.action_space,
                         environment=env)

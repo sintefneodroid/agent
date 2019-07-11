@@ -10,7 +10,7 @@ from tqdm import tqdm
 
 tqdm.monitor_interval = 0
 
-from neodroid.wrappers.gym_wrapper import NeodroidGymWrapper as neo
+from neodroid.environments.wrappers.gym_wrapper import NeodroidGymEnvironment as neo
 from agent import utilities as U
 
 

@@ -19,7 +19,7 @@ class RandomAgent(TorchAgent):
 
   # region Protected
 
-  def _build(self, **kwargs) -> None:
+  def _build(self, env, **kwargs) -> None:
     pass
 
   def _optimise_wrt(self, error, **kwargs) -> None:
@@ -125,8 +125,8 @@ class RandomAgent(TorchAgent):
 
 # region Test
 def random_test():
-  import neodroid.wrappers.gym_wrapper as neo
-  env = neo.NeodroidGymWrapper(environment_name='mab')
+  import neodroid.environments.wrappers.gym_wrapper as neo
+  env = neo.NeodroidGymEnvironment(environment_name='mab')
   agent = RandomAgent(observation_space=env.observation_space,
                       action_space=env.action_space,
                       environment=env)

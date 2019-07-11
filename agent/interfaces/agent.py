@@ -66,14 +66,14 @@ Tries to infer input and output size from env if either _input_shape or _output_
     # region print
 
     if print_inferred_io_shapes:
-      draugr.sprint(f'observation dimensions: {self._input_shape}\n'
-                    f'observation_space: {env.observation_space}\n',
+      draugr.sprint(f'input shape: {self._input_shape}\n'
+                    f'observation space: {env.observation_space}\n',
                     color='green',
                     bold=True,
                     highlight=True)
 
-      draugr.sprint(f'action dimensions: {self._output_shape}\n'
-                    f'action_space: {env.action_space}\n',
+      draugr.sprint(f'output shape: {self._output_shape}\n'
+                    f'action space: {env.action_space}\n',
                     color='yellow',
                     bold=True,
                     highlight=True)
@@ -81,6 +81,12 @@ Tries to infer input and output size from env if either _input_shape or _output_
   # endregion
 
   # region Public
+
+
+  @property
+  @abstractmethod
+  def models(self) -> tuple:
+    raise NotImplementedError
 
   def run(self, environment: Environment, render: bool = True) -> None:
 
@@ -170,7 +176,7 @@ Tries to infer input and output size from env if either _input_shape or _output_
 
   def build(self, env: Environment, **kwargs) -> None:
     self.__infer_io_shapes(env)
-    self._build(**kwargs)
+    self._build(env,**kwargs)
 
   @property
   def input_shape(self):
@@ -204,7 +210,7 @@ Tries to infer input and output size from env if either _input_shape or _output_
     raise NotImplementedError
 
   @abstractmethod
-  def _build(self, **kwargs) -> None:
+  def _build(self, env, **kwargs) -> None:
     raise NotImplementedError
 
   @abstractmethod

@@ -49,9 +49,6 @@ def train_episodically(agent,
     for episode_i in E:
       initial_state = environment.reset()
 
-      if isinstance(initial_state, EnvironmentSnapshot):
-        initial_state = initial_state.observables
-
       if render_frequency and episode_i % render_frequency == 0:
         render = True
       else:

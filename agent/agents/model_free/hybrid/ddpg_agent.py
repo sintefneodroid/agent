@@ -22,8 +22,8 @@ __author__ = 'cnheider'
 
 tqdm.monitor_interval = 0
 
-
 class DDPGAgent(ActorCriticAgent):
+
   '''
   The Deep Deterministic Policy Gradient (DDPG) Agent
 

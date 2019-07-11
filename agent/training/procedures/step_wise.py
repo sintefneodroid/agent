@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+from pathlib import Path
+from typing import Union
+
 import draugr
 from agent.interfaces.specifications import TR
 from neodroid.interfaces.environment_models import EnvironmentSnapshot
@@ -13,20 +16,21 @@ from tqdm import tqdm
 def step_wise_training(agent,
                        environment,
                        *,
-                       log_directory,
-                       batch_length,
-                       num_updates,
-                       num_batches,
-                       stat_frequency,
-                       render_frequency,
-                       **kwargs) -> TR:
+
+                       batch_length=100,
+                       num_updates=10,
+                       num_batches=9999,
+                       log_directory: Union[str, Path],
+                       render_frequency=100,
+                       stat_frequency=10,
+
+**kwargs
+                       ) -> TR:
   B = range(1, num_updates + 1)
-  B = tqdm(B, f'Batch {0}, {num_batches} - Episode {agent._rollout_i}',
+  B = tqdm(B, f'Batch {0}, {num_batches}',
            leave=False)
 
   initial_state = environment.reset()
-  if isinstance(initial_state, EnvironmentSnapshot):
-    initial_state = initial_state.observables
 
   with draugr.TensorBoardXWriter(str(log_directory)) as stat_writer:
     for batch_i in B:

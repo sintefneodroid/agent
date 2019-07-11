@@ -49,12 +49,3 @@ All agent should inherit from this class
 
   # endregion
 
-
-  # Abstract Public
-
-  @property
-  @abstractmethod
-  def models(self) -> tuple:
-    raise NotImplementedError
-
-  # endregion

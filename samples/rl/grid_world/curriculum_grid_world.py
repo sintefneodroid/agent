@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-from neodroid.wrappers.utility_wrappers.action_encoding_wrappers import BinaryActionEncodingWrapper
+from neodroid.environments.wrappers import BinaryActionEncodingWrapper
 
 import draugr
 

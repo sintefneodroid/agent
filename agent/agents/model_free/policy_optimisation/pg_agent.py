@@ -2,16 +2,15 @@
 # -*- coding: utf-8 -*-
 from logging import warning
 
-import draugr
+from agent.agents.model_free.policy_optimisation.policy_agent import PolicyAgent
 from agent.architectures.distributional.categorical import CategoricalMLP
 from agent.exceptions.exceptions import NoTrajectoryException
-from agent.agents.model_free.policy_optimisation.policy_agent import PolicyAgent
 from agent.interfaces.specifications.generalised_delayed_construction_specification import GDCS
 from agent.memory import TrajectoryBuffer
-from agent.training.procedures import train_episodically, to_tensor
+from agent.training.procedures import to_tensor, train_episodically
 from agent.training.train_agent import parallelised_training, train_agent
+from neodroid.environments.environment import Environment
 from neodroid.interfaces.environment_models import EnvironmentSnapshot
-from neodroid.utilities.transformations.encodings import to_one_hot
 from warg.named_ordered_dictionary import NOD
 
 __author__ = 'cnheider'
@@ -20,7 +19,6 @@ from itertools import count
 
 import numpy as np
 import torch
-from torch.distributions import Categorical, Normal
 from tqdm import tqdm
 
 from agent import utilities as U
@@ -34,8 +32,6 @@ class PGAgent(PolicyAgent):
 
   See method __defaults__ for default parameters
   '''
-
-
 
   # region Private
 
@@ -77,9 +73,10 @@ class PGAgent(PolicyAgent):
 
   # region Protected
 
-  def _build(self, **kwargs) -> None:
-    self._distribution_regressor = self._policy_arch_spec.constructor(
-        **self._policy_arch_spec.kwargs).to(self._device)
+  def _build(self, env: Environment, **kwargs):
+
+    self._distribution_regressor = self._policy_arch_spec.constructor(**self._policy_arch_spec.kwargs).to(
+      self._device)
 
     self.optimiser = self._optimiser_spec.constructor(self._distribution_regressor.parameters(),
                                                       **self._optimiser_spec.kwargs)
@@ -95,14 +92,11 @@ class PGAgent(PolicyAgent):
   def _sample_model(self, state, **kwargs):
     model_input = to_tensor(state, device=self._device, dtype=self._state_type)
 
-    distribution = self._distribution_regressor(model_input)[0]
-
-    action = distribution.sample()
-    log_prob = distribution.log_prob(action)
+    distributions = self._distribution_regressor(model_input)
+    action, log_prob = self._distribution_regressor.sample(distributions)
 
     with torch.no_grad():
-      entropy = distribution.entropy()  # .mean()
-      action = action.to('cpu').numpy().tolist()
+      entropy = self._distribution_regressor.entropy(distributions)
 
     return action, log_prob, entropy
 
@@ -112,7 +106,6 @@ class PGAgent(PolicyAgent):
 
   def sample(self, state, *args, **kwargs):
     return self._sample_model(state)
-
 
   def evaluate(self, **kwargs):
     if not len(self._trajectory_trace) > 0:
@@ -124,13 +117,13 @@ class PGAgent(PolicyAgent):
     entropies = trajectory.entropy
     self._trajectory_trace.clear()
 
-    R = 0
+    ret = np.zeros_like(t_signals[0])
     policy_loss = []
     signals = []
 
     for r in t_signals[::-1]:
-      R = r + self._discount_factor * R
-      signals.insert(0, R)
+      ret = r + self._discount_factor * ret
+      signals.insert(0, ret)
 
     signals = U.to_tensor(signals, device=self._device, dtype=self._signals_tensor_type)
 
@@ -138,14 +131,17 @@ class PGAgent(PolicyAgent):
       stddev = signals.std()
       signals = (signals - signals.mean()) / (stddev + self._divide_by_zero_safety)
     elif signals.shape[0] == 0:
-      warning(f'No signals received, got signals.shape[0]:{signals.shape[0]}')
+      warning(f'No signals received, got signals.shape[0]: {signals.shape[0]}')
 
     for log_prob, signal, entropy in zip(log_probs, signals, entropies):
       maximisation_term = signal + self._policy_entropy_regularisation * entropy
-      expected_reward = - log_prob * maximisation_term
+      expected_reward = -log_prob * maximisation_term
       policy_loss.append(expected_reward)
 
-    loss = torch.cat(policy_loss).sum()
+    if len(policy_loss[0].shape) < 1:
+      loss = torch.stack(policy_loss).sum()
+    else:
+      loss = torch.cat(policy_loss).sum()
     return loss
 
   def update(self, *, stat_writer=None, **kwargs):
@@ -173,8 +169,8 @@ class PGAgent(PolicyAgent):
         self._optimise(error)
 
   def rollout(self,
-              initial_state,
-              environment,
+              initial_state: EnvironmentSnapshot,
+              environment: Environment,
               render: bool = False,
               stat_writer=None,
               train: bool = True,
@@ -207,10 +203,7 @@ class PGAgent(PolicyAgent):
     episode_length = 0
     episode_entropy = []
 
-    if isinstance(initial_state, EnvironmentSnapshot):
-      state = initial_state.observables
-    else:
-      state = initial_state
+    state = initial_state.observables
 
     '''
     with draugr.scroll_plot_class(self._distribution_regressor.output_shape,
@@ -220,7 +213,9 @@ class PGAgent(PolicyAgent):
     for t in tqdm(count(1), f'Update #{self._update_i}', leave=False, disable=disable_stdout):
       action, action_log_prob, entropy = self.sample(state)
 
-      state, signal, terminated, *_ = environment.step(action)
+      snapshot = environment.react(action)
+
+      state, signal, terminated = snapshot.observables, snapshot.signal, snapshot.terminated
 
       if self._signal_clipping:
         signal = np.clip(signal,
@@ -234,7 +229,7 @@ class PGAgent(PolicyAgent):
 
       if render:
         environment.render()
-        #s.draw(to_one_hot(self._distribution_regressor.output_shape, action)[0])
+        # s.draw(to_one_hot(self._distribution_regressor.output_shape, action)[0])
 
       if np.array(terminated).all() or (max_length and t > max_length):
         episode_length = t
@@ -253,7 +248,6 @@ class PGAgent(PolicyAgent):
       stat_writer.scalar('entropy', ee, self._update_i)
 
     return ep, el, ee
-
 
   def infer(self, env, render=True):
 
@@ -304,6 +298,6 @@ def pg_run(rollouts=None, skip=True):
 
 
 if __name__ == '__main__':
-  pg_test()
-  #pg_run()
+  # pg_test()
+  pg_run()
 # endregion

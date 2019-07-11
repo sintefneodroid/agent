@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 import copy
 from abc import abstractmethod
-from typing import Any
+from typing import Any, Iterable, Sequence
 
 import draugr
 from agent.interfaces.torch_agent import TorchAgent
@@ -17,6 +17,7 @@ import random
 import numpy as np
 import torch
 from agent import utilities as U
+from neodroid.environments.environment import Environment
 
 __author__ = 'cnheider'
 
@@ -39,7 +40,7 @@ All value iteration agents should inherit from this class
     super().__init__(*args, **kwargs)
 
   def sample(self,
-             state,
+             state:Sequence,
              disallow_random_sample=False,
              stat_writer: Writer = None,
              **kwargs):
@@ -55,10 +56,7 @@ All value iteration agents should inherit from this class
 
     return self._sample_random_process(state)
 
-  def _build(self,
-             env,
-             stat_writer: Writer = None,
-             **kwargs):
+  def _build(self, env:Environment, stat_writer:Writer = None, **kwargs):
     if stat_writer:
       dummy_in = torch.rand(1, *self.input_shape)
 

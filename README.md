@@ -50,7 +50,7 @@ _[Neodroid](https://github.com/sintefneodroid) is developed with support from Re
 - [REINFORCE (PG)](agent/agents/model_free/policy_optimisation/pg_agent.py)
 - [DQN](agent/agents/model_free/q_learning/dqn_agent.py)
 - [DDPG](agent/agents/model_free/hybrid/ddpg_agent.py)
-- [PPO](agent/agents/model_free/policy_optimisation/ppo_agent.py)
+- [PPO](agent/agents/model_free/hybrid/ppo_agent.py)
 - TRPO, GA, EVO, IMITATION...
 
 # Requirements
@@ -98,7 +98,7 @@ Using Depth, Segmentation And RGB images to estimate the location of target poin
 
 ### [DDPG](agent/agents/model_free/hybrid/ddpg_agent.py)
 
-### [PPO](agent/agents/model_free/policy_optimisation/ppo_agent.py)
+### [PPO](agent/agents/model_free/hybrid/ppo_agent.py)
 
 ### GA, EVO, IMITATION...
 
@@ -111,7 +111,7 @@ Has access to perfect location information about the obstructions and target in 
 
 ### [DDPG](agent/agents/model_free/hybrid/ddpg_agent.py)
 
-### [PPO](agent/agents/model_free/policy_optimisation/ppo_agent.py)
+### [PPO](agent/agents/model_free/hybrid/ppo_agent.py)
 
 ### GA, EVO, IMITATION...
 

@@ -32,53 +32,7 @@ OOOO hidden_layer_size * (Weights,Biases)
 '''
 
 
-  @staticmethod
-  def construct_progressive_hidden_layers(_input_shape,_output_shape, input_multiplier, output_multiplier):
-    h_1_size = int(sum(_input_shape) * input_multiplier)
-    h_3_size = int(sum(_output_shape) * output_multiplier)
 
-    h_2_size = int(numpy.sqrt(h_1_size * h_3_size))
-
-    hidden_layers = NOD(h_1_size,
-                        h_2_size,
-                        h_3_size
-                        ).as_list()
-    return hidden_layers
-
-  def infer_input_shape(self, input_shape):
-    if isinstance(input_shape, Sequence):
-      assert len(input_shape) > 0, f'Got length {len(input_shape)}'
-      if len(input_shape) > 2:
-        # self._input_shape = functools.reduce(operator.mul,input_shape)
-        self._input_shape = input_shape[0], prod(input_shape[1:])
-        logging.warning(f'Flattening input {input_shape} to {self._input_shape}')
-      elif len(input_shape) < 2:
-        self._input_shape = (1, input_shape[0])
-        logging.warning(f'Inflating input shape {input_shape} to {self._input_shape}')
-      else:
-        self._input_shape = input_shape
-    elif isinstance(input_shape, int):
-      self._input_shape = (1, input_shape)
-      logging.warning(f'Inflating input shape {input_shape} to {self._input_shape}')
-    else:
-      raise ValueError(f'Can not use {input_shape} as input shape')
-
-  def infer_output_shape(self, output_shape):
-    if isinstance(output_shape, Sequence):
-      assert len(output_shape) > 0, f'Got length {len(output_shape)}'
-      if len(output_shape) > 2:
-        self._output_shape = output_shape[0], prod(output_shape[1:])
-        logging.warning(f'Flattening output shape {output_shape} to {self._output_shape}')
-      elif len(output_shape) < 2:
-        self._output_shape = (1, output_shape[0])
-        logging.warning(f'Inflating output shape {output_shape} to {self._output_shape}')
-      else:
-        self._output_shape = output_shape
-    elif isinstance(output_shape, int):
-      self._output_shape = (1, output_shape)
-      logging.warning(f'Inflating output shape {output_shape} to {self._output_shape}')
-    else:
-      raise ValueError(f'Can not use {output_shape} as output shape')
 
   def __init__(self,
                *,
@@ -135,6 +89,54 @@ OOOO hidden_layer_size * (Weights,Biases)
       setattr(self, f'_out{i}', layer)
 
     xavier_init(self)
+
+  @staticmethod
+  def construct_progressive_hidden_layers(_input_shape,_output_shape, input_multiplier, output_multiplier):
+    h_1_size = int(sum(_input_shape) * input_multiplier)
+    h_3_size = int(sum(_output_shape) * output_multiplier)
+
+    h_2_size = int(numpy.sqrt(h_1_size * h_3_size))
+
+    hidden_layers = NOD(h_1_size,
+                        h_2_size,
+                        h_3_size
+                        ).as_list()
+    return hidden_layers
+
+  def infer_input_shape(self, input_shape):
+    if isinstance(input_shape, Sequence):
+      assert len(input_shape) > 0, f'Got length {len(input_shape)}'
+      if len(input_shape) > 2:
+        # self._input_shape = functools.reduce(operator.mul,input_shape)
+        self._input_shape = input_shape[0], prod(input_shape[1:])
+        logging.warning(f'Flattening input {input_shape} to {self._input_shape}')
+      elif len(input_shape) < 2:
+        self._input_shape = (1, input_shape[0])
+        logging.warning(f'Inflating input shape {input_shape} to {self._input_shape}')
+      else:
+        self._input_shape = input_shape
+    elif isinstance(input_shape, int):
+      self._input_shape = (1, input_shape)
+      logging.warning(f'Inflating input shape {input_shape} to {self._input_shape}')
+    else:
+      raise ValueError(f'Can not use {input_shape} as input shape')
+
+  def infer_output_shape(self, output_shape):
+    if isinstance(output_shape, Sequence):
+      assert len(output_shape) > 0, f'Got length {len(output_shape)}'
+      if len(output_shape) > 2:
+        self._output_shape = output_shape[0], prod(output_shape[1:])
+        logging.warning(f'Flattening output shape {output_shape} to {self._output_shape}')
+      elif len(output_shape) < 2:
+        self._output_shape = (1, output_shape[0])
+        logging.warning(f'Inflating output shape {output_shape} to {self._output_shape}')
+      else:
+        self._output_shape = output_shape
+    elif isinstance(output_shape, int):
+      self._output_shape = (1, output_shape)
+      logging.warning(f'Inflating output shape {output_shape} to {self._output_shape}')
+    else:
+      raise ValueError(f'Can not use {output_shape} as output shape')
 
   def forward(self, *x, **kwargs):
     '''

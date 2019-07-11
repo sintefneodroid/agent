@@ -103,7 +103,7 @@ class NeodroidAgentPackageMeta(type):
         'neodroid-tab = agent.agents.experimental.tabular_q_agent:tabular_test',
         'neodroid-rnd = agent.agents.experimental.random_agent:random_test',
 
-        'neodroid-ppo-gym = agent.agents.model_free.policy_optimisation.ppo_agent:ddpg_test',
+        'neodroid-ppo-gym = agent.agents.model_free.hybrid.ppo_agent:ppo_test',
         'neodroid-dqn-gym = agent.agents.model_free.q_learning.dqn_agent:dqn_test',
         'neodroid-pg-gym = agent.agents.model_free.policy_optimisation.pg_agent:pg_test',
         'neodroid-ddpg-gym = agent.agents.model_free.hybrid.ddpg_agent:ddpg_test',

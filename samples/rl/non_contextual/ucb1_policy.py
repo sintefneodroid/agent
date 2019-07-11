@@ -4,7 +4,7 @@ import argparse
 
 from agent.exploration.ucb1 import UCB1
 from neodroid import  messaging
-from neodroid.wrappers import SingleEnvironmentWrapper
+from neodroid.environments.wrappers import SingleEnvironment
 
 __author__ = 'cnheider'
 
@@ -32,8 +32,8 @@ def main(connect_to_running=False):
   if args.C:
     connect_to_running = True
 
-  _environment = SingleEnvironmentWrapper(environment_name='mab',
-                                          connect_to_running=connect_to_running)
+  _environment = SingleEnvironment(environment_name='mab',
+                                   connect_to_running=connect_to_running)
 
   num_arms = _environment.action_space.num_discrete_actions
   totals = [0] * num_arms

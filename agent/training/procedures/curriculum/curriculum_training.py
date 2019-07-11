@@ -3,7 +3,7 @@
 import time
 
 import torch
-from neodroid.wrappers.curriculum_wrapper.curriculum_wrapper import \
+from neodroid.environments.wrappers.curriculum_wrapper import \
   BinaryActionEncodingCurriculumEnvironment
 from tqdm import tqdm
 

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from neodroid.wrappers import SingleEnvironmentWrapper
+from neodroid.environments.wrappers import SingleEnvironment
 
 import draugr
 
@@ -18,8 +18,8 @@ from agent import utilities as U
 def train_agent(config, agent):
   torch.manual_seed(config.SEED)
 
-  env = SingleEnvironmentWrapper(environment_name=config.ENVIRONMENT_NAME,
-                                 connect_to_running=config.CONNECT_TO_RUNNING)
+  env = SingleEnvironment(environment_name=config.ENVIRONMENT_NAME,
+                          connect_to_running=config.CONNECT_TO_RUNNING)
   env.seed(config.SEED)
 
   agent.build(env)

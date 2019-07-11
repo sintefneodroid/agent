@@ -72,7 +72,7 @@ class DQNAgent(ValueAgent):
                                                                 momentum=0.0))
     self._optimiser = None
 
-  def _build(self, **kwargs) -> None:
+  def _build(self, env:Environment, **kwargs) -> None:
 
     self._value_model = self._value_arch_spec.constructor(**self._value_arch_spec.kwargs).to(self._device)
 
@@ -190,7 +190,7 @@ class DQNAgent(ValueAgent):
               **kwargs):
     self._update_i += 1
 
-    state = initial_state
+    state = initial_state.observables
     episode_signal = []
     episode_length = []
 
@@ -201,7 +201,9 @@ class DQNAgent(ValueAgent):
       self._step_i += 1
 
       action = self.sample(state, disallow_random_sample=disallow_random_sample, stat_writer=stat_writer)
-      next_state, signal, terminated, *_ = environment.react(action).to_gym_like_output()
+      snapshot = environment.react(action)
+
+      next_state, signal, terminated = snapshot.observables, snapshot.signal, snapshot.terminated
 
       if render:
         environment.render()

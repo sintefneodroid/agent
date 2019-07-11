@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 import draugr
-from neodroid.wrappers import BinaryActionEncodingWrapper, NeodroidWrapper
+from neodroid.environments.wrappers import BinaryActionEncodingWrapper, NeodroidGymWrapper
 from warg import get_upper_case_vars_or_protected_of, parse_arguments
 
 __author__ = 'cnheider'
@@ -17,8 +17,8 @@ from agent import utilities as U
 def train_agent(config, agent):
   torch.manual_seed(config.SEED)
 
-  env = NeodroidWrapper(BinaryActionEncodingWrapper(environment_name=config.ENVIRONMENT_NAME,
-                                                    connect_to_running=config.CONNECT_TO_RUNNING))
+  env = NeodroidGymWrapper(BinaryActionEncodingWrapper(environment_name=config.ENVIRONMENT_NAME,
+                                                       connect_to_running=config.CONNECT_TO_RUNNING))
   env.seed(config.SEED)
 
   agent.build(env)

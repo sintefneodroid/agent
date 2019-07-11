@@ -17,20 +17,20 @@ from torchvision import datasets, transforms
 def _train(rankey, args, model):
   torch.manual_seed(args.seed + rank)
 
-  magic_mean = 0.1307
-  magic_std = 0.3081
+  mnist_mean = 0.1307
+  mnist_std = 0.3081
 
   train_loader = torch.utils.data.DataLoader(
       datasets.MNIST('../data', train=True, download=True,
                      transform=transforms.Compose([
                        transforms.ToTensor(),
-                       transforms.Normalize((magic_mean,), (magic_std,))
+                       transforms.Normalize((mnist_mean,), (mnist_std,))
                        ])),
       batch_size=args.batch_size, shuffle=True, num_workers=1)
   test_loader = torch.utils.data.DataLoader(
       datasets.MNIST('../data', train=False, transform=transforms.Compose([
         transforms.ToTensor(),
-        transforms.Normalize((magic_mean,), (magic_std,))
+        transforms.Normalize((mnist_mean,), (mnist_std,))
         ])),
       batch_size=args.batch_size, shuffle=True, num_workers=1)
 
