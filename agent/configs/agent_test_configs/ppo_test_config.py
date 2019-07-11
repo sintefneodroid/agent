@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-from agent.architectures import ContinuousActorArchitecture, MLP
 from torch.nn import MSELoss
 
+from agent.architectures import MLP
+from agent.architectures.distributional.normal import MultipleNormalMLP, MultiDimensionalNormalMLP
+from agent.architectures.experimental.merged import MergedInputMLP
 from .base_test_config import *
 
 __author__ = 'cnheider'
@@ -21,6 +23,10 @@ CONNECT_TO_RUNNING = False
 RENDER_ENVIRONMENT = True
 TEST_INTERVAL = 1000
 
+MODEL_DIRECTORY = PROJECT_APP_PATH.user_data / ENVIRONMENT_NAME / LOAD_TIME / 'models'
+CONFIG_DIRECTORY = PROJECT_APP_PATH.user_data / ENVIRONMENT_NAME / LOAD_TIME / 'configs'
+LOG_DIRECTORY = PROJECT_APP_PATH.user_log / ENVIRONMENT_NAME / LOAD_TIME
+
 INITIAL_OBSERVATION_PERIOD = 0
 
 STEPS = 20
@@ -33,7 +39,7 @@ TARGET_UPDATE_TAU = 1.0
 MAX_GRADIENT_NORM = None
 
 GAE_TAU = 0.95
-DISCOUNT_FACTOR = 0.99
+DISCOUNT_FACTOR = 0.95
 
 REACHED_HORIZON_PENALTY = -10.
 
@@ -51,16 +57,16 @@ SURROGATE_CLIPPING_VALUE = 0.2  # initial probability ratio clipping range
 SURROGATE_CLIP_FUNC = lambda a:SURROGATE_CLIPPING_VALUE * (1. - a)  # clip range schedule function
 
 # Architecture
-ACTOR_ARCH_SPEC = GDCS(ContinuousActorArchitecture, NOD(**{
+ACTOR_ARCH_SPEC = GDCS(MultiDimensionalNormalMLP, NOD(**{
   'input_shape':            None,  # Obtain from environment
-  'hidden_layers':          [256],
+  'hidden_layers':          None,
   'hidden_layer_activation':torch.relu,
   'output_shape':           None,  # Obtain from environment
   }))
 
-CRITIC_ARCH_SPEC = GDCS(MLP, NOD(**{
+CRITIC_ARCH_SPEC = GDCS(MergedInputMLP, NOD(**{
   'input_shape':            None,  # Obtain from environment
-  'hidden_layers':          [256],
+  'hidden_layers':          None,
   'hidden_layer_activation':torch.relu,
   'output_shape':           None,  # Obtain from environment
   }))

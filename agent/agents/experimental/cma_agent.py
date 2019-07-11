@@ -1,10 +1,11 @@
 import time
 from typing import Any, Tuple
 
-import draugr
-from agent.interfaces.partials.agents.evo_agent import EVOAgent
-from agent.training.train_agent import train_agent
 from tqdm import tqdm
+
+import draugr
+from agent.agents.experimental.evo_agent import EVOAgent
+from agent.training.train_agent import train_agent
 
 
 class CMAAgent(EVOAgent):
@@ -18,13 +19,13 @@ class CMAAgent(EVOAgent):
 
   # region Protected
 
-  def _build(self, **kwargs) -> None:
+  def _build(self, env, **kwargs) -> None:
     pass
 
-  def _optimise_wrt(self, error, *args, **kwargs) -> None:
+  def _optimise_wrt(self, error, **kwargs) -> None:
     pass
 
-  def _sample_model(self, state, *args, **kwargs) -> Any:
+  def _sample_model(self, state, **kwargs) -> Any:
     pass
 
   def _train_procedure(self,
@@ -74,8 +75,8 @@ class CMAAgent(EVOAgent):
 
   # region Public
 
-  def sample_action(self, state, *args, **kwargs) -> Any:
-    return self._environment.action_space._sample()
+  def sample(self, state, *args, **kwargs) -> Any:
+    return self._last_connected_environment.action_space._sample()
 
   def update(self, *args, **kwargs) -> None:
     pass

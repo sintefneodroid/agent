@@ -38,7 +38,7 @@ class ExpandableCircularBuffer(object):
       num_entries = len(self._memory)
 
       if req_num > num_entries:
-        logging.warning(f'Buffer only has {num_entries},'
+        logging.info(f'Buffer only has {num_entries},'
                         f' returning {num_entries} entries'
                         f' of the requested {req_num}')
         req_num = len(self._memory)

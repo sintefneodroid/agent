@@ -8,7 +8,7 @@ from itertools import count
 
 import numpy as np
 
-import neodroid.api_wrappers.curriculum_wrapper as neo
+import neodroid.environments.wrappers.curriculum_wrapper as neo
 
 random_motion_horizon = 5
 initial_states_to_generate = 100
@@ -79,7 +79,7 @@ def main():
       for k in count(1):
 
         # actions = _environment.action_space.sample()
-        observations, signal, terminated, info = _environment.sample_action()
+        observations, signal, terminated, info = _environment.sample()
 
         episode_reward += signal
 

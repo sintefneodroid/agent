@@ -2,9 +2,10 @@ import time
 from itertools import count
 from typing import Any, Tuple
 
-import draugr
-from agent.interfaces.partials.agents.torch_agent import TorchAgent
 from tqdm import tqdm
+
+import draugr
+from agent.interfaces.torch_agent import TorchAgent
 
 
 class RandomAgent(TorchAgent):
@@ -18,13 +19,13 @@ class RandomAgent(TorchAgent):
 
   # region Protected
 
-  def _build(self, **kwargs) -> None:
+  def _build(self, env, **kwargs) -> None:
     pass
 
-  def _optimise_wrt(self, error, *args, **kwargs) -> None:
+  def _optimise_wrt(self, error, **kwargs) -> None:
     pass
 
-  def _sample_model(self, state, *args, **kwargs) -> Any:
+  def _sample_model(self, state, **kwargs) -> Any:
     pass
 
   def _train_procedure(self,
@@ -74,8 +75,8 @@ class RandomAgent(TorchAgent):
 
   # region Public
 
-  def sample_action(self, state, *args, **kwargs) -> Any:
-    return self._environment.action_space._sample()
+  def sample(self, state, *args, **kwargs) -> Any:
+    return self._last_connected_environment.action_space._sample()
 
   def update(self, *args, **kwargs) -> None:
     pass
@@ -96,7 +97,7 @@ class RandomAgent(TorchAgent):
     T = tqdm(T, f'Rollout #{self._rollout_i}', leave=False, disable=not render)
 
     for t in T:
-      action = int(self.sample_action(state)[0])
+      action = int(self.sample(state)[0])
 
       state, signal, terminated, info = environment.act(action)
       episode_signal += signal
@@ -124,8 +125,8 @@ class RandomAgent(TorchAgent):
 
 # region Test
 def random_test():
-  import neodroid.wrappers.gym_wrapper as neo
-  env = neo.NeodroidGymWrapper(environment_name='mab')
+  import neodroid.environments.wrappers.gym_wrapper as neo
+  env = neo.NeodroidGymEnvironment(environment_name='mab')
   agent = RandomAgent(observation_space=env.observation_space,
                       action_space=env.action_space,
                       environment=env)

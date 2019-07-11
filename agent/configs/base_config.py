@@ -1,13 +1,14 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 import time
-from pathlib import Path
 
 import torch
 import torch.nn.functional as F
-from agent.architectures import CategoricalMLP
+
+from agent.architectures.distributional.categorical import CategoricalMLP
 from agent.interfaces.specifications.exploration_specification import ExplorationSpecification
 from agent.interfaces.specifications.generalised_delayed_construction_specification import GDCS
+from agent.version import PROJECT_APP_PATH, PROJECT_NAME
 from warg.named_ordered_dictionary import NOD
 
 __author__ = 'cnheider'
@@ -16,9 +17,14 @@ Description: Config for training
 Author: Christian Heider Nielsen
 '''
 
-PROJECT = 'Neodroid'
+PROJECT_NAME = PROJECT_NAME
 CONFIG_NAME = __name__
 CONFIG_FILE = __file__
+CONFIG_AUTHOR = __author__
+# APP_PATH = Path.cwd()
+# APP_PATH = Path.home()
+LOAD_TIME = str(int(time.time()))
+
 VERBOSE = False
 USE_LOGGING = True
 
@@ -33,9 +39,9 @@ POLICY_ARCH_SPEC = GDCS(CategoricalMLP,
                         )
 
 # Environment Related Parameters
+ENVIRONMENT_NAME = 'ConnectToRunning'
 CONNECT_TO_RUNNING = False
 RENDER_ENVIRONMENT = False
-ENVIRONMENT_NAME = 'grd'
 SOLVED_REWARD = 0.9
 ACTION_MAGNITUDES = 10000
 
@@ -52,7 +58,7 @@ LEARNING_FREQUENCY = 4
 SYNC_TARGET_MODEL_FREQUENCY = 10000
 REPLAY_MEMORY_SIZE = 1000000
 INITIAL_OBSERVATION_PERIOD = 10000
-DISCOUNT_FACTOR = 0.99
+DISCOUNT_FACTOR = 0.95
 UPDATE_DIFFICULTY_INTERVAL = 1000
 ROLLOUTS = 4000
 STATE_TYPE = torch.float
@@ -66,11 +72,10 @@ OPTIMISER_SPEC = GDCS(torch.optim.Adam, NOD(lr=3e-4,
                                             eps=1e-2))
 
 # Paths
-# PROJECT_DIRECTORY = Path.cwd()
-PROJECT_DIRECTORY = Path.home() / 'Models' / 'Neodroid' / ENVIRONMENT_NAME / str(int(time.time()))
-MODEL_DIRECTORY = PROJECT_DIRECTORY / 'models'
-CONFIG_DIRECTORY = PROJECT_DIRECTORY / 'configs'
-LOG_DIRECTORY = PROJECT_DIRECTORY / 'logs'
+
+MODEL_DIRECTORY = PROJECT_APP_PATH.user_data / ENVIRONMENT_NAME / LOAD_TIME / 'models'
+CONFIG_DIRECTORY = PROJECT_APP_PATH.user_data / ENVIRONMENT_NAME / LOAD_TIME / 'configs'
+LOG_DIRECTORY = PROJECT_APP_PATH.user_log / ENVIRONMENT_NAME / LOAD_TIME
 
 # CUDA
 USE_CUDA = True

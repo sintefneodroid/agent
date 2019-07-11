@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-from agent.architectures import SingleDistributionMLP
+from agent.architectures import NormalMLP
 
 __author__ = 'cnheider'
 '''
@@ -19,7 +19,7 @@ REPLAY_MEMORY_SIZE = 10000
 MEMORY = U.ReplayBuffer(REPLAY_MEMORY_SIZE)
 
 BATCH_SIZE = 128
-DISCOUNT_FACTOR = 0.999
+DISCOUNT_FACTOR = 0.95
 RENDER_ENVIRONMENT = False
 SIGNAL_CLIPPING = True
 DOUBLE_DQN = True
@@ -28,7 +28,7 @@ CONNECT_TO_RUNNING = True
 
 # EVALUATION_FUNCTION = lambda Q_state, Q_true_state: (Q_state - Q_true_state).pow(2).mean()
 
-POLICY_ARCH = SingleDistributionMLP
+POLICY_ARCH = NormalMLP
 OPTIMISER_TYPE = torch.optim.RMSprop  # torch.optim.Adam
 # ENVIRONMENT_NAME = 'CartPole-v0'
 ENVIRONMENT_NAME = 'c2d'

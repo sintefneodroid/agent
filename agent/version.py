@@ -4,8 +4,13 @@ import datetime
 import os
 from warnings import warn
 
+import pkg_resources
+from pip._internal.utils.misc import dist_is_editable
+
+from warg.app_path import AppPath
+
 __author__ = "cnheider"
-__version__ = "0.2.0"
+__version__ = "0.2.3"
 __doc__ = r"""
 Created on 27/04/2019
 
@@ -25,12 +30,16 @@ def dist_is_editable(dist):
     return False
 '''
 
-from pip._internal.utils.misc import dist_is_editable
-import pkg_resources
+PROJECT_NAME = 'NeodroidAgent'
+PROJECT_AUTHOR = __author__
+PROJECT_APP_PATH = AppPath(app_name=PROJECT_NAME, app_author=PROJECT_AUTHOR)
 
 distributions = {v.key:v for v in pkg_resources.working_set}
-distribution = distributions['neodroidagent']
-DEVELOP = dist_is_editable(distribution)
+if PROJECT_NAME in distributions:
+  distribution = distributions[PROJECT_NAME]
+  DEVELOP = dist_is_editable(distribution)
+else:
+  DEVELOP = True
 
 
 def get_version(append_time=DEVELOP):

@@ -135,7 +135,7 @@ def estimate_initial_state_expected_return(candidate,
                                     )
     state_ob, _ = env.configure(state=candidate)
 
-    signals, steps, *stats = agent.rollout(state_ob, env, train=train, random_sample=random_sample)
+    signals, steps, *stats = agent.rollout(state_ob, env, train=train, disallow_random_sample=random_sample)
     rollout_signals += signals
 
     if train:

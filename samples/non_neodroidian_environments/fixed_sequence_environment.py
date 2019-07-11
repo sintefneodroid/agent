@@ -1,6 +1,6 @@
 import numpy as np
-from gym import Env
 from gym.spaces import Discrete
+
 from samples.non_neodroidian_environments.constant_environment import NoRenderEnv
 
 

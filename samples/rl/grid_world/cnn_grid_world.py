@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+from neodroid.environments.wrappers import BinaryActionEncodingWrapper
+
 import draugr
-from neodroid.wrappers.utility_wrappers.action_encoding_wrappers import BinaryActionEncodingWrapper
 
 __author__ = 'cnheider'
 
@@ -46,7 +47,7 @@ def train_agent(config, agent):
   draugr.save_statistic(running_lengths, stat_name='running_lengths', directory=C.LOG_DIRECTORY,
                         config_name=C.CONFIG_NAME,
                         project_name=C.PROJECT)
-  U.save_model(trained_model, config)
+  U.save_model(trained_model, **config)
 
   env.close()
 
