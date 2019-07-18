@@ -20,19 +20,25 @@ def _train(rankey, args, model):
   mnist_mean = 0.1307
   mnist_std = 0.3081
 
-  train_loader = torch.utils.data.DataLoader(
-      datasets.MNIST('../data', train=True, download=True,
-                     transform=transforms.Compose([
-                       transforms.ToTensor(),
-                       transforms.Normalize((mnist_mean,), (mnist_std,))
-                       ])),
-      batch_size=args.batch_size, shuffle=True, num_workers=1)
-  test_loader = torch.utils.data.DataLoader(
-      datasets.MNIST('../data', train=False, transform=transforms.Compose([
-        transforms.ToTensor(),
-        transforms.Normalize((mnist_mean,), (mnist_std,))
-        ])),
-      batch_size=args.batch_size, shuffle=True, num_workers=1)
+  train_loader = torch.utils.data.DataLoader(datasets.MNIST('../data',
+                                                            train=True,
+                                                            download=True,
+                                                            transform=transforms.Compose(
+                                                                [transforms.ToTensor(),
+                                                                 transforms.Normalize((mnist_mean,),
+                                                                                      (mnist_std,))
+                                                                 ])),
+                                             batch_size=args.batch_size, shuffle=True, num_workers=1)
+  test_loader = torch.utils.data.DataLoader(datasets.MNIST('../data',
+                                                           train=False,
+                                                           transform=transforms.Compose([
+                                                             transforms.ToTensor(),
+                                                             transforms.Normalize((mnist_mean,),
+                                                                                  (mnist_std,))
+                                                             ])),
+                                            batch_size=args.batch_size,
+                                            shuffle=True,
+                                            num_workers=1)
 
   optimizer = optim.SGD(model.parameters(), lr=args.lr, momentum=args.momentum)
   for epoch in range(1, args.epochs + 1):
@@ -50,9 +56,9 @@ def train_epoch(epoch, args, model, data_loader, optimizer):
     loss.backward()
     optimizer.step()
     if batch_idx % args.log_interval == 0:
-      print('{}\tTrain Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(
-          pid, epoch, batch_idx * len(data), len(data_loader.dataset),
-                      100. * batch_idx / len(data_loader), loss.item()))
+      print(f'{pid}\tTrain Epoch: {epoch} [{batch_idx * len(data)}/'
+            f'{len(data_loader.dataset)} '
+            f'({100. * batch_idx / len(data_loader):.0f}%)]\tLoss: {loss.item():.6f}')
 
 
 def test_epoch(model, data_loader):
@@ -140,6 +146,6 @@ if __name__ == '__main__':
     for p in processes:
       p.join()
   except KeyboardInterrupt:
-    print('Stopping training. Best model stored at {}model_best'.format(args.dump_location))
+    print(f'Stopping training. Best model stored at {args.dump_location}model_best')
     for p in processes:
       p.terminate()

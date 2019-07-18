@@ -5,7 +5,7 @@ from tqdm import tqdm
 
 import draugr
 from agent.agents.experimental.evo_agent import EVOAgent
-from agent.training.train_agent import train_agent
+from agent.training.agent_session_entry_point import agent_session_entry_point
 
 
 class CMAAgent(EVOAgent):
@@ -100,7 +100,7 @@ def cma_test():
   C.CONNECT_TO_RUNNING = False
   C.ENVIRONMENT_NAME = 'mab'
 
-  train_agent(CMAAgent, C)
+  agent_session_entry_point(CMAAgent, C)
 
 
 if __name__ == '__main__':

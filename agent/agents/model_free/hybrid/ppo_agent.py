@@ -9,7 +9,7 @@ from neodroid.environments.wrappers.vector_environment import VectorEnvironment
 from .actor_critic_agent import ActorCriticAgent
 from agent.interfaces.specifications import AdvantageDiscountedTransition, ValuedTransition
 from agent.training.procedures import to_tensor, step_wise_training, EnvironmentSnapshot
-from agent.training.train_agent import parallelised_training, train_agent
+from agent.training.agent_session_entry_point import parallelised_training, agent_session_entry_point
 from agent.utilities.signal.advantage_estimation import torch_compute_gae
 from agent.utilities.signal.experimental.discounting import discount_signal
 from draugr.writers.writer import Writer
@@ -306,12 +306,12 @@ def ppo_test(rollouts=None, skip:bool=True):
   if rollouts:
     C.ROLLOUTS = rollouts
 
-  train_agent(PPOAgent,
-              C,
-              training_session=parallelised_training(training_procedure=step_wise_training,
+  agent_session_entry_point(PPOAgent,
+                            C,
+                            training_session=parallelised_training(training_procedure=step_wise_training,
                                                      auto_reset_on_terminal_state=True),
-              parse_args=False,
-              skip_confirmation=skip)
+                            parse_args=False,
+                            skip_confirmation=skip)
 
 
 def ppo_run(rollouts=None, skip:bool=True):
@@ -320,12 +320,12 @@ def ppo_run(rollouts=None, skip:bool=True):
   if rollouts:
     C.ROLLOUTS = rollouts
 
-  train_agent(PPOAgent,
-              C,
-              training_session=parallelised_training(training_procedure=step_wise_training,
+  agent_session_entry_point(PPOAgent,
+                            C,
+                            training_session=parallelised_training(training_procedure=step_wise_training,
                                                      auto_reset_on_terminal_state=True),
-              parse_args=False,
-              skip_confirmation=skip)
+                            parse_args=False,
+                            skip_confirmation=skip)
 
 if __name__ == '__main__':
   #ppo_test()
