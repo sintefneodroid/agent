@@ -8,7 +8,7 @@ from agent.agents.model_free.hybrid.actor_critic_agent import ActorCriticAgent
 from agent.interfaces.specifications import AdvantageDiscountedTransition, ValuedTransition
 from agent.interfaces.specifications.generalised_delayed_construction_specification import GDCS
 from agent.training.procedures import batched_training
-from agent.training.train_agent import parallelised_training, train_agent
+from agent.training.agent_session_entry_point import parallelised_training, agent_session_entry_point
 from agent.utilities import to_tensor, advantage_estimate
 from warg.named_ordered_dictionary import NOD
 
@@ -348,12 +348,12 @@ def ppo_test(rollouts=None, skip=True):
   if rollouts:
     C.ROLLOUTS = rollouts
 
-  train_agent(PPOAgent,
-              C,
-              training_session=parallelised_training(training_procedure=batched_training,
+  agent_session_entry_point(PPOAgent,
+                            C,
+                            training_session=parallelised_training(training_procedure=batched_training,
                                                      auto_reset_on_terminal_state=True),
-              parse_args=False,
-              skip_confirmation=skip)
+                            parse_args=False,
+                            skip_confirmation=skip)
 
 
 if __name__ == '__main__':

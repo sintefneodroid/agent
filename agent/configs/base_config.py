@@ -66,16 +66,17 @@ VALUE_TYPE = torch.float
 ACTION_TYPE = torch.long
 EVALUATION_FUNCTION = F.smooth_l1_loss
 
+
 # Optimiser
 OPTIMISER_SPEC = GDCS(torch.optim.Adam, NOD(lr=3e-4,
                                             weight_decay=1e-6,
                                             eps=1e-2))
 
 # Paths
-
-MODEL_DIRECTORY = PROJECT_APP_PATH.user_data / ENVIRONMENT_NAME / LOAD_TIME / 'models'
-CONFIG_DIRECTORY = PROJECT_APP_PATH.user_data / ENVIRONMENT_NAME / LOAD_TIME / 'configs'
-LOG_DIRECTORY = PROJECT_APP_PATH.user_log / ENVIRONMENT_NAME / LOAD_TIME
+AGENT_TYPE_NAME = "DefaultAgent"
+MODEL_DIRECTORY = PROJECT_APP_PATH.user_data / ENVIRONMENT_NAME / AGENT_TYPE_NAME / LOAD_TIME / 'models'
+CONFIG_DIRECTORY = PROJECT_APP_PATH.user_data / ENVIRONMENT_NAME/ AGENT_TYPE_NAME / LOAD_TIME / 'configs'
+LOG_DIRECTORY = PROJECT_APP_PATH.user_log / ENVIRONMENT_NAME / AGENT_TYPE_NAME / LOAD_TIME
 
 # CUDA
 USE_CUDA = True

@@ -116,6 +116,7 @@ class NeodroidAgentPackageMeta(type):
         'neodroid-cma = agent.agents.experimental.cma_agent:cma_test',
 
         'neodroid-tb = agent.utilities.extra_entry_points.tensorboard_entry_point:main',
+        'neodroid-clean = agent.utilities.extra_entry_points.clean:main',
         ]
       }
 

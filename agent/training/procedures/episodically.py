@@ -3,8 +3,6 @@
 from pathlib import Path
 from typing import Union
 
-from neodroid.interfaces.environment_models import EnvironmentSnapshot
-
 __author__ = 'cnheider'
 __doc__ = ''
 from tqdm import tqdm
@@ -24,8 +22,6 @@ def train_episodically(agent,
                        **kwargs
                        ) -> TR:
   '''
-    :param C: Config
-    :type C: module
     :param agent: The learning agent
     :type agent: Agent
     :param disable_stdout: Whether to disable stdout statements or not

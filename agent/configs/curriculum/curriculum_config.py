@@ -13,6 +13,13 @@ from agent.configs.base_config import *
 CONFIG_NAME = __name__
 CONFIG_FILE = __file__
 
+# Paths
+AGENT_TYPE_NAME = "DefaultAgent"
+MODEL_DIRECTORY = PROJECT_APP_PATH.user_data / ENVIRONMENT_NAME / AGENT_TYPE_NAME / LOAD_TIME / 'models'
+CONFIG_DIRECTORY = PROJECT_APP_PATH.user_data / ENVIRONMENT_NAME/ AGENT_TYPE_NAME / LOAD_TIME / 'configs'
+LOG_DIRECTORY = PROJECT_APP_PATH.user_log / ENVIRONMENT_NAME / AGENT_TYPE_NAME / LOAD_TIME
+
+
 # Architecture
 POLICY_ARCH_SPEC = GDCS(CategoricalMLP, NOD(**{
   'input_shape':            None,  # Obtain from environment

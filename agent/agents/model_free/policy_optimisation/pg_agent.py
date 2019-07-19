@@ -7,8 +7,9 @@ from agent.architectures.distributional.categorical import CategoricalMLP
 from agent.exceptions.exceptions import NoTrajectoryException
 from agent.interfaces.specifications.generalised_delayed_construction_specification import GDCS
 from agent.memory import TrajectoryBuffer
+from agent.training.sessions.parallel_training import parallelised_training
 from agent.training.procedures import to_tensor, train_episodically
-from agent.training.train_agent import parallelised_training, train_agent
+from agent.training.agent_session_entry_point import agent_session_entry_point
 from neodroid.environments.environment import Environment
 from neodroid.interfaces.environment_models import EnvironmentSnapshot
 from warg.named_ordered_dictionary import NOD
@@ -275,11 +276,11 @@ def pg_test(rollouts=None, skip=True):
   if rollouts:
     C.ROLLOUTS = rollouts
 
-  train_agent(PGAgent,
-              C,
-              parse_args=False,
-              training_session=parallelised_training,
-              skip_confirmation=skip)
+  agent_session_entry_point(PGAgent,
+                            C,
+                            parse_args=False,
+                            training_session=parallelised_training,
+                            skip_confirmation=skip)
 
 
 def pg_run(rollouts=None, skip=True):
@@ -291,10 +292,10 @@ def pg_run(rollouts=None, skip=True):
   C.CONNECT_TO_RUNNING = True
   C.ENVIRONMENT_NAME = ""
 
-  train_agent(PGAgent,
-              C,
-              training_session=parallelised_training(training_procedure=train_episodically),
-              skip_confirmation=skip)
+  agent_session_entry_point(PGAgent,
+                            C,
+                            training_session=parallelised_training(training_procedure=train_episodically),
+                            skip_confirmation=skip)
 
 
 if __name__ == '__main__':

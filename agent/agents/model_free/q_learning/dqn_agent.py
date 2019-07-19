@@ -8,7 +8,8 @@ from agent.architectures import MLP
 from agent.agents.model_free.q_learning.value_agent import ValueAgent
 from agent.interfaces.specifications.generalised_delayed_construction_specification import GDCS
 from agent.memory import ReplayBuffer
-from agent.training.train_agent import parallelised_training, train_agent
+from agent.training.agent_session_entry_point import agent_session_entry_point
+from agent.training.sessions.parallel_training import parallelised_training
 from draugr.writers.writer import Writer
 from neodroid.environments.environment import Environment
 from neodroid.interfaces.environment_models import EnvironmentSnapshot
@@ -72,7 +73,7 @@ class DQNAgent(ValueAgent):
                                                                 momentum=0.0))
     self._optimiser = None
 
-  def _build(self, env:Environment, **kwargs) -> None:
+  def _build(self, env: Environment, **kwargs) -> None:
 
     self._value_model = self._value_arch_spec.constructor(**self._value_arch_spec.kwargs).to(self._device)
 
@@ -180,11 +181,11 @@ class DQNAgent(ValueAgent):
       logging.info('Batch size is larger than current memory size, skipping update')
 
   def rollout(self,
-              initial_state:EnvironmentSnapshot,
-              environment:Environment,
+              initial_state: EnvironmentSnapshot,
+              environment: Environment,
               *,
               render=False,
-              stat_writer: Writer=None,
+              stat_writer: Writer = None,
               train=True,
               disallow_random_sample=False,
               **kwargs):
@@ -248,7 +249,6 @@ class DQNAgent(ValueAgent):
 
     return ep, el
 
-
   def infer(self, state, **kwargs):
     model_input = U.to_tensor(state, device=self._device, dtype=self._state_type)
     with torch.no_grad():
@@ -272,11 +272,11 @@ def dqn_test(rollouts=None, skip=True):
   if rollouts:
     C.ROLLOUTS = rollouts
 
-  train_agent(DQNAgent,
-              C,
-              parse_args=False,
-              training_session=parallelised_training,
-              skip_confirmation=skip)
+  agent_session_entry_point(DQNAgent,
+                            C,
+                            parse_args=False,
+                            training_session=parallelised_training,
+                            skip_confirmation=skip)
   # test_cnn_dqn_agent(C)
 
 
@@ -288,10 +288,10 @@ def dqn_run(rollouts=None, skip=True):
 
   C.CONNECT_TO_RUNNING = True
 
-  train_agent(DQNAgent,
-              C,
-              training_session=parallelised_training,
-              skip_confirmation=skip)
+  agent_session_entry_point(DQNAgent,
+                            C,
+                            training_session=parallelised_training,
+                            skip_confirmation=skip)
 
 
 if __name__ == '__main__':

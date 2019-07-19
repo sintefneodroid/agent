@@ -14,7 +14,7 @@ from agent.exploration.sampling import OrnsteinUhlenbeckProcess
 from agent.interfaces.specifications import ArchitectureSpecification, GDCS
 from agent.memory import TransitionBuffer
 from agent.training.procedures import to_tensor, train_episodically
-from agent.training.train_agent import parallelised_training, train_agent
+from agent.training.agent_session_entry_point import parallelised_training, agent_session_entry_point
 from draugr.writers.writer import Writer
 from warg.named_ordered_dictionary import NOD
 
@@ -257,12 +257,12 @@ def ddpg_test(rollouts=None, skip=True):
   if rollouts:
     C.ROLLOUTS = rollouts
 
-  train_agent(DDPGAgent,
-              C,
-              training_session=parallelised_training(training_procedure=train_episodically,
+  agent_session_entry_point(DDPGAgent,
+                            C,
+                            training_session=parallelised_training(training_procedure=train_episodically,
                                                      auto_reset_on_terminal_state=True),
-              parse_args=False,
-              skip_confirmation=skip)
+                            parse_args=False,
+                            skip_confirmation=skip)
 
 
 def ddpg_run(rollouts=None, skip=True):
@@ -270,12 +270,12 @@ def ddpg_run(rollouts=None, skip=True):
   if rollouts:
     C.ROLLOUTS = rollouts
 
-  train_agent(DDPGAgent,
-              C,
-              training_session=parallelised_training(training_procedure=train_episodically,
+  agent_session_entry_point(DDPGAgent,
+                            C,
+                            training_session=parallelised_training(training_procedure=train_episodically,
                                                      auto_reset_on_terminal_state=True),
-              parse_args=False,
-              skip_confirmation=skip)
+                            parse_args=False,
+                            skip_confirmation=skip)
 
 
 if __name__ == '__main__':

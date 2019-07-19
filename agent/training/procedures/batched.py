@@ -3,9 +3,9 @@
 from tqdm import tqdm
 
 import draugr
-from agent.interfaces.specifications import TR, ValuedTransition
+from agent.interfaces.specifications import TR
+from agent.interfaces.specifications.transitions import ValuedTransition
 from agent.utilities import to_tensor
-from neodroid.interfaces.environment_models import EnvironmentSnapshot
 
 __author__ = 'cnheider'
 __doc__ = ''
