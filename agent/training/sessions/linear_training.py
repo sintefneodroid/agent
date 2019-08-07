@@ -10,6 +10,8 @@ import draugr
 from agent import utilities as U
 from agent.interfaces.agent import Agent
 from agent.interfaces.specifications import TrainingSession
+from agent.training.procedures import train_episodically
+from agent import PROJECT_APP_PATH
 from draugr.stopping_key import add_early_stopping_key_combination
 from neodroid.environments.wrappers import NeodroidGymWrapper
 from neodroid.environments.wrappers.vector_environment import VectorEnvironment
@@ -42,6 +44,18 @@ class linear_training(TrainingSession):
       environment = VectorEnvironment(name=kwargs.environment_name,
                                       connect_to_running=kwargs.connect_to_running)
 
+    agent_class_name = agent_type.__name__
+    model_directory = (PROJECT_APP_PATH.user_data / kwargs.environment_name /agent_class_name
+                        / kwargs.load_time / 'models')
+    config_directory = (PROJECT_APP_PATH.user_data / kwargs.environment_name /
+                        agent_class_name / kwargs.load_time / 'configs')
+    log_directory = (PROJECT_APP_PATH.user_log / kwargs.environment_name /
+                     agent_class_name / kwargs.load_time)
+
+    kwargs.log_directory = log_directory
+    kwargs.config_directory = config_directory
+    kwargs.model_directory = model_directory
+
     U.set_seeds(kwargs['SEED'])
     environment.seed(kwargs['SEED'])
 
@@ -65,10 +79,10 @@ class linear_training(TrainingSession):
       identifier = count()
       if isinstance(training_resume.models, Iterable):
         for model in training_resume.models:
-          U.save_model(model, name=f'{agent.__class__.__name__}-{identifier.__next__()}', **kwargs)
+          U.save_model(model, name=f'{agent.__name__}-{identifier.__next__()}', **kwargs)
       else:
         U.save_model(training_resume.models,
-                     name=f'{agent.__class__.__name__}-{identifier.__next__()}', **kwargs)
+                     name=f'{agent.__name__}-{identifier.__next__()}', **kwargs)
 
       if training_resume.stats:
         training_resume.stats.save(project_name=kwargs.project,
@@ -76,3 +90,13 @@ class linear_training(TrainingSession):
                                    directory=kwargs.log_directory)
 
     environment.close()
+
+if __name__ == '__main__':
+  import agent.configs.agent_test_configs.pg_test_config as C
+  from agent.agents.model_free.policy_optimisation.pg_agent import PGAgent
+
+  env = VectorEnvironment(name=C.ENVIRONMENT_NAME,
+                          connect_to_running=C.CONNECT_TO_RUNNING)
+  env.seed(C.SEED)
+
+  linear_training(training_procedure=train_episodically)(agent_type=PGAgent, config=C, environment=env)

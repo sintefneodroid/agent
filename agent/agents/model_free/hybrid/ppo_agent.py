@@ -9,7 +9,8 @@ from neodroid.environments.wrappers.vector_environment import VectorEnvironment
 from .actor_critic_agent import ActorCriticAgent
 from agent.interfaces.specifications import AdvantageDiscountedTransition, ValuedTransition
 from agent.training.procedures import to_tensor, step_wise_training, EnvironmentSnapshot
-from agent.training.agent_session_entry_point import parallelised_training, agent_session_entry_point
+from agent.training.agent_session_entry_point import agent_session_entry_point
+from agent.training.sessions.parallel_training import parallelised_training
 from agent.utilities.signal.advantage_estimation import torch_compute_gae
 from agent.utilities.signal.experimental.discounting import discount_signal
 from draugr.writers.writer import Writer

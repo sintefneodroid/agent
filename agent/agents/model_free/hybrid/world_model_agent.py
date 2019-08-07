@@ -7,26 +7,26 @@ import torch
 import torch.nn.functional as F
 from tqdm import tqdm
 
-from agent.agents.model_free.hybrid.actor_critic_agent import ActorCriticAgent
 from agent.architectures import MLP
 from agent.architectures.experimental.merged import MergedInputMLP
 from agent.exploration.sampling import OrnsteinUhlenbeckProcess
 from agent.interfaces.specifications import ArchitectureSpecification, GDCS
 from agent.memory import TransitionBuffer
 from agent.training.procedures import to_tensor, train_episodically
-from agent.training.agent_session_entry_point import  agent_session_entry_point
-from agent.training.sessions.parallel_training import parallelised_training
+from agent.training.agent_session_entry_point import agent_session_entry_point
+from agents import Agent
 from draugr.writers.writer import Writer
 from warg.named_ordered_dictionary import NOD
+from agent.training.sessions.parallel_training import parallelised_training
 
 __author__ = 'cnheider'
 
 tqdm.monitor_interval = 0
 
-class DDPGAgent(ActorCriticAgent):
+class WorldModelAgent(Agent):
 
   '''
-  The Deep Deterministic Policy Gradient (DDPG) Agent
+  As of https://worldmodels.github.io/, https://arxiv.org/abs/1803.10122
 
   Parameters
   ----------
@@ -253,7 +253,7 @@ class DDPGAgent(ActorCriticAgent):
 # region Test
 
 
-def ddpg_test(rollouts=None, skip=True):
+def wm_test(rollouts=None, skip=True):
   import agent.configs.agent_test_configs.ddpg_test_config as C
   if rollouts:
     C.ROLLOUTS = rollouts
@@ -266,7 +266,7 @@ def ddpg_test(rollouts=None, skip=True):
                             skip_confirmation=skip)
 
 
-def ddpg_run(rollouts=None, skip=True):
+def wm_run(rollouts=None, skip=True):
   import agent.configs.agent_test_configs.ddpg_test_config as C
   if rollouts:
     C.ROLLOUTS = rollouts
@@ -280,7 +280,6 @@ def ddpg_run(rollouts=None, skip=True):
 
 
 if __name__ == '__main__':
-  # ddpg_test()
 
-  ddpg_run()
+  wm_run()
 # endregion

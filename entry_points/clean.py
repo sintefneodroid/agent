@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 from shutil import rmtree
 
-from agent.version import PROJECT_APP_PATH
+from agent import PROJECT_APP_PATH
 
 __author__ = 'cnheider'
 __doc__ = r'''This script clean all Neodroid Agent related data from the environment'''

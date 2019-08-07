@@ -20,11 +20,6 @@ CONFIG_FILE = __file__
 
 CONNECT_TO_RUNNING = False
 ENVIRONMENT_NAME = 'Pendulum-v0'
-# Paths
-AGENT_TYPE_NAME = "DefaultAgent"
-MODEL_DIRECTORY = PROJECT_APP_PATH.user_data / ENVIRONMENT_NAME / AGENT_TYPE_NAME / LOAD_TIME / 'models'
-CONFIG_DIRECTORY = PROJECT_APP_PATH.user_data / ENVIRONMENT_NAME/ AGENT_TYPE_NAME / LOAD_TIME / 'configs'
-LOG_DIRECTORY = PROJECT_APP_PATH.user_log / ENVIRONMENT_NAME / AGENT_TYPE_NAME / LOAD_TIME
 
 
 # Optimiser
@@ -69,14 +64,16 @@ SIGNAL_CLIPPING = False
 ROLLOUTS = 1000
 
 # Architecture
-ACTOR_ARCH_SPEC = GDCS(MLP, NOD(**{
+ACTOR_ARCH_SPEC = GDCS(MLP,
+                       NOD(**{
   'input_shape':      None,  # Obtain from environment
   # 'hidden_layers' : [256],
   'output_activation':torch.tanh,
   'output_shape':     None,  # Obtain from environment
   }))
 
-CRITIC_ARCH_SPEC = GDCS(MergedInputMLP, NOD(**{
+CRITIC_ARCH_SPEC = GDCS(MergedInputMLP,
+                        NOD(**{
   'input_shape': None,  # Obtain from environment
   # 'hidden_layers' : [256],
   'output_shape':None,  # Obtain from environment

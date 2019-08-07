@@ -23,11 +23,6 @@ CONNECT_TO_RUNNING = False
 RENDER_ENVIRONMENT = True
 TEST_INTERVAL = 1000
 
-# Paths
-AGENT_TYPE_NAME = "DefaultAgent"
-MODEL_DIRECTORY = PROJECT_APP_PATH.user_data / ENVIRONMENT_NAME / AGENT_TYPE_NAME / LOAD_TIME / 'models'
-CONFIG_DIRECTORY = PROJECT_APP_PATH.user_data / ENVIRONMENT_NAME/ AGENT_TYPE_NAME / LOAD_TIME / 'configs'
-LOG_DIRECTORY = PROJECT_APP_PATH.user_log / ENVIRONMENT_NAME / AGENT_TYPE_NAME / LOAD_TIME
 
 
 INITIAL_OBSERVATION_PERIOD = 0
@@ -60,14 +55,16 @@ SURROGATE_CLIPPING_VALUE = 0.2  # initial probability ratio clipping range
 SURROGATE_CLIP_FUNC = lambda a:SURROGATE_CLIPPING_VALUE * (1. - a)  # clip range schedule function
 
 # Architecture
-ACTOR_ARCH_SPEC = GDCS(MultiDimensionalNormalMLP, NOD(**{
+ACTOR_ARCH_SPEC = GDCS(MultiDimensionalNormalMLP,
+                       NOD(**{
   'input_shape':            None,  # Obtain from environment
   'hidden_layers':          None,
   'hidden_layer_activation':torch.relu,
   'output_shape':           None,  # Obtain from environment
   }))
 
-CRITIC_ARCH_SPEC = GDCS(MergedInputMLP, NOD(**{
+CRITIC_ARCH_SPEC = GDCS(MergedInputMLP,
+                        NOD(**{
   'input_shape':            None,  # Obtain from environment
   'hidden_layers':          None,
   'hidden_layer_activation':torch.relu,

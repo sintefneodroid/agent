@@ -15,7 +15,7 @@ import re
 
 from setuptools import find_packages
 
-with open(pathlib.Path(__file__).parent / "agent" / "version.py", "r") as f:
+with open(pathlib.Path(__file__).parent / "agent" / "__init__.py", "r") as f:
   content = f.read()
   # get version string from module
   version = re.search(r"__version__ = ['\"]([^'\"]*)['\"]", content, re.M).group(1)
@@ -115,8 +115,9 @@ class NeodroidAgentPackageMeta(type):
 
         'neodroid-cma = agent.agents.experimental.cma_agent:cma_test',
 
-        'neodroid-tb = agent.utilities.extra_entry_points.tensorboard_entry_point:main',
-        'neodroid-clean = agent.utilities.extra_entry_points.clean:main',
+        'neodroid-tb = entry_points.tensorboard_entry_point:main',
+        'neodroid-clean = entry_points.clean:main',
+        'neodroid-data-open = entry_points.open_data:main',
         ]
       }
 

@@ -86,13 +86,8 @@ def agent_session_entry_point(agent: Type[Agent],
 
   torch.cuda.empty_cache()
 
+  exit(0)
 
-if __name__ == '__main__':
-  import agent.configs.agent_test_configs.pg_test_config as C
-  from agent.agents.model_free.policy_optimisation.pg_agent import PGAgent
 
-  env = VectorEnvironment(name=C.ENVIRONMENT_NAME,
-                          connect_to_running=C.CONNECT_TO_RUNNING)
-  env.seed(C.SEED)
 
-  linear_training(training_procedure=train_episodically)(agent_type=PGAgent, config=C, environment=env)
+

@@ -11,7 +11,7 @@ def main(keep_alive=True):
   from contextlib import suppress
   from time import sleep
 
-  from agent.version import PROJECT_APP_PATH
+  from agent import PROJECT_APP_PATH
 
   import argparse
 

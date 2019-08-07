@@ -8,7 +8,7 @@ import torch.nn.functional as F
 from agent.architectures.distributional.categorical import CategoricalMLP
 from agent.interfaces.specifications.exploration_specification import ExplorationSpecification
 from agent.interfaces.specifications.generalised_delayed_construction_specification import GDCS
-from agent.version import PROJECT_APP_PATH, PROJECT_NAME
+from agent import PROJECT_APP_PATH, PROJECT_NAME
 from warg.named_ordered_dictionary import NOD
 
 __author__ = 'cnheider'
@@ -21,8 +21,6 @@ PROJECT_NAME = PROJECT_NAME
 CONFIG_NAME = __name__
 CONFIG_FILE = __file__
 CONFIG_AUTHOR = __author__
-# APP_PATH = Path.cwd()
-# APP_PATH = Path.home()
 LOAD_TIME = str(int(time.time()))
 
 VERBOSE = False
@@ -68,15 +66,11 @@ EVALUATION_FUNCTION = F.smooth_l1_loss
 
 
 # Optimiser
-OPTIMISER_SPEC = GDCS(torch.optim.Adam, NOD(lr=3e-4,
+OPTIMISER_SPEC = GDCS(torch.optim.Adam,
+                      NOD(lr=3e-4,
                                             weight_decay=1e-6,
                                             eps=1e-2))
 
-# Paths
-AGENT_TYPE_NAME = "DefaultAgent"
-MODEL_DIRECTORY = PROJECT_APP_PATH.user_data / ENVIRONMENT_NAME / AGENT_TYPE_NAME / LOAD_TIME / 'models'
-CONFIG_DIRECTORY = PROJECT_APP_PATH.user_data / ENVIRONMENT_NAME/ AGENT_TYPE_NAME / LOAD_TIME / 'configs'
-LOG_DIRECTORY = PROJECT_APP_PATH.user_log / ENVIRONMENT_NAME / AGENT_TYPE_NAME / LOAD_TIME
 
 # CUDA
 USE_CUDA = True

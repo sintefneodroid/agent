@@ -21,7 +21,7 @@ from agent.interfaces.torch_agent import TorchAgent
 from agent.memory import TransitionBuffer
 from draugr.writers.writer import Writer
 from neodroid.environments.environment import Environment
-from neodroid.interfaces.environment_models import EnvironmentSnapshot
+from neodroid.interfaces.specifications import EnvironmentSnapshot
 
 __author__ = 'cnheider'
 

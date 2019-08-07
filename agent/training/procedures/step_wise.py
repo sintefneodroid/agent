@@ -5,7 +5,7 @@ from typing import Union
 
 import draugr
 from agent.interfaces.specifications import TR
-from neodroid.interfaces.environment_models import EnvironmentSnapshot
+from neodroid.interfaces.specifications import EnvironmentSnapshot
 
 __author__ = 'cnheider'
 __doc__ = ''

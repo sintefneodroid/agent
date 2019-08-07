@@ -9436,7 +9436,7 @@
                     var i,
                         xhr = options.xhr();
 
-                    xhr.open(
+                    xhr.open_data(
                         options.type,
                         options.url,
                         options.async,

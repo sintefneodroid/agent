@@ -11,7 +11,7 @@ from agent.training.sessions.parallel_training import parallelised_training
 from agent.training.procedures import to_tensor, train_episodically
 from agent.training.agent_session_entry_point import agent_session_entry_point
 from neodroid.environments.environment import Environment
-from neodroid.interfaces.environment_models import EnvironmentSnapshot
+from neodroid.interfaces.specifications import EnvironmentSnapshot
 from warg.named_ordered_dictionary import NOD
 
 __author__ = 'cnheider'

@@ -9,7 +9,7 @@ from tqdm import tqdm
 import draugr
 from draugr.writers.writer import Writer
 from neodroid.environments.environment import Environment
-from neodroid.interfaces.environment_models import EnvironmentSnapshot
+from neodroid.interfaces.specifications import EnvironmentSnapshot
 
 tqdm.monitor_interval = 0
 
