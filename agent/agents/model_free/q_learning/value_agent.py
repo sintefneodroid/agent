@@ -1,25 +1,23 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 import copy
-from abc import abstractmethod
-from typing import Any, Iterable, Sequence
-
-import draugr
-from agent.interfaces.torch_agent import TorchAgent
-from agent.interfaces.specifications import ExplorationSpecification, GDCS
-from draugr.writers.writer import Writer
-
-
-
 import math
 import random
+from abc import abstractmethod
+from typing import Any, Sequence
 
 import numpy as np
 import torch
+
+import draugr
 from agent import utilities as U
+from agent.interfaces.specifications import ExplorationSpecification, GDCS
+from agent.interfaces.torch_agent import TorchAgent
+from draugr.writers.writer import Writer
 from neodroid.environments.environment import Environment
 
 __author__ = 'cnheider'
+
 
 class ValueAgent(TorchAgent):
   '''
@@ -40,7 +38,7 @@ All value iteration agents should inherit from this class
     super().__init__(*args, **kwargs)
 
   def sample(self,
-             state:Sequence,
+             state: Sequence,
              disallow_random_sample=False,
              stat_writer: Writer = None,
              **kwargs):
@@ -56,7 +54,7 @@ All value iteration agents should inherit from this class
 
     return self._sample_random_process(state)
 
-  def _build(self, env:Environment, stat_writer:Writer = None, **kwargs):
+  def _build(self, env: Environment, stat_writer: Writer = None, print_model_repr=True, **kwargs):
     if stat_writer:
       dummy_in = torch.rand(1, *self.input_shape)
 
@@ -66,12 +64,10 @@ All value iteration agents should inherit from this class
       if isinstance(stat_writer, draugr.TensorBoardXWriter):
         stat_writer._graph(model, dummy_in)
 
-    num_params = sum(param.numel() for param in self._value_model.parameters())
-    num_trainable_params = sum(
-        p.numel() for p in self._value_model.parameters() if p.requires_grad)
-
-    draugr.sprint(f'trainable/num_params: {num_trainable_params}/{num_params}\n', highlight=True,
-                  color='cyan')
+    if print_model_repr:
+      draugr.sprint(f'Value model: {self._value_model}',
+                    highlight=True,
+                    color='cyan')
 
   @property
   def models(self):

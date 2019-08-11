@@ -5,12 +5,12 @@ __author__ = 'cnheider'
 import numpy as np
 
 
-def bounded_triangle_sample(set, mean=0.5, number=1):
-  l = len(set)
+def bounded_triangle_sample(a_set, mean=0.5, number=1):
+  l = len(a_set)
   a = np.random.triangular(0, l * mean, l, number)
   a = int(np.floor(a)[0])
 
-  return set[a]
+  return a_set[a]
 
 
 if __name__ == '__main__':

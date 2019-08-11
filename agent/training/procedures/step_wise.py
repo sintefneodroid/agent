@@ -5,7 +5,7 @@ from typing import Union
 
 import draugr
 from agent.interfaces.specifications import TR
-from neodroid.interfaces.specifications import EnvironmentSnapshot
+from neodroid.environments import NeodroidEnvironment
 
 __author__ = 'cnheider'
 __doc__ = ''
@@ -14,7 +14,7 @@ from tqdm import tqdm
 
 
 def step_wise_training(agent,
-                       environment,
+                       environment: NeodroidEnvironment,
                        *,
 
                        batch_length=100,
@@ -24,7 +24,7 @@ def step_wise_training(agent,
                        render_frequency=100,
                        stat_frequency=10,
 
-**kwargs
+                       **kwargs
                        ) -> TR:
   B = range(1, num_updates + 1)
   B = tqdm(B, f'Batch {0}, {num_batches}',

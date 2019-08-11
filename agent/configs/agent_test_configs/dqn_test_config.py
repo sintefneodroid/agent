@@ -14,9 +14,6 @@ Author: Christian Heider Nielsen
 CONFIG_NAME = __name__
 CONFIG_FILE = __file__
 
-ENVIRONMENT_NAME = 'CartPole-v1'
-
-
 INITIAL_OBSERVATION_PERIOD = 0
 LEARNING_FREQUENCY = 1
 REPLAY_MEMORY_SIZE = 10000
@@ -37,8 +34,8 @@ OPTIMISER_SPEC = GDCS(torch.optim.RMSprop, {})  # torch.optim.Adam
 # Architecture
 VALUE_ARCH_SPEC = GDCS(MLP,
                        NOD(**{'input_shape':            None,  # Obtain from environment
-                                   'hidden_layers':          None,
-                                   'output_shape':           None,  # Obtain from environment
-                                   'hidden_layer_activation':torch.relu,
-                                   'use_bias':               True,
-                                   }))
+                              'hidden_layers':          None,
+                              'output_shape':           None,  # Obtain from environment
+                              'hidden_layer_activation':torch.relu,
+                              'use_bias':               True,
+                              }))

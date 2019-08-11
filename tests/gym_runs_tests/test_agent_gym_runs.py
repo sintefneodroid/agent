@@ -3,8 +3,8 @@
 import pytest
 
 from agent.agents.model_free.hybrid.ddpg_agent import ddpg_test
-from agent.agents.model_free.q_learning.dqn_agent import dqn_test
 from agent.agents.model_free.policy_optimisation.pg_agent import pg_test
+from agent.agents.model_free.q_learning.dqn_agent import dqn_test
 
 __author__ = 'cnheider'
 __doc__ = ''

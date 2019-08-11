@@ -33,10 +33,6 @@ class AnnealedGaussianProcess(RandomProcess):
     return sigma
 
 
-def main():
-  # AnnealedGaussianProcess()
-  pass
-
-
 if __name__ == '__main__':
-  main()
+  agp = AnnealedGaussianProcess(0, 3, 2, 1000)
+  agp.sample()

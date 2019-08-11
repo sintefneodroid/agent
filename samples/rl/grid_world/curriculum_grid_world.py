@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-from neodroid.environments.wrappers import BinaryActionEncodingWrapper
-
 import draugr
+from neodroid.environments.wrappers import BinaryActionEncodingWrapper
 
 __author__ = 'cnheider'
 

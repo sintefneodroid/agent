@@ -7,11 +7,10 @@ from typing import Type
 import gym
 
 import draugr
-from agent import utilities as U
+from agent import PROJECT_APP_PATH, utilities as U
 from agent.interfaces.agent import Agent
 from agent.interfaces.specifications import TrainingSession
 from agent.training.procedures import train_episodically
-from agent import PROJECT_APP_PATH
 from draugr.stopping_key import add_early_stopping_key_combination
 from neodroid.environments.wrappers import NeodroidGymWrapper
 from neodroid.environments.wrappers.vector_environment import VectorEnvironment
@@ -45,8 +44,8 @@ class linear_training(TrainingSession):
                                       connect_to_running=kwargs.connect_to_running)
 
     agent_class_name = agent_type.__name__
-    model_directory = (PROJECT_APP_PATH.user_data / kwargs.environment_name /agent_class_name
-                        / kwargs.load_time / 'models')
+    model_directory = (PROJECT_APP_PATH.user_data / kwargs.environment_name /
+                       agent_class_name / kwargs.load_time / 'models')
     config_directory = (PROJECT_APP_PATH.user_data / kwargs.environment_name /
                         agent_class_name / kwargs.load_time / 'configs')
     log_directory = (PROJECT_APP_PATH.user_log / kwargs.environment_name /
@@ -90,6 +89,7 @@ class linear_training(TrainingSession):
                                    directory=kwargs.log_directory)
 
     environment.close()
+
 
 if __name__ == '__main__':
   import agent.configs.agent_test_configs.pg_test_config as C

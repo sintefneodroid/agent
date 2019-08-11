@@ -2,8 +2,7 @@
 # -*- coding: utf-8 -*-
 from torch.nn import MSELoss
 
-from agent.architectures import MLP
-from agent.architectures.distributional.normal import MultipleNormalMLP, MultiDimensionalNormalMLP
+from agent.architectures.distributional.normal import MultiDimensionalNormalMLP
 from agent.architectures.experimental.merged import MergedInputMLP
 from .base_test_config import *
 
@@ -18,12 +17,9 @@ Author: Christian Heider Nielsen
 CONFIG_NAME = __name__
 CONFIG_FILE = __file__
 
-ENVIRONMENT_NAME = 'Pendulum-v0'
 CONNECT_TO_RUNNING = False
 RENDER_ENVIRONMENT = True
 TEST_INTERVAL = 1000
-
-
 
 INITIAL_OBSERVATION_PERIOD = 0
 
@@ -57,19 +53,19 @@ SURROGATE_CLIP_FUNC = lambda a:SURROGATE_CLIPPING_VALUE * (1. - a)  # clip range
 # Architecture
 ACTOR_ARCH_SPEC = GDCS(MultiDimensionalNormalMLP,
                        NOD(**{
-  'input_shape':            None,  # Obtain from environment
-  'hidden_layers':          None,
-  'hidden_layer_activation':torch.relu,
-  'output_shape':           None,  # Obtain from environment
-  }))
+                         'input_shape':            None,  # Obtain from environment
+                         'hidden_layers':          None,
+                         'hidden_layer_activation':torch.relu,
+                         'output_shape':           None,  # Obtain from environment
+                         }))
 
 CRITIC_ARCH_SPEC = GDCS(MergedInputMLP,
                         NOD(**{
-  'input_shape':            None,  # Obtain from environment
-  'hidden_layers':          None,
-  'hidden_layer_activation':torch.relu,
-  'output_shape':           None,  # Obtain from environment
-  }))
+                          'input_shape':            None,  # Obtain from environment
+                          'hidden_layers':          None,
+                          'hidden_layer_activation':torch.relu,
+                          'output_shape':           None,  # Obtain from environment
+                          }))
 
 ACTOR_OPTIMISER_SPEC = GDCS(constructor=torch.optim.Adam,
                             kwargs=NOD(lr=3e-4)

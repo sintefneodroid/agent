@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-from neodroid.models import Configuration
+from neodroid.interfaces.specifications import Configuration
 
 __author__ = 'cnheider'
 from collections import namedtuple
@@ -20,11 +20,10 @@ def get_initial_configuration2(environment):
     goal_pos_z = environment.description.configurable('Vertical').observation
     goal_pos = [goal_pos_x, 0, goal_pos_z]
     # goal_pos = environment.description.configurable('GoalPosition_').configurable_value
-    initial_configuration = [
-      Configuration('Horizontal', goal_pos[0]),
-      Configuration('Orthogonal', goal_pos[1]),
-      Configuration('Vertical', goal_pos[2]),
-      ]
+    initial_configuration = [Configuration('Horizontal', goal_pos[0]),
+                             Configuration('Orthogonal', goal_pos[1]),
+                             Configuration('Vertical', goal_pos[2]),
+                             ]
     return initial_configuration
 
 

@@ -39,8 +39,8 @@ class ExpandableCircularBuffer(object):
 
       if req_num > num_entries:
         logging.info(f'Buffer only has {num_entries},'
-                        f' returning {num_entries} entries'
-                        f' of the requested {req_num}')
+                     f' returning {num_entries} entries'
+                     f' of the requested {req_num}')
         req_num = len(self._memory)
 
       batch = random.sample(self._memory, req_num)

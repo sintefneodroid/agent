@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-from agent.architectures import MLP
-from agent.architectures.experimental.merged import MergedInputMLP
-from agent.exploration import OrnsteinUhlenbeckProcess
+from agent.architectures import SingleHeadMLP
+from agent.architectures.experimental.merged import SingleHeadMergedInputMLP
 from agent.memory import TransitionBuffer
-
+from agent.utilities.exploration import OrnsteinUhlenbeckProcess
 from .base_test_config import *
 
 __author__ = 'cnheider'
@@ -20,7 +19,6 @@ CONFIG_FILE = __file__
 
 CONNECT_TO_RUNNING = False
 ENVIRONMENT_NAME = 'Pendulum-v0'
-
 
 # Optimiser
 OPTIMISER_TYPE = torch.optim.Adam
@@ -64,17 +62,17 @@ SIGNAL_CLIPPING = False
 ROLLOUTS = 1000
 
 # Architecture
-ACTOR_ARCH_SPEC = GDCS(MLP,
+ACTOR_ARCH_SPEC = GDCS(SingleHeadMLP,
                        NOD(**{
-  'input_shape':      None,  # Obtain from environment
-  # 'hidden_layers' : [256],
-  'output_activation':torch.tanh,
-  'output_shape':     None,  # Obtain from environment
-  }))
+                         'input_shape':      None,  # Obtain from environment
+                         # 'hidden_layers' : [256],
+                         'output_activation':torch.tanh,
+                         'output_shape':     None,  # Obtain from environment
+                         }))
 
-CRITIC_ARCH_SPEC = GDCS(MergedInputMLP,
+CRITIC_ARCH_SPEC = GDCS(SingleHeadMergedInputMLP,
                         NOD(**{
-  'input_shape': None,  # Obtain from environment
-  # 'hidden_layers' : [256],
-  'output_shape':None,  # Obtain from environment
-  }))
+                          'input_shape': None,  # Obtain from environment
+                          # 'hidden_layers' : [256],
+                          'output_shape':None,  # Obtain from environment
+                          }))

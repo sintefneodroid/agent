@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-from agent.exploration.sampling.random_process import AnnealedGaussianProcess
+from .annealed_guassian import AnnealedGaussianProcess
 
 __author__ = 'cnheider'
 
@@ -11,14 +11,14 @@ import numpy as np
 class OrnsteinUhlenbeckProcess(AnnealedGaussianProcess):
 
   def __init__(self,
-               theta,
+               theta: float,
                *,
-               mean=0.,
-               sigma=1.,
-               dt=1e-2,
+               mean: float = 0.,
+               sigma: float = 1.,
+               dt: float = 1e-2,
                x_0=None,
-               sigma_min=None,
-               n_steps_annealing=1000,
+               sigma_min: float = None,
+               n_steps_annealing: int = 1000,
                ):
     super().__init__(mean=mean,
                      sigma=sigma,
@@ -45,11 +45,7 @@ class OrnsteinUhlenbeckProcess(AnnealedGaussianProcess):
 
 if __name__ == '__main__':
 
-  def main():
-    random_process = OrnsteinUhlenbeckProcess(0.5 )
+  random_process = OrnsteinUhlenbeckProcess(0.5)
 
-    for i in range(1000):
-      print(random_process.sample((2, 1)))
-
-
-  main()
+  for i in range(1000):
+    print(random_process.sample((2, 1)))

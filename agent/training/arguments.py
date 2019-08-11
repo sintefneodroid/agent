@@ -10,12 +10,12 @@ import draugr
 from warg.arguments import add_bool_arg
 
 
-def parse_arguments(agent_description, C: draugr.NOD) -> draugr.NOD:
+def parse_arguments(agent_description, default_config: draugr.NOD) -> draugr.NOD:
   parser = argparse.ArgumentParser(description=agent_description)
   parser.add_argument("--ENVIRONMENT_NAME",
                       "-E",
                       type=str,
-                      default=C.ENVIRONMENT_NAME,
+                      default=default_config.ENVIRONMENT_NAME,
                       metavar="ENVIRONMENT_NAME",
                       help="Name of the environment to run",
                       )
@@ -29,7 +29,7 @@ def parse_arguments(agent_description, C: draugr.NOD) -> draugr.NOD:
   add_bool_arg(parser,
                "render",
                dest="RENDER_ENVIRONMENT",
-               default=C.RENDER_ENVIRONMENT,
+               default=default_config.RENDER_ENVIRONMENT,
                help="Rendering of the environment",
                )
 
@@ -50,20 +50,20 @@ def parse_arguments(agent_description, C: draugr.NOD) -> draugr.NOD:
   add_bool_arg(parser,
                "connect_to_running",
                dest="CONNECT_TO_RUNNING",
-               default=C.CONNECT_TO_RUNNING,
+               default=default_config.CONNECT_TO_RUNNING,
                help="Connect to already running simulation or start an instance",
                )
   parser.add_argument("--SEED",
                       "-S",
                       type=int,
-                      default=C.SEED,
+                      default=default_config.SEED,
                       metavar="SEED",
-                      help=f"Random seed (default: {C.SEED})"
+                      help=f"Random seed (default: {default_config.SEED})"
                       )
   parser.add_argument("--VERBOSE",
                       "-V",
                       action="store_true",
-                      default=C.VERBOSE,
+                      default=default_config.VERBOSE,
                       help="Enable verbose debug prints"
                       )
   add_bool_arg(parser,
@@ -75,7 +75,7 @@ def parse_arguments(agent_description, C: draugr.NOD) -> draugr.NOD:
   parser.add_argument("--ROLLOUTS",
                       "-rollouts",
                       type=int,
-                      default=C.ROLLOUTS,
+                      default=default_config.ROLLOUTS,
                       metavar="ROLLOUTS",
                       help="Number of rollouts"
                       )
@@ -89,7 +89,7 @@ def parse_arguments(agent_description, C: draugr.NOD) -> draugr.NOD:
   add_bool_arg(parser,
                "cuda",
                dest="USE_CUDA",
-               default=C.USE_CUDA,
+               default=default_config.USE_CUDA,
                help="Cuda flag")
 
   args = draugr.NOD(parser.parse_args().__dict__)

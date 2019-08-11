@@ -82,7 +82,6 @@ Tries to infer input and output size from env if either _input_shape or _output_
 
   # region Public
 
-
   @property
   @abstractmethod
   def models(self) -> tuple:
@@ -176,7 +175,7 @@ Tries to infer input and output size from env if either _input_shape or _output_
 
   def build(self, env: Environment, **kwargs) -> None:
     self.__infer_io_shapes(env)
-    self._build(env,**kwargs)
+    self._build(env, **kwargs)
 
   @property
   def input_shape(self):

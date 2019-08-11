@@ -40,20 +40,21 @@ def test_discounting_respects_episode_end():
     ])
   np.testing.assert_allclose(actual, expected)
 
+
 def test_discounting_respects_episode_end_T():
   # given
-  s = np.array([[1,5],
-                [2,4],
-                [3,3],
-                [4,2],
-                [5,1]
+  s = np.array([[1, 5],
+                [2, 4],
+                [3, 3],
+                [4, 2],
+                [5, 1]
                 ],
                np.float32).T
-  t = np.array([[0,0],
-                [0,0],
-                [1,0],
-                [0,0],
-                [0,0]
+  t = np.array([[0, 0],
+                [0, 0],
+                [1, 0],
+                [0, 0],
+                [0, 0]
                 ],
                np.float32).T
   last = np.array([6, 0],

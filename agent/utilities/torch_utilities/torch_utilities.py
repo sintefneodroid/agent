@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 import math
 import random
-from typing import Iterable, Sequence
 
 import numpy
 import torch
@@ -39,8 +38,6 @@ def shannon_entropy(prob):
 def log_shannon_entropy(log_prob):
   return - torch.sum(torch.pow(2, log_prob) * log_prob, -1)
   # return - torch.sum(torch.exp(log_prob) * log_prob, -1)
-
-
 
 
 def torch_pi(device='cpu'):
@@ -139,6 +136,7 @@ class NonSequentialDataset(Dataset):
 
   def __len__(self):
     return len(self.arrays[0])
+
 
 class TensoriseMixin(object):
   device = "cpu"

@@ -5,7 +5,6 @@ from typing import Any, Iterable, Union
 
 import numpy
 import numpy as np
-import torch
 from numba import jit
 from scipy.signal import lfilter
 
@@ -82,12 +81,13 @@ def discount_signal(x: Union[numpy.ndarray, Iterable, int, float], factor) -> An
 
   return numpy.flip(a, -1)
 
-#@jit(nopython=True, nogil=True)
+
+# @jit(nopython=True, nogil=True)
 def discount_return(x, discount):
   return numpy.sum(x * (discount ** numpy.arange(len(x))))
 
 
 if __name__ == '__main__':
-  rollout = numpy.zeros((10,2)).T
-  rollout[:,-1] = 1
+  rollout = numpy.zeros((10, 2)).T
+  rollout[:, -1] = 1
   print(discount_signal(rollout, .5))

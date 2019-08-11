@@ -82,6 +82,7 @@ if __name__ == '__main__':
     inp = to_tensor(numpy.random.rand(64, prod(s)))
     print(model.sample(model(inp)))
 
+
   multi_cat()
   single_cat()
   single_cat2()

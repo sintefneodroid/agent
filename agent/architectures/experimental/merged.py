@@ -24,6 +24,12 @@ class MergedInputMLP(MLP):
     return out
 
 
+class SingleHeadMergedInputMLP(MergedInputMLP):
+  def forward(self, *x, **kwargs) -> Normal:
+    out = super().forward(*x, **kwargs)
+    return out[0]
+
+
 if __name__ == '__main__':
   def test_normal():
     s = (10,)

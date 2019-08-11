@@ -2,10 +2,8 @@
 # -*- coding: utf-8 -*-
 import logging
 
-from typing import Any
-
-from agent.architectures import MLP
 from agent.agents.model_free.q_learning.value_agent import ValueAgent
+from agent.architectures import MLP
 from agent.interfaces.specifications.generalised_delayed_construction_specification import GDCS
 from agent.memory import ReplayBuffer
 from agent.training.agent_session_entry_point import agent_session_entry_point
@@ -85,6 +83,7 @@ class DQNAgent(ValueAgent):
     self._optimiser = self._optimiser_spec.constructor(self._value_model.parameters(),
                                                        **self._optimiser_spec.kwargs
                                                        )
+    super()._build(env, **kwargs)
 
   def _optimise(self, error, **kwargs):
     '''

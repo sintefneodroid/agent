@@ -13,7 +13,7 @@ import sys
 import torch
 
 
-def load_latest_model(model_directory,**kwargs):
+def load_latest_model(model_directory, **kwargs):
   _list_of_files = model_directory.glob('*')
   _latest_model = max(_list_of_files, key=os.path.getctime)
   print('loading previous model: ' + _latest_model)

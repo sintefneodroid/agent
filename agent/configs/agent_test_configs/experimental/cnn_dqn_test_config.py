@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 from agent.architectures import CNN
-from agent.utilities import ReplayBuffer
-
 from agent.configs.agent_test_configs.base_test_config import *
+from agent.utilities import ReplayBuffer
 
 __author__ = 'cnheider'
 '''

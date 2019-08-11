@@ -7,9 +7,10 @@ from agent.architectures.distributional.categorical import CategoricalMLP
 from agent.exceptions.exceptions import NoTrajectoryException
 from agent.interfaces.specifications.generalised_delayed_construction_specification import GDCS
 from agent.memory import TrajectoryBuffer
-from agent.training.sessions.parallel_training import parallelised_training
-from agent.training.procedures import to_tensor, train_episodically
 from agent.training.agent_session_entry_point import agent_session_entry_point
+from agent.training.procedures import to_tensor, train_episodically
+from agent.training.sessions.parallel_training import parallelised_training
+from draugr.writers.writer import Writer
 from neodroid.environments.environment import Environment
 from neodroid.interfaces.specifications import EnvironmentSnapshot
 from warg.named_ordered_dictionary import NOD
@@ -77,10 +78,12 @@ class PGAgent(PolicyAgent):
   def _build(self, env: Environment, **kwargs):
 
     self._distribution_regressor = self._policy_arch_spec.constructor(**self._policy_arch_spec.kwargs).to(
-      self._device)
+        self._device)
 
     self.optimiser = self._optimiser_spec.constructor(self._distribution_regressor.parameters(),
                                                       **self._optimiser_spec.kwargs)
+
+    super()._build(env, **kwargs)
 
   def _optimise(self, loss, **kwargs):
     self.optimiser.zero_grad()
@@ -90,7 +93,7 @@ class PGAgent(PolicyAgent):
         params.grad.data.clamp_(self._grad_clip_low, self._grad_clip_high)
     self.optimiser.step()
 
-  def _sample_model(self, state, **kwargs):
+  def _sample_model(self, state, **kwargs) -> tuple:
     model_input = to_tensor(state, device=self._device, dtype=self._state_type)
 
     distributions = self._distribution_regressor(model_input)
@@ -105,7 +108,7 @@ class PGAgent(PolicyAgent):
 
   # region Public
 
-  def sample(self, state, *args, **kwargs):
+  def sample(self, state, *args, **kwargs) -> tuple:
     return self._sample_model(state)
 
   def evaluate(self, **kwargs):
@@ -173,10 +176,10 @@ class PGAgent(PolicyAgent):
               initial_state: EnvironmentSnapshot,
               environment: Environment,
               render: bool = False,
-              stat_writer=None,
+              stat_writer: Writer = None,
               train: bool = True,
               max_length: int = None,
-              disable_stdout=False,
+              disable_stdout: bool = False,
               **kwargs):
     '''Perform a single rollout until termination in environment
 
@@ -290,7 +293,6 @@ def pg_run(rollouts=None, skip=True):
     C.ROLLOUTS = rollouts
 
   C.CONNECT_TO_RUNNING = True
-  C.ENVIRONMENT_NAME = ""
 
   agent_session_entry_point(PGAgent,
                             C,

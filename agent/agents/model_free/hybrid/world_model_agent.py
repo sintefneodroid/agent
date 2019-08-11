@@ -9,22 +9,22 @@ from tqdm import tqdm
 
 from agent.architectures import MLP
 from agent.architectures.experimental.merged import MergedInputMLP
-from agent.exploration.sampling import OrnsteinUhlenbeckProcess
 from agent.interfaces.specifications import ArchitectureSpecification, GDCS
 from agent.memory import TransitionBuffer
-from agent.training.procedures import to_tensor, train_episodically
 from agent.training.agent_session_entry_point import agent_session_entry_point
+from agent.training.procedures import to_tensor, train_episodically
+from agent.training.sessions.parallel_training import parallelised_training
+from agent.utilities.exploration.sampling import OrnsteinUhlenbeckProcess
 from agents import Agent
 from draugr.writers.writer import Writer
 from warg.named_ordered_dictionary import NOD
-from agent.training.sessions.parallel_training import parallelised_training
 
 __author__ = 'cnheider'
 
 tqdm.monitor_interval = 0
 
-class WorldModelAgent(Agent):
 
+class WorldModelAgent(Agent):
   '''
   As of https://worldmodels.github.io/, https://arxiv.org/abs/1803.10122
 
@@ -261,7 +261,7 @@ def wm_test(rollouts=None, skip=True):
   agent_session_entry_point(DDPGAgent,
                             C,
                             training_session=parallelised_training(training_procedure=train_episodically,
-                                                     auto_reset_on_terminal_state=True),
+                                                                   auto_reset_on_terminal_state=True),
                             parse_args=False,
                             skip_confirmation=skip)
 
@@ -274,7 +274,7 @@ def wm_run(rollouts=None, skip=True):
   agent_session_entry_point(DDPGAgent,
                             C,
                             training_session=parallelised_training(training_procedure=train_episodically,
-                                                     auto_reset_on_terminal_state=True),
+                                                                   auto_reset_on_terminal_state=True),
                             parse_args=False,
                             skip_confirmation=skip)
 

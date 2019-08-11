@@ -5,10 +5,10 @@ import time
 import torch
 import torch.nn.functional as F
 
+from agent import PROJECT_NAME
 from agent.architectures.distributional.categorical import CategoricalMLP
 from agent.interfaces.specifications.exploration_specification import ExplorationSpecification
 from agent.interfaces.specifications.generalised_delayed_construction_specification import GDCS
-from agent import PROJECT_APP_PATH, PROJECT_NAME
 from warg.named_ordered_dictionary import NOD
 
 __author__ = 'cnheider'
@@ -64,13 +64,11 @@ VALUE_TYPE = torch.float
 ACTION_TYPE = torch.long
 EVALUATION_FUNCTION = F.smooth_l1_loss
 
-
 # Optimiser
 OPTIMISER_SPEC = GDCS(torch.optim.Adam,
                       NOD(lr=3e-4,
-                                            weight_decay=1e-6,
-                                            eps=1e-2))
-
+                          weight_decay=1e-6,
+                          eps=1e-2))
 
 # CUDA
 USE_CUDA = True

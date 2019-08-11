@@ -7,10 +7,10 @@ from warnings import warn
 import pkg_resources
 from pip._internal.utils.misc import dist_is_editable
 
-from warg.app_path import AppPath
+from apppath.app_path import AppPath
 
 __author__ = "cnheider"
-__version__ = "0.2.6"
+__version__ = "0.2.7"
 __doc__ = r"""
 Created on 27/04/2019
 

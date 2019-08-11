@@ -2,8 +2,8 @@
 # -*- coding: utf-8 -*-
 import argparse
 
-from agent.exploration.ucb1 import UCB1
-from neodroid import  messaging
+from agent.utilities.exploration.ucb1 import UCB1
+from neodroid import messaging
 from neodroid.environments.wrappers import SingleEnvironment
 
 __author__ = 'cnheider'

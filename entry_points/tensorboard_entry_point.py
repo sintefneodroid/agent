@@ -16,7 +16,9 @@ def main(keep_alive=True):
   import argparse
 
   parser = argparse.ArgumentParser(description="Option for launching tensorboard")
-  parser.add_argument('--clean', action='store_true', default=False,
+  parser.add_argument('--clean',
+                      action='store_true',
+                      default=False,
                       help="Adding --clean argument will wipe tensorboard logs")
   parser.add_argument('--port',
                       default=6006,

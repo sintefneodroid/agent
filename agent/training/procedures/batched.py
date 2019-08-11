@@ -6,19 +6,20 @@ import draugr
 from agent.interfaces.specifications import TR
 from agent.interfaces.specifications.transitions import ValuedTransition
 from agent.utilities import to_tensor
+from neodroid.environments import NeodroidEnvironment
 
 __author__ = 'cnheider'
 __doc__ = ''
 
 
 def batched_training(agent,
-                     environment,
+                     environment: NeodroidEnvironment,
                      *,
                      device,
                      log_directory,
                      num_steps=200,
                      rollouts=10000,
-                     stat_frequency=100,
+                     stat_frequency=10,
                      render_frequency=100,
                      disable_stdout=False,
                      **kwargs
@@ -49,9 +50,6 @@ def batched_training(agent,
         if render_frequency and i % render_frequency == 0:
           environment.render()
 
-        if stat_frequency and i % stat_frequency == 0:
-          stat_writer.scalar('What bro',1)
-
         batch_signal.append(signal)
 
         successor_state = to_tensor(successor_state, device=device)
@@ -76,7 +74,10 @@ def batched_training(agent,
         # if test_signal > agent._solved_threshold and agent._early_stop:
         #  agent.end_training = True
 
-      # stats.batch_signal.append(batch_signal)
+        # stats.batch_signal.append(batch_signal)
+
+        if stat_frequency and i % stat_frequency == 0:
+          stat_writer.scalar('Batch signal', sum(batch_signal))
 
       # only calculate value of next state for the last step this time
       *_, agent._last_value_estimate, _ = agent._sample_model(successor_state)

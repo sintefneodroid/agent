@@ -9,17 +9,20 @@ from typing import Any
 
 import numpy as np
 import torch
+from numpy import mean
 from tqdm import tqdm
 
 import draugr
 from agent import utilities as U
 from agent.architectures import MLP
 from agent.architectures.experimental.merged import MergedInputMLP
-from agent.exploration import OrnsteinUhlenbeckProcess
+from agent.exceptions.exceptions import ActionSpaceNotSupported
 from agent.interfaces.specifications import GDCS
 from agent.interfaces.torch_agent import TorchAgent
 from agent.memory import TransitionBuffer
+from agent.utilities.exploration import OrnsteinUhlenbeckProcess
 from draugr.writers.writer import Writer
+from neodroid.environments import NeodroidEnvironment
 from neodroid.environments.environment import Environment
 from neodroid.interfaces.specifications import EnvironmentSnapshot
 
@@ -73,7 +76,8 @@ All value iteration agents should inherit from this class
 
     super().__init__(*args, **kwargs)
 
-  def _build(self, env, stat_writer:Writer=None, **kwargs) -> None:
+  def _build(self, env: NeodroidEnvironment, stat_writer: Writer = None, print_model_repr=True, **kwargs) -> \
+      None:
     # Construct actor and critic
     self._actor = self._actor_arch_spec.constructor(**self._actor_arch_spec.kwargs).to(self._device)
     self._target_actor = self._actor_arch_spec.constructor(**self._actor_arch_spec.kwargs).to(
@@ -83,6 +87,7 @@ All value iteration agents should inherit from this class
     self._target_critic = self._critic_arch_spec.constructor(**self._critic_arch_spec.kwargs).to(
         self._device).eval()
 
+    self._random_process_spec.kwargs['sigma'] = mean([r.span for r in env.action_space.ranges])
     self._random_process = self._random_process_spec.constructor(**self._random_process_spec.kwargs)
 
     # Construct the optimizers for actor and critic
@@ -106,38 +111,25 @@ All value iteration agents should inherit from this class
       if isinstance(stat_writer, draugr.TensorBoardXWriter):
         stat_writer._graph(model, dummy_in)
 
-    actor_num_params = sum(param.numel() for param in self._actor.parameters())
-    critic_num_params = sum(param.numel() for param in self._critic.parameters())
+    if print_model_repr:
+      draugr.sprint(f'Critic: {self._critic}',
+                    highlight=True,
+                    color='cyan')
+      draugr.sprint(f'Actor: {self._actor}',
+                    highlight=True,
+                    color='cyan')
 
-    actor_num_trainable_params = sum(
-        p.numel() for p in self._actor.parameters() if p.requires_grad)
+  def _post_io_inference(self, env: Environment):
 
-    critic_num_trainable_params = sum(
-        p.numel() for p in self._critic.parameters() if p.requires_grad)
+    self._actor_arch_spec.kwargs['input_shape'] = self._input_shape
+    if env.action_space.is_discrete:
+      raise ActionSpaceNotSupported()
 
-    draugr.sprint(f'trainable/actor_num_params: {actor_num_trainable_params}/{actor_num_params}\n',
-                  highlight=True, color='cyan')
-    draugr.sprint(f'trainable/critic_num_params: {critic_num_trainable_params}/{critic_num_params}\n',
-                  highlight=True, color='magenta')
+    self._actor_arch_spec.kwargs['output_shape'] = self._output_shape
 
-  def _post_io_inference(self, env):
-
-    if ('input_shape' not in self._actor_arch_spec.kwargs or
-        not self._actor_arch_spec.kwargs['input_shape']):
-      self._actor_arch_spec.kwargs['input_shape'] = self._input_shape
-
-    if ('output_shape' not in self._actor_arch_spec.kwargs or
-        not self._actor_arch_spec.kwargs['output_shape']):
-      self._actor_arch_spec.kwargs['output_shape'] = self._output_shape
-
-    if ('input_shape' not in self._critic_arch_spec.kwargs or
-        not self._critic_arch_spec.kwargs['input_shape']):
-      self._input_shape = (*self._input_shape, *self._output_shape)
-      self._critic_arch_spec.kwargs['input_shape'] = self._input_shape
-
-    if ('output_shape' not in self._critic_arch_spec.kwargs or
-        not self._critic_arch_spec.kwargs['output_shape']):
-      self._critic_arch_spec.kwargs['output_shape'] = 1
+    self._critic_arch_spec.kwargs['input_shape'] = (*self._input_shape, *self._output_shape)
+    # self._actor_arch_spec = GDCS(MergedInputMLP, self._critic_arch_spec.kwargs)
+    self._critic_arch_spec.kwargs['output_shape'] = 1
 
   # endregion
 
@@ -188,6 +180,7 @@ All value iteration agents should inherit from this class
               initial_state: EnvironmentSnapshot,
               environment: Environment,
               *,
+              stat_writer: Writer = None,
               render: bool = False,
               train: bool = True,
               **kwargs):
@@ -234,6 +227,11 @@ All value iteration agents should inherit from this class
 
     es = np.array(episode_signal).mean()
     el = episode_length
+
+    if stat_writer:
+      stat_writer.scalar('duration', el, self._update_i)
+      stat_writer.scalar('signal', es, self._update_i)
+
     return es, el
 
   # endregion

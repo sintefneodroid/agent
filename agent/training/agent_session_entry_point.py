@@ -12,7 +12,6 @@ from agent.interfaces.specifications import TrainingSession
 from agent.training.arguments import parse_arguments
 from agent.training.procedures import train_episodically
 from agent.training.sessions import linear_training
-from neodroid.environments.wrappers.vector_environment import VectorEnvironment
 from warg.arguments import config_to_mapping
 
 __author__ = 'cnheider'
@@ -29,7 +28,8 @@ def agent_session_entry_point(agent: Type[Agent],
                               skip_confirmation: bool = True
                               ):
   r'''
-    Entry point start a starting a training session with the functionality of parsing cmdline arguments and confirming configuration to use before training and overwriting of default training configurations
+    Entry point start a starting a training session with the functionality of parsing cmdline arguments and
+    confirming configuration to use before training and overwriting of default training configurations
   '''
 
   if training_session is None:
@@ -87,7 +87,3 @@ def agent_session_entry_point(agent: Type[Agent],
   torch.cuda.empty_cache()
 
   exit(0)
-
-
-
-

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-from abc import ABC, abstractmethod
+from abc import ABC
 
 import torch
 from tqdm import tqdm
@@ -36,7 +36,6 @@ All agent should inherit from this class
 
   # endregion
 
-
   # region Static
 
   @staticmethod
@@ -48,4 +47,3 @@ All agent should inherit from this class
                               )
 
   # endregion
-

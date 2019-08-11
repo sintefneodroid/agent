@@ -77,11 +77,11 @@ def torch_compute_gae(*,
                       signals,
                       non_terminals,
                       values,
-                      #next_value,
+                      # next_value,
                       discount_factor=0.95,
                       tau=0.95):
   with torch.no_grad():
-    #values = values + (next_value,)
+    # values = values + (next_value,)
     gae = 0.0
     adv = []
     for step in reversed(range(len(signals))):

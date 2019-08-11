@@ -24,9 +24,10 @@ def sample_transitions():
   values = np.array([[-100, 10, 20, 30, 40, 50],
                      [-150, 15, 25, 35, 45, 55]
                      ],
-                    np.float32) # Future values
+                    np.float32)  # Future values
 
   return NOD.nod_of(signals, terminal, values)
+
 
 @pytest.fixture
 def transitions():
@@ -139,15 +140,15 @@ def test_ge_returns(transitions):
   # then
   expected = np.array([
     [(s[0, 0] + d * v[0, 1] - v[0, 0]) + d * steps * (
-          (s[0, 1] + d * v[0, 2] - v[0, 1]) + d * steps * (s[0, 2] - v[0, 2])),
+        (s[0, 1] + d * v[0, 2] - v[0, 1]) + d * steps * (s[0, 2] - v[0, 2])),
      (s[0, 1] + d * v[0, 2] - v[0, 1]) + d * steps * (s[0, 2] - v[0, 2]),
      (s[0, 2] - v[0, 2]),
      (s[0, 3] + d * v[0, 4] - v[0, 3]) + d * steps * (s[0, 4] + d * v[0, 5] - v[0, 4]),
      (s[0, 4] + d * v[0, 5] - v[0, 4]),
      ],
     [(s[1, 0] + d * v[1, 1] - v[1, 0]) + d * steps * ((s[1, 1] + d * v[1, 2] - v[1, 1]) + d * steps * (
-          (s[1, 2] + d * v[1, 3] - v[1, 2]) + d * steps * (
-            (s[1, 3] + d * v[1, 4] - v[1, 3]) + d * steps * (s[1, 4] + d * v[1, 5] - v[1, 4])))),
+        (s[1, 2] + d * v[1, 3] - v[1, 2]) + d * steps * (
+        (s[1, 3] + d * v[1, 4] - v[1, 3]) + d * steps * (s[1, 4] + d * v[1, 5] - v[1, 4])))),
      (s[1, 1] + d * v[1, 2] - v[1, 1]) + d * steps * ((s[1, 2] + d * v[1, 3] - v[1, 2]) + d * steps * (
          (s[1, 3] + d * v[1, 4] - v[1, 3]) + d * steps * (s[1, 4] + d * v[1, 5] - v[1, 4]))),
      (s[1, 2] + d * v[1, 3] - v[1, 2]) + d * steps * ((s[1, 3] + d * v[1, 4] - v[1, 3]) + d * steps * (

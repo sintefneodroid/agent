@@ -3,15 +3,15 @@
 import time
 
 import torch
-from neodroid.environments.wrappers.curriculum_wrapper import \
-  BinaryActionEncodingCurriculumEnvironment
 from tqdm import tqdm
 
 import agent.configs.curriculum.curriculum_config as C
 import draugr
 from agent.agents.model_free.policy_optimisation.pg_agent import PGAgent
-from agent.exploration import sample
-from neodroid import NeodroidWrapper
+from agent.utilities.exploration import sample
+from neodroid.environments.wrappers import NeodroidVectorGymEnvironment
+from neodroid.environments.wrappers.curriculum_wrapper.curriculum_wrapper import \
+  BinaryActionEncodingCurriculumEnvironment
 from samples.rl.curriculum.grid_world import (display_actor_configurations,
                                               estimate_entire_state_space,
                                               estimate_initial_state_expected_return,
@@ -54,9 +54,9 @@ def main(config, agent, full_state_evaluation_frequency=20):
   _episode_i = 0
   _step_i = 0
 
-  env = NeodroidWrapper(BinaryActionEncodingCurriculumEnvironment(name=config.ENVIRONMENT_NAME,
-                                                                  connect_to_running=config.CONNECT_TO_RUNNING
-                                                                  ))
+  env = NeodroidVectorGymEnvironment(BinaryActionEncodingCurriculumEnvironment(name=config.ENVIRONMENT_NAME,
+                                                                               connect_to_running=config.CONNECT_TO_RUNNING
+                                                                               ))
 
   _agent.build(env)
 

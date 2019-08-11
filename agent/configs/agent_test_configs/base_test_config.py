@@ -29,7 +29,7 @@ CONFIG_FILE = __file__
 # ENVIRONMENT_NAME = 'Pendulum-v0'
 
 # ENVIRONMENT_NAME = 'PongNoFrameskip-v4'
-# ENVIRONMENT_NAME = 'CartPole-v1'
+ENVIRONMENT_NAME = 'CartPole-v1'
 # ENVIRONMENT_NAME = 'Acrobot-v1'
 
 # ENVIRONMENT_NAME = 'LunarLander-v2'

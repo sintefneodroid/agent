@@ -8,14 +8,14 @@ import torch.nn.functional as F
 from tqdm import tqdm
 
 from agent.agents.model_free.hybrid.actor_critic_agent import ActorCriticAgent
-from agent.architectures import MLP
-from agent.architectures.experimental.merged import MergedInputMLP
-from agent.exploration.sampling import OrnsteinUhlenbeckProcess
+from agent.architectures import SingleHeadMLP
+from agent.architectures.experimental.merged import SingleHeadMergedInputMLP
 from agent.interfaces.specifications import ArchitectureSpecification, GDCS
 from agent.memory import TransitionBuffer
+from agent.training.agent_session_entry_point import agent_session_entry_point
 from agent.training.procedures import to_tensor, train_episodically
-from agent.training.agent_session_entry_point import  agent_session_entry_point
 from agent.training.sessions.parallel_training import parallelised_training
+from agent.utilities.exploration.sampling import OrnsteinUhlenbeckProcess
 from draugr.writers.writer import Writer
 from warg.named_ordered_dictionary import NOD
 
@@ -23,8 +23,8 @@ __author__ = 'cnheider'
 
 tqdm.monitor_interval = 0
 
-class DDPGAgent(ActorCriticAgent):
 
+class DDPGAgent(ActorCriticAgent):
   '''
   The Deep Deterministic Policy Gradient (DDPG) Agent
 
@@ -50,28 +50,31 @@ class DDPGAgent(ActorCriticAgent):
 
   def __defaults__(self) -> None:
     # Adds noise for exploration
-    self._random_process_spec = GDCS(constructor=OrnsteinUhlenbeckProcess, kwargs=dict(theta=0.15,
-                                                                                       sigma=0.2))
+    self._random_process_spec = GDCS(constructor=OrnsteinUhlenbeckProcess,
+                                     kwargs=dict(theta=0.15,
+                                                 sigma=1.))
 
     # self._memory = U.PrioritisedReplayMemory(config.REPLAY_MEMORY_SIZE)  # Cuda trouble
     self._memory_buffer = TransitionBuffer(1000000)
 
     self._evaluation_function = F.smooth_l1_loss
 
-    self._actor_arch_spec = ArchitectureSpecification(MLP,
+    self._actor_arch_spec = ArchitectureSpecification(SingleHeadMLP,
                                                       kwargs=NOD(
                                                           {'input_shape':      None,
                                                            # Obtain from environment
                                                            'output_activation':torch.tanh,
                                                            'output_shape':     None,
                                                            # Obtain from environment
-                                                           }))
+                                                           })
+                                                      )
 
-    self._critic_arch_spec = ArchitectureSpecification(MergedInputMLP,
+    self._critic_arch_spec = ArchitectureSpecification(SingleHeadMergedInputMLP,
                                                        kwargs=NOD(
                                                            {'input_shape': None,  # Obtain from environment
                                                             'output_shape':None,  # Obtain from environment
-                                                            }))
+                                                            })
+                                                       )
 
     self._discount_factor = 0.95
 
@@ -91,7 +94,7 @@ class DDPGAgent(ActorCriticAgent):
 
     self._batch_size = 64
 
-    self._noise_factor = 0.2
+    self._noise_factor = 3e-1
     self._low_action_clip = -1.0
     self._high_action_clip = 1.0
 
@@ -139,12 +142,12 @@ class DDPGAgent(ActorCriticAgent):
 
     ### Critic ###
     # Compute current Q value, critic takes state and action chosen
-    Q_current = self._critic(states, actions)[0]
+    Q_current = self._critic(states, actions)
     # Compute next Q value based on which action target actor would choose
     # Detach variable from the current graph since we don't want gradients for next Q to propagated
     with torch.no_grad():
-      target_actions = self._target_actor(states)[0]
-      next_max_q = self._target_critic(next_states, target_actions)[0]
+      target_actions = self._target_actor(states)
+      next_max_q = self._target_critic(next_states, target_actions)
 
     next_Q_values = non_terminal_mask * next_max_q.view(next_max_q.shape[0], -1)
 
@@ -201,8 +204,8 @@ class DDPGAgent(ActorCriticAgent):
     self._optimise_critic(temporal_difference_error)
 
     ### Actor ###
-    action_batch = self._actor(state_batch)[0]
-    c = self._critic(state_batch, action_batch)[0]
+    action_batch = self._actor(state_batch)
+    c = self._critic(state_batch, action_batch)
     loss = -c.mean()
     # loss = -torch.sum(self.critic(state_batch, self.actor(state_batch)))
 
@@ -228,7 +231,7 @@ class DDPGAgent(ActorCriticAgent):
     state = to_tensor(state, device=self._device, dtype=self._state_type)
 
     with torch.no_grad():
-      action = self._actor(state)[0]
+      action = self._actor(state)
 
     action_out = action.to('cpu').numpy()
 
@@ -261,7 +264,7 @@ def ddpg_test(rollouts=None, skip=True):
   agent_session_entry_point(DDPGAgent,
                             C,
                             training_session=parallelised_training(training_procedure=train_episodically,
-                                                     auto_reset_on_terminal_state=True),
+                                                                   auto_reset_on_terminal_state=True),
                             parse_args=False,
                             skip_confirmation=skip)
 
@@ -274,7 +277,7 @@ def ddpg_run(rollouts=None, skip=True):
   agent_session_entry_point(DDPGAgent,
                             C,
                             training_session=parallelised_training(training_procedure=train_episodically,
-                                                     auto_reset_on_terminal_state=True),
+                                                                   auto_reset_on_terminal_state=True),
                             parse_args=False,
                             skip_confirmation=skip)
 

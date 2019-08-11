@@ -31,9 +31,6 @@ OOOO hidden_layer_size * (Weights,Biases)
 0000 output_shape * (Weights,Biases)
 '''
 
-
-
-
   def __init__(self,
                *,
                input_shape: Sequence = (10,),
@@ -50,6 +47,9 @@ OOOO hidden_layer_size * (Weights,Biases)
 
     assert input_shape is not None
     assert output_shape is not None
+
+    self._input_shape = None
+    self._output_shape = None
 
     self.infer_input_shape(input_shape)
     self.infer_output_shape(output_shape)
@@ -91,7 +91,7 @@ OOOO hidden_layer_size * (Weights,Biases)
     xavier_init(self)
 
   @staticmethod
-  def construct_progressive_hidden_layers(_input_shape,_output_shape, input_multiplier, output_multiplier):
+  def construct_progressive_hidden_layers(_input_shape, _output_shape, input_multiplier, output_multiplier):
     h_1_size = int(sum(_input_shape) * input_multiplier)
     h_3_size = int(sum(_output_shape) * output_multiplier)
 
@@ -109,15 +109,16 @@ OOOO hidden_layer_size * (Weights,Biases)
       if len(input_shape) > 2:
         # self._input_shape = functools.reduce(operator.mul,input_shape)
         self._input_shape = input_shape[0], prod(input_shape[1:])
-        logging.warning(f'Flattening input {input_shape} to {self._input_shape}')
+        logging.info(
+          f'Flattening input {input_shape} to flattened vectorised input shape {self._input_shape}')
       elif len(input_shape) < 2:
         self._input_shape = (1, input_shape[0])
-        logging.warning(f'Inflating input shape {input_shape} to {self._input_shape}')
+        logging.info(f'Inflating input shape {input_shape} to vectorised input shape {self._input_shape}')
       else:
         self._input_shape = input_shape
     elif isinstance(input_shape, int):
       self._input_shape = (1, input_shape)
-      logging.warning(f'Inflating input shape {input_shape} to {self._input_shape}')
+      logging.info(f'Inflating input shape {input_shape} to vectorised input shape {self._input_shape}')
     else:
       raise ValueError(f'Can not use {input_shape} as input shape')
 
@@ -126,15 +127,16 @@ OOOO hidden_layer_size * (Weights,Biases)
       assert len(output_shape) > 0, f'Got length {len(output_shape)}'
       if len(output_shape) > 2:
         self._output_shape = output_shape[0], prod(output_shape[1:])
-        logging.warning(f'Flattening output shape {output_shape} to {self._output_shape}')
+        logging.info(
+          f'Flattening output shape {output_shape} to flattened vectorised output shape {self._output_shape}')
       elif len(output_shape) < 2:
         self._output_shape = (1, output_shape[0])
-        logging.warning(f'Inflating output shape {output_shape} to {self._output_shape}')
+        logging.info(f'Inflating output shape {output_shape} to vectorised output shape {self._output_shape}')
       else:
         self._output_shape = output_shape
     elif isinstance(output_shape, int):
       self._output_shape = (1, output_shape)
-      logging.warning(f'Inflating output shape {output_shape} to {self._output_shape}')
+      logging.info(f'Inflating output shape {output_shape} to vectorised output shape {self._output_shape}')
     else:
       raise ValueError(f'Can not use {output_shape} as output shape')
 
@@ -172,12 +174,27 @@ OOOO hidden_layer_size * (Weights,Biases)
 
     return outs
 
+  def __repr__(self):
+    num_trainable_params = sum(p.numel()
+                               for p in self.parameters()
+                               if p.requires_grad)
+    num_params = sum(param.numel() for param in self.parameters())
+
+    return f'{super().__repr__()}\ntrainable/num_params: {num_trainable_params}/{num_params}\n'
+
+
+class SingleHeadMLP(MLP):
+
+  def forward(self, *x, **kwargs):
+    outs = super().forward(*x, **kwargs)
+    return outs[0]
+
 
 if __name__ == '__main__':
 
   def test_single_dim():
     pos_size = (4,)
-    a_size = (1)
+    a_size = (1,)
     model = MLP(input_shape=pos_size, output_shape=a_size)
 
     pos_1 = to_tensor(numpy.random.rand(64, pos_size[0]))

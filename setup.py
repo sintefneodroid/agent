@@ -15,8 +15,8 @@ import re
 
 from setuptools import find_packages
 
-with open(pathlib.Path(__file__).parent / "agent" / "__init__.py", "r") as f:
-  content = f.read()
+with open(pathlib.Path(__file__).parent / "agent" / "__init__.py", "r") as project_init_file:
+  content = project_init_file.read()
   # get version string from module
   version = re.search(r"__version__ = ['\"]([^'\"]*)['\"]", content, re.M).group(1)
 
@@ -72,7 +72,7 @@ class NeodroidAgentPackageMeta(type):
 
   @property
   def author_email(self):
-    return 'cnheider@yandex.com'
+    return 'christian.heider@alexandra.dk'
 
   @property
   def maintainer_name(self):
@@ -116,17 +116,15 @@ class NeodroidAgentPackageMeta(type):
         'neodroid-cma = agent.agents.experimental.cma_agent:cma_test',
 
         'neodroid-tb = entry_points.tensorboard_entry_point:main',
-        'neodroid-clean = entry_points.clean:main',
-        'neodroid-data-open = entry_points.open_data:main',
+        'neodroid-clean-all = entry_points.clean:clean_all',
+        'neodroid-open-data = entry_points.open_data:main',
         ]
       }
 
   @property
   def extras(self):
     these_extras = {
-      # 'GUI':['kivy'],
-      # 'mab':['neodroid-linux-mab; platform_system == "Linux"',
-      #       'neodroid-win-mab platform_system == "Windows"']
+# 'ExtraName':['package-name; platform_system == "System(Linux,Windows)"'
 
       }
 

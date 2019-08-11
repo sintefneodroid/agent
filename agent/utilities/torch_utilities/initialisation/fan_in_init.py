@@ -16,7 +16,7 @@ def fan_in_init(model: Module):
       init.uniform_(m.weight, -v, v)
 
 
-def xavier_init(model:Module, activation='relu'):
+def xavier_init(model: Module, activation='relu'):
   gain = nn.init.calculate_gain(activation)
   for m in model.modules():
     if isinstance(m, (nn.Conv2d, nn.Linear)):

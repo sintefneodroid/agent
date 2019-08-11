@@ -7,7 +7,7 @@ from typing import Any
 import draugr
 from agent.architectures import Architecture
 from agent.architectures.distributional.categorical import CategoricalMLP
-from agent.architectures.distributional.normal import MultiDimensionalNormalMLP, MultipleNormalMLP
+from agent.architectures.distributional.normal import MultiDimensionalNormalMLP
 from agent.interfaces.specifications import GDCS
 from agent.interfaces.torch_agent import TorchAgent
 from draugr.writers.writer import Writer
@@ -41,7 +41,7 @@ class PolicyAgent(TorchAgent):
 
     super().__init__(*args, **kwargs)
 
-  def _build(self, env: Environment, stat_writer: Writer = None, **kwargs):
+  def _build(self, env: Environment, stat_writer: Writer = None, print_model_repr=True, **kwargs):
 
     if stat_writer:
       dummy_in = torch.rand(1, *self.input_shape)
@@ -52,14 +52,10 @@ class PolicyAgent(TorchAgent):
       if isinstance(stat_writer, draugr.TensorBoardXWriter):
         stat_writer._graph(model, dummy_in)
 
-    num_trainable_params = sum(p.numel()
-                               for p in self._distribution_regressor.parameters()
-                               if p.requires_grad)
-    num_params = sum(param.numel() for param in self._distribution_regressor.parameters())
-
-    draugr.sprint(f'trainable/num_params: {num_trainable_params}/{num_params}\n',
-                  highlight=True,
-                  color='cyan')
+    if print_model_repr:
+      draugr.sprint(f'Distribution regressor: {self._distribution_regressor}',
+                    highlight=True,
+                    color='cyan')
 
   # endregion
 
@@ -91,10 +87,10 @@ class PolicyAgent(TorchAgent):
 
     self._policy_arch_spec.kwargs['input_shape'] = self._input_shape
     if env.action_space.is_discrete:
-      self._policy_arch_spec = GDCS(CategoricalMLP,self._policy_arch_spec.kwargs)
+      self._policy_arch_spec = GDCS(CategoricalMLP, self._policy_arch_spec.kwargs)
       self._policy_arch_spec.kwargs['output_shape'] = self._output_shape
     else:
-      self._policy_arch_spec=GDCS(MultiDimensionalNormalMLP, self._policy_arch_spec.kwargs)
+      self._policy_arch_spec = GDCS(MultiDimensionalNormalMLP, self._policy_arch_spec.kwargs)
       self._policy_arch_spec.kwargs['output_shape'] = self._output_shape
 
       # endregion

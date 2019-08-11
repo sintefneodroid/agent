@@ -5,16 +5,15 @@ from typing import Any
 import numpy
 from torch import nn
 
-from neodroid.environments.wrappers.vector_environment import VectorEnvironment
-from .actor_critic_agent import ActorCriticAgent
 from agent.interfaces.specifications import AdvantageDiscountedTransition, ValuedTransition
-from agent.training.procedures import to_tensor, step_wise_training, EnvironmentSnapshot
 from agent.training.agent_session_entry_point import agent_session_entry_point
+from agent.training.procedures import EnvironmentSnapshot, step_wise_training, to_tensor
 from agent.training.sessions.parallel_training import parallelised_training
 from agent.utilities.signal.advantage_estimation import torch_compute_gae
 from agent.utilities.signal.experimental.discounting import discount_signal
 from draugr.writers.writer import Writer
-from neodroid.environments.environment import Environment
+from neodroid.environments.wrappers.vector_environment import VectorEnvironment
+from .actor_critic_agent import ActorCriticAgent
 
 __author__ = 'cnheider'
 
@@ -166,10 +165,10 @@ class PPOAgent(ActorCriticAgent):
   def take_n_steps(self,
                    initial_state: EnvironmentSnapshot,
                    environment: VectorEnvironment,
-                   n:int=100,
+                   n: int = 100,
                    *,
-                   train:bool=False,
-                   render:bool=False,
+                   train: bool = False,
+                   render: bool = False,
                    **kwargs) -> Any:
     state = initial_state
 
@@ -223,11 +222,11 @@ class PPOAgent(ActorCriticAgent):
     value_estimates = value_estimates.view(value_estimates.shape[0], -1)
 
     advantages = torch_compute_gae(signals=sig,
-                                          values=value_estimates,
-                                          non_terminals=transitions.non_terminal,
-                                          discount_factor=self._discount_factor,
-                                          tau=self._gae_tau
-                                          )
+                                   values=value_estimates,
+                                   non_terminals=transitions.non_terminal,
+                                   discount_factor=self._discount_factor,
+                                   tau=self._gae_tau
+                                   )
 
     discounted_signal = discount_signal(sig.transpose(0, 1).detach().to('cpu').numpy(),
                                         self._discount_factor).transpose()
@@ -252,7 +251,7 @@ class PPOAgent(ActorCriticAgent):
 
   def evaluate(self,
                batch: AdvantageDiscountedTransition,
-               discrete:bool=False,
+               discrete: bool = False,
                **kwargs):
     # region Tensorise
 
@@ -290,7 +289,7 @@ class PPOAgent(ActorCriticAgent):
 
     return collective_cost, policy_loss, value_error,
 
-  def update(self, *, stat_writer:Writer=None, **kwargs) -> None:
+  def update(self, *, stat_writer: Writer = None, **kwargs) -> None:
 
     self._ppo_updates(self.transitions)
 
@@ -301,7 +300,7 @@ class PPOAgent(ActorCriticAgent):
 
 
 # region Test
-def ppo_test(rollouts=None, skip:bool=True):
+def ppo_test(rollouts=None, skip: bool = True):
   import agent.configs.agent_test_configs.ppo_test_config as C
 
   if rollouts:
@@ -310,12 +309,12 @@ def ppo_test(rollouts=None, skip:bool=True):
   agent_session_entry_point(PPOAgent,
                             C,
                             training_session=parallelised_training(training_procedure=step_wise_training,
-                                                     auto_reset_on_terminal_state=True),
+                                                                   auto_reset_on_terminal_state=True),
                             parse_args=False,
                             skip_confirmation=skip)
 
 
-def ppo_run(rollouts=None, skip:bool=True):
+def ppo_run(rollouts=None, skip: bool = True):
   import agent.configs.agent_test_configs.ppo_test_config as C
 
   if rollouts:
@@ -324,12 +323,13 @@ def ppo_run(rollouts=None, skip:bool=True):
   agent_session_entry_point(PPOAgent,
                             C,
                             training_session=parallelised_training(training_procedure=step_wise_training,
-                                                     auto_reset_on_terminal_state=True),
+                                                                   auto_reset_on_terminal_state=True),
                             parse_args=False,
                             skip_confirmation=skip)
+
 
 if __name__ == '__main__':
-  #ppo_test()
+  # ppo_test()
   ppo_run()
 
 # endregion

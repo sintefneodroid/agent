@@ -3,13 +3,13 @@
 
 import numpy
 
-from agent.architectures import DDPGCriticArchitecture, ContinuousActorArchitecture
 from agent.agents.model_free.hybrid.actor_critic_agent import ActorCriticAgent
+from agent.architectures import ContinuousActorArchitecture, DDPGCriticArchitecture
 from agent.interfaces.specifications import AdvantageDiscountedTransition, ValuedTransition
 from agent.interfaces.specifications.generalised_delayed_construction_specification import GDCS
+from agent.training.agent_session_entry_point import agent_session_entry_point, parallelised_training
 from agent.training.procedures import batched_training
-from agent.training.agent_session_entry_point import parallelised_training, agent_session_entry_point
-from agent.utilities import to_tensor, advantage_estimate
+from agent.utilities import advantage_estimate, to_tensor
 from warg.named_ordered_dictionary import NOD
 
 __author__ = 'cnheider'
@@ -160,13 +160,12 @@ class TRPOAgent(ActorCriticAgent):
 
     mean, std = self._actor(model_input)
 
-
     distribution = torch.distributions.Normal(mean, std)
 
     with torch.no_grad():
       action = distribution.sample()
 
-    value_estimate = self._critic(model_input,actions=action)
+    value_estimate = self._critic(model_input, actions=action)
 
     action_log_prob = distribution.log_prob(action)
 
@@ -226,16 +225,16 @@ class TRPOAgent(ActorCriticAgent):
   def back_trace_advantages(self, transitions):
 
     advantages = advantage_estimate(transitions.signal,
-                                      transitions.non_terminal,
-                                      transitions.value_estimate,
-                                      discount_factor=self._discount_factor,
-                                      tau=self._gae_tau,
-                                      device=self._device
-                                      )
+                                    transitions.non_terminal,
+                                    transitions.value_estimate,
+                                    discount_factor=self._discount_factor,
+                                    tau=self._gae_tau,
+                                    device=self._device
+                                    )
 
     value_estimates = to_tensor(transitions.value_estimate, device=self._device)
 
-    discounted_returns = value_estimates + advantages # TODO: Should use discounted reward instead
+    discounted_returns = value_estimates + advantages  # TODO: Should use discounted reward instead
 
     i = 0
     advantage_memories = []
@@ -351,7 +350,7 @@ def ppo_test(rollouts=None, skip=True):
   agent_session_entry_point(PPOAgent,
                             C,
                             training_session=parallelised_training(training_procedure=batched_training,
-                                                     auto_reset_on_terminal_state=True),
+                                                                   auto_reset_on_terminal_state=True),
                             parse_args=False,
                             skip_confirmation=skip)
 

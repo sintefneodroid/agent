@@ -33,8 +33,8 @@ def discounted_nstep(signals: np.ndarray,
   for start in range(signals.shape[1]):
     end = min(start + n, signals.shape[1])
     discounted[:, start] = valued_discount(signals[:, start:end],
-                                      values[:, end],
-                                      terminals[:, start:end],
+                                           values[:, end],
+                                           terminals[:, start:end],
                                            discount_factor)[:, 0]
   return discounted
 

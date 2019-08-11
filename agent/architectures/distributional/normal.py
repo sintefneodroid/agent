@@ -6,11 +6,11 @@ from typing import Iterable, List
 # !/usr/bin/env python3
 # -*- coding: utf-8 -*-
 import torch
-from torch.distributions import Normal, MultivariateNormal
+from torch.distributions import MultivariateNormal, Normal
 from torch.nn.functional import softplus
 
-from agent.architectures import MLP, Sequence, xavier_init
-from agent.utilities import to_tensor, fan_in_init
+from agent.architectures import MLP, Sequence
+from agent.utilities import fan_in_init, to_tensor
 
 __author__ = 'cnheider'
 __doc__ = ''
@@ -28,7 +28,7 @@ class MultiDimensionalNormalMLP(MLP):
   def forward(self, *x, **kwargs) -> Normal:
     mean, std = super().forward(*x, **kwargs)
 
-    std = softplus(std)+1e-6
+    std = softplus(std) + 1e-6
     return Normal(mean, std)
 
   @staticmethod
@@ -61,7 +61,7 @@ class MultiVariateNormalMLP(MLP):
   def forward(self, *x, **kwargs) -> MultivariateNormal:
     mean, std = super().forward(*x, **kwargs)
 
-    return MultivariateNormal(mean, softplus(std)+1e-6)
+    return MultivariateNormal(mean, softplus(std) + 1e-6)
 
   @staticmethod
   def sample(distributions):
@@ -77,6 +77,7 @@ class MultiVariateNormalMLP(MLP):
   def entropy(distributions):
     with torch.no_grad():
       return torch.mean(distributions.entropy())
+
 
 class MultipleNormalMLP(MLP):
 
@@ -113,7 +114,7 @@ class MultipleNormalMLP(MLP):
         mean, std = a
       else:
         mean, std = a[0]
-      outs.append(Normal(mean, softplus(std)+1e-6))
+      outs.append(Normal(mean, softplus(std) + 1e-6))
 
     return outs
 
@@ -126,8 +127,8 @@ if __name__ == '__main__':
 
     inp = torch.rand(s)
     s_ = time.time()
-    a_ =model.sample(model.forward(inp))
-    print(time.time()-s_, a_)
+    a_ = model.sample(model.forward(inp))
+    print(time.time() - s_, a_)
 
 
   def test_multi_dim_normal():
@@ -137,18 +138,20 @@ if __name__ == '__main__':
 
     inp = torch.rand(s)
     s_ = time.time()
-    a_ =model.sample(model.forward(inp))
-    print(time.time()-s_, a_)
+    a_ = model.sample(model.forward(inp))
+    print(time.time() - s_, a_)
+
 
   def test_multi_dim_normal_2():
-    s = (1,4)
-    a = (1,10)
+    s = (1, 4)
+    a = (1, 10)
     model = MultiDimensionalNormalMLP(input_shape=s, output_shape=a)
 
     inp = torch.rand(s)
     s_ = time.time()
-    a_ =model.sample(model.forward(inp))
-    print(time.time()-s_, a_)
+    a_ = model.sample(model.forward(inp))
+    print(time.time() - s_, a_)
+
 
   def test_multi_var_normal():
     s = (10,)
@@ -157,8 +160,8 @@ if __name__ == '__main__':
 
     inp = torch.rand(s)
     s_ = time.time()
-    a_ =model.sample(model.forward(inp))
-    print(time.time()-s_, a_)
+    a_ = model.sample(model.forward(inp))
+    print(time.time() - s_, a_)
 
 
   test_normal()
@@ -166,4 +169,4 @@ if __name__ == '__main__':
   test_multi_dim_normal()
   print('\n')
   test_multi_dim_normal_2()
-  #test_multi_var_normal()
+  # test_multi_var_normal()

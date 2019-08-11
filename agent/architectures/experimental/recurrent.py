@@ -10,7 +10,6 @@ from torch import nn
 from torch.nn import functional as F
 
 
-
 class RecurrentCategoricalMLP(MLP):
 
   def __init__(self, r_hidden_layers=10, **kwargs):
@@ -40,4 +39,3 @@ class ExposedRecurrentCategoricalMLP(RecurrentCategoricalMLP):
     out_x = super().forward(x, **kwargs)
 
     return F.softmax(out_x, dim=-1), self._prev_hidden_x
-
