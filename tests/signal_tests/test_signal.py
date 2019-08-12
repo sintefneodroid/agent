@@ -2,8 +2,8 @@
 # -*- coding: utf-8 -*-
 import pytest
 
-from agent.utilities.signal.experimental.generalised_advantage import discounted_gae, discounted_ge
-from agent.utilities.signal.experimental.nstep import discounted_nstep, discounted_nstep_adv
+from neodroidagent.utilities.signal.experimental.generalised_advantage import discounted_gae, discounted_ge
+from neodroidagent.utilities.signal.experimental.nstep import discounted_nstep, discounted_nstep_adv
 from warg.named_ordered_dictionary import NOD
 
 __author__ = 'cnheider'

@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 import numpy
 
-from agent.utilities import TrajectoryBuffer, TransitionBuffer
+from neodroidagent.utilities import TrajectoryBuffer, TransitionBuffer
 
 __author__ = 'cnheider'
 __doc__ = ''

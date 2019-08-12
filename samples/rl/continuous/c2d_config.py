@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-from agent.architectures import NormalMLP
+from neodroidagent.architectures import NormalMLP
 
 __author__ = 'cnheider'
 '''
 Description: Config for training
 Author: Christian Heider Nielsen
 '''
-from agent.configs.base_config import *
+from neodroidagent.configs.base_config import *
 
 CONFIG_NAME = __name__
 CONFIG_FILE = __file__

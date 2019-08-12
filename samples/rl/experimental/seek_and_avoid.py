@@ -12,7 +12,7 @@ from tqdm import tqdm
 
 tqdm.monitor_interval = 0
 
-from agent import utilities as U
+from neodroidagent import utilities as U
 
 
 def train_agent(config, agent):
@@ -51,9 +51,9 @@ def train_agent(config, agent):
 
 
 if __name__ == '__main__':
-  import agent.configs.agent_test_configs.ddpg_test_config as C
+  import neodroidagent.configs.agent_test_configs.ddpg_test_config as C
 
-  from agent.configs import parse_arguments, get_upper_case_vars_or_protected_of
+  from neodroidagent.configs import parse_arguments, get_upper_case_vars_or_protected_of
 
   args = parse_arguments('Manipulator experiment', C)
 

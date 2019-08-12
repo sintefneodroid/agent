@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import draugr
-from neodroid.environments.wrappers import SingleEnvironment
+from neodroid.wrappers import SingleEnvironment
 
 __author__ = 'cnheider'
 
@@ -11,7 +11,7 @@ from tqdm import tqdm
 
 tqdm.monitor_interval = 0
 
-from agent import utilities as U
+from neodroidagent import utilities as U
 
 
 def train_agent(config, agent):
@@ -54,7 +54,7 @@ def train_agent(config, agent):
 if __name__ == '__main__':
   import experiments.rl.continuous.c2d_config as C
 
-  from agent.configs import parse_arguments, get_upper_case_vars_or_protected_of
+  from neodroidagent.configs import parse_arguments, get_upper_case_vars_or_protected_of
 
   args = parse_arguments('C2D', C)
 

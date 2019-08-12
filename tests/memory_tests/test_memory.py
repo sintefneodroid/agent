@@ -3,7 +3,7 @@
 import numpy
 import pytest
 
-from agent.memory import ReplayBuffer, TrajectoryBuffer, TransitionBuffer
+from neodroidagent.memory import ReplayBuffer, TrajectoryBuffer, TransitionBuffer
 
 __author__ = 'cnheider'
 __doc__ = ''

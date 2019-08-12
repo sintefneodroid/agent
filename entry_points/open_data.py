@@ -3,7 +3,7 @@
 import subprocess
 import sys
 
-from agent import PROJECT_APP_PATH
+from neodroidagent import PROJECT_APP_PATH
 
 __author__ = 'cnheider'
 __doc__ = r'''This script will open data the directory of Neodroid Agent platform'''

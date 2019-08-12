@@ -15,7 +15,7 @@ import re
 
 from setuptools import find_packages
 
-with open(pathlib.Path(__file__).parent / "agent" / "__init__.py", "r") as project_init_file:
+with open(pathlib.Path(__file__).parent / "neodroidagent" / "__init__.py", "r") as project_init_file:
   content = project_init_file.read()
   # get version string from module
   version = re.search(r"__version__ = ['\"]([^'\"]*)['\"]", content, re.M).group(1)
@@ -100,20 +100,18 @@ class NeodroidAgentPackageMeta(type):
     return {
       'console_scripts':[
         # "name_of_executable = module.with:function_to_execute"
-        'neodroid-tab = agent.agents.experimental.tabular_q_agent:tabular_test',
-        'neodroid-rnd = agent.agents.experimental.random_agent:random_test',
+        'neodroid-tab = neodroidagent.agents.experimental.tabular_q_agent:tabular_test',
+        'neodroid-rnd = neodroidagent.agents.experimental.random_agent:random_test',
+        'neodroid-ppo = neodroidagent.agents.model_free.policy_optimisation.ppo_agent:ppo_run',
+        'neodroid-dqn = neodroidagent.agents.model_free.q_learning.dqn_agent:dqn_run',
+        'neodroid-pg = neodroidagent.agents.model_free.policy_optimisation.pg_agent:pg_run',
+        'neodroid-ddpg = neodroidagent.agents.model_free.hybrid.ddpg_agent:ddpg_run',
+        'neodroid-cma = neodroidagent.agents.experimental.cma_agent:cma_test',
 
-        'neodroid-ppo-gym = agent.agents.model_free.hybrid.ppo_agent:ppo_test',
-        'neodroid-dqn-gym = agent.agents.model_free.q_learning.dqn_agent:dqn_test',
-        'neodroid-pg-gym = agent.agents.model_free.policy_optimisation.pg_agent:pg_test',
-        'neodroid-ddpg-gym = agent.agents.model_free.hybrid.ddpg_agent:ddpg_test',
-
-        'neodroid-ppo = agent.agents.model_free.policy_optimisation.ppo_agent:ppo_run',
-        'neodroid-dqn = agent.agents.model_free.q_learning.dqn_agent:dqn_run',
-        'neodroid-pg = agent.agents.model_free.policy_optimisation.pg_agent:pg_run',
-        'neodroid-ddpg = agent.agents.model_free.hybrid.ddpg_agent:ddpg_run',
-
-        'neodroid-cma = agent.agents.experimental.cma_agent:cma_test',
+        'neodroid-ppo-gym = neodroidagent.agents.model_free.hybrid.ppo_agent:ppo_test',
+        'neodroid-dqn-gym = neodroidagent.agents.model_free.q_learning.dqn_agent:dqn_test',
+        'neodroid-pg-gym = neodroidagent.agents.model_free.policy_optimisation.pg_agent:pg_test',
+        'neodroid-ddpg-gym = neodroidagent.agents.model_free.hybrid.ddpg_agent:ddpg_test',
 
         'neodroid-tb = entry_points.tensorboard_entry_point:main',
         'neodroid-clean-all = entry_points.clean:clean_all',

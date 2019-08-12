@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 import draugr
-from neodroid.environments.wrappers import BinaryActionEncodingWrapper, NeodroidGymWrapper
+from neodroid.wrappers import BinaryActionEncodingWrapper, NeodroidGymWrapper
 from warg import get_upper_case_vars_or_protected_of, parse_arguments
 
 __author__ = 'cnheider'
@@ -11,7 +11,7 @@ from tqdm import tqdm
 
 tqdm.monitor_interval = 0
 
-from agent import utilities as U
+from neodroidagent import utilities as U
 
 
 def train_agent(config, agent):

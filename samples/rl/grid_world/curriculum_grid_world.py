@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 import draugr
-from neodroid.environments.wrappers import BinaryActionEncodingWrapper
+from neodroid.wrappers import BinaryActionEncodingWrapper
 
 __author__ = 'cnheider'
 
@@ -9,7 +9,7 @@ import torch
 from tqdm import tqdm
 
 tqdm.monitor_interval = 0
-from agent import utilities as U
+from neodroidagent import utilities as U
 
 
 def train_agent(config, agent):
@@ -55,7 +55,7 @@ def train_agent(config, agent):
 if __name__ == '__main__':
   import experiments.rl.grid_world.grid_world_config as C
 
-  from agent.configs import parse_arguments, get_upper_case_vars_or_protected_of
+  from neodroidagent.configs import parse_arguments, get_upper_case_vars_or_protected_of
 
   args = parse_arguments('Curriculum grid world experiment', C)
 

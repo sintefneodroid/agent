@@ -2,8 +2,8 @@
 # -*- coding: utf-8 -*-
 import numpy
 
-from agent.architectures import MLP
-from agent.utilities import to_tensor
+from neodroidagent.architectures import MLP
+from neodroidagent.utilities import to_tensor
 
 __author__ = 'cnheider'
 __doc__ = ''

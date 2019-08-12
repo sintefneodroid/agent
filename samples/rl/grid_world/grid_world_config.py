@@ -1,15 +1,15 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-from agent.agents.model_free.policy_optimisation.pg_agent import PGAgent
-from agent.architectures import MLP
-from agent.memory import ReplayBuffer
+from neodroidagent.agents.model_free.policy_optimisation.pg_agent import PGAgent
+from neodroidagent.architectures import MLP
+from neodroidagent.memory import ReplayBuffer
 
 __author__ = 'cnheider'
 '''
 Description: Config for training
 Author: Christian Heider Nielsen
 '''
-from agent.configs.base_config import *
+from neodroidagent.configs.base_config import *
 
 CONFIG_NAME = __name__
 CONFIG_FILE = __file__

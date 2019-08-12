@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 import numpy
 
-from agent.utilities import to_tensor, torch
+from neodroidagent.utilities import to_tensor, torch
 
 __author__ = 'cnheider'
 __doc__ = ''
