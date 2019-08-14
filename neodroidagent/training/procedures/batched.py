@@ -24,7 +24,7 @@ def batched_training(agent,
                      disable_stdout=False,
                      **kwargs
                      ) -> TR:
-  with draugr.TensorBoardXWriter(str(log_directory)) as metric_writer:
+  with TensorBoardPytorchWriter(str(log_directory)) as metric_writer:
     state = environment.reset()
 
     B = range(1, rollouts)

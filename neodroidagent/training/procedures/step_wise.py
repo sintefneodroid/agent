@@ -32,7 +32,7 @@ def step_wise_training(agent,
 
   initial_state = environment.reset()
 
-  with draugr.TensorBoardXWriter(str(log_directory)) as metric_writer:
+  with TensorBoardPytorchWriter(str(log_directory)) as metric_writer:
     for batch_i in B:
       if batch_i % stat_frequency == 0:
         pass

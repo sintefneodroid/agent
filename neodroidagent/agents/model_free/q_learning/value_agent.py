@@ -10,6 +10,8 @@ import numpy as np
 import torch
 
 import draugr
+from draugr.visualisation import sprint
+from draugr.writers import TensorBoardPytorchWriter
 from neodroidagent import utilities as U
 from neodroidagent.interfaces.specifications import ExplorationSpecification, GDCS
 from neodroidagent.interfaces.torch_agent import TorchAgent
@@ -61,11 +63,11 @@ All value iteration agents should inherit from this class
       model = copy.deepcopy(self._value_model)
       model.to('cpu')
 
-      if isinstance(metric_writer, draugr.TensorBoardXWriter):
+      if isinstance(metric_writer, TensorBoardPytorchWriter):
         metric_writer._graph(model, dummy_in)
 
     if print_model_repr:
-      draugr.sprint(f'Value model: {self._value_model}',
+      sprint(f'Value model: {self._value_model}',
                     highlight=True,
                     color='cyan')
 

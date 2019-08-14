@@ -70,11 +70,11 @@ def agent_session_entry_point(agent: Type[Agent],
   config_mapping = config_to_mapping(config)
 
   if not skip_confirmation:
-    draugr.sprint(f'\nUsing config: {config}\n', highlight=True, color='yellow')
+    sprint(f'\nUsing config: {config}\n', highlight=True, color='yellow')
     for key, arg in config_mapping:
       print(f'{key} = {arg}')
 
-    draugr.sprint(f'\n.. Also save:{save}, has_x_server:{has_x_server}')
+    sprint(f'\n.. Also save:{save}, has_x_server:{has_x_server}')
     input('\nPress Enter to begin... ')
 
   try:

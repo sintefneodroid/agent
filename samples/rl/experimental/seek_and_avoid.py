@@ -60,7 +60,7 @@ if __name__ == '__main__':
   for key, arg in args.__dict__.items():
     setattr(C, key, arg)
 
-  draugr.sprint(f'\nUsing config: {C}\n', highlight=True, color='yellow')
+  sprint(f'\nUsing config: {C}\n', highlight=True, color='yellow')
   if not args.skip_confirmation:
     for key, arg in get_upper_case_vars_or_protected_of(C).items():
       print(f'{key} = {arg}')

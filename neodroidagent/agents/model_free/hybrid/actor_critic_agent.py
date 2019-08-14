@@ -103,19 +103,19 @@ All value iteration agents should inherit from this class
 
       model = copy.deepcopy(self._critic)
       model.to('cpu')
-      if isinstance(metric_writer, draugr.TensorBoardXWriter):
+      if isinstance(metric_writer, TensorBoardPytorchWriter):
         metric_writer._graph(model, dummy_in)
 
       model = copy.deepcopy(self._actor)
       model.to('cpu')
-      if isinstance(metric_writer, draugr.TensorBoardXWriter):
+      if isinstance(metric_writer, TensorBoardPytorchWriter):
         metric_writer._graph(model, dummy_in)
 
     if print_model_repr:
-      draugr.sprint(f'Critic: {self._critic}',
+      sprint(f'Critic: {self._critic}',
                     highlight=True,
                     color='cyan')
-      draugr.sprint(f'Actor: {self._actor}',
+      sprint(f'Actor: {self._actor}',
                     highlight=True,
                     color='cyan')
 
