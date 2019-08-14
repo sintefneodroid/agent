@@ -10,7 +10,7 @@ from pip._internal.utils.misc import dist_is_editable
 from apppath.app_path import AppPath
 
 __author__ = "cnheider"
-__version__ = "0.3.1"
+__version__ = "0.4.0"
 __doc__ = r"""
 Created on 27/04/2019
 
