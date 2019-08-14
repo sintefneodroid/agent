@@ -3,6 +3,7 @@
 from pathlib import Path
 from typing import Union
 
+from draugr.writers import TensorBoardPytorchWriter
 from neodroid.environments import NeodroidEnvironment
 
 __author__ = 'cnheider'
@@ -44,7 +45,7 @@ def train_episodically(agent,
   E = range(1, rollouts)
   E = tqdm(E, leave=False)
   # with torchsnooper.snoop():
-  with draugr.TensorBoardXWriter(str(log_directory)) as stat_writer:
+  with TensorBoardPytorchWriter(str(log_directory)) as metric_writer:
     for episode_i in E:
       initial_state = environment.reset()
 
@@ -54,14 +55,14 @@ def train_episodically(agent,
         render = False
 
       if stat_frequency and episode_i % stat_frequency == 0:
-        writer = stat_writer
+        writer = metric_writer
       else:
         writer = None
 
       agent.rollout(initial_state,
                     environment,
                     render=render,
-                    stat_writer=writer,
+                    metric_writer=writer,
                     disable_stdout=disable_stdout)
 
       if agent.end_training:

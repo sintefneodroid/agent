@@ -57,14 +57,14 @@ All value iteration agents should inherit from this class
                                              )
 
     self._actor_arch_spec = GDCS(MLP,
-                                 kwargs=draugr.NOD({'input_shape':      None,  # Obtain from environment
+                                 kwargs=NOD({'input_shape':      None,  # Obtain from environment
                                                     'hidden_layers':    None,
                                                     'output_activation':torch.relu,
                                                     'output_shape':     None,  # Obtain from environment
                                                     }))
 
     self._critic_arch_spec = GDCS(MergedInputMLP,
-                                  kwargs=draugr.NOD({'input_shape':      None,  # Obtain from environment
+                                  kwargs=NOD({'input_shape':      None,  # Obtain from environment
                                                      'hidden_layers':    None,
                                                      'output_activation':torch.relu,
                                                      'output_shape':     None,  # Obtain from environment
@@ -76,7 +76,7 @@ All value iteration agents should inherit from this class
 
     super().__init__(*args, **kwargs)
 
-  def _build(self, env: NeodroidEnvironment, stat_writer: Writer = None, print_model_repr=True, **kwargs) -> \
+  def _build(self, env: NeodroidEnvironment, metric_writer: Writer = None, print_model_repr=True, **kwargs) -> \
       None:
     # Construct actor and critic
     self._actor = self._actor_arch_spec.constructor(**self._actor_arch_spec.kwargs).to(self._device)
@@ -98,18 +98,18 @@ All value iteration agents should inherit from this class
                                                                      **self._critic_optimiser_spec.kwargs
                                                                      )
 
-    if stat_writer:
+    if metric_writer:
       dummy_in = torch.rand(1, *self.input_shape)
 
       model = copy.deepcopy(self._critic)
       model.to('cpu')
-      if isinstance(stat_writer, draugr.TensorBoardXWriter):
-        stat_writer._graph(model, dummy_in)
+      if isinstance(metric_writer, draugr.TensorBoardXWriter):
+        metric_writer._graph(model, dummy_in)
 
       model = copy.deepcopy(self._actor)
       model.to('cpu')
-      if isinstance(stat_writer, draugr.TensorBoardXWriter):
-        stat_writer._graph(model, dummy_in)
+      if isinstance(metric_writer, draugr.TensorBoardXWriter):
+        metric_writer._graph(model, dummy_in)
 
     if print_model_repr:
       draugr.sprint(f'Critic: {self._critic}',
@@ -180,7 +180,7 @@ All value iteration agents should inherit from this class
               initial_state: EnvironmentSnapshot,
               environment: Environment,
               *,
-              stat_writer: Writer = None,
+              metric_writer: Writer = None,
               render: bool = False,
               train: bool = True,
               **kwargs):
@@ -228,9 +228,9 @@ All value iteration agents should inherit from this class
     es = np.array(episode_signal).mean()
     el = episode_length
 
-    if stat_writer:
-      stat_writer.scalar('duration', el, self._update_i)
-      stat_writer.scalar('signal', es, self._update_i)
+    if metric_writer:
+      metric_writer.scalar('duration', el, self._update_i)
+      metric_writer.scalar('signal', es, self._update_i)
 
     return es, el
 

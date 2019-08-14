@@ -4,6 +4,7 @@ import os
 from typing import Type
 
 import torch
+from warg.named_ordered_dictionary import NOD
 
 import draugr
 from neodroidagent.exceptions.exceptions import NoTrainingProcedure
@@ -38,7 +39,7 @@ def agent_session_entry_point(agent: Type[Agent],
     training_session = training_session(training_procedure=train_episodically)
 
   if parse_args:
-    args = parse_arguments(f'{type(agent)}', draugr.NOD(config.__dict__))
+    args = parse_arguments(f'{type(agent)}', NOD(config.__dict__))
 
     skip_confirmation = args.SKIP_CONFIRMATION
 

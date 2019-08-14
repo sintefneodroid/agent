@@ -40,12 +40,12 @@ All value iteration agents should inherit from this class
   def sample(self,
              state: Sequence,
              disallow_random_sample=False,
-             stat_writer: Writer = None,
+             metric_writer: Writer = None,
              **kwargs):
     self._step_i += 1
     s = self.epsilon_random_exploration(self._step_i)
-    if stat_writer:
-      stat_writer.scalar('Current Eps Threshold', self._current_eps_threshold, self._step_i)
+    if metric_writer:
+      metric_writer.scalar('Current Eps Threshold', self._current_eps_threshold, self._step_i)
 
     if ((s and self._step_i > self._initial_observation_period) or
         disallow_random_sample):
@@ -54,15 +54,15 @@ All value iteration agents should inherit from this class
 
     return self._sample_random_process(state)
 
-  def _build(self, env: Environment, stat_writer: Writer = None, print_model_repr=True, **kwargs):
-    if stat_writer:
+  def _build(self, env: Environment, metric_writer: Writer = None, print_model_repr=True, **kwargs):
+    if metric_writer:
       dummy_in = torch.rand(1, *self.input_shape)
 
       model = copy.deepcopy(self._value_model)
       model.to('cpu')
 
-      if isinstance(stat_writer, draugr.TensorBoardXWriter):
-        stat_writer._graph(model, dummy_in)
+      if isinstance(metric_writer, draugr.TensorBoardXWriter):
+        metric_writer._graph(model, dummy_in)
 
     if print_model_repr:
       draugr.sprint(f'Value model: {self._value_model}',

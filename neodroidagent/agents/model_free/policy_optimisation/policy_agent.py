@@ -5,6 +5,8 @@ from abc import abstractmethod
 from typing import Any
 
 import draugr
+from draugr.visualisation import sprint
+from draugr.writers import TensorBoardPytorchWriter
 from neodroidagent.architectures import Architecture
 from neodroidagent.architectures.distributional.categorical import CategoricalMLP
 from neodroidagent.architectures.distributional.normal import MultiDimensionalNormalMLP
@@ -41,19 +43,22 @@ class PolicyAgent(TorchAgent):
 
     super().__init__(*args, **kwargs)
 
-  def _build(self, env: Environment, stat_writer: Writer = None, print_model_repr=True, **kwargs):
+  def _build(self,
+             env: Environment, metric_writer: Writer = None,
+             print_model_repr=True,
+             **kwargs):
 
-    if stat_writer:
+    if metric_writer:
       dummy_in = torch.rand(1, *self.input_shape)
 
       model = copy.deepcopy(self._distribution_regressor)
       model.to('cpu')
 
-      if isinstance(stat_writer, draugr.TensorBoardXWriter):
-        stat_writer._graph(model, dummy_in)
+      if isinstance(metric_writer, TensorBoardPytorchWriter):
+        metric_writer._graph(model, dummy_in)
 
     if print_model_repr:
-      draugr.sprint(f'Distribution regressor: {self._distribution_regressor}',
+      sprint(f'Distribution regressor: {self._distribution_regressor}',
                     highlight=True,
                     color='cyan')
 

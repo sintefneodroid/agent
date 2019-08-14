@@ -1,3 +1,4 @@
+apppath
 gym
 Neodroid
 draugr
@@ -13,7 +14,6 @@ six
 Pillow
 pynput
 graphviz
-tensorboardX
 scikit-image
 filelock
 pip

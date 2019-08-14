@@ -11,7 +11,7 @@ from neodroidagent import PROJECT_APP_PATH, utilities as U
 from neodroidagent.interfaces.agent import Agent
 from neodroidagent.interfaces.specifications import TrainingSession
 from neodroidagent.training.procedures import train_episodically
-from draugr.stopping_key import add_early_stopping_key_combination
+from draugr.stopping.stopping_key import add_early_stopping_key_combination
 from neodroid.environments import VectorEnvironment
 from neodroid.wrappers import NeodroidGymWrapper
 from trolls.wrappers.vector_environments import VectorWrap
@@ -30,7 +30,7 @@ class linear_training(TrainingSession):
                has_x_server=False,
                **kwargs):
 
-    kwargs = draugr.NOD(**kwargs)
+    kwargs = NOD(**kwargs)
 
     if not kwargs.connect_to_running:
       if not environment:

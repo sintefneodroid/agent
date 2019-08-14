@@ -148,10 +148,10 @@ class PGAgent(PolicyAgent):
       loss = torch.cat(policy_loss).sum()
     return loss
 
-  def update(self, *, stat_writer=None, **kwargs):
+  def update(self, *, metric_writer=None, **kwargs):
     '''
 
-    :param stat_writer:
+    :param metric_writer:
     :param args:
     :param kwargs:
 
@@ -160,8 +160,8 @@ class PGAgent(PolicyAgent):
 
     error = self.evaluate()
 
-    if stat_writer:
-      stat_writer.scalar('Error', error.detach().to('cpu').numpy())
+    if metric_writer:
+      metric_writer.scalar('Error', error.detach().to('cpu').numpy())
 
     if error is not None:
       if self._use_batched_updates:
@@ -176,7 +176,7 @@ class PGAgent(PolicyAgent):
               initial_state: EnvironmentSnapshot,
               environment: Environment,
               render: bool = False,
-              stat_writer: Writer = None,
+              metric_writer: Writer = None,
               train: bool = True,
               max_length: int = None,
               disable_stdout: bool = False,
@@ -184,7 +184,7 @@ class PGAgent(PolicyAgent):
     '''Perform a single rollout until termination in environment
 
     :param disable_stdout:
-    :param stat_writer:
+    :param metric_writer:
     :type max_length: int
     :param max_length:
     :type train: bool
@@ -246,10 +246,10 @@ class PGAgent(PolicyAgent):
     el = episode_length
     ee = np.array(episode_entropy).mean(axis=0).mean()
 
-    if stat_writer:
-      stat_writer.scalar('duration', el, self._update_i)
-      stat_writer.scalar('signal', ep, self._update_i)
-      stat_writer.scalar('entropy', ee, self._update_i)
+    if metric_writer:
+      metric_writer.scalar('duration', el, self._update_i)
+      metric_writer.scalar('signal', ep, self._update_i)
+      metric_writer.scalar('entropy', ee, self._update_i)
 
     return ep, el, ee
 

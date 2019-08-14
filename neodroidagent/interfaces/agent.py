@@ -7,6 +7,7 @@ import numpy
 from tqdm import tqdm
 
 import draugr
+from draugr.visualisation import sprint
 from draugr.writers.writer import Writer
 from neodroid.environments.environment import Environment
 from neodroid.interfaces.specifications import EnvironmentSnapshot
@@ -66,13 +67,13 @@ Tries to infer input and output size from env if either _input_shape or _output_
     # region print
 
     if print_inferred_io_shapes:
-      draugr.sprint(f'input shape: {self._input_shape}\n'
+      sprint(f'input shape: {self._input_shape}\n'
                     f'observation space: {env.observation_space}\n',
                     color='green',
                     bold=True,
                     highlight=True)
 
-      draugr.sprint(f'output shape: {self._output_shape}\n'
+      sprint(f'output shape: {self._output_shape}\n'
                     f'action space: {env.action_space}\n',
                     color='yellow',
                     bold=True,
@@ -225,12 +226,12 @@ Tries to infer input and output size from env if either _input_shape or _output_
              state: EnvironmentSnapshot,
              *args,
              disallow_random_sample: bool = False,
-             stat_writer: Writer = None,
+             metric_writer: Writer = None,
              **kwargs) -> Any:
     raise NotImplementedError
 
   @abstractmethod
-  def update(self, *, stat_writer: Writer = None, **kwargs) -> None:
+  def update(self, *, metric_writer: Writer = None, **kwargs) -> None:
     raise NotImplementedError
 
   # endregion

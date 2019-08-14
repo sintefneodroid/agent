@@ -302,7 +302,7 @@ class TRPOAgent(ActorCriticAgent):
                         source_model=self._critic,
                         target_update_tau=self._target_update_tau)
 
-  def update(self, *, stat_writer=None, **kwargs) -> None:
+  def update(self, *, metric_writer=None, **kwargs) -> None:
 
     self.ppo_updates(self.transitions)
 

@@ -166,7 +166,7 @@ class DDPGAgent(ActorCriticAgent):
                         source_model=self._actor,
                         target_update_tau=self._target_update_tau)
 
-  def update(self, *, stat_writer: Writer = None, **kwargs):
+  def update(self, *, metric_writer: Writer = None, **kwargs):
     '''
   Update the target networks
 
@@ -183,9 +183,9 @@ class DDPGAgent(ActorCriticAgent):
 
     self.update_targets()
 
-    if stat_writer:
-      stat_writer.scalar('td_error', td_error)
-      stat_writer.scalar('critic_loss', critic_loss)
+    if metric_writer:
+      metric_writer.scalar('td_error', td_error.cpu().item())
+      metric_writer.scalar('critic_loss', critic_loss)
 
     return td_error, critic_loss
 

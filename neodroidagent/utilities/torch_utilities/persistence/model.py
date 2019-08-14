@@ -47,6 +47,7 @@ def save_model(model, *, name='', **kwargs):
                                  model_path=model_path,
                                  config_path=config_path,
                                  **kwargs)
+    print(f'Successfully saved model at {model_path}')
   except FileNotFoundError as e:
     print(e)
     saved = False
@@ -61,8 +62,6 @@ def save_model(model, *, name='', **kwargs):
       except FileNotFoundError as e:
         print(e)
         saved = False
-
-  print(f'Saved model at {model_path}')
 
 
 def save_model_and_configuration(*,

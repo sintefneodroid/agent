@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+from setuptools import find_packages, setup
+
 
 def python_version_check():
   import sys
@@ -13,8 +15,6 @@ python_version_check()
 import pathlib
 import re
 
-from setuptools import find_packages
-
 with open(pathlib.Path(__file__).parent / "neodroidagent" / "__init__.py", "r") as project_init_file:
   content = project_init_file.read()
   # get version string from module
@@ -24,10 +24,8 @@ with open(pathlib.Path(__file__).parent / "neodroidagent" / "__init__.py", "r") 
 
 __author__ = 'cnheider'
 
-from setuptools import setup
 
-
-class NeodroidAgentPackageMeta(type):
+class NeodroidAgentPackage:
 
   @property
   def dependencies_testing(self) -> list:
@@ -62,7 +60,7 @@ class NeodroidAgentPackageMeta(type):
   def packages(self):
     return find_packages(
         exclude=[
-          # 'neodroid/environment_utilities'
+          # 'Path/To/Exclude'
           ]
         )
 
@@ -112,17 +110,16 @@ class NeodroidAgentPackageMeta(type):
         'neodroid-dqn-gym = neodroidagent.agents.model_free.q_learning.dqn_agent:dqn_test',
         'neodroid-pg-gym = neodroidagent.agents.model_free.policy_optimisation.pg_agent:pg_test',
         'neodroid-ddpg-gym = neodroidagent.agents.model_free.hybrid.ddpg_agent:ddpg_test',
-
-        'neodroid-tb = entry_points.tensorboard_entry_point:main',
-        'neodroid-clean-all = entry_points.clean:clean_all',
-        'neodroid-open-data = entry_points.open_data:main',
+        'neodroid-tb = neodroidagent.entry_points.tensorboard_entry_point:main',
+        'neodroid-clean-all = neodroidagent.entry_points.clean:clean_all',
+        'neodroid-open-data = neodroidagent.entry_points.open_data:main',
         ]
       }
 
   @property
   def extras(self):
     these_extras = {
-# 'ExtraName':['package-name; platform_system == "System(Linux,Windows)"'
+      # 'ExtraName':['package-name; platform_system == "System(Linux,Windows)"'
 
       }
 
@@ -186,13 +183,9 @@ class NeodroidAgentPackageMeta(type):
     return version
 
 
-class NeodroidAgentPackage(metaclass=NeodroidAgentPackageMeta):
-  pass
-
-
 if __name__ == '__main__':
 
-  pkg = NeodroidAgentPackage
+  pkg = NeodroidAgentPackage()
 
   setup(name=pkg.package_name,
         version=pkg.version,

@@ -288,7 +288,7 @@ class PPOAgent(ActorCriticAgent):
 
     return collective_cost, policy_loss, value_error,
 
-  def update(self, *, stat_writer: Writer = None, **kwargs) -> None:
+  def update(self, *, metric_writer: Writer = None, **kwargs) -> None:
 
     self._ppo_updates(self.transitions)
 

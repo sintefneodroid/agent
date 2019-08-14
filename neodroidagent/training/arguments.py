@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+from warg.named_ordered_dictionary import NOD
 
 __author__ = 'cnheider'
 __doc__ = ''
@@ -10,7 +11,7 @@ import draugr
 from warg.arguments import add_bool_arg
 
 
-def parse_arguments(agent_description, default_config: draugr.NOD) -> draugr.NOD:
+def parse_arguments(agent_description, default_config: NOD) -> NOD:
   parser = argparse.ArgumentParser(description=agent_description)
   parser.add_argument("--ENVIRONMENT_NAME",
                       "-E",
@@ -92,6 +93,6 @@ def parse_arguments(agent_description, default_config: draugr.NOD) -> draugr.NOD
                default=default_config.USE_CUDA,
                help="Cuda flag")
 
-  args = draugr.NOD(parser.parse_args().__dict__)
+  args = NOD(parser.parse_args().__dict__)
 
   return args

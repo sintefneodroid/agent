@@ -24,7 +24,7 @@ def batched_training(agent,
                      disable_stdout=False,
                      **kwargs
                      ) -> TR:
-  with draugr.TensorBoardXWriter(str(log_directory)) as stat_writer:
+  with draugr.TensorBoardXWriter(str(log_directory)) as metric_writer:
     state = environment.reset()
 
     B = range(1, rollouts)
@@ -77,7 +77,7 @@ def batched_training(agent,
         # stats.batch_signal.append(batch_signal)
 
         if stat_frequency and i % stat_frequency == 0:
-          stat_writer.scalar('Batch signal', sum(batch_signal))
+          metric_writer.scalar('Batch signal', sum(batch_signal))
 
       # only calculate value of next state for the last step this time
       *_, agent._last_value_estimate, _ = agent._sample_model(successor_state)

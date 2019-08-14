@@ -164,7 +164,7 @@ class DQNAgent(ValueAgent):
 
     return self._evaluation_function(Q_state, Q_expected)
 
-  def update(self, *, stat_writer=None, **kwargs):
+  def update(self, *, metric_writer=None, **kwargs):
     if self._batch_size < len(self._memory_buffer):
       # indices, transitions = self._memory.sample_transitions(self.C.BATCH_SIZE)
       transitions = self._memory_buffer.sample_transitions(self._batch_size)
@@ -172,8 +172,8 @@ class DQNAgent(ValueAgent):
       td_error = self.evaluate(transitions)
       self._optimise(td_error)
 
-      if stat_writer:
-        stat_writer.scalar('td_error', td_error.mean().item())
+      if metric_writer:
+        metric_writer.scalar('td_error', td_error.mean().item())
 
       # self._memory.batch_update(indices, td_error.tolist())  # Cuda trouble
     else:
@@ -184,7 +184,7 @@ class DQNAgent(ValueAgent):
               environment: Environment,
               *,
               render=False,
-              stat_writer: Writer = None,
+              metric_writer: Writer = None,
               train=True,
               disallow_random_sample=False,
               **kwargs):
@@ -200,7 +200,7 @@ class DQNAgent(ValueAgent):
     for t in T:
       self._step_i += 1
 
-      action = self.sample(state, disallow_random_sample=disallow_random_sample, stat_writer=stat_writer)
+      action = self.sample(state, disallow_random_sample=disallow_random_sample, metric_writer=metric_writer)
       snapshot = environment.react(action)
 
       next_state, signal, terminated = snapshot.observables, snapshot.signal, snapshot.terminated
@@ -227,8 +227,8 @@ class DQNAgent(ValueAgent):
 
       if self._use_double_dqn and self._step_i % self._sync_target_model_frequency == 0:
         self._target_value_model = U.copy_state(target=self._target_value_model, source=self._value_model)
-        if stat_writer:
-          stat_writer.scalar('Target Model Synced', self._step_i, self._step_i)
+        if metric_writer:
+          metric_writer.scalar('Target Model Synced', self._step_i, self._step_i)
 
       episode_signal.append(signal)
 
@@ -241,10 +241,10 @@ class DQNAgent(ValueAgent):
     ep = np.array(episode_signal).sum(axis=0).mean()
     el = episode_length
 
-    if stat_writer:
-      stat_writer.scalar('duration', el, self._update_i)
-      stat_writer.scalar('signal', ep, self._update_i)
-      stat_writer.scalar('current_eps_threshold', self._current_eps_threshold, self._update_i)
+    if metric_writer:
+      metric_writer.scalar('duration', el, self._update_i)
+      metric_writer.scalar('signal', ep, self._update_i)
+      metric_writer.scalar('current_eps_threshold', self._current_eps_threshold, self._update_i)
 
     return ep, el
 
