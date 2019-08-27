@@ -6,7 +6,7 @@ __author__ = 'cnheider'
 import random
 from types import coroutine
 
-import numpy as np
+import numpy
 from tqdm import tqdm
 
 
@@ -23,9 +23,9 @@ def grid_world_sample_entire_configuration_space(environment):
     z_steps = z_space.discrete_steps
     x_min, x_max = x_space.min_value, x_space.max_value
     z_min, z_max = z_space.min_value, z_space.max_value
-    for x in np.linspace(x_min, x_max, x_steps):
-      for z in np.linspace(z_min, z_max, z_steps):
-        # for y in np.linspace(y_space.min_value, y_space.max_value, y_space.discrete_steps):
+    for x in numpy.linspace(x_min, x_max, x_steps):
+      for z in numpy.linspace(z_min, z_max, z_steps):
+        # for y in numpy.linspace(y_space.min_value, y_space.max_value, y_space.discrete_steps):
         initial_configuration = [
           Configuration('Vertical', x),
           # Configuration('Orthogonal', y),
@@ -46,9 +46,9 @@ def grid_world_random_sample_uniformly_entire_configuration_space(environment):
     x_space = actor_x_conf.configurable_space
     # y_space = actor_y_conf.configurable_space
     z_space = actor_z_conf.configurable_space
-    for x in np.linspace(x_space.min_value, x_space.max_value, x_space.discrete_steps):
-      for z in np.linspace(z_space.min_value, z_space.max_value, z_space.discrete_steps):
-        # for y in np.linspace(y_space.min_value, y_space.max_value, y_space.discrete_steps):
+    for x in numpy.linspace(x_space.min_value, x_space.max_value, x_space.discrete_steps):
+      for z in numpy.linspace(z_space.min_value, z_space.max_value, z_space.discrete_steps):
+        # for y in numpy.linspace(y_space.min_value, y_space.max_value, y_space.discrete_steps):
         initial_configuration = [
           Configuration('Vertical', x),
           # Configuration('Orthogonal', y),

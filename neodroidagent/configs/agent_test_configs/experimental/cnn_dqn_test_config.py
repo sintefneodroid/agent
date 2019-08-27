@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 from neodroidagent.architectures import CNN
-from neodroidagent.configs.agent_test_configs.base_test_config import *
+from neodroidagent.configs.agent_test_configs.base_dicrete_test_config import *
 from neodroidagent.utilities import ReplayBuffer
 
 __author__ = 'cnheider'
@@ -33,10 +33,10 @@ SYNC_TARGET_MODEL_FREQUENCY = 1000
 
 # EVALUATION_FUNCTION = lambda Q_state, Q_true_state: (Q_state - Q_true_state).pow(2).mean()
 
-OPTIMISER_SPEC = GDCS(torch.optim.RMSprop, {})  # torch.optim.Adam
+OPTIMISER_SPEC = GDKC(torch.optim.RMSprop, {})  # torch.optim.Adam
 
 # Architecture
-VALUE_ARCH_SPEC = GDCS(CNN, NOD(
+VALUE_ARCH_SPEC = GDKC(CNN, NOD(
     input_shape=None,  # Obtain from environment
     input_channels=None,
     hidden_layers=[64, 32, 16],

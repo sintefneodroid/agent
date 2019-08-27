@@ -9,8 +9,9 @@ import torch
 from torch.distributions import MultivariateNormal, Normal
 from torch.nn.functional import softplus
 
+from draugr.torch_utilities import fan_in_init
+from draugr.torch_utilities.to_tensor import to_tensor
 from neodroidagent.architectures import MLP, Sequence
-from neodroidagent.utilities import fan_in_init, to_tensor
 
 __author__ = 'cnheider'
 __doc__ = ''

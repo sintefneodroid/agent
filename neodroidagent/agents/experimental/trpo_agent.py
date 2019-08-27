@@ -3,13 +3,16 @@
 
 import numpy
 
+from draugr.torch_utilities.to_tensor import to_tensor
+from draugr.writers import MockWriter
 from neodroidagent.agents.model_free.hybrid.actor_critic_agent import ActorCriticAgent
-from neodroidagent.architectures import ContinuousActorArchitecture, DDPGCriticArchitecture
+from neodroidagent.agents.model_free.hybrid.ppo_agent import PPOAgent
 from neodroidagent.interfaces.specifications import AdvantageDiscountedTransition, ValuedTransition
-from neodroidagent.interfaces.specifications.generalised_delayed_construction_specification import GDCS
-from neodroidagent.training.agent_session_entry_point import agent_session_entry_point, parallelised_training
+from warg.gdkc import GDKC
+from neodroidagent.training.agent_session_entry_point import agent_session_entry_point
 from neodroidagent.training.procedures import batched_training
-from neodroidagent.utilities import advantage_estimate, to_tensor
+from neodroidagent.training.sessions.parallel_training import parallelised_training
+from neodroidagent.utilities.signal.advantage_estimation import torch_advantage_estimate
 from warg.named_ordered_dictionary import NOD
 
 __author__ = 'cnheider'
@@ -17,8 +20,6 @@ __author__ = 'cnheider'
 import torch
 from tqdm import tqdm
 import torch.nn.functional as F
-
-from neodroidagent import utilities as U
 
 
 class TRPOAgent(ActorCriticAgent):
@@ -67,16 +68,16 @@ class TRPOAgent(ActorCriticAgent):
 
     self._surrogate_clipping_value = 0.2
 
-    self._optimiser_spec = GDCS(torch.optim.Adam, {})
+    self._optimiser_spec = GDKC(torch.optim.Adam, {})
 
-    self._actor_arch_spec = GDCS(ContinuousActorArchitecture,
+    self._actor_arch_spec = GDKC(ContinuousActorArchitecture,
                                  kwargs=NOD({'input_shape':      None,  # Obtain from environment
                                              'hidden_layers':    None,
                                              'output_activation':None,
                                              'output_shape':     None,  # Obtain from environment
                                              }))
 
-    self._critic_arch_spec = GDCS(DDPGCriticArchitecture,
+    self._critic_arch_spec = GDKC(DDPGCriticArchitecture,
                                   kwargs=NOD({'input_shape':      None,  # Obtain from environment
                                               'hidden_layers':    None,
                                               'output_activation':None,
@@ -186,10 +187,10 @@ class TRPOAgent(ActorCriticAgent):
 
     transitions = []
     terminated = False
-    T = tqdm(range(1, n + 1), f'Step #{self._step_i} - {0}/{n}', leave=False, disable=not render)
+    T = tqdm(range(1, n + 1), f'Step #{self._sample_i} - {0}/{n}', leave=False, disable=not render)
     for t in T:
       # T.set_description(f'Step #{self._step_i} - {t}/{n}')
-      self._step_i += 1
+      self._sample_i += 1
       action, action_prob, value_estimates, *_ = self.sample(state)
 
       next_state, signal, terminated, _ = environment.react(action)
@@ -224,13 +225,13 @@ class TRPOAgent(ActorCriticAgent):
 
   def back_trace_advantages(self, transitions):
 
-    advantages = advantage_estimate(transitions.signal,
-                                    transitions.non_terminal,
-                                    transitions.value_estimate,
-                                    discount_factor=self._discount_factor,
-                                    tau=self._gae_tau,
-                                    device=self._device
-                                    )
+    advantages = torch_advantage_estimate(transitions.signal,
+                                          transitions.non_terminal,
+                                          transitions.value_estimate,
+                                          discount_factor=self._discount_factor,
+                                          tau=self._gae_tau,
+                                          device=self._device
+                                          )
 
     value_estimates = to_tensor(transitions.value_estimate, device=self._device)
 
@@ -270,7 +271,7 @@ class TRPOAgent(ActorCriticAgent):
     *_, action_log_probs_new, distribution = self._sample_model(states)
 
     if discrete:
-      actions = U.to_tensor(batch.action, device=self._device).view(-1, self._output_shape[0])
+      actions = to_tensor(batch.action, device=self._device).view(-1, self._output_shape[0])
       action_log_probs_old = action_log_probs_old.gather(1, actions)
       action_log_probs_new = action_log_probs_new.gather(1, actions)
 
@@ -302,11 +303,11 @@ class TRPOAgent(ActorCriticAgent):
                         source_model=self._critic,
                         target_update_tau=self._target_update_tau)
 
-  def update(self, *, metric_writer=None, **kwargs) -> None:
+  def update(self, *, metric_writer=MockWriter(), **kwargs) -> None:
 
     self.ppo_updates(self.transitions)
 
-    if self._step_i % self._update_target_interval == 0:
+    if self._sample_i % self._update_target_interval == 0:
       self.update_targets()
 
   def ppo_updates(self,

@@ -4,11 +4,11 @@ from typing import Any
 
 __author__ = 'cnheider'
 
-import numpy as np
+import numpy
 
 
-def sample(set: iter) -> Any:
-  a = list(set)
+def sample(iter_set: iter) -> Any:
+  a = list(iter_set)
   if len(a):
-    idx = np.random.randint(0, len(a))
+    idx = numpy.random.randint(0, len(a))
     return a[idx]

@@ -7,7 +7,7 @@ __author__ = 'cnheider'
 from math import sqrt
 
 import matplotlib.pyplot as plt
-import numpy as np
+import numpy
 from scipy.stats import norm
 
 
@@ -18,7 +18,7 @@ class WienerProcess(RandomProcess):
     self.dt = dt
     self.last_x = initial
 
-  def sample(self):
+  def sample(self,size=1):
     x = self.last_x + norm.rvs(scale=self.delta ** 2 * self.dt)
     self.last_x = x
     return x
@@ -69,7 +69,7 @@ A numpy array of floats with shape `x0.shape + (n,)`.
 Note that the initial value `x0` is not included in the returned array.
 '''
 
-  x0 = np.asarray(x0)
+  x0 = numpy.asarray(x0)
 
   r = norm.rvs(
       size=x0.shape + (n,), scale=delta * sqrt(dt)
@@ -77,13 +77,13 @@ Note that the initial value `x0` is not included in the returned array.
 
   # If `out` was not given, create an output array.
   if out is None:
-    out = np.empty(r.shape)
+    out = numpy.empty(r.shape)
 
-  np.cumsum(
+  numpy.cumsum(
       r, axis=-1, out=out
       )  # This computes the Brownian motion by forming the cumulative sum of the random samples.
 
-  out += np.expand_dims(x0, axis=-1)  # Add the initial condition.
+  out += numpy.expand_dims(x0, axis=-1)  # Add the initial condition.
 
   return out
 
@@ -100,13 +100,13 @@ def main_1d():
   # Number of realizations to generate.
   m = 5
   # Create an empty array to store the realizations.
-  x = np.empty((m, N + 1))
+  x = numpy.empty((m, N + 1))
   # Initial values of x.
   x[:, 0] = 0
 
   wiener(x[:, 0], N, dt, delta, out=x[:, 1:])
 
-  t = np.linspace(0.0, N * dt, N + 1)
+  t = numpy.linspace(0.0, N * dt, N + 1)
   plot_1d_trajectory(x, t, m)
 
 
@@ -120,7 +120,7 @@ def main_2d():
   # Time step size
   dt = T / N
   # Initial values of x.
-  x = np.empty((2, N + 1))
+  x = numpy.empty((2, N + 1))
   x[:, 0] = 0.0
 
   wiener(x[:, 0], N, dt, delta, out=x[:, 1:])
@@ -138,7 +138,7 @@ def main_3d():
   # Time step size
   dt = T / N
   # Initial values of x.
-  x = np.zeros((3, N + 1))
+  x = numpy.zeros((3, N + 1))
 
   wiener(x[:, 0], N, dt, delta, out=x[:, 1:])
 
@@ -198,7 +198,7 @@ def main_class():
   # Time step size
   dt = T / N
   # Initial values of x.
-  x = np.empty((2, N + 1))
+  x = numpy.empty((2, N + 1))
   x[:, 0] = 0.0
 
   brownian = WienerProcess(delta, dt, 0)

@@ -11,8 +11,8 @@ class SumTree:
     self._capacity = capacity
     self._updates = 0
     self._write = 0
-    # self.tree = np.zeros(2 * capacity - 1)
-    # self.data = np.zeros(capacity, dtype=object)
+    # self.tree = numpy.zeros(2 * capacity - 1)
+    # self.data = numpy.zeros(capacity, dtype=object)
     self._tree = [0 for i in range(2 * capacity - 1)]
     self._data = [None for i in range(capacity)]
 

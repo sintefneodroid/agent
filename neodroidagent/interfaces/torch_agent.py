@@ -1,11 +1,15 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-from abc import ABC
+from abc import ABC, abstractmethod
+from pathlib import Path
 
 import torch
 from tqdm import tqdm
+from typing import Dict
 
+from draugr.torch_utilities import save_model
 from neodroidagent.interfaces.agent import Agent
+from neodroidagent.interfaces.architecture import Architecture
 
 tqdm.monitor_interval = 0
 
@@ -33,6 +37,39 @@ All agent should inherit from this class
   @property
   def device(self) -> torch.device:
     return self._device
+
+  # endregion
+
+  # region Public
+  @property
+  @abstractmethod
+  def models(self) -> Dict[str,Architecture]:
+    raise NotImplementedError
+
+  def save(self, model_path: Path, **kwargs) -> None:
+    for k, v in self.models.items():
+      save_model(v, name=k, **kwargs)
+
+  def load(self,
+           model_path: Path,
+           evaluation=False,
+           **kwargs) -> None:
+
+    self.__build__(None, **kwargs)
+
+    for k, v in self.models.items():
+      model_p = model_path / f'-{k}'
+      print('Loading model: ' + str(model_path))
+      model = getattr(self, k)
+      model.load_state_dict(torch.load(model_p))
+
+      if evaluation:
+        model = model.eval()
+        model.train(False)
+
+      model = model.to(self._device)
+
+      setattr(self, k, model)
 
   # endregion
 

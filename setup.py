@@ -82,14 +82,10 @@ class NeodroidAgentPackage:
 
   @property
   def package_data(self):
-    # data = glob.glob('environment_utilities/mab/**', recursive=True)
+    # data = glob.glob('data/', recursive=True)
     return {
-      # 'neodroid':[
+      # 'PackageName':[
       # *data
-      # 'environment_utilities/mab/**',
-      # 'environment_utilities/mab/**_Data/*',
-      # 'environment_utilities/mab/windows/*'
-      # 'environment_utilities/mab/windows/*_Data/*'
       #  ]
       }
 
@@ -98,17 +94,17 @@ class NeodroidAgentPackage:
     return {
       'console_scripts':[
         # "name_of_executable = module.with:function_to_execute"
-        'neodroid-tab = neodroidagent.agents.experimental.tabular_q_agent:tabular_test',
-        'neodroid-rnd = neodroidagent.agents.experimental.random_agent:random_test',
-        'neodroid-ppo = neodroidagent.agents.model_free.policy_optimisation.ppo_agent:ppo_run',
-        'neodroid-dqn = neodroidagent.agents.model_free.q_learning.dqn_agent:dqn_run',
-        'neodroid-pg = neodroidagent.agents.model_free.policy_optimisation.pg_agent:pg_run',
+        'neodroid-tab = neodroidagent.agents.experimental.tabular_q_agent:tabular_run',
+        'neodroid-rnd = neodroidagent.agents.experimental.random_agent:random_run',
+        'neodroid-ppo = neodroidagent.agents.model_free.hybrid.ppo_agent:ppo_run',
+        'neodroid-dqn = neodroidagent.agents.model_free.off_policy.dqn_agent:dqn_run',
+        'neodroid-pg = neodroidagent.agents.model_free.on_policy.pg_agent:pg_run',
         'neodroid-ddpg = neodroidagent.agents.model_free.hybrid.ddpg_agent:ddpg_run',
-        'neodroid-cma = neodroidagent.agents.experimental.cma_agent:cma_test',
+        'neodroid-cma = neodroidagent.agents.experimental.cma_agent:cma_run',
 
         'neodroid-ppo-gym = neodroidagent.agents.model_free.hybrid.ppo_agent:ppo_test',
-        'neodroid-dqn-gym = neodroidagent.agents.model_free.q_learning.dqn_agent:dqn_test',
-        'neodroid-pg-gym = neodroidagent.agents.model_free.policy_optimisation.pg_agent:pg_test',
+        'neodroid-dqn-gym = neodroidagent.agents.model_free.off_policy.dqn_agent:dqn_test',
+        'neodroid-pg-gym = neodroidagent.agents.model_free.on_policy.pg_agent:pg_test',
         'neodroid-ddpg-gym = neodroidagent.agents.model_free.hybrid.ddpg_agent:ddpg_test',
         'neodroid-tb = neodroidagent.entry_points.tensorboard_entry_point:main',
         'neodroid-clean-all = neodroidagent.entry_points.clean:clean_all',

@@ -4,7 +4,7 @@ __author__ = 'cnheider'
 import json
 from ast import literal_eval as make_tuple
 
-import numpy as np
+import numpy
 import torch
 from skimage import color, transform
 
@@ -63,7 +63,7 @@ def spatial_displacement(pos1, pos2):
 :param pos2:
 :return:
 '''
-  return (np.array(pos1) - np.array(pos2)).flatten()
+  return (numpy.array(pos1) - numpy.array(pos2)).flatten()
 
 
 def normalise_position(elements, bounds):
@@ -73,7 +73,7 @@ def normalise_position(elements, bounds):
 :param bounds:
 :return:
 '''
-  normalised_0_1 = (np.array(elements) + np.array(bounds)) / (np.array(bounds) * 2)
+  normalised_0_1 = (numpy.array(elements) + numpy.array(bounds)) / (numpy.array(bounds) * 2)
   return normalised_0_1.flatten()
 
 

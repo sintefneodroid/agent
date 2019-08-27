@@ -56,7 +56,7 @@ def snake_space_filling_generator():
 
 
 if __name__ == '__main__':
-  num = 10000
+  num = 100
   annotate = False
   scaling_factor = 0.1
 

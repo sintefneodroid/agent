@@ -2,13 +2,13 @@
 # -*- coding: utf-8 -*-
 from collections.abc import Collection
 
+from draugr.torch_utilities import atari_initializer, ortho_weights
 from neodroidagent.interfaces.architecture import Architecture
 
 __author__ = 'cnheider'
 from torch import nn
 from torch.nn import functional as F
 
-from neodroidagent.utilities import atari_initializer, ortho_weights
 
 
 class CNN(Architecture):
@@ -50,7 +50,7 @@ class CategoricalCNN(CNN):
 
 class AtariCNN(nn.Module):
 
-  def __init__(self, num_actions):
+  def __init__(self, num_actions, inplace_ops=True):
     ''' Basic convolutional actor-critic network for Atari 2600 games
 
 Equivalent to the network in the original DQN paper.
@@ -60,16 +60,15 @@ Args:
 '''
     super().__init__()
 
-    self.conv = nn.Sequential(
-        nn.Conv2d(4, 32, 8, stride=4),
-        nn.ReLU(inplace=True),
+    self.conv = nn.Sequential(        nn.Conv2d(4, 32, 8, stride=4),
+        nn.ReLU(inplace=inplace_ops),
         nn.Conv2d(32, 64, 4, stride=2),
-        nn.ReLU(inplace=True),
+        nn.ReLU(inplace=inplace_ops),
         nn.Conv2d(64, 64, 3, stride=1),
-        nn.ReLU(inplace=True),
+        nn.ReLU(inplace=inplace_ops),
         )
 
-    self.fc = nn.Sequential(nn.Linear(64 * 7 * 7, 512), nn.ReLU(inplace=True))
+    self.fc = nn.Sequential(nn.Linear(64 * 7 * 7, 512), nn.ReLU(inplace=inplace_ops))
 
     self.pi = nn.Linear(512, num_actions)
     self.v = nn.Linear(512, 1)

@@ -20,7 +20,7 @@ CONFIG_DIRECTORY = PROJECT_APP_PATH.user_data / ENVIRONMENT_NAME / AGENT_TYPE_NA
 LOG_DIRECTORY = PROJECT_APP_PATH.user_log / ENVIRONMENT_NAME / AGENT_TYPE_NAME / LOAD_TIME
 
 # Architecture
-POLICY_ARCH_SPEC = GDCS(CategoricalMLP, NOD(**{
+POLICY_ARCH_SPEC = GDKC(CategoricalMLP, NOD(**{
   'input_shape':            None,  # Obtain from environment
   'hidden_layer_activation':torch.tanh,
   'hidden_layers':          [128, 64, 32, 16],
@@ -28,7 +28,7 @@ POLICY_ARCH_SPEC = GDCS(CategoricalMLP, NOD(**{
   'use_bias':               False,
   }))
 
-VALUE_ARCH_PARAMS = GDCS(MLP, NOD(**{
+VALUE_ARCH_PARAMS = GDKC(MLP, NOD(**{
   'input_shape':            None,  # Obtain from environment
   'hidden_layer_activation':torch.tanh,
   'hidden_layers':          [128, 64, 32, 16],
@@ -37,7 +37,7 @@ VALUE_ARCH_PARAMS = GDCS(MLP, NOD(**{
   }))
 
 # Optimiser
-OPTIMISER_SPEC = GDCS(torch.optim.Adam, NOD(lr=0.00025, weight_decay=1e-5, alpha=0.95, epsilon=0.01))
+OPTIMISER_SPEC = GDKC(torch.optim.Adam, NOD(lr=0.00025, weight_decay=1e-5, alpha=0.95, epsilon=0.01))
 
 # Curriculum
 RANDOM_MOTION_HORIZON = 20

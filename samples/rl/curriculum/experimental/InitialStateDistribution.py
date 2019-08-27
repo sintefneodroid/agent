@@ -4,7 +4,7 @@
 __author__ = 'cnheider'
 from collections import namedtuple
 
-import numpy as np
+import numpy
 
 
 class InitStateDistribution(object):
@@ -18,4 +18,4 @@ class InitStateDistribution(object):
 
   def sample(self):
     sds = self.StateDist(*zip(*self.state_tuples))
-    return np.random.choice(sds.state, p=sds.prob)
+    return numpy.random.choice(sds.state, p=sds.prob)

@@ -14,7 +14,7 @@ CONFIG_NAME = __name__
 CONFIG_FILE = __file__
 
 # Architecture
-POLICY_ARCH_SPEC = GDCS(CategoricalMLP,
+POLICY_ARCH_SPEC = GDKC(CategoricalMLP,
                         NOD(input_shape=None,  # Obtain from environment
                             hidden_layers=(32, 32),  # Estimate from input and output size
                             output_shape=None,  # Obtain from environment

@@ -8,7 +8,7 @@ import torch.nn.functional as F
 from neodroidagent import PROJECT_NAME
 from neodroidagent.architectures.distributional.categorical import CategoricalMLP
 from neodroidagent.interfaces.specifications.exploration_specification import ExplorationSpecification
-from neodroidagent.interfaces.specifications.generalised_delayed_construction_specification import GDCS
+from warg.gdkc import GDKC
 from warg.named_ordered_dictionary import NOD
 
 __author__ = 'cnheider'
@@ -27,7 +27,7 @@ VERBOSE = False
 USE_LOGGING = True
 
 # Architecture
-POLICY_ARCH_SPEC = GDCS(CategoricalMLP,
+POLICY_ARCH_SPEC = GDKC(CategoricalMLP,
                         NOD(input_shape=None,  # Obtain from environment
                             hidden_layers=None,  # Estimate from input and output size
                             output_shape=None,  # Obtain from environment
@@ -65,7 +65,7 @@ ACTION_TYPE = torch.long
 EVALUATION_FUNCTION = F.smooth_l1_loss
 
 # Optimiser
-OPTIMISER_SPEC = GDCS(torch.optim.Adam,
+OPTIMISER_SPEC = GDKC(torch.optim.Adam,
                       NOD(lr=3e-4,
                           weight_decay=1e-6,
                           eps=1e-2))

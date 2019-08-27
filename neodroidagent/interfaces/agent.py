@@ -6,8 +6,8 @@ from typing import Any, Tuple
 import numpy
 from tqdm import tqdm
 
-import draugr
 from draugr.visualisation import sprint
+from draugr.writers import MockWriter
 from draugr.writers.writer import Writer
 from neodroid.environments.environment import Environment
 from neodroid.interfaces.specifications import EnvironmentSnapshot
@@ -32,7 +32,7 @@ All agent should inherit from this class
                **kwargs):
     self._input_shape = None
     self._output_shape = None
-    self._step_i = 0
+    self._sample_i = 0
     self._update_i = 0
 
     self._divide_by_zero_safety = 1e-10
@@ -49,7 +49,9 @@ All agent should inherit from this class
       k_lowered = f'_{k.lstrip("_").lower()}'
       self.__setattr__(k_lowered, v)
 
-  def __infer_io_shapes(self, env: Environment, print_inferred_io_shapes: bool = True) -> None:
+  def __infer_io_shapes(self,
+                        env: Environment,
+                        print_inferred_io_shapes: bool = True) -> None:
     '''
 Tries to infer input and output size from env if either _input_shape or _output_shape, is None or -1 (int)
 
@@ -68,27 +70,24 @@ Tries to infer input and output size from env if either _input_shape or _output_
 
     if print_inferred_io_shapes:
       sprint(f'input shape: {self._input_shape}\n'
-                    f'observation space: {env.observation_space}\n',
-                    color='green',
-                    bold=True,
-                    highlight=True)
+             f'observation space: {env.observation_space}\n',
+             color='green',
+             bold=True,
+             highlight=True)
 
       sprint(f'output shape: {self._output_shape}\n'
-                    f'action space: {env.action_space}\n',
-                    color='yellow',
-                    bold=True,
-                    highlight=True)
+             f'action space: {env.action_space}\n',
+             color='yellow',
+             bold=True,
+             highlight=True)
 
   # endregion
 
   # region Public
 
-  @property
-  @abstractmethod
-  def models(self) -> tuple:
-    raise NotImplementedError
-
-  def run(self, environment: Environment, render: bool = True) -> None:
+  def run(self,
+          environment: Environment,
+          render: bool = True) -> None:
 
     state = environment.reset().observables
 
@@ -97,7 +96,7 @@ Tries to infer input and output size from env if either _input_shape or _output_
     for frame_i in F:
       F.set_description(f'Frame {frame_i}')
 
-      action, *_ = self.sample(state, disallow_random_sample=True)
+      action, *_ = self.sample(state, no_random=True)
       state, signal, terminated, info = environment.react(action, render=render)
 
       if terminated.all():
@@ -120,7 +119,7 @@ Tries to infer input and output size from env if either _input_shape or _output_
     T = tqdm(T, f'Rollout #{self._update_i}', leave=False, disable=not render)
 
     for t in T:
-      self._step_i += 1
+      self._sample_i += 1
 
       action = self.sample(state)
       next_state, signal, terminated, *_ = environment.react(action).to_gym_like_output()
@@ -153,11 +152,11 @@ Tries to infer input and output size from env if either _input_shape or _output_
     transitions = []
     terminated = False
     T = tqdm(range(1, n + 1),
-             f'Step #{self._step_i} - {0}/{n}',
+             f'Step #{self._sample_i} - {0}/{n}',
              leave=False,
              disable=not render)
     for _ in T:
-      self._step_i += 1
+      self._sample_i += 1
       action, *_ = self.sample(state)
 
       next_state, signal, terminated, _ = environment.react(action)
@@ -174,16 +173,19 @@ Tries to infer input and output size from env if either _input_shape or _output_
   def stop_training(self) -> None:
     self.end_training = True
 
-  def build(self, env: Environment, **kwargs) -> None:
+  def build(self,
+            env: Environment,
+            **kwargs) -> None:
     self.__infer_io_shapes(env)
-    self._build(env, **kwargs)
+    self.__build__(env, **kwargs)
 
   @property
   def input_shape(self):
     return self._input_shape
 
   @input_shape.setter
-  def input_shape(self, input_shape: Tuple[int]):
+  def input_shape(self,
+                  input_shape: Tuple[int]):
     self._input_shape = input_shape
 
   @property
@@ -191,8 +193,33 @@ Tries to infer input and output size from env if either _input_shape or _output_
     return self._output_shape
 
   @output_shape.setter
-  def output_shape(self, output_shape: Tuple[int]):
+  def output_shape(self,
+                   output_shape: Tuple[int]):
     self._output_shape = output_shape
+
+
+
+  def sample(self,
+              state: EnvironmentSnapshot,
+              *args,
+              no_random: bool = False,
+              metric_writer: Writer = MockWriter(),
+              **kwargs) -> Any:
+    self._sample_i += 1
+    return self._sample(state,
+                        *args,
+                        no_random=no_random,
+                        metric_writer=metric_writer,
+                        **kwargs)
+
+
+
+  def update(self,
+              *args,
+              metric_writer: Writer = MockWriter(),
+              **kwargs) -> None:
+    self._update_i += 1
+    return self._update(*args, metric_writer=metric_writer,**kwargs)
 
   # endregion
 
@@ -210,7 +237,9 @@ Tries to infer input and output size from env if either _input_shape or _output_
     raise NotImplementedError
 
   @abstractmethod
-  def _build(self, env, **kwargs) -> None:
+  def __build__(self,
+                env,
+                **kwargs) -> None:
     raise NotImplementedError
 
   @abstractmethod
@@ -222,16 +251,19 @@ Tries to infer input and output size from env if either _input_shape or _output_
     raise NotImplementedError
 
   @abstractmethod
-  def sample(self,
+  def _sample(self,
              state: EnvironmentSnapshot,
              *args,
-             disallow_random_sample: bool = False,
-             metric_writer: Writer = None,
+             no_random: bool = False,
+             metric_writer: Writer = MockWriter(),
              **kwargs) -> Any:
     raise NotImplementedError
 
   @abstractmethod
-  def update(self, *, metric_writer: Writer = None, **kwargs) -> None:
+  def _update(self,
+             *args,
+             metric_writer: Writer = MockWriter(),
+             **kwargs) -> None:
     raise NotImplementedError
 
   # endregion

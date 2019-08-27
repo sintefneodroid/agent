@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from .base_test_config import *
+from .base_dicrete_test_config import *
 
 __author__ = 'cnheider'
 
@@ -13,7 +13,7 @@ RENDER_ENVIRONMENT = True
 
 EVALUATION_FUNCTION = torch.nn.CrossEntropyLoss
 
-OPTIMISER_SPEC = GDCS(torch.optim.Adam,
+OPTIMISER_SPEC = GDKC(torch.optim.Adam,
                       NOD(lr=3e-5,
                           weight_decay=3e-9,
                           eps=3e-4))
@@ -22,7 +22,7 @@ DISCOUNT_FACTOR = 0.95
 PG_ENTROPY_REG = 3e-9
 
 # Architecture
-POLICY_ARCH_SPEC = GDCS(CategoricalMLP,
+POLICY_ARCH_SPEC = GDKC(CategoricalMLP,
                         NOD(**{
                           'input_shape':            None,  # Obtain from environment
                           'hidden_layer_activation':torch.relu,

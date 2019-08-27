@@ -4,7 +4,7 @@ from itertools import count
 from typing import Any, Tuple
 
 import gym
-import numpy as np
+import numpy
 from tqdm import tqdm
 
 from neodroidagent.agents.model_free.q_learning.value_agent import ValueAgent
@@ -54,7 +54,7 @@ class TabularQAgent(ValueAgent):
     if hasattr(self._last_connected_environment.action_space, 'signed_one_hot_sample'):
       return self._last_connected_environment.action_space.signed_one_hot_sample()
     else:
-      return self._last_connected_environment.action_space._sample()
+      return self._last_connected_environment.action_space.sample()
 
   def rollout(self,
               initial_state,
@@ -74,11 +74,11 @@ class TabularQAgent(ValueAgent):
       next_obs = str(next_obs)
 
       current_q = self._q_table[obs, action]
-      future = np.max(self._q_table[next_obs])
+      future = numpy.max(self._q_table[next_obs])
       exp_q = signal + self._discount_factor * future
       diff = self._learning_rate * (exp_q - current_q)
       self._q_table[obs, action] = current_q + diff
-      #        Q[s, a] = Q[s, a] + lr * (r + y * np.max(Q[s1, :]) - Q[s, a])
+      #        Q[s, a] = Q[s, a] + lr * (r + y * numpy.max(Q[s1, :]) - Q[s, a])
 
       obs = next_obs
       ep_r += signal
@@ -119,7 +119,7 @@ class TabularQAgent(ValueAgent):
                     **kwargs) -> Any:
     if isinstance(state, typing.Collection) and len(state) == 0:
       return [0]
-    return np.argmax(self._q_table[state])
+    return numpy.argmax(self._q_table[state])
 
   def _optimise_wrt(self,
                     error,
@@ -127,7 +127,7 @@ class TabularQAgent(ValueAgent):
                     **kwargs) -> None:
     pass
 
-  def _build(self, env, **kwargs) -> None:
+  def __build__(self, env, **kwargs) -> None:
 
     if hasattr(self._last_connected_environment.action_space, 'num_binary_actions'):
       self._action_n = self._last_connected_environment.action_space.num_binary_actions
@@ -137,9 +137,9 @@ class TabularQAgent(ValueAgent):
     # self._verbose = True
 
     self._q_table = defaultdict(
-        lambda:self._init_std * np.random.randn(self._action_n) + self._init_mean)
+        lambda:self._init_std * numpy.random.randn(self._action_n) + self._init_mean)
 
-    # self._q_table = np.zeros([self._environment.observation_space.n, self._environment.action_space.n])
+    # self._q_table = numpy.zeros([self._environment.observation_space.n, self._environment.action_space.n])
 
   def _train_procedure(self,
                        env,
@@ -168,11 +168,11 @@ if __name__ == '__main__':
   def taxi():
 
     import gym
-    import numpy as np
+    import numpy
     import random
 
     env = gym.make('Taxi-v2').env
-    q_table = np.zeros([env.space.n, env.action_space.n])
+    q_table = numpy.zeros([env.space.n, env.action_space.n])
 
     def training():
       # Hyparameters
@@ -194,13 +194,13 @@ if __name__ == '__main__':
 
         while not done:
           if random.uniform(0, 1) < epsilon:
-            action = env.action_space._sample()
+            action = env.action_space.sample()
           else:
-            action = np.argmax(q_table[state])
+            action = numpy.argmax(q_table[state])
 
           next_state, reward, done, info = env.act(action)
 
-          next_max = np.max(q_table[next_state])
+          next_max = numpy.max(q_table[next_state])
 
           q_table[state, action] = q_table[state, action] + lr * (
               reward + discount * next_max - q_table[state, action])
@@ -211,7 +211,7 @@ if __name__ == '__main__':
           state = next_state
           epochs += 1
 
-        epsilon = min_epsilon + (max_epsilon - min_epsilon) * np.exp(-0.1 * epsilon)
+        epsilon = min_epsilon + (max_epsilon - min_epsilon) * numpy.exp(-0.1 * epsilon)
 
         if i % 100 == 0:
           print(env.render())

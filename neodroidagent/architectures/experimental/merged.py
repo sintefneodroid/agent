@@ -5,7 +5,8 @@ from typing import Iterable, Sequence
 import torch
 from torch.distributions import Normal
 
-from neodroidagent.architectures import MLP, to_tensor
+from draugr.torch_utilities.to_tensor import to_tensor
+from neodroidagent.architectures import MLP
 
 __author__ = 'cnheider'
 __doc__ = ''

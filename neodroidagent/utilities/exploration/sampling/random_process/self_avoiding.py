@@ -6,7 +6,7 @@ __author__ = 'cnheider'
 
 import random
 
-import numpy as np
+import numpy
 
 
 class SelfAvoiding(RandomProcess):
@@ -47,7 +47,7 @@ class SelfAvoiding(RandomProcess):
   def reset(self):
     self.deadEnds = 0
 
-    self.a = np.zeros((self.n, self.n))
+    self.a = numpy.zeros((self.n, self.n))
 
     self.x = self.n // 2
     self.y = self.n // 2

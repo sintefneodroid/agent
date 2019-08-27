@@ -2,17 +2,17 @@
 # -*- coding: utf-8 -*-
 __author__ = 'cnheider'
 
-import numpy as np
+import numpy
 
 
 class ContextualBanditEnvironment(object):
 
   def __init__(self, seed=0):
 
-    self.np_random = np.random.RandomState()
+    self.np_random = numpy.random.RandomState()
     self.np_random.seed(seed)
 
-    self.bandits = np.array([[0.8, 0.0, 0.0, 0.9],
+    self.bandits = numpy.array([[0.8, 0.0, 0.0, 0.9],
                              [0.6, 0.0, 1.0, 0.2],
                              [0.6, 0.0, 0.0, 0.5]
                              ])
@@ -41,6 +41,6 @@ if __name__ == '__main__':
   env = ContextualBanditEnvironment()
   state = env.reset()
   for i in range(10000):
-    action = np.random.randint(env.num_actions)
+    action = numpy.random.randint(env.num_actions)
     state, signal, *_ = env.act(action)  # Get our signal for taking an action given a bandit.
     print(state, action, signal)

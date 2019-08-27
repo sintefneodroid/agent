@@ -4,8 +4,8 @@ from numpy import prod
 from torch.distributions import Categorical
 from torch.nn import functional as F
 
+from draugr.torch_utilities.to_tensor import to_tensor
 from neodroidagent.architectures import MLP, numpy, torch
-from neodroidagent.utilities import to_tensor
 
 __author__ = 'cnheider'
 __doc__ = ''

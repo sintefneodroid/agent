@@ -4,5 +4,6 @@ from collections import namedtuple
 
 __author__ = 'cnheider'
 
-TrainingResume = namedtuple('TrainingResume', ('models', 'stats'))
+TrainingResume = namedtuple('TrainingResume', ('models',
+                                               'stats'))
 TR = TrainingResume

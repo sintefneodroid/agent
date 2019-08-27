@@ -3,7 +3,7 @@ import tempfile
 
 import filelock
 import matplotlib.pyplot as plt
-import numpy as np
+import numpy
 from gym import Env
 from gym.spaces import Box, Discrete
 
@@ -28,7 +28,7 @@ class MnistEnv(Env):
     with filelock.FileLock(mnist_path + '.lock'):
       self.mnist = input_data.read_data_sets(mnist_path)
 
-    self.np_random = np.random.RandomState()
+    self.np_random = numpy.random.RandomState()
     self.np_random.seed(seed)
 
     self.observation_space = Box(low=0.0, high=1.0, shape=(28, 28, 1))

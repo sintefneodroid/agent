@@ -7,6 +7,9 @@ __author__ = 'cnheider'
 
 class RandomProcess(ABC):
 
+  def __init__(self,**kwargs):
+    pass
+
   def reset(self):
     raise NotImplementedError
 

@@ -2,23 +2,13 @@
 # -*- coding: utf-8 -*-
 
 
-import numpy as np
-import torch
-import torch.nn.functional as F
+import numpy
 from tqdm import tqdm
 
 from neodroidagent.agents.model_free.hybrid.ddpg_agent import DDPGAgent
-from neodroidagent.architectures import MLP
-from neodroidagent.architectures.experimental.merged import MergedInputMLP
-from neodroidagent.interfaces.specifications import ArchitectureSpecification, GDCS
-from neodroidagent.memory import TransitionBuffer
 from neodroidagent.training.agent_session_entry_point import agent_session_entry_point
-from neodroidagent.training.procedures import to_tensor, train_episodically
+from neodroidagent.training.procedures import Agent, train_episodically
 from neodroidagent.training.sessions.parallel_training import parallelised_training
-from neodroidagent.utilities.exploration.sampling import OrnsteinUhlenbeckProcess
-from agents import Agent
-from draugr.writers.writer import Writer
-from warg.named_ordered_dictionary import NOD
 
 __author__ = 'cnheider'
 
@@ -47,7 +37,8 @@ class WorldModelAgent(Agent):
           The update rate that target networks slowly track the learned networks.
   '''
 
-  def _train(self, states: np.ndarray, actions: np.ndarray, rewards: np.ndarray, terminals: np.ndarray):
+  def _train(self, states: numpy.ndarray, actions: numpy.ndarray, rewards: numpy.ndarray,
+             terminals: numpy.ndarray):
     pass
 
 

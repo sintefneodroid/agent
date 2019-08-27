@@ -5,7 +5,6 @@ from collections import namedtuple
 __author__ = 'cnheider'
 __doc__ = ''
 
-ExplorationSpecification = namedtuple('ExplorationSpecification',
-                                      ['start',
-                                       'end',
-                                       'decay'])
+ExplorationSpecification = namedtuple('ExplorationSpecification', ['start',
+                                                                   'end',
+                                                                   'decay'])

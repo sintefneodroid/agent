@@ -1,4 +1,4 @@
-import numpy as np
+import numpy
 from gym import Env
 
 from neodroid.models import Range, Space
@@ -49,8 +49,8 @@ class StatefulEnvironment(ConstantEnvironment):
     return [self.obs]
 
   def step(self, actions):
-    terminated = np.array_equal(self.obs, [actions])
-    if isinstance(terminated, np.ndarray):
+    terminated = numpy.array_equal(self.obs, [actions])
+    if isinstance(terminated, numpy.ndarray):
       terminated = terminated.all()
 
     self.obs = [actions]

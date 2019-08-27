@@ -4,6 +4,8 @@ import os
 from typing import Type
 
 import torch
+
+from draugr.visualisation import sprint
 from warg.named_ordered_dictionary import NOD
 
 import draugr
@@ -74,7 +76,8 @@ def agent_session_entry_point(agent: Type[Agent],
     for key, arg in config_mapping:
       print(f'{key} = {arg}')
 
-    sprint(f'\n.. Also save:{save}, has_x_server:{has_x_server}')
+    sprint(f'\n.. Also save:{save},'
+           f' has_x_server:{has_x_server}')
     input('\nPress Enter to begin... ')
 
   try:

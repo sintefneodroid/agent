@@ -14,9 +14,6 @@ __doc__ = ''
 # class EnvironmentConfig(object):
 #  pass
 
-TrainingSpecification = namedtuple('TrainingSpecification',
-                                   ['constructor',
-                                    'kwargs'])
 
 
 class TrainingSession(abc.ABC):

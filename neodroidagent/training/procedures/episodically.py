@@ -3,25 +3,28 @@
 from pathlib import Path
 from typing import Union
 
+import torch
+
 from draugr.writers import TensorBoardPytorchWriter
-from neodroid.environments import NeodroidEnvironment
+from neodroid.environments import NeodroidEnvironment, VectorEnvironment
+from neodroidagent.interfaces.agent import Agent
+from neodroidagent.interfaces.torch_agent import TorchAgent
 
 __author__ = 'cnheider'
 __doc__ = ''
 from tqdm import tqdm
 
-import draugr
 from neodroidagent.interfaces.specifications import TR
 
 
-def train_episodically(agent,
-                       environment: NeodroidEnvironment,
+def train_episodically(agent: TorchAgent,
+                       environment: VectorEnvironment,
                        *,
                        log_directory: Union[str, Path],
-                       rollouts=1000,
-                       render_frequency=100,
-                       stat_frequency=10,
-                       disable_stdout=False,
+                       rollouts: int = 1000,
+                       render_frequency: int = 100,
+                       stat_frequency: int = 10,
+                       disable_stdout: bool = False,
                        **kwargs
                        ) -> TR:
   '''
@@ -45,27 +48,26 @@ def train_episodically(agent,
   E = range(1, rollouts)
   E = tqdm(E, leave=False)
   # with torchsnooper.snoop():
-  with TensorBoardPytorchWriter(str(log_directory)) as metric_writer:
-    for episode_i in E:
-      initial_state = environment.reset()
+  with torch.autograd.detect_anomaly():
+    with TensorBoardPytorchWriter(str(log_directory)) as metric_writer:
+      for episode_i in E:
+        initial_state = environment.reset()
 
-      if render_frequency and episode_i % render_frequency == 0:
-        render = True
-      else:
-        render = False
+        agent.rollout(initial_state,
+                      environment,
+                      render=(True
+                              if (render_frequency and
+                                  episode_i % render_frequency == 0)
+                              else
+                              False),
+                      metric_writer=(metric_writer
+                                     if (stat_frequency and
+                                         episode_i % stat_frequency == 0)
+                                     else
+                                     None),
+                      disable_stdout=disable_stdout)
 
-      if stat_frequency and episode_i % stat_frequency == 0:
-        writer = metric_writer
-      else:
-        writer = None
-
-      agent.rollout(initial_state,
-                    environment,
-                    render=render,
-                    metric_writer=writer,
-                    disable_stdout=disable_stdout)
-
-      if agent.end_training:
-        break
+        if agent.end_training:
+          break
 
   return TR(agent.models, None)

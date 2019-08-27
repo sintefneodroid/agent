@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from neodroidagent.utilities.torch_utilities import to_tensor
+from draugr.torch_utilities import to_tensor
 
 __author__ = 'cnheider'
 

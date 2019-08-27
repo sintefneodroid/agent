@@ -3,9 +3,12 @@
 from pathlib import Path
 from typing import Union
 
-import draugr
+import torch
+
+from draugr.writers import TensorBoardPytorchWriter
+from neodroid.environments import NeodroidEnvironment, VectorEnvironment
 from neodroidagent.interfaces.specifications import TR
-from neodroid.environments import NeodroidEnvironment
+from neodroidagent.interfaces.torch_agent import TorchAgent
 
 __author__ = 'cnheider'
 __doc__ = ''
@@ -13,61 +16,45 @@ __doc__ = ''
 from tqdm import tqdm
 
 
-def step_wise_training(agent,
-                       environment: NeodroidEnvironment,
+def step_wise_training(agent: TorchAgent,
+                       environment: VectorEnvironment,
                        *,
-
-                       batch_length=100,
-                       num_updates=10,
-                       num_batches=9999,
+                       num_steps_per_btach: int = 256,
+                       num_updates: int = 10,
+                       num_batches: int = 9999,
                        log_directory: Union[str, Path],
-                       render_frequency=100,
-                       stat_frequency=10,
-
+                       render_frequency: int = 100,
+                       stat_frequency: int = 10,
                        **kwargs
                        ) -> TR:
-  B = range(1, num_updates + 1)
-  B = tqdm(B, f'Batch {0}, {num_batches}',
-           leave=False)
+  with torch.autograd.detect_anomaly():
+    with TensorBoardPytorchWriter(str(log_directory)) as metric_writer:
+      B = range(1, num_updates + 1)
+      B = tqdm(B, f'Batch {0}, {num_batches}',
+               leave=False)
 
-  initial_state = environment.reset()
-
-  with TensorBoardPytorchWriter(str(log_directory)) as metric_writer:
-    for batch_i in B:
-      if batch_i % stat_frequency == 0:
-        pass
-        # B.set_description(f'Batch {batch_i}, {num_batches} - Episode {agent._rollout_i}')
-
-      if render_frequency and batch_i % render_frequency == 0:
+      initial_state = environment.reset()
+      for batch_i in B:
         (transitions,
          accumulated_signal,
          terminated,
          initial_state) = agent.take_n_steps(initial_state,
                                              environment,
-                                             render=True,
-                                             n=batch_length
+                                             render=(True
+                                                     if (render_frequency and
+                                                         batch_i % render_frequency == 0)
+                                                     else False),
+                                             metric_writer=(metric_writer
+                                                            if (stat_frequency and
+                                                                batch_i % stat_frequency == 0)
+                                                            else
+                                                            None),
+                                             n=num_steps_per_btach
                                              )
-      else:
-        (transitions,
-         accumulated_signal,
-         terminated,
-         initial_state) = agent.take_n_steps(initial_state,
-                                             environment,
-                                             n=batch_length
-                                             )
 
-      if batch_i >= agent._initial_observation_period:
-        advantage_memories = agent.back_trace(transitions)
-        for m in advantage_memories:
-          agent._experience_buffer.add(m)
+        agent.update(transitions)
 
-        agent.update()
-        agent._experience_buffer.clear()
-
-        if agent._rollout_i % agent._update_target_interval == 0:
-          agent._update_targets()
-
-      if agent.end_training:
-        break
+        if agent.end_training:
+          break
 
   return TR(agent.models, [])

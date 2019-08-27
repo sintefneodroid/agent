@@ -143,3 +143,9 @@ For citation you may use the following bibtex entry:
 
 - [neo](https://github.com/sintefneodroid/neo)
 - [droid](https://github.com/sintefneodroid/droid)
+
+# Authors
+
+* **Christian Heider Nielsen** - [cnheider](https://github.com/cnheider)
+
+Here other [contributors](https://github.com/sintefneodroid/agent/contributors) to this project are listed.

@@ -1,4 +1,4 @@
-import numpy as np
+import numpy
 from gym.spaces import Discrete
 
 from samples.non_neodroidian_environments.constant_environment import NoRenderEnv
@@ -13,7 +13,7 @@ class FixedSequenceEnvironment(NoRenderEnv):
                ):
     self._episode_len = episode_length
 
-    self.np_random = np.random.RandomState()
+    self.np_random = numpy.random.RandomState()
     self.np_random.seed(seed)
     self.sequence = [self.np_random.randint(0, n_actions - 1) for _ in range(episode_length)]
 

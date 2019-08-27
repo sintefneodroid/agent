@@ -22,7 +22,7 @@ MEMORY = ReplayBuffer(REPLAY_MEMORY_SIZE)
 
 EXPLORATION_SPEC = ExplorationSpecification(0, 0, 0)
 
-AGENT_SPEC = GDCS(PGAgent, {})
+AGENT_SPEC = GDKC(PGAgent, {})
 
 BATCH_SIZE = 128
 DISCOUNT_FACTOR = 0.95

@@ -4,7 +4,7 @@ from torch.nn import MSELoss
 
 from neodroidagent.architectures.distributional.normal import MultiDimensionalNormalMLP
 from neodroidagent.architectures.experimental.merged import MergedInputMLP
-from .base_test_config import *
+from .base_continous_test_config import *
 
 __author__ = 'cnheider'
 '''
@@ -51,7 +51,7 @@ SURROGATE_CLIPPING_VALUE = 0.2  # initial probability ratio clipping range
 SURROGATE_CLIP_FUNC = lambda a:SURROGATE_CLIPPING_VALUE * (1. - a)  # clip range schedule function
 
 # Architecture
-ACTOR_ARCH_SPEC = GDCS(MultiDimensionalNormalMLP,
+ACTOR_ARCH_SPEC = GDKC(MultiDimensionalNormalMLP,
                        NOD(**{
                          'input_shape':            None,  # Obtain from environment
                          'hidden_layers':          None,
@@ -59,7 +59,7 @@ ACTOR_ARCH_SPEC = GDCS(MultiDimensionalNormalMLP,
                          'output_shape':           None,  # Obtain from environment
                          }))
 
-CRITIC_ARCH_SPEC = GDCS(MergedInputMLP,
+CRITIC_ARCH_SPEC = GDKC(MergedInputMLP,
                         NOD(**{
                           'input_shape':            None,  # Obtain from environment
                           'hidden_layers':          None,
@@ -67,11 +67,11 @@ CRITIC_ARCH_SPEC = GDCS(MergedInputMLP,
                           'output_shape':           None,  # Obtain from environment
                           }))
 
-ACTOR_OPTIMISER_SPEC = GDCS(constructor=torch.optim.Adam,
+ACTOR_OPTIMISER_SPEC = GDKC(constructor=torch.optim.Adam,
                             kwargs=NOD(lr=3e-4)
                             )
 
-CRITIC_OPTIMISER_SPEC = GDCS(constructor=torch.optim.Adam,
+CRITIC_OPTIMISER_SPEC = GDKC(constructor=torch.optim.Adam,
                              kwargs=NOD(lr=3e-3,
                                         weight_decay=3e-2),
                              )

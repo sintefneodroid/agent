@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-import numpy as np
+import numpy
 
 from neodroidagent.utilities.signal.experimental.discounting import valued_discount
 
@@ -8,11 +8,11 @@ __author__ = 'cnheider'
 __doc__ = ''
 
 
-def discounted_ge(signals: np.ndarray,
-                  values: np.ndarray,
-                  terminals: np.ndarray,
+def discounted_ge(signals: numpy.ndarray,
+                  values: numpy.ndarray,
+                  terminals: numpy.ndarray,
                   discount_factor: float,
-                  step_factor: float) -> np.ndarray:
+                  step_factor: float) -> numpy.ndarray:
   return discounted_gae(signals=signals,
                         values=values,
                         terminals=terminals,
@@ -21,11 +21,11 @@ def discounted_ge(signals: np.ndarray,
 
 
 def discounted_gae(*,
-                   signals: np.ndarray,
-                   values: np.ndarray,
-                   terminals: np.ndarray,
+                   signals: numpy.ndarray,
+                   values: numpy.ndarray,
+                   terminals: numpy.ndarray,
                    discount_factor: float,
-                   step_factor: float) -> np.ndarray:
+                   step_factor: float) -> numpy.ndarray:
   """
 
   :param terminals:
@@ -39,6 +39,6 @@ def discounted_gae(*,
 
   td_errors = signals + discount_factor * values[:, 1:] * (1. - terminals) - values[:, :-1]
   return valued_discount(td_errors,
-                         np.zeros_like(values[:, 0]),
+                         numpy.zeros_like(values[:, 0]),
                          terminals,
                          step_factor * discount_factor)

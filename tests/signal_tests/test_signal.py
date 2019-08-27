@@ -9,22 +9,22 @@ from warg.named_ordered_dictionary import NOD
 __author__ = 'cnheider'
 __doc__ = ''
 
-import numpy as np
+import numpy
 
 
 def sample_transitions():
-  signals = np.array([[1, 2, 3, 4, 5],
+  signals = numpy.array([[1, 2, 3, 4, 5],
                       [5, 4, 3, 2, 1]
                       ],
-                     np.float32)
-  terminal = np.array([[0, 0, 1, 0, 0],
+                     numpy.float32)
+  terminal = numpy.array([[0, 0, 1, 0, 0],
                        [0, 0, 0, 0, 0]
                        ],
-                      np.float32)
-  values = np.array([[-100, 10, 20, 30, 40, 50],
+                      numpy.float32)
+  values = numpy.array([[-100, 10, 20, 30, 40, 50],
                      [-150, 15, 25, 35, 45, 55]
                      ],
-                    np.float32)  # Future values
+                    numpy.float32)  # Future values
 
   return NOD.nod_of(signals, terminal, values)
 
@@ -44,7 +44,7 @@ def test_discounted_gae_returns(transitions):
   # when
   actual = discounted_gae(signals=s, values=v, terminals=t, discount_factor=d, step_factor=steps)
   # then
-  expected = np.array([
+  expected = numpy.array([
     [(s[0, 0] + d * v[0, 1] - v[0, 0]) + d * steps * (
         (s[0, 1] + d * v[0, 2] - v[0, 1]) + d * steps * (s[0, 2] - v[0, 2])
     ),
@@ -66,7 +66,7 @@ def test_discounted_gae_returns(transitions):
      (s[1, 4] + d * v[1, 5] - v[1, 4])
      ]
     ])
-  np.testing.assert_allclose(expected, actual)
+  numpy.testing.assert_allclose(expected, actual)
 
 
 def test_n_step_advantage_returns(transitions):
@@ -80,7 +80,7 @@ def test_n_step_advantage_returns(transitions):
   # when
   actual = discounted_nstep_adv(s, v, t, discount_factor=d, n=n_step)
   # then
-  expected = np.array([
+  expected = numpy.array([
     [s[0, 0] + d * (s[0, 1] + d * s[0, 2]) - v[0, 0],
      s[0, 1] + d * s[0, 2] - v[0, 1],
      s[0, 2] - v[0, 2],
@@ -94,7 +94,7 @@ def test_n_step_advantage_returns(transitions):
      s[1, 4] + d * v[1, 5] - v[1, 4]
      ]
     ])
-  np.testing.assert_allclose(actual, expected)
+  numpy.testing.assert_allclose(actual, expected)
 
 
 def test_n_step_returns(transitions):
@@ -108,7 +108,7 @@ def test_n_step_returns(transitions):
   # when
   actual = discounted_nstep(s, v, t, discount_factor=d, n=n_step)
   # then
-  expected = np.array([
+  expected = numpy.array([
     [s[0, 0] + d * (s[0, 1] + d * s[0, 2]),
      s[0, 1] + d * s[0, 2],
      s[0, 2],
@@ -122,7 +122,7 @@ def test_n_step_returns(transitions):
      s[1, 4] + d * v[1, 5]
      ]
     ])
-  np.testing.assert_allclose(actual, expected)
+  numpy.testing.assert_allclose(actual, expected)
 
 
 def test_ge_returns(transitions):
@@ -138,7 +138,7 @@ def test_ge_returns(transitions):
   # when
   actual = discounted_ge(s, v, t, d, steps)
   # then
-  expected = np.array([
+  expected = numpy.array([
     [(s[0, 0] + d * v[0, 1] - v[0, 0]) + d * steps * (
         (s[0, 1] + d * v[0, 2] - v[0, 1]) + d * steps * (s[0, 2] - v[0, 2])),
      (s[0, 1] + d * v[0, 2] - v[0, 1]) + d * steps * (s[0, 2] - v[0, 2]),
@@ -157,7 +157,7 @@ def test_ge_returns(transitions):
      (s[1, 4] + d * v[1, 5] - v[1, 4])
      ]
     ]) + v[:, :-1]
-  np.testing.assert_allclose(actual, expected, atol=1e-3)
+  numpy.testing.assert_allclose(actual, expected, atol=1e-3)
 
 
 if __name__ == '__main__':

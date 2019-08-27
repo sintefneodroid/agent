@@ -2,22 +2,21 @@
 # -*- coding: utf-8 -*-
 
 
-import numpy as np
+import numpy
 import torch
 import torch.nn.functional as F
 from tqdm import tqdm
 
+from draugr.torch_utilities.to_tensor import to_tensor
+from draugr.writers import MockWriter
+from draugr.writers.writer import Writer
 from neodroidagent.agents.model_free.hybrid.actor_critic_agent import ActorCriticAgent
 from neodroidagent.architectures import SingleHeadMLP
 from neodroidagent.architectures.experimental.merged import SingleHeadMergedInputMLP
-from neodroidagent.interfaces.specifications import ArchitectureSpecification, GDCS
 from neodroidagent.memory import TransitionBuffer
-from neodroidagent.training.agent_session_entry_point import agent_session_entry_point
-from neodroidagent.training.procedures import to_tensor, train_episodically
-from neodroidagent.training.sessions.parallel_training import parallelised_training
+
 from neodroidagent.utilities.exploration.sampling import OrnsteinUhlenbeckProcess
-from draugr.writers.writer import Writer
-from warg.named_ordered_dictionary import NOD
+from warg.gdkc import GDKC
 
 __author__ = 'cnheider'
 
@@ -50,31 +49,25 @@ class DDPGAgent(ActorCriticAgent):
 
   def __defaults__(self) -> None:
     # Adds noise for exploration
-    self._random_process_spec = GDCS(constructor=OrnsteinUhlenbeckProcess,
-                                     kwargs=dict(theta=0.15,
-                                                 sigma=1.))
+    self._random_process_spec = GDKC(constructor=OrnsteinUhlenbeckProcess,
+                                     theta=0.15,
+                                     sigma=1.)
 
     # self._memory = U.PrioritisedReplayMemory(config.REPLAY_MEMORY_SIZE)  # Cuda trouble
     self._memory_buffer = TransitionBuffer(1000000)
 
     self._evaluation_function = F.smooth_l1_loss
 
-    self._actor_arch_spec = ArchitectureSpecification(SingleHeadMLP,
-                                                      kwargs=NOD(
-                                                          {'input_shape':      None,
-                                                           # Obtain from environment
-                                                           'output_activation':torch.tanh,
-                                                           'output_shape':     None,
-                                                           # Obtain from environment
-                                                           })
-                                                      )
+    self._actor_arch_spec = GDKC(SingleHeadMLP,
+                                 input_shape=None,  # Obtain from environment
+                                 output_activation=torch.tanh,
+                                 output_shape=None
+                                 )
 
-    self._critic_arch_spec = ArchitectureSpecification(SingleHeadMergedInputMLP,
-                                                       kwargs=NOD(
-                                                           {'input_shape': None,  # Obtain from environment
-                                                            'output_shape':None,  # Obtain from environment
-                                                            })
-                                                       )
+    self._critic_arch_spec = GDKC(SingleHeadMergedInputMLP,
+                                  input_shape=None,  # Obtain from environment
+                                  output_shape=None  # Obtain from environment
+                                  )
 
     self._discount_factor = 0.95
 
@@ -166,7 +159,7 @@ class DDPGAgent(ActorCriticAgent):
                         source_model=self._actor,
                         target_update_tau=self._target_update_tau)
 
-  def update(self, *, metric_writer: Writer = None, **kwargs):
+  def _update(self, *, metric_writer: Writer = MockWriter(), **kwargs):
     '''
   Update the target networks
 
@@ -240,7 +233,9 @@ class DDPGAgent(ActorCriticAgent):
     action_out += noise * self._noise_factor
 
     if self._action_clipping:
-      action_out = np.clip(action_out, self._low_action_clip, self._high_action_clip)
+      action_out = numpy.clip(action_out,
+                              self._low_action_clip,
+                              self._high_action_clip)
 
     return action_out
 
@@ -257,6 +252,9 @@ class DDPGAgent(ActorCriticAgent):
 
 
 def ddpg_test(rollouts=None, skip=True):
+  from neodroidagent.training.procedures import train_episodically
+  from neodroidagent.training.agent_session_entry_point import agent_session_entry_point
+  from neodroidagent.training.sessions.parallel_training import parallelised_training
   import neodroidagent.configs.agent_test_configs.ddpg_test_config as C
   if rollouts:
     C.ROLLOUTS = rollouts
@@ -270,9 +268,13 @@ def ddpg_test(rollouts=None, skip=True):
 
 
 def ddpg_run(rollouts=None, skip=True):
+  from neodroidagent.training.procedures import train_episodically
+  from neodroidagent.training.agent_session_entry_point import agent_session_entry_point
+  from neodroidagent.training.sessions.parallel_training import parallelised_training
   import neodroidagent.configs.agent_test_configs.ddpg_test_config as C
   if rollouts:
     C.ROLLOUTS = rollouts
+  C.CONNECT_TO_RUNNING = True
 
   agent_session_entry_point(DDPGAgent,
                             C,

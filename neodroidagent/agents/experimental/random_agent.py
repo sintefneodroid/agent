@@ -1,82 +1,32 @@
-import time
 from itertools import count
-from typing import Any, Tuple
+from typing import Any
 
 from tqdm import tqdm
 
-import draugr
-from neodroidagent.interfaces.torch_agent import TorchAgent
+from neodroidagent.interfaces.agent import Agent
 
 
-class RandomAgent(TorchAgent):
+
+class RandomAgent(Agent):
 
   # region Private
 
   def __defaults__(self) -> None:
-    self._policy = None
+    pass
 
   # endregion
 
   # region Protected
 
-  def _build(self, env, **kwargs) -> None:
+  def __build__(self, env, **kwargs) -> None:
     pass
-
-  def _optimise_wrt(self, error, **kwargs) -> None:
-    pass
-
-  def _sample_model(self, state, **kwargs) -> Any:
-    pass
-
-  def _train_procedure(self,
-                       _environment,
-                       rollouts=2000,
-                       render=False,
-                       render_frequency=100,
-                       stat_frequency=10,
-                       **kwargs) -> Tuple[Any, Any]:
-    training_start_timestamp = time.time()
-    E = range(1, rollouts)
-    E = tqdm(E, f'Episode: {1}', leave=False, disable=not render)
-
-    stats = draugr.StatisticCollection(stats=('signal', 'duration'))
-
-    for episode_i in E:
-      initial_state = _environment.reset()
-
-      if episode_i % stat_frequency == 0:
-        draugr.terminal_plot_stats_shared_x(stats,
-                                            printer=E.write,
-                                            )
-
-        E.set_description(f'Epi: {episode_i}, Dur: {stats.duration.running_value[-1]:.1f}')
-
-      if render and episode_i % render_frequency == 0:
-        signal, dur, *extras = self.rollout(initial_state,
-                                            _environment,
-                                            render=render
-                                            )
-      else:
-        signal, dur, *extras = self.rollout(initial_state, _environment)
-
-      stats.duration.append(dur)
-      stats.signal.append(signal)
-
-      if self.end_training:
-        break
-
-    time_elapsed = time.time() - training_start_timestamp
-    end_message = f'Training done, time elapsed: {time_elapsed // 60:.0f}m {time_elapsed % 60:.0f}s'
-    print(f'\n{"-" * 9} {end_message} {"-" * 9}\n')
-
-    return self._policy, stats
 
   # endregion
 
   # region Public
 
   def sample(self, state, *args, **kwargs) -> Any:
-    return self._last_connected_environment.action_space._sample()
+    return self._last_connected_environment.action_space.sample()
 
   def update(self, *args, **kwargs) -> None:
     pass
@@ -124,14 +74,19 @@ class RandomAgent(TorchAgent):
 
 
 # region Test
-def random_test():
-  import neodroid.environments.wrappers.gym_wrapper as neo
-  env = neo.NeodroidGymEnvironment(environment_name='mab')
-  agent = RandomAgent(observation_space=env.observation_space,
-                      action_space=env.action_space,
-                      environment=env)
-  agent.build(env)
-  agent.train(env, env)
+def random_test(rollouts=None, skip=True):
+  from neodroidagent.training.agent_session_entry_point import agent_session_entry_point
+  from neodroidagent.training.sessions.parallel_training import parallelised_training
+  import neodroidagent.configs.agent_test_configs.dqn_test_config as C
+
+  if rollouts:
+    C.ROLLOUTS = rollouts
+
+  agent_session_entry_point(RandomAgent,
+                            C,
+                            parse_args=False,
+                            training_session=parallelised_training,
+                            skip_confirmation=skip)
 
 
 if __name__ == '__main__':

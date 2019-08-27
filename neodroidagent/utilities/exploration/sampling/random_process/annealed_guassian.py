@@ -10,7 +10,8 @@ class AnnealedGaussianProcess(RandomProcess):
   def sample(self, size):
     pass
 
-  def __init__(self, mean, sigma, sigma_min, n_steps_annealing):
+  def __init__(self, mean, sigma, sigma_min, n_steps_annealing,**kwargs):
+    super().__init__()
     self.mean = mean
     self.sigma = sigma
     self.n_steps = 0
@@ -35,4 +36,4 @@ class AnnealedGaussianProcess(RandomProcess):
 
 if __name__ == '__main__':
   agp = AnnealedGaussianProcess(0, 3, 2, 1000)
-  agp.sample()
+  agp.sample(1)

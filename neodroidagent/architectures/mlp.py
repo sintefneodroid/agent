@@ -6,8 +6,8 @@ from typing import Sequence
 import numpy
 from numpy import prod
 
+from draugr.torch_utilities import xavier_init, to_tensor
 from neodroidagent.interfaces.architecture import Architecture
-from neodroidagent.utilities import to_tensor, xavier_init
 from warg.named_ordered_dictionary import NOD
 
 __author__ = 'cnheider'
@@ -91,7 +91,10 @@ OOOO hidden_layer_size * (Weights,Biases)
     xavier_init(self)
 
   @staticmethod
-  def construct_progressive_hidden_layers(_input_shape, _output_shape, input_multiplier, output_multiplier):
+  def construct_progressive_hidden_layers(_input_shape,
+                                          _output_shape,
+                                          input_multiplier,
+                                          output_multiplier):
     h_1_size = int(sum(_input_shape) * input_multiplier)
     h_3_size = int(sum(_output_shape) * output_multiplier)
 

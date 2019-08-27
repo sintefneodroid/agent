@@ -4,7 +4,7 @@
 from typing import Any, Iterable, Union
 
 import numpy
-import numpy as np
+import numpy
 from numba import jit
 from scipy.signal import lfilter
 
@@ -13,9 +13,9 @@ __doc__ = ''
 
 
 @jit(nopython=True, nogil=True)
-def valued_discount(signal: np.ndarray,
-                    next_estimate: np.ndarray,
-                    terminal: np.ndarray,
+def valued_discount(signal: numpy.ndarray,
+                    next_estimate: numpy.ndarray,
+                    terminal: numpy.ndarray,
                     discounting_factor: float):
   r"""
   Calculates discounted signal according to equation:
@@ -43,7 +43,7 @@ def valued_discount(signal: np.ndarray,
   :return: array of shape ``N*T`` with discounted values for each step
   """
 
-  v: np.ndarray = next_estimate
+  v: numpy.ndarray = next_estimate
   discounted = numpy.zeros_like(signal)
   a = signal.shape[-1]
   for t in range(a - 1, -1, -1):

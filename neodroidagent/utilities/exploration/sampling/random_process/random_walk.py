@@ -9,10 +9,13 @@ import random
 
 class RandomWalk(RandomProcess):
 
+  def reset(self):
+    pass
+
   def __init__(self, options=[-1, +1]):
     self.options = options
 
-  def sample(self):
+  def sample(self,size=1):
     return random.choice(self.options)
 
 

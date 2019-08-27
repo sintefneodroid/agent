@@ -1,92 +1,99 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-from tqdm import tqdm
+from pathlib import Path
 
-import draugr
+import torch
+from tqdm import tqdm
+from typing import Union
+
+from draugr.torch_utilities.to_tensor import to_tensor
+from draugr.writers import TensorBoardPytorchWriter
 from neodroidagent.interfaces.specifications import TR
 from neodroidagent.interfaces.specifications.transitions import ValuedTransition
-from neodroidagent.utilities import to_tensor
-from neodroid.environments import NeodroidEnvironment
+from neodroid.environments import NeodroidEnvironment, VectorEnvironment
+from neodroidagent.interfaces.torch_agent import TorchAgent
 
 __author__ = 'cnheider'
 __doc__ = ''
 
 
-def batched_training(agent,
-                     environment: NeodroidEnvironment,
+def batched_training(agent:TorchAgent,
+                     environment: VectorEnvironment,
                      *,
-                     device,
-                     log_directory,
+                     device:Union[str,torch.device],
+                     log_directory:Path,
                      num_steps=200,
                      rollouts=10000,
                      stat_frequency=10,
                      render_frequency=100,
-                     disable_stdout=False,
+                     disable_stdout:bool=False,
                      **kwargs
                      ) -> TR:
-  with TensorBoardPytorchWriter(str(log_directory)) as metric_writer:
-    state = environment.reset()
+  with torch.autograd.detect_anomaly():
+    with TensorBoardPytorchWriter(str(log_directory)) as metric_writer:
+      state = environment.reset()
 
-    B = range(1, rollouts)
-    B = tqdm(B, leave=False, disable=disable_stdout)
-    for i in B:
-      if agent.end_training:
-        break
+      B = range(1, rollouts)
+      B = tqdm(B, leave=False, disable=disable_stdout)
+      for i in B:
+        if agent.end_training:
+          break
 
-      batch_signal = []
-      transitions = []
+        batch_signal = []
+        transitions = []
 
-      state = to_tensor(state, device=device)
-      successor_state = None
+        state = to_tensor(state, device=device)
+        successor_state = None
 
-      S = range(num_steps)
-      S = tqdm(S, leave=False, disable=disable_stdout)
-      for _ in S:
+        S = range(num_steps)
+        S = tqdm(S, leave=False, disable=disable_stdout)
+        for _ in S:
 
-        action, action_log_prob, value_estimate, *_ = agent.sample(state)
+          action, action_log_prob, value_estimate, *_ = agent.sample(state)
 
-        successor_state, signal, terminated, *_ = environment.step(action)
+          successor_state, signal, terminated, *_ = environment.react(action).to_gym_like_output()
 
-        if render_frequency and i % render_frequency == 0:
-          environment.render()
+          if render_frequency and i % render_frequency == 0:
+            environment.render()
 
-        batch_signal.append(signal)
+          batch_signal.append(signal)
 
-        successor_state = to_tensor(successor_state, device=device)
-        signal_ = to_tensor(signal, device=device)
-        terminated = to_tensor(terminated, device=device)
+          successor_state = to_tensor(successor_state, device=device)
+          signal_ = to_tensor(signal, device=device)
+          terminated = to_tensor(terminated, device=device)
 
-        transitions.append(ValuedTransition(state,
-                                            action,
-                                            signal_,
-                                            successor_state,
-                                            terminated,
-                                            value_estimate,
-                                            action_log_prob,
-                                            )
-                           )
+          transitions.append(ValuedTransition(state,
+                                              action,
+                                              signal_,
+                                              successor_state,
+                                              terminated,
+                                              value_estimate,
+                                              action_log_prob,
+                                              )
+                             )
 
-        state = successor_state
+          state = successor_state
 
-        # if i % test_interval == 0:
-        # test_signal, *_ = agent.rollout(successor_state, environment, render=True)
+          # if i % test_interval == 0:
+          # test_signal, *_ = agent.rollout(successor_state, environment, render=True)
 
-        # if test_signal > agent._solved_threshold and agent._early_stop:
-        #  agent.end_training = True
+          # if test_signal > agent._solved_threshold and agent._early_stop:
+          #  agent.end_training = True
 
-        # stats.batch_signal.append(batch_signal)
+          # stats.batch_signal.append(batch_signal)
 
-        if stat_frequency and i % stat_frequency == 0:
-          metric_writer.scalar('Batch signal', sum(batch_signal))
+          if stat_frequency and i % stat_frequency == 0:
+            metric_writer.scalar('Batch signal', sum(batch_signal))
 
-      # only calculate value of next state for the last step this time
-      *_, agent._last_value_estimate, _ = agent._sample_model(successor_state)
+        # only calculate value of next state for the last step this time
+        *_, agent._last_value_estimate, _ = agent.sample(successor_state,
+                                                         no_random=True)
 
-      batch = ValuedTransition(*zip(*transitions))
+        batch = ValuedTransition(*zip(*transitions))
 
-      if len(batch) > 100:
-        agent.transitions = batch
-        agent.update()
+        if len(batch) > 100:
+          agent.transitions = batch
+          agent.update()
 
   return TR(agent.models, None)
 

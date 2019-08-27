@@ -5,7 +5,7 @@ from .annealed_guassian import AnnealedGaussianProcess
 __author__ = 'cnheider'
 
 # Based on http://math.stackexchange.com/questions/1287634/implementing-ornstein-uhlenbeck-in-matlab
-import numpy as np
+import numpy
 
 
 class OrnsteinUhlenbeckProcess(AnnealedGaussianProcess):
@@ -19,11 +19,13 @@ class OrnsteinUhlenbeckProcess(AnnealedGaussianProcess):
                x_0=None,
                sigma_min: float = None,
                n_steps_annealing: int = 1000,
+               **kwargs
                ):
     super().__init__(mean=mean,
                      sigma=sigma,
                      sigma_min=sigma_min,
-                     n_steps_annealing=n_steps_annealing
+                     n_steps_annealing=n_steps_annealing,
+                     **kwargs
                      )
     self.theta = theta
     self.mean = mean
@@ -33,14 +35,14 @@ class OrnsteinUhlenbeckProcess(AnnealedGaussianProcess):
 
   def sample(self, size):
     x = (self.x_prev + self.theta * (self.mean - self.x_prev) * self.dt
-         + self.current_sigma * np.sqrt(self.dt) * np.random.normal(size=size))
+         + self.current_sigma * numpy.sqrt(self.dt) * numpy.random.normal(size=size))
     self.x_prev = x
     self.n_steps += 1
     return x
 
   def reset(self):
     super().reset()
-    self.x_prev = self.x_0 if self.x_0 is not None else np.zeros_like(self.x_0)
+    self.x_prev = self.x_0 if self.x_0 is not None else numpy.zeros_like(self.x_0)
 
 
 if __name__ == '__main__':

@@ -4,17 +4,18 @@ from typing import Any
 
 import numpy
 from torch import nn
+from torch.utils.data import DataLoader
 
-from neodroid.interfaces.specifications import EnvironmentSnapshot
-from neodroidagent.interfaces.specifications import AdvantageDiscountedTransition, ValuedTransition
-from neodroidagent.training.agent_session_entry_point import agent_session_entry_point
-from neodroidagent.training.procedures import  step_wise_training, to_tensor
-from neodroidagent.training.sessions.parallel_training import parallelised_training
-from neodroidagent.utilities.signal.advantage_estimation import torch_compute_gae
-from neodroidagent.utilities.signal.experimental.discounting import discount_signal
+from draugr.torch_utilities.to_tensor import to_tensor
+from draugr.writers import MockWriter
 from draugr.writers.writer import Writer
 from neodroid.environments.vector_environment import VectorEnvironment
-from .actor_critic_agent import ActorCriticAgent
+from neodroid.interfaces.specifications import EnvironmentSnapshot
+from neodroidagent.interfaces.specifications import AdvantageDiscountedTransition, ValuedTransition
+from neodroidagent.utilities.signal.advantage_estimation import torch_compute_gae
+from neodroidagent.utilities.signal.experimental.discounting import discount_signal
+from neodroidagent.utilities.training.mini_batch_iter import mini_batch_iter, AdvDisDataset
+from neodroidagent.agents.model_free.hybrid.actor_critic_agent import ActorCriticAgent
 
 __author__ = 'cnheider'
 
@@ -33,28 +34,25 @@ class PPOAgent(ActorCriticAgent):
   # region Private
 
   def __defaults__(self) -> None:
-    self._steps = 10
 
     self._discount_factor = 0.95
-    self._gae_tau = 0.95
+    self._gae_tau = 0.15
     # self._reached_horizon_penalty = -10.
 
-    self._actor_lr = 3e-4
-    self._critic_lr = 3e-3
-    self._entropy_reg_coef = 3e-3
+    self._actor_lr = 4e-4
+    self._critic_lr = 4e-4
+    self._entropy_reg_coef = 1e-2
     self._value_reg_coef = 5e-1
-    self._batch_size = 64
-    self._mini_batch_size = 10
-    self._initial_observation_period = 0
+    self._mini_batches = 32
     self._target_update_tau = 1.0
     self._update_target_interval = 1000
-    self._max_grad_norm = None
+    self._max_grad_norm = 0.5
     self._solved_threshold = -200
     self._test_interval = 1000
     self._early_stop = False
     self._rollouts = 10000
-
-    self._ppo_epochs = 4
+    self._surrogate_clipping_value = 3e-1
+    self._ppo_optimisation_epochs = 6
 
     self._state_type = torch.float
     self._value_type = torch.float
@@ -66,8 +64,6 @@ class PPOAgent(ActorCriticAgent):
     self._exploration_epsilon_decay = 10000
 
     self._use_cuda = False
-
-    self._surrogate_clipping_value = 0.2
 
     (self._actor,
      self._target_actor,
@@ -109,14 +105,16 @@ class PPOAgent(ActorCriticAgent):
       :rtype:
     '''
 
-    model_input = to_tensor(state, device=self._device, dtype=self._state_type)
+    model_input = to_tensor(state,
+                            device=self._device,
+                            dtype=self._state_type)
 
-    distribution = self._actor(model_input)[0]
+    distribution = self._actor(model_input)
 
     with torch.no_grad():
       action = distribution.sample()
 
-    value_estimate = self._critic(model_input, action)[0]
+    value_estimate = self._critic(model_input, action)
 
     action_log_prob = distribution.log_prob(action)
 
@@ -124,29 +122,6 @@ class PPOAgent(ActorCriticAgent):
             action_log_prob,
             value_estimate,
             distribution)
-
-  def _ppo_updates(self,
-                   batch,
-                   mini_batches=16
-                   ):
-    batch_size = len(batch) // mini_batches
-    mini_batch_generator = self._ppo_mini_batch_iter(batch_size, batch)
-    for i in range(self._ppo_epochs):
-      for mini_batch in mini_batch_generator:
-        mini_batch_adv = self.back_trace_advantages(mini_batch)
-        loss, new_log_probs, old_log_probs = self.evaluate(mini_batch_adv)
-
-        self._optimise(loss)
-
-  @staticmethod
-  def _ppo_mini_batch_iter(mini_batch_size: int,
-                           batch: ValuedTransition) -> iter:
-
-    batch_size = len(batch)
-    for _ in range(batch_size // mini_batch_size):
-      rand_ids = numpy.random.randint(0, batch_size, mini_batch_size)
-      a = batch[:, rand_ids]
-      yield ValuedTransition(*a)
 
   def _update_targets(self) -> None:
     self._update_target(target_model=self._target_actor,
@@ -156,6 +131,25 @@ class PPOAgent(ActorCriticAgent):
     self._update_target(target_model=self._target_critic,
                         source_model=self._critic,
                         target_update_tau=self._target_update_tau)
+
+  def _update(self,
+             transitions,
+             *args,
+             metric_writer: Writer = MockWriter(),
+             **kwargs) -> None:
+
+    adv_trans = self.back_trace_advantages(transitions)
+    dataset = AdvDisDataset(adv_trans)
+    loader = DataLoader(dataset,
+                        batch_size=len(dataset) // self._mini_batches,
+                        shuffle=True)
+    for i in range(self._ppo_optimisation_epochs):
+      for mini_batch in loader:
+        loss, new_log_probs, old_log_probs = self.evaluate(mini_batch)
+        self._optimise(loss)
+
+    if self._update_i % self._update_target_interval == 0:
+      self._update_targets()
 
   # endregion
 
@@ -169,28 +163,29 @@ class PPOAgent(ActorCriticAgent):
                    train: bool = False,
                    render: bool = False,
                    **kwargs) -> Any:
-    state = initial_state
+    state = initial_state.observables
 
     accumulated_signal = 0
 
     transitions = []
     terminated = False
     T = tqdm(range(1, n + 1),
-             f'Step #{self._step_i} - {0}/{n}',
+             f'Step #{self._sample_i} - {0}/{n}',
              leave=False,
              disable=not render)
     for t in T:
       # T.set_description(f'Step #{self._step_i} - {t}/{n}')
-      self._step_i += 1
+      self._sample_i += 1
       action, action_prob, value_estimates, *_ = self.sample(state)
 
-      next_state, signal, terminated, _ = environment.react(action)
+      next_state, signal, terminated, _ = environment.react(action).to_gym_like_output()
 
       if render:
         environment.render()
 
       successor_state = None
-      if not terminated:  # If environment terminated then there is no successor state
+      if numpy.array(terminated).all():  # If environment terminated then there is no successor state
+        #TODO: support individual reset of environments vector
         successor_state = next_state
 
       transitions.append(ValuedTransition(state,
@@ -207,10 +202,9 @@ class PPOAgent(ActorCriticAgent):
 
       accumulated_signal += signal
 
-      if terminated:
+      if numpy.array(terminated).all():
+        # TODO: support individual reset of environments vector
         state = environment.reset()
-
-    self.transitions = transitions
 
     return transitions, accumulated_signal, terminated, state
 
@@ -288,18 +282,16 @@ class PPOAgent(ActorCriticAgent):
 
     return collective_cost, policy_loss, value_error,
 
-  def update(self, *, metric_writer: Writer = None, **kwargs) -> None:
 
-    self._ppo_updates(self.transitions)
-
-    if self._step_i % self._update_target_interval == 0:
-      self._update_targets()
 
   # endregion
 
 
 # region Test
 def ppo_test(rollouts=None, skip: bool = True):
+  from neodroidagent.training.agent_session_entry_point import agent_session_entry_point
+  from neodroidagent.training.procedures import step_wise_training
+  from neodroidagent.training.sessions.parallel_training import parallelised_training
   import neodroidagent.configs.agent_test_configs.ppo_test_config as C
 
   if rollouts:
@@ -314,10 +306,15 @@ def ppo_test(rollouts=None, skip: bool = True):
 
 
 def ppo_run(rollouts=None, skip: bool = True):
+  from neodroidagent.training.agent_session_entry_point import agent_session_entry_point
+  from neodroidagent.training.procedures import step_wise_training
+  from neodroidagent.training.sessions.parallel_training import parallelised_training
   import neodroidagent.configs.agent_test_configs.ppo_test_config as C
 
   if rollouts:
     C.ROLLOUTS = rollouts
+
+  C.CONNECT_TO_RUNNING = True
 
   agent_session_entry_point(PPOAgent,
                             C,
@@ -328,7 +325,7 @@ def ppo_run(rollouts=None, skip: bool = True):
 
 
 if __name__ == '__main__':
-  # ppo_test()
-  ppo_run()
+   ppo_test()
+  #ppo_run()
 
 # endregion

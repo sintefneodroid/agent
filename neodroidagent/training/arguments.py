@@ -7,11 +7,11 @@ __doc__ = ''
 
 import argparse
 
-import draugr
 from warg.arguments import add_bool_arg
 
 
-def parse_arguments(agent_description, default_config: NOD) -> NOD:
+def parse_arguments(agent_description,
+                    default_config: NOD) -> NOD:
   parser = argparse.ArgumentParser(description=agent_description)
   parser.add_argument("--ENVIRONMENT_NAME",
                       "-E",
@@ -33,14 +33,12 @@ def parse_arguments(agent_description, default_config: NOD) -> NOD:
                default=default_config.RENDER_ENVIRONMENT,
                help="Rendering of the environment",
                )
-
   add_bool_arg(parser,
                "inference",
                dest="INFERENCE",
                default=False,
                help="Should be an inference session",
                )
-
   parser.add_argument("--NUM_WORKERS",
                       "-N",
                       type=int,

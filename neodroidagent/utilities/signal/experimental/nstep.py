@@ -4,16 +4,16 @@
 __author__ = 'cnheider'
 __doc__ = ''
 
-import numpy as np
+import numpy
 
 from neodroidagent.utilities.signal.experimental.discounting import valued_discount
 
 
-def discounted_nstep(signals: np.ndarray,
-                     values: np.ndarray,
-                     terminals: np.ndarray,
+def discounted_nstep(signals: numpy.ndarray,
+                     values: numpy.ndarray,
+                     terminals: numpy.ndarray,
                      discount_factor,
-                     n) -> np.ndarray:
+                     n) -> numpy.ndarray:
   r"""
   Implementation of n-step reward given by the equation:
 
@@ -28,7 +28,7 @@ def discounted_nstep(signals: np.ndarray,
   if n is None:
     return valued_discount(signals, values[:, -1], terminals, discount_factor)
 
-  discounted = np.zeros_like(signals)
+  discounted = numpy.zeros_like(signals)
 
   for start in range(signals.shape[1]):
     end = min(start + n, signals.shape[1])
@@ -39,11 +39,11 @@ def discounted_nstep(signals: np.ndarray,
   return discounted
 
 
-def discounted_nstep_adv(signals: np.ndarray,
-                         values: np.ndarray,
-                         terminals: np.ndarray,
+def discounted_nstep_adv(signals: numpy.ndarray,
+                         values: numpy.ndarray,
+                         terminals: numpy.ndarray,
                          discount_factor,
-                         n=None) -> np.ndarray:
+                         n=None) -> numpy.ndarray:
   r"""
   Implementation of n-step advantage given by the equation:
 

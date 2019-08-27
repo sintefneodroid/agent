@@ -4,7 +4,7 @@ from typing import Any, Tuple
 from tqdm import tqdm
 
 import draugr
-from neodroidagent.agents.experimental.evo_agent import EVOAgent
+from neodroidagent.agents.model_free.on_policy.evolutionary import EVOAgent
 from neodroidagent.training.agent_session_entry_point import agent_session_entry_point
 
 
@@ -19,7 +19,7 @@ class CMAAgent(EVOAgent):
 
   # region Protected
 
-  def _build(self, env, **kwargs) -> None:
+  def __build__(self, env, **kwargs) -> None:
     pass
 
   def _optimise_wrt(self, error, **kwargs) -> None:
@@ -76,7 +76,7 @@ class CMAAgent(EVOAgent):
   # region Public
 
   def sample(self, state, *args, **kwargs) -> Any:
-    return self._last_connected_environment.action_space._sample()
+    return self._last_connected_environment.action_space.sample()
 
   def update(self, *args, **kwargs) -> None:
     pass

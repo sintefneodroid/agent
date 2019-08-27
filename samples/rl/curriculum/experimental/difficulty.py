@@ -2,13 +2,13 @@
 # -*- coding: utf-8 -*-
 __author__ = 'cnheider'
 
-import numpy as np
+import numpy
 
 import neodroid
 
 
 def calculate_difficulty(current_difficulty, signal, steps_taken, configuration):
-  # current_difficulty = np.random.normal(0,0.2,size=3) + current_difficulty
+  # current_difficulty = numpy.random.normal(0,0.2,size=3) + current_difficulty
 
   if signal < -.6:
     return current_difficulty  # * 0.8
@@ -19,7 +19,7 @@ def calculate_difficulty(current_difficulty, signal, steps_taken, configuration)
 
 
 def sample_configuration2(current_difficulty, info):
-  perturbation = np.random.normal(0, 0.2, size=3) * current_difficulty
+  perturbation = numpy.random.normal(0, 0.2, size=3) * current_difficulty
   goal_pos = info.get_observer(b'GoalObserver').get_position()
 
   b = [
@@ -46,13 +46,13 @@ def sample_configuration2(current_difficulty, info):
 
 
 def sample_configuration(current_difficulty, info):
-  perturbation = np.random.normal(0, 0.2, size=3) * current_difficulty
+  perturbation = numpy.random.normal(0, 0.2, size=3) * current_difficulty
   x, y, z = info.get_observer(b'GoalObserver').get_position()
 
   b = [
-    neodroid.Configuration('GoalTransformX', np.round(x + perturbation[0])),
-    neodroid.Configuration('GoalTransformY', np.round(y + perturbation[1])),
-    neodroid.Configuration('GoalTransformZ', np.round(z + perturbation[2])),
+    neodroid.Configuration('GoalTransformX', numpy.round(x + perturbation[0])),
+    neodroid.Configuration('GoalTransformY', numpy.round(y + perturbation[1])),
+    neodroid.Configuration('GoalTransformZ', numpy.round(z + perturbation[2])),
     ]
 
   return b
@@ -60,9 +60,9 @@ def sample_configuration(current_difficulty, info):
 
 def color_sample(identifier):
   return [
-    neodroid.Configuration(identifier + 'ColorConfigurableR', np.random.sample()),
-    neodroid.Configuration(identifier + 'ColorConfigurableG', np.random.sample()),
-    neodroid.Configuration(identifier + 'ColorConfigurableB', np.random.sample())
+    neodroid.Configuration(identifier + 'ColorConfigurableR', numpy.random.sample()),
+    neodroid.Configuration(identifier + 'ColorConfigurableG', numpy.random.sample()),
+    neodroid.Configuration(identifier + 'ColorConfigurableB', numpy.random.sample())
     # neodroid.Configuration(id+'ColorConfigurableA',
-    #                       np.random.sample()),
+    #                       numpy.random.sample()),
     ]

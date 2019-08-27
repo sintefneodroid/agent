@@ -1,21 +1,17 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 import time
-from collections import Iterable
 from typing import Type
 
-from warg.named_ordered_dictionary import NOD
-
-import draugr
-from neodroidagent import PROJECT_APP_PATH, utilities as U
-from neodroidagent.interfaces.agent import Agent
-from neodroidagent.interfaces.specifications import TrainingSession
-from neodroidagent.training.procedures import train_episodically
-from neodroidagent.utilities import save_model
 from draugr.stopping.stopping_key import add_early_stopping_key_combination
-from neodroid.wrappers import NeodroidGymWrapper
+from draugr.torch_utilities import set_seeds
 from neodroid.environments.vector_environment import VectorEnvironment
+from neodroid.wrappers import NeodroidGymWrapper
+from neodroidagent import PROJECT_APP_PATH
+from neodroidagent.interfaces.specifications import TrainingSession
+from neodroidagent.training.procedures import TorchAgent, train_episodically
 from trolls.multiple_environments_wrapper import SubProcessEnvironments, make_gym_env
+from warg.named_ordered_dictionary import NOD
 
 __author__ = 'cnheider'
 __doc__ = ''
@@ -34,26 +30,25 @@ class parallelised_training(TrainingSession):
     self.auto_reset_on_terminal = auto_reset_on_terminal_state
 
   def __call__(self,
-               agent_type: Type[Agent],
+               agent_type: Type[TorchAgent],
                *,
-               save=True,
-               has_x_server=False,
+               save: bool = True,
+               has_x_server: bool = False,
                **kwargs):
 
     kwargs = NOD(**kwargs)
 
-    if not self.environments:
-      if '-v' in kwargs.environment_name:
+    if not self.environments and '-v' in kwargs.environment_name and not kwargs.connect_to_running:
+      assert self.default_num_train_envs > 0
+      self.environments = [make_gym_env(kwargs.environment_name) for _ in
+                           range(self.default_num_train_envs)]
+      self.environments = NeodroidGymWrapper(
+          SubProcessEnvironments(self.environments,
+                                 auto_reset_on_terminal=self.auto_reset_on_terminal))
 
-        if self.default_num_train_envs > 0:
-          self.environments = [make_gym_env(kwargs.environment_name) for _ in
-                               range(self.default_num_train_envs)]
-          self.environments = NeodroidGymWrapper(SubProcessEnvironments(self.environments,
-                                                                        auto_reset_on_terminal=self.auto_reset_on_terminal))
-
-      else:
-        self.environments = VectorEnvironment(name=kwargs.environment_name,
-                                              connect_to_running=kwargs.connect_to_running)
+    else:
+      self.environments = VectorEnvironment(name=kwargs.environment_name,
+                                            connect_to_running=kwargs.connect_to_running)
 
     agent_class_name = agent_type.__name__
     model_directory = (PROJECT_APP_PATH.user_data / kwargs.environment_name /
@@ -67,13 +62,14 @@ class parallelised_training(TrainingSession):
     kwargs.config_directory = config_directory
     kwargs.model_directory = model_directory
 
-    U.set_seeds(kwargs.seed)
+    set_seeds(kwargs.seed)
     self.environments.seed(kwargs.seed)
 
     agent = agent_type(**kwargs)
     agent.build(self.environments)
 
-    listener = add_early_stopping_key_combination(agent.stop_training, has_x_server=has_x_server)
+    listener = add_early_stopping_key_combination(agent.stop_training,
+                                                  has_x_server=has_x_server)
 
     training_start_timestamp = time.time()
 
@@ -85,32 +81,28 @@ class parallelised_training(TrainingSession):
                                                  self.environments,
                                                  **kwargs)
     except KeyboardInterrupt:
-      for identifier, model in enumerate(agent.models):
-        save_model(model, name=f'{agent}-{identifier}-interrupted', **kwargs)
-      exit()
+      pass
     finally:
       if listener:
         listener.stop()
 
     time_elapsed = time.time() - training_start_timestamp
     end_message = f'Training done, time elapsed: {time_elapsed // 60:.0f}m {time_elapsed % 60:.0f}s'
-    print(f'\n{"-" * 9} {end_message} {"-" * 9}\n')
+    line_width = 9
+    print(f'\n{"-" * line_width} {end_message} {"-" * line_width}\n')
 
-    if save and training_resume:
-      if isinstance(training_resume.models, Iterable):
-        for identifier, model in enumerate(training_resume.models):
-          save_model(model, name=f'{agent}-{identifier}', **kwargs)
-      else:
-        save_model(training_resume.models,
+    if save:
+      agent.save(kwargs.model_directory, **kwargs)
+    if training_resume and 'stats' in training_resume:
+      training_resume.stats.save(project_name=kwargs.project,
+                                 config_name=kwargs.config_name,
+                                 directory=kwargs.log_directory)
 
-                   name=f'{agent}-0', **kwargs)
-
-        if 'stats' in training_resume:
-          training_resume.stats.save(project_name=kwargs.project,
-                                     config_name=kwargs.config_name,
-                                     directory=kwargs.log_directory)
-
-    self.environments.close()
+    try:
+      self.environments.close()
+    except BrokenPipeError:
+      pass
+    exit()
 
 
 if __name__ == '__main__':
@@ -121,4 +113,6 @@ if __name__ == '__main__':
                           connect_to_running=C.CONNECT_TO_RUNNING)
   env.seed(C.SEED)
 
-  parallelised_training(training_procedure=train_episodically)(agent_type=PGAgent, config=C, environment=env)
+  parallelised_training(training_procedure=train_episodically)(agent_type=PGAgent,
+                                                               config=C,
+                                                               environment=env)
