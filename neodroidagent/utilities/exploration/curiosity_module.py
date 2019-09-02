@@ -4,7 +4,7 @@ from abc import ABCMeta
 
 from torch import nn
 
-__author__ = 'cnheider'
+__author__ = 'Christian Heider Nielsen'
 __doc__ = r'''
 '''
 

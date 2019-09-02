@@ -5,7 +5,7 @@ from collections import namedtuple
 
 from typing import Callable
 
-__author__ = 'cnheider'
+__author__ = 'Christian Heider Nielsen'
 __doc__ = ''
 
 # class LearningConfig(object):

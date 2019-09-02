@@ -4,7 +4,7 @@ from neodroidagent.architectures import CNN
 from neodroidagent.configs.agent_test_configs.base_dicrete_test_config import *
 from neodroidagent.utilities import ReplayBuffer
 
-__author__ = 'cnheider'
+__author__ = 'Christian Heider Nielsen'
 '''
 Description: Config for training
 Author: Christian Heider Nielsen

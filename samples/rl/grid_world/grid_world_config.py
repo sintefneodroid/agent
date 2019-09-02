@@ -4,7 +4,7 @@ from neodroidagent.agents.model_free.policy_optimisation.pg_agent import PGAgent
 from neodroidagent.architectures import MLP
 from neodroidagent.memory import ReplayBuffer
 
-__author__ = 'cnheider'
+__author__ = 'Christian Heider Nielsen'
 '''
 Description: Config for training
 Author: Christian Heider Nielsen

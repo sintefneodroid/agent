@@ -10,11 +10,12 @@ from draugr.visualisation import sprint
 from draugr.writers import MockWriter
 from draugr.writers.writer import Writer
 from neodroid.environments.environment import Environment
-from neodroid.interfaces.specifications import EnvironmentSnapshot
+from neodroid.interfaces import ActionSpace, ObservationSpace, SignalSpace
+from neodroid.interfaces.unity_specifications import EnvironmentSnapshot
 
 tqdm.monitor_interval = 0
 
-__author__ = 'cnheider'
+__author__ = 'Christian Heider Nielsen'
 
 from abc import ABC, abstractmethod
 
@@ -29,15 +30,16 @@ All agent should inherit from this class
   # region Private
 
   def __init__(self,
+               input_shape=None,
+               output_shape=None,
+               divide_by_zero_safety=1e-10,
                **kwargs):
-    self._input_shape = None
-    self._output_shape = None
+    self._input_shape = input_shape
+    self._output_shape = output_shape
     self._sample_i = 0
     self._update_i = 0
 
-    self._divide_by_zero_safety = 1e-10
-
-    self.__defaults__()
+    self._divide_by_zero_safety = divide_by_zero_safety
 
     self.__set_protected_attr(**kwargs)
 
@@ -64,7 +66,9 @@ Tries to infer input and output size from env if either _input_shape or _output_
     if self._output_shape is None or self._output_shape == -1:
       self._output_shape = env.action_space.shape
 
-    self._post_io_inference(env)
+    self._post_io_inference(env.observation_space,
+                            env.action_space,
+                            env.signal_space)
 
     # region print
 
@@ -145,7 +149,7 @@ Tries to infer input and output size from env if either _input_shape or _output_
                    train: bool = False,
                    render: bool = False,
                    **kwargs) -> Any:
-    state = initial_state
+    state = initial_state.observables
 
     accumulated_signal = 0
 
@@ -159,14 +163,24 @@ Tries to infer input and output size from env if either _input_shape or _output_
       self._sample_i += 1
       action, *_ = self.sample(state)
 
-      next_state, signal, terminated, _ = environment.react(action)
+      snapshot = environment.react(action)
 
-      state = next_state
+
+      (successor_state, signal, terminated) = (snapshot.observables,
+                                               snapshot.signal,
+                                               snapshot.terminated)
+
+      transitions.append((state,successor_state,signal,terminated))
+
+      state = successor_state
 
       accumulated_signal += signal
 
       if terminated:
-        state = environment.reset()
+        snapshot = environment.reset()
+        (state, signal, terminated) = (snapshot.observables,
+                                       snapshot.signal,
+                                       snapshot.terminated)
 
     return transitions, accumulated_signal, terminated, state
 
@@ -177,7 +191,10 @@ Tries to infer input and output size from env if either _input_shape or _output_
             env: Environment,
             **kwargs) -> None:
     self.__infer_io_shapes(env)
-    self.__build__(env, **kwargs)
+    self.__build__(env.observation_space,
+                   env.action_space,
+                   env.signal_space,
+                   **kwargs)
 
   @property
   def input_shape(self):
@@ -197,14 +214,12 @@ Tries to infer input and output size from env if either _input_shape or _output_
                    output_shape: Tuple[int]):
     self._output_shape = output_shape
 
-
-
   def sample(self,
-              state: EnvironmentSnapshot,
-              *args,
-              no_random: bool = False,
-              metric_writer: Writer = MockWriter(),
-              **kwargs) -> Any:
+             state: EnvironmentSnapshot,
+             *args,
+             no_random: bool = False,
+             metric_writer: Writer = MockWriter(),
+             **kwargs) -> Any:
     self._sample_i += 1
     return self._sample(state,
                         *args,
@@ -212,20 +227,21 @@ Tries to infer input and output size from env if either _input_shape or _output_
                         metric_writer=metric_writer,
                         **kwargs)
 
-
-
   def update(self,
-              *args,
-              metric_writer: Writer = MockWriter(),
-              **kwargs) -> None:
+             *args,
+             metric_writer: Writer = MockWriter(),
+             **kwargs) -> None:
     self._update_i += 1
-    return self._update(*args, metric_writer=metric_writer,**kwargs)
+    return self._update(*args, metric_writer=metric_writer, **kwargs)
 
   # endregion
 
   # region Protected
 
-  def _post_io_inference(self, env) -> None:
+  def _post_io_inference(self,
+                         observation_space: ObservationSpace,
+                         action_space: ActionSpace,
+                         signal_space: SignalSpace) -> None:
     pass
 
   # endregion
@@ -233,12 +249,10 @@ Tries to infer input and output size from env if either _input_shape or _output_
   # region Abstract
 
   @abstractmethod
-  def __defaults__(self) -> None:
-    raise NotImplementedError
-
-  @abstractmethod
   def __build__(self,
-                env,
+                observation_space: ObservationSpace,
+                action_space: ActionSpace,
+                signal_space: SignalSpace,
                 **kwargs) -> None:
     raise NotImplementedError
 
@@ -252,18 +266,18 @@ Tries to infer input and output size from env if either _input_shape or _output_
 
   @abstractmethod
   def _sample(self,
-             state: EnvironmentSnapshot,
-             *args,
-             no_random: bool = False,
-             metric_writer: Writer = MockWriter(),
-             **kwargs) -> Any:
+              state: EnvironmentSnapshot,
+              *args,
+              no_random: bool = False,
+              metric_writer: Writer = MockWriter(),
+              **kwargs) -> Any:
     raise NotImplementedError
 
   @abstractmethod
   def _update(self,
-             *args,
-             metric_writer: Writer = MockWriter(),
-             **kwargs) -> None:
+              *args,
+              metric_writer: Writer = MockWriter(),
+              **kwargs) -> None:
     raise NotImplementedError
 
   # endregion

@@ -13,7 +13,7 @@ from draugr.torch_utilities import fan_in_init
 from draugr.torch_utilities.to_tensor import to_tensor
 from neodroidagent.architectures import MLP, Sequence
 
-__author__ = 'cnheider'
+__author__ = 'Christian Heider Nielsen'
 __doc__ = ''
 
 

@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 from .random_process import RandomProcess
 
-__author__ = 'cnheider'
+__author__ = 'Christian Heider Nielsen'
 
 from math import sqrt
 

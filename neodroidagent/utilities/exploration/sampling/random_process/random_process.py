@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 from abc import ABC
 
-__author__ = 'cnheider'
+__author__ = 'Christian Heider Nielsen'
 
 
 class RandomProcess(ABC):

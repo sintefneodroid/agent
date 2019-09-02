@@ -10,7 +10,7 @@ from neodroidagent.training.agent_session_entry_point import agent_session_entry
 from neodroidagent.training.procedures import Agent, train_episodically
 from neodroidagent.training.sessions.parallel_training import parallelised_training
 
-__author__ = 'cnheider'
+__author__ = 'Christian Heider Nielsen'
 
 tqdm.monitor_interval = 0
 

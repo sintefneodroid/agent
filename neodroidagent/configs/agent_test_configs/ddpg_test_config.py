@@ -6,7 +6,7 @@ from neodroidagent.memory import TransitionBuffer
 from neodroidagent.utilities.exploration import OrnsteinUhlenbeckProcess
 from .base_continous_test_config import *
 
-__author__ = 'cnheider'
+__author__ = 'Christian Heider Nielsen'
 '''
 Description: Config for training
 Author: Christian Heider Nielsen

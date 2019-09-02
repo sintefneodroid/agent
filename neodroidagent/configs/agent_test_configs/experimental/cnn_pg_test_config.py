@@ -4,7 +4,7 @@ from neodroidagent.architectures import CategoricalCNN
 
 from neodroidagent.configs.agent_test_configs.base_dicrete_test_config import *
 
-__author__ = 'cnheider'
+__author__ = 'Christian Heider Nielsen'
 
 CONFIG_NAME = __name__
 CONFIG_FILE = __file__

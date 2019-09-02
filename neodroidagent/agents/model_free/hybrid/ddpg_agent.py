@@ -14,11 +14,10 @@ from neodroidagent.agents.model_free.hybrid.actor_critic_agent import ActorCriti
 from neodroidagent.architectures import SingleHeadMLP
 from neodroidagent.architectures.experimental.merged import SingleHeadMergedInputMLP
 from neodroidagent.memory import TransitionBuffer
-
 from neodroidagent.utilities.exploration.sampling import OrnsteinUhlenbeckProcess
 from warg.gdkc import GDKC
 
-__author__ = 'cnheider'
+__author__ = 'Christian Heider Nielsen'
 
 tqdm.monitor_interval = 0
 
@@ -47,49 +46,75 @@ class DDPGAgent(ActorCriticAgent):
 
   # region Private
 
-  def __defaults__(self) -> None:
+  def __init__(self,
+               random_process_spec=GDKC(constructor=OrnsteinUhlenbeckProcess),
+               memory_buffer=TransitionBuffer(1000000),
+               evaluation_function=F.smooth_l1_loss,
+               actor_arch_spec=GDKC(SingleHeadMLP),
+               critic_arch_spec=GDKC(SingleHeadMergedInputMLP),
+               discount_factor=0.95,
+               initial_observation_period=10000,
+               learning_frequency=4,
+               sync_target_model_frequency=10000,
+               state_type=torch.float,
+               value_type=torch.float,
+               action_type=torch.float,
+               exploration_epsilon_start=0.9,
+               exploration_epsilon_end=0.05,
+               exploration_epsilon_decay=10000,
+               early_stopping_condition=None,
+               batch_size=64,
+               noise_factor=3e-1,
+               low_action_clip=-1.0,
+               high_action_clip=1.0,
+               **kwargs):
+    '''
+
+    :param random_process_spec:
+    :param memory_buffer:
+    :param evaluation_function:
+    :param actor_arch_spec:
+    :param critic_arch_spec:
+    :param discount_factor:
+    :param initial_observation_period:
+    :param learning_frequency:
+    :param sync_target_model_frequency:
+    :param state_type:
+    :param value_type:
+    :param action_type:
+    :param exploration_epsilon_start:
+    :param exploration_epsilon_end:
+    :param exploration_epsilon_decay:
+    :param early_stopping_condition:
+    :param batch_size:
+    :param noise_factor:
+    :param low_action_clip:
+    :param high_action_clip:
+    :param kwargs:
+    '''
+    super().__init__(**kwargs)
     # Adds noise for exploration
-    self._random_process_spec = GDKC(constructor=OrnsteinUhlenbeckProcess,
-                                     theta=0.15,
-                                     sigma=1.)
-
+    self._random_process_spec = random_process_spec
     # self._memory = U.PrioritisedReplayMemory(config.REPLAY_MEMORY_SIZE)  # Cuda trouble
-    self._memory_buffer = TransitionBuffer(1000000)
-
-    self._evaluation_function = F.smooth_l1_loss
-
-    self._actor_arch_spec = GDKC(SingleHeadMLP,
-                                 input_shape=None,  # Obtain from environment
-                                 output_activation=torch.tanh,
-                                 output_shape=None
-                                 )
-
-    self._critic_arch_spec = GDKC(SingleHeadMergedInputMLP,
-                                  input_shape=None,  # Obtain from environment
-                                  output_shape=None  # Obtain from environment
-                                  )
-
-    self._discount_factor = 0.95
-
-    self._initial_observation_period = 10000
-    self._learning_frequency = 4
-    self._sync_target_model_frequency = 10000
-    self._state_type = torch.float
-    self._value_type = torch.float
-    self._action_type = torch.float
-
-    self._exploration_epsilon_start = 0.9
-    self._exploration_epsilon_end = 0.05
-    self._exploration_epsilon_decay = 10000
-
-    self._early_stopping_condition = None
-    self._optimiser = None
-
-    self._batch_size = 64
-
-    self._noise_factor = 3e-1
-    self._low_action_clip = -1.0
-    self._high_action_clip = 1.0
+    self._memory_buffer = memory_buffer
+    self._evaluation_function = evaluation_function
+    self._actor_arch_spec = actor_arch_spec
+    self._critic_arch_spec = critic_arch_spec
+    self._discount_factor = discount_factor
+    self._initial_observation_period = initial_observation_period
+    self._learning_frequency = learning_frequency
+    self._sync_target_model_frequency = sync_target_model_frequency
+    self._state_type = state_type
+    self._value_type = value_type
+    self._action_type = action_type
+    self._exploration_epsilon_start = exploration_epsilon_start
+    self._exploration_epsilon_end = exploration_epsilon_end
+    self._exploration_epsilon_decay = exploration_epsilon_decay
+    self._early_stopping_condition = early_stopping_condition
+    self._batch_size = batch_size
+    self._noise_factor = noise_factor
+    self._low_action_clip = low_action_clip
+    self._high_action_clip = high_action_clip
 
     (self._actor,
      self._target_actor,
@@ -99,7 +124,6 @@ class DDPGAgent(ActorCriticAgent):
      self._critic_optimiser) = None, None, None, None, None, None
 
     self._random_process = None
-
   # endregion
 
   # region Public
@@ -159,6 +183,12 @@ class DDPGAgent(ActorCriticAgent):
                         source_model=self._actor,
                         target_update_tau=self._target_update_tau)
 
+
+
+  # endregion
+
+  # region Protected
+
   def _update(self, *, metric_writer: Writer = MockWriter(), **kwargs):
     '''
   Update the target networks
@@ -181,10 +211,6 @@ class DDPGAgent(ActorCriticAgent):
       metric_writer.scalar('critic_loss', critic_loss)
 
     return td_error, critic_loss
-
-  # endregion
-
-  # region Protected
 
   def _optimise(self,
                 *,

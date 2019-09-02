@@ -5,7 +5,7 @@ from collections.abc import Collection
 from draugr.torch_utilities import atari_initializer, ortho_weights
 from neodroidagent.interfaces.architecture import Architecture
 
-__author__ = 'cnheider'
+__author__ = 'Christian Heider Nielsen'
 from torch import nn
 from torch.nn import functional as F
 

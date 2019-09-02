@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 from models import MLP
 
-__author__ = 'cnheider'
+__author__ = 'Christian Heider Nielsen'
 __doc__ = ''
 
 import torch

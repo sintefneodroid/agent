@@ -8,7 +8,7 @@ from neodroidagent.agents.model_free.policy_optimisation.pg_agent import PGAgent
 from neodroidagent.agents.model_free.q_learning.dqn_agent import DQNAgent
 from neodroid.wrappers import NeodroidGymWrapper
 
-__author__ = 'cnheider'
+__author__ = 'Christian Heider Nielsen'
 __doc__ = 'Tests of agents'
 
 

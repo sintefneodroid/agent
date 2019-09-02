@@ -3,7 +3,7 @@
 
 from warg.named_ordered_dictionary import NOD
 
-__author__ = 'cnheider'
+__author__ = 'Christian Heider Nielsen'
 
 CURRICULUM = NOD(**{
   'level1':{

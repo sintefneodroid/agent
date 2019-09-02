@@ -3,7 +3,7 @@
 import draugr
 from neodroid.wrappers import BinaryActionEncodingWrapper
 
-__author__ = 'cnheider'
+__author__ = 'Christian Heider Nielsen'
 
 import torch
 from tqdm import tqdm

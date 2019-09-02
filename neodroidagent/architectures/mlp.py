@@ -10,7 +10,7 @@ from draugr.torch_utilities import xavier_init, to_tensor
 from neodroidagent.interfaces.architecture import Architecture
 from warg.named_ordered_dictionary import NOD
 
-__author__ = 'cnheider'
+__author__ = 'Christian Heider Nielsen'
 
 '''
 Description: Multi Layer Perceptron

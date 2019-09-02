@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 from shutil import rmtree
 
-__author__ = 'cnheider'
+__author__ = 'Christian Heider Nielsen'
 __doc__ = ''
 
 

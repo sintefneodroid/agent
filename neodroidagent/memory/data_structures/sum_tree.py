@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 import math
 
-__author__ = 'cnheider'
+__author__ = 'Christian Heider Nielsen'
 
 
 class SumTree:

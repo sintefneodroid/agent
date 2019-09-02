@@ -6,7 +6,7 @@ from neodroidagent.architectures.distributional.normal import MultiDimensionalNo
 from neodroidagent.architectures.experimental.merged import MergedInputMLP
 from .base_continous_test_config import *
 
-__author__ = 'cnheider'
+__author__ = 'Christian Heider Nielsen'
 '''
 Description: Config for training
 Author: Christian Heider Nielsen

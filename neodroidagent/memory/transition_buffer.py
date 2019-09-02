@@ -4,7 +4,7 @@ from neodroidagent.interfaces.specifications import Transition
 from neodroidagent.memory import ExpandableCircularBuffer
 from warg.arguments import namedtuple_args
 
-__author__ = 'cnheider'
+__author__ = 'Christian Heider Nielsen'
 
 
 class TransitionBuffer(ExpandableCircularBuffer):

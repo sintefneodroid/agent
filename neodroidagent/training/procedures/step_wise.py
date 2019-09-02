@@ -6,18 +6,19 @@ from typing import Union
 import torch
 
 from draugr.writers import TensorBoardPytorchWriter
-from neodroid.environments import NeodroidEnvironment, VectorEnvironment
+from neodroid.environments.unity.vector_unity_environment import VectorUnityEnvironment
+
 from neodroidagent.interfaces.specifications import TR
 from neodroidagent.interfaces.torch_agent import TorchAgent
 
-__author__ = 'cnheider'
+__author__ = 'Christian Heider Nielsen'
 __doc__ = ''
 
 from tqdm import tqdm
 
 
 def step_wise_training(agent: TorchAgent,
-                       environment: VectorEnvironment,
+                       environment: VectorUnityEnvironment,
                        *,
                        num_steps_per_btach: int = 256,
                        num_updates: int = 10,

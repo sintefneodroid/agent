@@ -5,7 +5,7 @@ import numpy
 from neodroidagent.architectures import MLP
 from neodroidagent.utilities import to_tensor
 
-__author__ = 'cnheider'
+__author__ = 'Christian Heider Nielsen'
 __doc__ = ''
 
 

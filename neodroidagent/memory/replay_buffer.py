@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 
-__author__ = 'cnheider'
+__author__ = 'Christian Heider Nielsen'
 
 import random
 from collections import deque

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-__author__ = 'cnheider'
+__author__ = 'Christian Heider Nielsen'
 
 from .annealed_guassian import *
 from .bounded_triangle_sample import bounded_triangle_sample

@@ -6,17 +6,9 @@ from tqdm import tqdm
 from neodroidagent.interfaces.agent import Agent
 
 
-
 class RandomAgent(Agent):
 
   # region Private
-
-  def __defaults__(self) -> None:
-    pass
-
-  # endregion
-
-  # region Protected
 
   def __build__(self, env, **kwargs) -> None:
     pass
@@ -34,7 +26,13 @@ class RandomAgent(Agent):
   def evaluate(self, batch, *args, **kwargs) -> Any:
     pass
 
-  def rollout(self, initial_state, environment, *, train=True, render=False, **kwargs) -> Any:
+  def rollout(self,
+              initial_state,
+              environment,
+              *,
+              train=True,
+              render=False,
+              **kwargs) -> Any:
     if train:
       self._rollout_i += 1
 

@@ -8,7 +8,7 @@ from torch.distributions import Normal
 from draugr.torch_utilities.to_tensor import to_tensor
 from neodroidagent.architectures import MLP
 
-__author__ = 'cnheider'
+__author__ = 'Christian Heider Nielsen'
 __doc__ = ''
 
 

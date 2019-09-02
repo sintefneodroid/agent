@@ -3,7 +3,7 @@
 
 from .base_dicrete_test_config import *
 
-__author__ = 'cnheider'
+__author__ = 'Christian Heider Nielsen'
 
 CONFIG_NAME = __name__
 CONFIG_FILE = __file__

@@ -21,7 +21,7 @@ from samples.rl.curriculum.grid_world import (display_actor_configurations,
                                               )
 from warg.arguments import get_upper_case_vars_or_protected_of
 
-__author__ = 'cnheider'
+__author__ = 'Christian Heider Nielsen'
 
 tqdm.monitor_interval = 0
 torch.manual_seed(C.SEED)

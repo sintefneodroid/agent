@@ -12,10 +12,11 @@ from numpy import mean
 from tqdm import tqdm
 
 from draugr.visualisation import sprint
-from draugr.writers import TensorBoardPytorchWriter, MockWriter
+from draugr.writers import MockWriter, TensorBoardPytorchWriter
 from draugr.writers.writer import Writer
 from neodroid.environments.environment import Environment
-from neodroid.interfaces.specifications import EnvironmentSnapshot
+from neodroid.interfaces import SignalSpace, ActionSpace, ObservationSpace
+from neodroid.interfaces.unity_specifications import EnvironmentSnapshot
 from neodroidagent.architectures import MLP
 from neodroidagent.architectures.experimental.merged import MergedInputMLP
 from neodroidagent.exceptions.exceptions import ActionSpaceNotSupported
@@ -23,10 +24,11 @@ from neodroidagent.interfaces.torch_agent import TorchAgent
 from neodroidagent.memory import TransitionBuffer
 from neodroidagent.utilities.exploration import OrnsteinUhlenbeckProcess
 from warg.gdkc import GDKC
+from warg.kw_passing import passes_kws_to_super_init
 
-__author__ = 'cnheider'
+__author__ = 'Christian Heider Nielsen'
 
-
+@passes_kws_to_super_init
 class ActorCriticAgent(TorchAgent):
   '''
 All value iteration agents should inherit from this class
@@ -34,45 +36,57 @@ All value iteration agents should inherit from this class
 
   # region Private
 
-  def __init__(self, *args, **kwargs):
-    self._target_update_tau = 3e-3
-    self._signal_clipping = False
-    self._action_clipping = False
+  def __init__(self,
+               target_update_tau=3e-3,
+               signal_clipping=False,
+               action_clipping=False,
+               memory_buffer=TransitionBuffer(),
+               actor_optimiser_spec: GDKC = GDKC(constructor=torch.optim.Adam,
+                                                 lr=3e-4,
+                                                 weight_decay=3e-3,
+                                                 eps=3e-2
+                                                 ),
+               critic_optimiser_spec: GDKC = GDKC(constructor=torch.optim.Adam,
+                                                  lr=3e-4,
+                                                  weight_decay=3e-3,
+                                                  eps=3e-2
+                                                  ),
+               actor_arch_spec=GDKC(MLP),
+               critic_arch_spec=GDKC(MergedInputMLP),
+               random_process_spec=GDKC(constructor=OrnsteinUhlenbeckProcess
+                                        ),
+               **kwargs):
+    '''
 
-    self._memory_buffer = TransitionBuffer()
+    :param target_update_tau:
+    :param signal_clipping:
+    :param action_clipping:
+    :param memory_buffer:
+    :param actor_optimiser_spec:
+    :param critic_optimiser_spec:
+    :param actor_arch_spec:
+    :param critic_arch_spec:
+    :param random_process_spec:
+    :param kwargs:
+    '''
+    super().__init__(**kwargs)
 
-    self._actor_optimiser_spec: GDKC = GDKC(constructor=torch.optim.Adam,
-                                            lr=3e-4,
-                                            weight_decay=3e-3,
-                                            eps=3e-2
-                                            )
+    self._target_update_tau = target_update_tau
+    self._signal_clipping = signal_clipping
+    self._action_clipping = action_clipping
+    self._memory_buffer = memory_buffer
+    self._actor_optimiser_spec: GDKC = actor_optimiser_spec
+    self._critic_optimiser_spec: GDKC = critic_optimiser_spec
+    self._actor_arch_spec = actor_arch_spec
+    self._critic_arch_spec = critic_arch_spec
+    self._random_process_spec = random_process_spec
 
-    self._critic_optimiser_spec: GDKC = GDKC(constructor=torch.optim.Adam,
-                                             lr=3e-4,
-                                             weight_decay=3e-3,
-                                             eps=3e-2
-                                             )
 
-    self._actor_arch_spec = GDKC(MLP,
-                                 input_shape=None,  # Obtain from environment
-                                 hidden_layers=None,
-                                 output_shape=None,  # Obtain from environment
-                                 )
 
-    self._critic_arch_spec = GDKC(MergedInputMLP,
-                                  input_shape=None,  # Obtain from environment
-                                  hidden_layers=None,
-                                  output_shape=1,  # Obtain from environment
-                                  )
-
-    self._random_process_spec = GDKC(constructor=OrnsteinUhlenbeckProcess,
-                                     theta=0.15,
-                                     sigma=0.2
-                                     )
-
-    super().__init__(*args, **kwargs)
-
-  def __build__(self, env: Environment,
+  def __build__(self,
+                observation_space: ObservationSpace,
+                action_space: ActionSpace,
+                signal_space: SignalSpace,
                 metric_writer: Writer = MockWriter(),
                 print_model_repr=True,
                 **kwargs) -> None:
@@ -84,7 +98,7 @@ All value iteration agents should inherit from this class
     self._target_critic = self._critic_arch_spec().to(self._device).eval()
 
     self._random_process = self._random_process_spec(
-        sigma=mean([r.span for r in env.action_space.ranges])
+        sigma=mean([r.span for r in action_space.ranges])
         )
 
     # Construct the optimizers for actor and critic
@@ -111,18 +125,6 @@ All value iteration agents should inherit from this class
       sprint(f'Actor: {self._actor}',
              highlight=True,
              color='cyan')
-
-  def _post_io_inference(self, env: Environment):
-
-    self._actor_arch_spec.kwargs['input_shape'] = self._input_shape
-    if env.action_space.is_discrete:
-      raise ActionSpaceNotSupported()
-
-    self._actor_arch_spec.kwargs['output_shape'] = self._output_shape
-
-    self._critic_arch_spec.kwargs['input_shape'] = (*self._input_shape, *self._output_shape)
-    # self._actor_arch_spec = GDCS(MergedInputMLP, self._critic_arch_spec.kwargs)
-    self._critic_arch_spec.kwargs['output_shape'] = 1
 
   # endregion
 
@@ -192,6 +194,21 @@ All value iteration agents should inherit from this class
   # endregion
 
   # region Protected
+
+  def _post_io_inference(self,
+                         observation_space: ObservationSpace,
+                action_space: ActionSpace,
+                signal_space: SignalSpace):
+
+    self._actor_arch_spec.kwargs['input_shape'] = self._input_shape
+    if action_space.is_discrete:
+      raise ActionSpaceNotSupported()
+
+    self._actor_arch_spec.kwargs['output_shape'] = self._output_shape
+
+    self._critic_arch_spec.kwargs['input_shape'] = (*self._input_shape, *self._output_shape)
+    # self._actor_arch_spec = GDCS(MergedInputMLP, self._critic_arch_spec.kwargs)
+    self._critic_arch_spec.kwargs['output_shape'] = 1
 
   def _sample(self, state, **kwargs):
     return self._sample_model(state, **kwargs)

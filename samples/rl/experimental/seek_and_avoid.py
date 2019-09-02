@@ -4,7 +4,7 @@ import draugr
 from draugr.stopping.stopping_key import add_early_stopping_key_combination
 from neodroid import NeodroidGymWrapper
 
-__author__ = 'cnheider'
+__author__ = 'Christian Heider Nielsen'
 
 import torch
 

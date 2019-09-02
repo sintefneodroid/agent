@@ -7,15 +7,15 @@ import gym
 
 from draugr.stopping.stopping_key import add_early_stopping_key_combination
 from draugr.torch_utilities import set_seeds
-from neodroid.environments import VectorEnvironment
+
 from neodroid.wrappers import NeodroidGymWrapper
 from neodroidagent import PROJECT_APP_PATH
 from neodroidagent.interfaces.specifications import TrainingSession
-from neodroidagent.training.procedures import TorchAgent, train_episodically
+from neodroidagent.training.procedures import TorchAgent, train_episodically, VectorUnityEnvironment
 from trolls.wrappers.vector_environments import VectorWrap
 from warg.named_ordered_dictionary import NOD
 
-__author__ = 'cnheider'
+__author__ = 'Christian Heider Nielsen'
 __doc__ = ''
 
 
@@ -41,10 +41,10 @@ class linear_training(TrainingSession):
         if '-v' in kwargs.environment_name:
           self.environments = VectorWrap(NeodroidGymWrapper(gym.make(kwargs.environment_name)))
         else:
-          self.environments = VectorEnvironment(name=kwargs.environment_name,
+          self.environments = VectorUnityEnvironment(name=kwargs.environment_name,
                                           connect_to_running=kwargs.connect_to_running)
     else:
-      self.environments = VectorEnvironment(name=kwargs.environment_name,
+      self.environments = VectorUnityEnvironment(name=kwargs.environment_name,
                                       connect_to_running=kwargs.connect_to_running)
 
     agent_class_name = agent_type.__name__
@@ -106,7 +106,7 @@ if __name__ == '__main__':
   import neodroidagent.configs.agent_test_configs.pg_test_config as C
   from neodroidagent.agents.model_free.policy_optimisation.pg_agent import PGAgent
 
-  env = VectorEnvironment(name=C.ENVIRONMENT_NAME,
+  env = VectorUnityEnvironment(name=C.ENVIRONMENT_NAME,
                           connect_to_running=C.CONNECT_TO_RUNNING)
   env.seed(C.SEED)
 

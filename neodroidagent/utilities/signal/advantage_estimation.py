@@ -3,7 +3,7 @@
 
 from draugr.torch_utilities import to_tensor
 
-__author__ = 'cnheider'
+__author__ = 'Christian Heider Nielsen'
 
 import torch
 

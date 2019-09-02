@@ -8,7 +8,7 @@ from tqdm import tqdm
 
 from neodroidagent.interfaces.agent import Agent
 
-__author__ = 'cnheider'
+__author__ = 'Christian Heider Nielsen'
 
 
 class EVOAgent(Agent, ABC):

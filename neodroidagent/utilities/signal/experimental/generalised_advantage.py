@@ -4,7 +4,7 @@ import numpy
 
 from neodroidagent.utilities.signal.experimental.discounting import valued_discount
 
-__author__ = 'cnheider'
+__author__ = 'Christian Heider Nielsen'
 __doc__ = ''
 
 

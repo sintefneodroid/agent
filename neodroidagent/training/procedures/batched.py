@@ -8,17 +8,17 @@ from typing import Union
 
 from draugr.torch_utilities.to_tensor import to_tensor
 from draugr.writers import TensorBoardPytorchWriter
+from neodroid.environments.unity.vector_unity_environment import VectorUnityEnvironment
 from neodroidagent.interfaces.specifications import TR
 from neodroidagent.interfaces.specifications.transitions import ValuedTransition
-from neodroid.environments import NeodroidEnvironment, VectorEnvironment
 from neodroidagent.interfaces.torch_agent import TorchAgent
 
-__author__ = 'cnheider'
+__author__ = 'Christian Heider Nielsen'
 __doc__ = ''
 
 
 def batched_training(agent:TorchAgent,
-                     environment: VectorEnvironment,
+                     environment: VectorUnityEnvironment,
                      *,
                      device:Union[str,torch.device],
                      log_directory:Path,

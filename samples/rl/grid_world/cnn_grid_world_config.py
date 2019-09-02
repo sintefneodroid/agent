@@ -3,7 +3,7 @@
 from neodroidagent.architectures import CategoricalCNN
 from neodroidagent.utilities import ReplayBuffer
 
-__author__ = 'cnheider'
+__author__ = 'Christian Heider Nielsen'
 '''
 Description: Config for training
 Author: Christian Heider Nielsen

@@ -6,7 +6,7 @@ from neodroidagent.utilities.signal.experimental.generalised_advantage import di
 from neodroidagent.utilities.signal.experimental.nstep import discounted_nstep, discounted_nstep_adv
 from warg.named_ordered_dictionary import NOD
 
-__author__ = 'cnheider'
+__author__ = 'Christian Heider Nielsen'
 __doc__ = ''
 
 import numpy

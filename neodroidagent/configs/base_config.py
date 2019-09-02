@@ -11,7 +11,7 @@ from neodroidagent.interfaces.specifications.exploration_specification import Ex
 from warg.gdkc import GDKC
 from warg.named_ordered_dictionary import NOD
 
-__author__ = 'cnheider'
+__author__ = 'Christian Heider Nielsen'
 '''
 Description: Config for training
 Author: Christian Heider Nielsen

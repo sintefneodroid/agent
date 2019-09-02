@@ -4,7 +4,7 @@ import logging
 
 import numpy
 
-__author__ = 'cnheider'
+__author__ = 'Christian Heider Nielsen'
 
 import random
 

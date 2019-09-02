@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 from neodroid.models import Displayable
 
-__author__ = 'cnheider'
+__author__ = 'Christian Heider Nielsen'
 
 
 def get_actor_configuration(environment, candidate):

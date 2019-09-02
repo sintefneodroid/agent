@@ -7,7 +7,7 @@ from torch.nn import functional as F
 from draugr.torch_utilities.to_tensor import to_tensor
 from neodroidagent.architectures import MLP, numpy, torch
 
-__author__ = 'cnheider'
+__author__ = 'Christian Heider Nielsen'
 __doc__ = ''
 
 

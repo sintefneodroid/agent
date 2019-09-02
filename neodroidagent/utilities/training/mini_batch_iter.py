@@ -4,7 +4,7 @@ from typing import Sequence
 
 from neodroidagent.interfaces.specifications import AdvantageDiscountedTransition, ValuedTransition
 
-__author__ = 'cnheider'
+__author__ = 'Christian Heider Nielsen'
 __doc__ = r'''
            '''
 

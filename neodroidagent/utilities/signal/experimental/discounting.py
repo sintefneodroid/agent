@@ -8,7 +8,7 @@ import numpy
 from numba import jit
 from scipy.signal import lfilter
 
-__author__ = 'cnheider'
+__author__ = 'Christian Heider Nielsen'
 __doc__ = ''
 
 

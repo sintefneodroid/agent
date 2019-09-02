@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-from neodroid.interfaces.specifications import Configuration
+from neodroid.interfaces.unity_specifications import Configuration
 
-__author__ = 'cnheider'
+__author__ = 'Christian Heider Nielsen'
 from collections import namedtuple
 from itertools import count
 

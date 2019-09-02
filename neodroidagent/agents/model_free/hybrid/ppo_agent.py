@@ -9,15 +9,15 @@ from torch.utils.data import DataLoader
 from draugr.torch_utilities.to_tensor import to_tensor
 from draugr.writers import MockWriter
 from draugr.writers.writer import Writer
-from neodroid.environments.vector_environment import VectorEnvironment
-from neodroid.interfaces.specifications import EnvironmentSnapshot
+from neodroid.environments.unity.vector_unity_environment import VectorUnityEnvironment
+from neodroid.interfaces.unity_specifications import EnvironmentSnapshot
+from neodroidagent.agents.model_free.hybrid.actor_critic_agent import ActorCriticAgent
 from neodroidagent.interfaces.specifications import AdvantageDiscountedTransition, ValuedTransition
 from neodroidagent.utilities.signal.advantage_estimation import torch_compute_gae
 from neodroidagent.utilities.signal.experimental.discounting import discount_signal
-from neodroidagent.utilities.training.mini_batch_iter import mini_batch_iter, AdvDisDataset
-from neodroidagent.agents.model_free.hybrid.actor_critic_agent import ActorCriticAgent
+from neodroidagent.utilities.training.mini_batch_iter import AdvDisDataset
 
-__author__ = 'cnheider'
+__author__ = 'Christian Heider Nielsen'
 
 import torch
 from tqdm import tqdm
@@ -28,42 +28,88 @@ class PPOAgent(ActorCriticAgent):
   '''
   PPO, Proximal Policy Optimization method
 
-  See method __defaults__ for default parameters
+
 '''
 
   # region Private
 
-  def __defaults__(self) -> None:
+  def __init__(self,
+               discount_factor=0.95,
+               gae_tau=0.15,
+               actor_lr=4e-4,
+               critic_lr=4e-4,
+               entropy_reg_coef=1e-2,
+               value_reg_coef=5e-1,
+               mini_batches=32,
+               target_update_tau=1.0,
+               update_target_interval=1000,
+               max_grad_norm=0.5,
+               solved_threshold=-200,
+               test_interval=1000,
+               early_stop=False,
+               rollouts=10000,
+               surrogate_clipping_value=3e-1,
+               ppo_optimisation_epochs=6,
+               state_type=torch.float,
+               value_type=torch.float,
+               action_type=torch.long,
+               exploration_epsilon_start=0.99,
+               exploration_epsilon_end=0.05,
+               exploration_epsilon_decay=10000,
+               **kwargs) -> None:
+    '''
 
-    self._discount_factor = 0.95
-    self._gae_tau = 0.15
+    :param discount_factor:
+    :param gae_tau:
+    :param actor_lr:
+    :param critic_lr:
+    :param entropy_reg_coef:
+    :param value_reg_coef:
+    :param mini_batches:
+    :param target_update_tau:
+    :param update_target_interval:
+    :param max_grad_norm:
+    :param solved_threshold:
+    :param test_interval:
+    :param early_stop:
+    :param rollouts:
+    :param surrogate_clipping_value:
+    :param ppo_optimisation_epochs:
+    :param state_type:
+    :param value_type:
+    :param action_type:
+    :param exploration_epsilon_start:
+    :param exploration_epsilon_end:
+    :param exploration_epsilon_decay:
+    :param kwargs:
+    '''
+    super().__init__(**kwargs)
+
+    self._discount_factor = discount_factor
+    self._gae_tau = gae_tau
     # self._reached_horizon_penalty = -10.
-
-    self._actor_lr = 4e-4
-    self._critic_lr = 4e-4
-    self._entropy_reg_coef = 1e-2
-    self._value_reg_coef = 5e-1
-    self._mini_batches = 32
-    self._target_update_tau = 1.0
-    self._update_target_interval = 1000
-    self._max_grad_norm = 0.5
-    self._solved_threshold = -200
-    self._test_interval = 1000
-    self._early_stop = False
-    self._rollouts = 10000
-    self._surrogate_clipping_value = 3e-1
-    self._ppo_optimisation_epochs = 6
-
-    self._state_type = torch.float
-    self._value_type = torch.float
-    self._action_type = torch.long
-
+    self._actor_lr = actor_lr
+    self._critic_lr = critic_lr
+    self._entropy_reg_coef = entropy_reg_coef
+    self._value_reg_coef = value_reg_coef
+    self._mini_batches = mini_batches
+    self._target_update_tau = target_update_tau
+    self._update_target_interval = update_target_interval
+    self._max_grad_norm = max_grad_norm
+    self._solved_threshold = solved_threshold
+    self._test_interval = test_interval
+    self._early_stop = early_stop
+    self._rollouts = rollouts
+    self._surrogate_clipping_value = surrogate_clipping_value
+    self._ppo_optimisation_epochs = ppo_optimisation_epochs
+    self._state_type = state_type
+    self._value_type = value_type
+    self._action_type = action_type
+    #TODO: ExplorationSpec
     # params for epsilon greedy
-    self._exploration_epsilon_start = 0.99
-    self._exploration_epsilon_end = 0.05
-    self._exploration_epsilon_decay = 10000
-
-    self._use_cuda = False
+    self._exploration_epsilon_start = exploration_epsilon_start
+    self._exploration_epsilon_end = exploration_epsilon_end
+    self._exploration_epsilon_decay = exploration_epsilon_decay
 
     (self._actor,
      self._target_actor,
@@ -133,10 +179,10 @@ class PPOAgent(ActorCriticAgent):
                         target_update_tau=self._target_update_tau)
 
   def _update(self,
-             transitions,
-             *args,
-             metric_writer: Writer = MockWriter(),
-             **kwargs) -> None:
+              transitions,
+              *args,
+              metric_writer: Writer = MockWriter(),
+              **kwargs) -> None:
 
     adv_trans = self.back_trace_advantages(transitions)
     dataset = AdvDisDataset(adv_trans)
@@ -157,11 +203,10 @@ class PPOAgent(ActorCriticAgent):
 
   def take_n_steps(self,
                    initial_state: EnvironmentSnapshot,
-                   environment: VectorEnvironment,
+                   environment: VectorUnityEnvironment,
                    n: int = 100,
                    *,
                    train: bool = False,
-                   render: bool = False,
                    **kwargs) -> Any:
     state = initial_state.observables
 
@@ -171,22 +216,16 @@ class PPOAgent(ActorCriticAgent):
     terminated = False
     T = tqdm(range(1, n + 1),
              f'Step #{self._sample_i} - {0}/{n}',
-             leave=False,
-             disable=not render)
+             leave=False)
     for t in T:
       # T.set_description(f'Step #{self._step_i} - {t}/{n}')
       self._sample_i += 1
       action, action_prob, value_estimates, *_ = self.sample(state)
 
-      next_state, signal, terminated, _ = environment.react(action).to_gym_like_output()
+      snapshot = environment.react(action)
 
-      if render:
-        environment.render()
+      successor_state, signal, terminated = (snapshot.observables, snapshot.signal, snapshot.terminated)
 
-      successor_state = None
-      if numpy.array(terminated).all():  # If environment terminated then there is no successor state
-        #TODO: support individual reset of environments vector
-        successor_state = next_state
 
       transitions.append(ValuedTransition(state,
                                           action,
@@ -198,13 +237,14 @@ class PPOAgent(ActorCriticAgent):
                                           )
                          )
 
-      state = next_state
+      state = successor_state
 
       accumulated_signal += signal
 
       if numpy.array(terminated).all():
         # TODO: support individual reset of environments vector
-        state = environment.reset()
+        snapshot = environment.reset()
+        state, signal, terminated = (snapshot.observables, snapshot.signal, snapshot.terminated)
 
     return transitions, accumulated_signal, terminated, state
 
@@ -282,8 +322,6 @@ class PPOAgent(ActorCriticAgent):
 
     return collective_cost, policy_loss, value_error,
 
-
-
   # endregion
 
 
@@ -325,7 +363,7 @@ def ppo_run(rollouts=None, skip: bool = True):
 
 
 if __name__ == '__main__':
-   ppo_test()
-  #ppo_run()
+  ppo_test()
+# ppo_run()
 
 # endregion

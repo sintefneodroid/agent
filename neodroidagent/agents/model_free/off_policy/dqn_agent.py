@@ -7,18 +7,15 @@ from draugr.torch_utilities.to_tensor import to_tensor
 from draugr.writers import MockWriter
 from draugr.writers.writer import Writer
 from neodroid.environments.environment import Environment
-from neodroid.interfaces.specifications import EnvironmentSnapshot
+from neodroid.interfaces.unity_specifications import EnvironmentSnapshot
 from neodroidagent.agents.model_free.off_policy.value_agent import ValueAgent
-from neodroidagent.architectures import Architecture, MLP
-from neodroidagent.memory import ReplayBuffer
-from warg.gdkc import GDKC
 
-__author__ = 'cnheider'
+__author__ = 'Christian Heider Nielsen'
 from itertools import count
 
 import numpy
 import torch
-import torch.nn.functional as F
+
 from tqdm import tqdm
 
 
@@ -28,45 +25,6 @@ class DQNAgent(ValueAgent):
 '''
 
   # region Protected
-
-  def __defaults__(self) -> None:
-    self._memory_buffer = ReplayBuffer(10000)
-    # self._memory = U.PrioritisedReplayMemory(config.REPLAY_MEMORY_SIZE)  # Cuda trouble
-
-    self._use_cuda = False
-
-    self._evaluation_function = F.smooth_l1_loss
-
-    self._value_arch_spec: Architecture = GDKC(MLP,
-                                               input_shape=None,  # Obtain from environment
-                                               hidden_layers=None,
-                                               output_shape=None  # Obtain from environment
-                                               )
-
-    self._batch_size = 128
-
-    self._discount_factor = 0.95
-    self._learning_frequency = 1
-    self._initial_observation_period = 0
-    self._sync_target_model_frequency = 1000
-
-    self._state_type = torch.float
-    self._value_type = torch.float
-    self._action_type = torch.long
-
-    self._use_double_dqn = True
-    self._clamp_gradient = False
-    self._signal_clipping = True
-
-    self._early_stopping_condition = None
-    self._target_value_model: Architecture = None
-
-    self._optimiser_spec = GDKC(torch.optim.RMSprop,
-                                alpha=0.9,
-                                lr=0.0025,
-                                eps=1e-02,
-                                momentum=0.0)
-    self._optimiser = None
 
   def _optimise(self, error, **kwargs):
     '''

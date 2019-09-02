@@ -4,7 +4,7 @@ import draugr
 from neodroid.wrappers import BinaryActionEncodingWrapper, NeodroidGymWrapper
 from warg import get_upper_case_vars_or_protected_of, parse_arguments
 
-__author__ = 'cnheider'
+__author__ = 'Christian Heider Nielsen'
 
 import torch
 from tqdm import tqdm

@@ -2,9 +2,9 @@
 # -*- coding: utf-8 -*-
 
 import draugr
-from neodroid.wrappers import SingleEnvironment
+from neodroid.wrappers import SingleUnityEnvironment
 
-__author__ = 'cnheider'
+__author__ = 'Christian Heider Nielsen'
 
 import torch
 from tqdm import tqdm
@@ -17,8 +17,8 @@ from neodroidagent import utilities as U
 def train_agent(config, agent):
   torch.manual_seed(config.SEED)
 
-  env = SingleEnvironment(environment_name=config.ENVIRONMENT_NAME,
-                          connect_to_running=config.CONNECT_TO_RUNNING)
+  env = SingleUnityEnvironment(environment_name=config.ENVIRONMENT_NAME,
+                               connect_to_running=config.CONNECT_TO_RUNNING)
   env.seed(config.SEED)
 
   agent.build(env)

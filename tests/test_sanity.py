@@ -4,7 +4,7 @@ import sys
 
 import pytest
 
-__author__ = "cnheider"
+__author__ = "Christian Heider Nielsen"
 
 
 def test_sanity():

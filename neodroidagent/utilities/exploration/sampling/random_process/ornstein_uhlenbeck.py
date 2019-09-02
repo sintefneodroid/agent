@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 from .annealed_guassian import AnnealedGaussianProcess
 
-__author__ = 'cnheider'
+__author__ = 'Christian Heider Nielsen'
 
 # Based on http://math.stackexchange.com/questions/1287634/implementing-ornstein-uhlenbeck-in-matlab
 import numpy
@@ -11,8 +11,8 @@ import numpy
 class OrnsteinUhlenbeckProcess(AnnealedGaussianProcess):
 
   def __init__(self,
-               theta: float,
                *,
+               theta: float=.15,
                mean: float = 0.,
                sigma: float = 1.,
                dt: float = 1e-2,
@@ -47,7 +47,7 @@ class OrnsteinUhlenbeckProcess(AnnealedGaussianProcess):
 
 if __name__ == '__main__':
 
-  random_process = OrnsteinUhlenbeckProcess(0.5)
+  random_process = OrnsteinUhlenbeckProcess(theta=0.5)
 
   for i in range(1000):
     print(random_process.sample((2, 1)))

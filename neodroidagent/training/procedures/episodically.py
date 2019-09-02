@@ -6,11 +6,11 @@ from typing import Union
 import torch
 
 from draugr.writers import TensorBoardPytorchWriter
-from neodroid.environments import NeodroidEnvironment, VectorEnvironment
+from neodroid.environments.unity.vector_unity_environment import VectorUnityEnvironment
 from neodroidagent.interfaces.agent import Agent
 from neodroidagent.interfaces.torch_agent import TorchAgent
 
-__author__ = 'cnheider'
+__author__ = 'Christian Heider Nielsen'
 __doc__ = ''
 from tqdm import tqdm
 
@@ -18,7 +18,7 @@ from neodroidagent.interfaces.specifications import TR
 
 
 def train_episodically(agent: TorchAgent,
-                       environment: VectorEnvironment,
+                       environment: VectorUnityEnvironment,
                        *,
                        log_directory: Union[str, Path],
                        rollouts: int = 1000,
@@ -34,7 +34,7 @@ def train_episodically(agent: TorchAgent,
     :param disable_stdout: Whether to disable stdout statements or not
     :type disable_stdout: bool
     :param environment: The environment the agent should interact with
-    :type environment: NeodroidEnvironment
+    :type environment: UnityEnvironment
     :param rollouts: How many rollouts to train for
     :type rollouts: int
     :param render_frequency: How often to render environment

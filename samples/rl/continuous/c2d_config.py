@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 from neodroidagent.architectures import NormalMLP
 
-__author__ = 'cnheider'
+__author__ = 'Christian Heider Nielsen'
 '''
 Description: Config for training
 Author: Christian Heider Nielsen

@@ -4,7 +4,7 @@ from torch import nn
 
 from models import MLP
 
-__author__ = 'cnheider'
+__author__ = 'Christian Heider Nielsen'
 __doc__ = ''
 
 

@@ -4,9 +4,9 @@ import argparse
 
 from neodroidagent.utilities.exploration.ucb1 import UCB1
 from neodroid import messaging
-from neodroid.wrappers import SingleEnvironment
+from neodroid.wrappers import SingleUnityEnvironment
 
-__author__ = 'cnheider'
+__author__ = 'Christian Heider Nielsen'
 
 
 def construct_displayables(normed, tries, totals):
@@ -32,8 +32,8 @@ def main(connect_to_running=False):
   if args.C:
     connect_to_running = True
 
-  _environment = SingleEnvironment(environment_name='mab',
-                                   connect_to_running=connect_to_running)
+  _environment = SingleUnityEnvironment(environment_name='mab',
+                                        connect_to_running=connect_to_running)
 
   num_arms = _environment.action_space.num_discrete_actions
   totals = [0] * num_arms

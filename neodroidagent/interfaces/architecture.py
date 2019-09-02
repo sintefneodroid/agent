@@ -4,7 +4,7 @@ from abc import ABC
 
 from torch import nn
 
-__author__ = 'cnheider'
+__author__ = 'Christian Heider Nielsen'
 
 
 class Architecture(nn.Module, ABC):

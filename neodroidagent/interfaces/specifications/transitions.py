@@ -9,7 +9,7 @@ from torch import Tensor
 
 from warg.mixins import IndexDictTuplesMixin, IterValuesMixin
 
-__author__ = 'cnheider'
+__author__ = 'Christian Heider Nielsen'
 
 
 @dataclass

@@ -6,15 +6,15 @@ from draugr.torch_utilities.to_tensor import to_tensor
 from draugr.writers import MockWriter
 from draugr.writers.writer import Writer
 from neodroid.environments.environment import Environment
-from neodroid.interfaces.specifications import EnvironmentSnapshot
+from neodroid.interfaces.unity_specifications import EnvironmentSnapshot
 from neodroidagent.agents.model_free.on_policy.policy_agent import PolicyAgent
-from neodroidagent.architectures.distributional.categorical import CategoricalMLP
-from neodroidagent.exceptions.exceptions import NoTrajectoryException
-from neodroidagent.memory import TrajectoryBuffer
-from neodroidagent.training.procedures import train_episodically
-from warg.gdkc import GDKC
 
-__author__ = 'cnheider'
+from neodroidagent.exceptions.exceptions import NoTrajectoryException
+
+from neodroidagent.training.procedures import train_episodically
+
+
+__author__ = 'Christian Heider Nielsen'
 
 from itertools import count
 
@@ -29,49 +29,9 @@ class PGAgent(PolicyAgent):
   '''
   REINFORCE, Vanilla Policy Gradient method
 
-  See method __defaults__ for default parameters
+
   '''
 
-  # region Private
-
-  def __defaults__(self) -> None:
-
-    self._accumulated_error = to_tensor(0.0, device=self._device)
-    self._evaluation_function = torch.nn.CrossEntropyLoss()
-    self._trajectory_trace = TrajectoryBuffer()
-
-    self._policy_arch_spec = GDKC(CategoricalMLP,
-                                  input_shape=None,
-                                  # Obtain from environment
-                                  hidden_layers=None,
-                                  output_shape=None,
-                                  # Obtain from environment
-                                  )
-
-    self._use_cuda = False
-    self._discount_factor = 0.95
-    self._use_batched_updates = False
-    self._batch_size = 5
-    self._policy_entropy_regularisation = 1
-    self._signal_clipping = False
-    self._signal_clip_high = 1.0
-    self._signal_clip_low = -self._signal_clip_high
-
-
-    self._optimiser_spec = GDKC(torch.optim.Adam,
-                                lr=3e-4,
-                                weight_decay=3e-3,
-                                eps=3e-2)
-
-    self._state_type = torch.float
-    self._signals_tensor_type = torch.float
-    self._discrete = True
-    self._grad_clip = False
-    self._grad_clip_low = -1
-    self._grad_clip_high = 1
-    self._std = .3
-
-  # endregion
 
   # region Protected
 
@@ -94,7 +54,10 @@ class PGAgent(PolicyAgent):
 
     return action, log_prob, entropy
 
-  def _update(self, *, metric_writer=MockWriter(), **kwargs):
+  def _update(self,
+              *,
+              metric_writer=MockWriter(),
+              **kwargs):
     '''
 
     :param metric_writer:

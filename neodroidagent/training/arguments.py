@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 from warg.named_ordered_dictionary import NOD
 
-__author__ = 'cnheider'
+__author__ = 'Christian Heider Nielsen'
 __doc__ = ''
 
 import argparse

@@ -8,43 +8,121 @@ from typing import Any, Dict, Sequence
 
 import numpy
 import torch
+from torch.nn.functional import smooth_l1_loss
 
 from draugr.torch_utilities import copy_state
 from draugr.visualisation import sprint
 from draugr.writers import MockWriter, TensorBoardPytorchWriter
 from draugr.writers.writer import Writer
 from neodroid.environments.environment import Environment
+from neodroid.interfaces import ObservationSpace, ActionSpace, SignalSpace
+from neodroidagent.architectures import MLP
 from neodroidagent.architectures.mock import MockArchitecture
 from neodroidagent.interfaces.architecture import Architecture
 from neodroidagent.interfaces.specifications import ExplorationSpecification
 from neodroidagent.interfaces.torch_agent import TorchAgent
+from neodroidagent.memory import ReplayBuffer
 from warg.gdkc import GDKC
+from warg.kw_passing import passes_kws_to_super_init
 
-__author__ = 'cnheider'
+__author__ = 'Christian Heider Nielsen'
 
-
+@passes_kws_to_super_init
 class ValueAgent(TorchAgent):
   '''
 All value iteration agents should inherit from this class
 '''
 
-  # region Public
+  # region Private
 
-  def __init__(self, *args, **kwargs):
-    self._exploration_spec = ExplorationSpecification(start=0.99, end=0.04, decay=10000)
-    self._initial_observation_period = 0
+  def __init__(self,
+               exploration_spec=ExplorationSpecification(start=0.99, end=0.04, decay=10000),
+               initial_observation_period=0,
+               value_model: Architecture = MockArchitecture(),
+               target_value_model: Architecture = MockArchitecture(),
+               naive_max_policy=False,
+               memory_buffer=ReplayBuffer(10000),
+               # self._memory = U.PrioritisedReplayMemory(config.REPLAY_MEMORY_SIZE)  # Cuda trouble
+               evaluation_function=smooth_l1_loss,
+               value_arch_spec: Architecture = GDKC(MLP,
+                                                    input_shape=None,  # Obtain from environment
+                                                    hidden_layers=None,
+                                                    output_shape=None  # Obtain from environment
+                                                    ),
+               batch_size=128,
+               discount_factor=0.95,
+               learning_frequency=1,
+               sync_target_model_frequency=1000,
+               state_type=torch.float,
+               value_type=torch.float,
+               action_type=torch.long,
+               use_double_dqn=True,
+               clamp_gradient=False,
+               signal_clipping=True,
+               early_stopping_condition=None,
+               optimiser_spec=GDKC(torch.optim.RMSprop,
+                                   alpha=0.9,
+                                   lr=0.0025,
+                                   eps=1e-02,
+                                   momentum=0.0),
+               **kwargs):
+    '''
 
-    self._value_arch_spec: GDKC = None
-    self._value_model: Architecture = MockArchitecture()
-    self._target_value_model: Architecture = MockArchitecture()
+    :param exploration_spec:
+    :param initial_observation_period:
+    :param value_model:
+    :param target_value_model:
+    :param naive_max_policy:
+    :param memory_buffer:
+    :param evaluation_function:
+    :param value_arch_spec:
+    :param batch_size:
+    :param discount_factor:
+    :param learning_frequency:
+    :param sync_target_model_frequency:
+    :param state_type:
+    :param value_type:
+    :param action_type:
+    :param use_double_dqn:
+    :param clamp_gradient:
+    :param signal_clipping:
+    :param early_stopping_condition:
+    :param optimiser_spec:
+    :param kwargs:
+    '''
+    super().__init__(**kwargs)
+    self._exploration_spec = exploration_spec
+    self._initial_observation_period = initial_observation_period
+    self._value_model: Architecture = value_model
+    self._target_value_model: Architecture = target_value_model
+    self._naive_max_policy = naive_max_policy
+    self._memory_buffer = memory_buffer
+    # self._memory = U.PrioritisedReplayMemory(config.REPLAY_MEMORY_SIZE)  # Cuda trouble
+    self._evaluation_function = evaluation_function
+    self._value_arch_spec: Architecture = value_arch_spec
+    self._batch_size = batch_size
+    self._discount_factor = discount_factor
+    self._learning_frequency = learning_frequency
+    self._initial_observation_period = initial_observation_period
+    self._sync_target_model_frequency = sync_target_model_frequency
+    self._state_type = state_type
+    self._value_type = value_type
+    self._action_type = action_type
+    self._use_double_dqn = use_double_dqn
+    self._clamp_gradient = clamp_gradient
+    self._signal_clipping = signal_clipping
+    self._early_stopping_condition = early_stopping_condition
+    self._optimiser_spec = optimiser_spec
 
-    self._optimiser_spec: GDKC = None
 
-    self._naive_max_policy = False
 
-    super().__init__(*args, **kwargs)
-
-  def __build__(self, env: Environment, writer: Writer = None, print_model_repr=True, **kwargs):
+  def __build__(self,
+                observation_space: ObservationSpace,
+                action_space: ActionSpace,
+                signal_space: SignalSpace,
+                writer: Writer = None,
+                print_model_repr=True,
+                **kwargs):
 
     self._value_model = self._value_arch_spec().to(self._device)
 
@@ -70,6 +148,9 @@ All value iteration agents should inherit from this class
              highlight=True,
              color='cyan')
 
+  # endregion
+
+  # region Public
   @property
   def models(self) -> Dict[str, Architecture]:
     return {'_value_model':self._value_model}
@@ -122,7 +203,9 @@ All value iteration agents should inherit from this class
 
   # region Protected
 
-  def _post_io_inference(self, env):
+  def _post_io_inference(self, observation_space: ObservationSpace,
+                action_space: ActionSpace,
+                signal_space: SignalSpace):
     self._value_arch_spec.kwargs['input_shape'] = self._input_shape
     self._value_arch_spec.kwargs['output_shape'] = self._output_shape
 

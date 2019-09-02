@@ -17,7 +17,7 @@ from neodroidagent.training.procedures import train_episodically
 from neodroidagent.training.sessions import linear_training
 from warg.arguments import config_to_mapping
 
-__author__ = 'cnheider'
+__author__ = 'Christian Heider Nielsen'
 __doc__ = ''
 
 

@@ -5,7 +5,7 @@ import pytest
 
 from neodroidagent.memory import ReplayBuffer, TrajectoryBuffer, TransitionBuffer
 
-__author__ = 'cnheider'
+__author__ = 'Christian Heider Nielsen'
 __doc__ = ''
 
 

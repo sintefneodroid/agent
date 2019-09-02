@@ -2,20 +2,21 @@
 # -*- coding: utf-8 -*-
 from abc import ABC, abstractmethod
 from pathlib import Path
+from typing import Dict
 
 import torch
 from tqdm import tqdm
-from typing import Dict
 
 from draugr.torch_utilities import save_model
 from neodroidagent.interfaces.agent import Agent
 from neodroidagent.interfaces.architecture import Architecture
+from warg.kw_passing import passes_kws_to_super_init
 
 tqdm.monitor_interval = 0
 
-__author__ = 'cnheider'
+__author__ = 'Christian Heider Nielsen'
 
-
+@passes_kws_to_super_init
 class TorchAgent(Agent, ABC):
   '''
 All agent should inherit from this class
@@ -24,15 +25,16 @@ All agent should inherit from this class
   # region Private
 
   def __init__(self,
-               *args,
-               use_cuda=False,
-               cuda_device_id=0,
+               *,
+               device: str = 'cuda',
                **kwargs):
-    self._use_cuda = use_cuda
-    self._device = torch.device(f'cuda:{cuda_device_id}'
-                                if torch.cuda.is_available() and self._use_cuda else 'cpu')
+    super().__init__(**kwargs)
+    self._device = torch.device(device
+                                if torch.cuda.is_available()
+                                   and device != 'cpu'
+                                else 'cpu')
 
-    super().__init__(*args, **kwargs)
+
 
   @property
   def device(self) -> torch.device:
@@ -43,7 +45,7 @@ All agent should inherit from this class
   # region Public
   @property
   @abstractmethod
-  def models(self) -> Dict[str,Architecture]:
+  def models(self) -> Dict[str, Architecture]:
     raise NotImplementedError
 
   def save(self, model_path: Path, **kwargs) -> None:

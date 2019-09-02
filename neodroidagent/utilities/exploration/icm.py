@@ -11,7 +11,7 @@ from draugr.torch_utilities.to_tensor import to_tensor
 from neodroid.interfaces import ActionSpace, ObservationSpace
 from neodroidagent.utilities.exploration.curiosity_module import CuriosityModule
 
-__author__ = 'cnheider'
+__author__ = 'Christian Heider Nielsen'
 __doc__ = r'''
            '''
 

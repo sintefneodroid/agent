@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 import draugr
 
-__author__ = 'cnheider'
+__author__ = 'Christian Heider Nielsen'
 
 import torch
 
