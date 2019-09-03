@@ -14,8 +14,8 @@ from draugr.torch_utilities import copy_state
 from draugr.visualisation import sprint
 from draugr.writers import MockWriter, TensorBoardPytorchWriter
 from draugr.writers.writer import Writer
-from neodroid.environments.environment import Environment
-from neodroid.interfaces import ObservationSpace, ActionSpace, SignalSpace
+
+from neodroid.interfaces.spaces import ObservationSpace, ActionSpace, SignalSpace
 from neodroidagent.architectures import MLP
 from neodroidagent.architectures.mock import MockArchitecture
 from neodroidagent.interfaces.architecture import Architecture
@@ -27,7 +27,7 @@ from warg.kw_passing import passes_kws_to_super_init
 
 __author__ = 'Christian Heider Nielsen'
 
-@passes_kws_to_super_init
+@passes_kws_to_super_init(super_base=TorchAgent)
 class ValueAgent(TorchAgent):
   '''
 All value iteration agents should inherit from this class

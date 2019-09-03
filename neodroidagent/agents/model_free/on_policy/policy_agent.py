@@ -8,7 +8,7 @@ from draugr.torch_utilities.to_tensor import to_tensor
 from draugr.visualisation import sprint
 from draugr.writers import MockWriter, TensorBoardPytorchWriter
 from draugr.writers.writer import Writer
-from neodroid.interfaces import ActionSpace, ObservationSpace, SignalSpace
+from neodroid.interfaces.spaces import ActionSpace, ObservationSpace, SignalSpace
 from neodroidagent.architectures import Architecture
 from neodroidagent.architectures.distributional.categorical import CategoricalMLP
 from neodroidagent.architectures.distributional.normal import MultiDimensionalNormalMLP
@@ -16,7 +16,7 @@ from neodroidagent.architectures.mock import MockArchitecture
 from neodroidagent.interfaces.torch_agent import TorchAgent
 from neodroidagent.memory import TrajectoryBuffer
 from warg.gdkc import GDKC
-from warg.kw_passing import passes_kws_to,passes_kws_to_super_init
+from warg.kw_passing import passes_kws_to_super_init
 
 __author__ = 'Christian Heider Nielsen'
 

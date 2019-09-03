@@ -94,8 +94,7 @@ class NeodroidAgentPackage:
     return {
         'console_scripts':[
             # "name_of_executable = module.with:function_to_execute"
-            'neodroid-tab = neodroidagent.agents.experimental.tabular_q_agent:tabular_run',
-            'neodroid-rnd = neodroidagent.agents.experimental.random_agent:random_run',
+            'neodroid-rnd = neodroidagent.agents.random_agent:random_run',
             'neodroid-ppo = neodroidagent.agents.model_free.hybrid.ppo_agent:ppo_run',
             'neodroid-dqn = neodroidagent.agents.model_free.off_policy.dqn_agent:dqn_run',
             'neodroid-pg = neodroidagent.agents.model_free.on_policy.pg_agent:pg_run',

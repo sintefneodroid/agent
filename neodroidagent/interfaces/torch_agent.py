@@ -16,7 +16,7 @@ tqdm.monitor_interval = 0
 
 __author__ = 'Christian Heider Nielsen'
 
-@passes_kws_to_super_init
+@passes_kws_to_super_init(super_base=Agent)
 class TorchAgent(Agent, ABC):
   '''
 All agent should inherit from this class

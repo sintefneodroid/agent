@@ -15,7 +15,7 @@ from draugr.visualisation import sprint
 from draugr.writers import MockWriter, TensorBoardPytorchWriter
 from draugr.writers.writer import Writer
 from neodroid.environments.environment import Environment
-from neodroid.interfaces import SignalSpace, ActionSpace, ObservationSpace
+from neodroid.interfaces.spaces import SignalSpace, ActionSpace, ObservationSpace
 from neodroid.interfaces.unity_specifications import EnvironmentSnapshot
 from neodroidagent.architectures import MLP
 from neodroidagent.architectures.experimental.merged import MergedInputMLP

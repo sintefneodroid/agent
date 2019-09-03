@@ -10,15 +10,20 @@ from draugr.visualisation import sprint
 from draugr.writers import MockWriter
 from draugr.writers.writer import Writer
 from neodroid.environments.environment import Environment
-from neodroid.interfaces import ActionSpace, ObservationSpace, SignalSpace
+from neodroid.interfaces.spaces import ActionSpace, ObservationSpace, SignalSpace
 from neodroid.interfaces.unity_specifications import EnvironmentSnapshot
 
 tqdm.monitor_interval = 0
 
-__author__ = 'Christian Heider Nielsen'
+
 
 from abc import ABC, abstractmethod
 
+
+__author__ = 'Christian Heider Nielsen'
+__doc__ = r'''
+Base class for all Neodroid Agents
+'''
 
 class Agent(ABC):
   '''
