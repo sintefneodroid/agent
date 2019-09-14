@@ -18,17 +18,17 @@ class SelfAvoiding(RandomProcess):
 
   def sample(self, steps=1):
     while (
-        (self.x > 0)
-        and (self.x < self.n - 1)
-        and (self.y > 0)
-        and (self.y < self.n - 1)
+      (self.x > 0)
+      and (self.x < self.n - 1)
+      and (self.y > 0)
+      and (self.y < self.n - 1)
     ):
       self.a[self.x][self.y] = 1
       if (
-          self.a[self.x - 1][self.y]
-          and self.a[self.x + 1][self.y]
-          and self.a[self.x][self.y - 1]
-          and self.a[self.x][self.y + 1]
+        self.a[self.x - 1][self.y]
+        and self.a[self.x + 1][self.y]
+        and self.a[self.x][self.y - 1]
+        and self.a[self.x][self.y + 1]
       ):
         self.deadEnds += 1
         return self.a[self.x - 1][self.y]

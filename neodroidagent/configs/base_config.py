@@ -7,7 +7,7 @@ import torch.nn.functional as F
 
 from neodroidagent import PROJECT_NAME
 from neodroidagent.architectures.distributional.categorical import CategoricalMLP
-from neodroidagent.interfaces.specifications.exploration_specification import ExplorationSpecification
+from neodroidagent.utilities.specifications.exploration_specification import ExplorationSpecification
 from warg.gdkc import GDKC
 from warg.named_ordered_dictionary import NOD
 
@@ -25,6 +25,7 @@ LOAD_TIME = str(int(time.time()))
 
 VERBOSE = False
 USE_LOGGING = True
+
 
 # Architecture
 POLICY_ARCH_SPEC = GDKC(CategoricalMLP,
@@ -90,5 +91,5 @@ if not START_VISDOM_SERVER:
 # CONSTANTS
 MOVING_AVERAGE_WINDOW = 100
 SPACER_SIZE = 60
-SEED = 6
 SAVE_MODEL_INTERVAL = 100
+SEED = 2**24 - 1 # Upto power 32

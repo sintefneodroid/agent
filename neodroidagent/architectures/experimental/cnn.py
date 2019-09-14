@@ -3,12 +3,11 @@
 from collections.abc import Collection
 
 from draugr.torch_utilities import atari_initializer, ortho_weights
-from neodroidagent.interfaces.architecture import Architecture
+from neodroidagent.architectures.architecture import Architecture
 
 __author__ = 'Christian Heider Nielsen'
 from torch import nn
 from torch.nn import functional as F
-
 
 
 class CNN(Architecture):
@@ -60,13 +59,13 @@ Args:
 '''
     super().__init__()
 
-    self.conv = nn.Sequential(        nn.Conv2d(4, 32, 8, stride=4),
-        nn.ReLU(inplace=inplace_ops),
-        nn.Conv2d(32, 64, 4, stride=2),
-        nn.ReLU(inplace=inplace_ops),
-        nn.Conv2d(64, 64, 3, stride=1),
-        nn.ReLU(inplace=inplace_ops),
-        )
+    self.conv = nn.Sequential(nn.Conv2d(4, 32, 8, stride=4),
+                              nn.ReLU(inplace=inplace_ops),
+                              nn.Conv2d(32, 64, 4, stride=2),
+                              nn.ReLU(inplace=inplace_ops),
+                              nn.Conv2d(64, 64, 3, stride=1),
+                              nn.ReLU(inplace=inplace_ops),
+                              )
 
     self.fc = nn.Sequential(nn.Linear(64 * 7 * 7, 512), nn.ReLU(inplace=inplace_ops))
 

@@ -4,7 +4,6 @@
 from typing import Any, Iterable, Union
 
 import numpy
-import numpy
 from numba import jit
 from scipy.signal import lfilter
 

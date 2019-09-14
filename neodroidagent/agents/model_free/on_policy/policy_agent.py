@@ -8,21 +8,22 @@ from draugr.torch_utilities.to_tensor import to_tensor
 from draugr.visualisation import sprint
 from draugr.writers import MockWriter, TensorBoardPytorchWriter
 from draugr.writers.writer import Writer
-from neodroid.interfaces.spaces import ActionSpace, ObservationSpace, SignalSpace
+from neodroid.utilities.spaces import ActionSpace, ObservationSpace, SignalSpace
+from neodroidagent.agents.torch_agent import TorchAgent
 from neodroidagent.architectures import Architecture
 from neodroidagent.architectures.distributional.categorical import CategoricalMLP
 from neodroidagent.architectures.distributional.normal import MultiDimensionalNormalMLP
 from neodroidagent.architectures.mock import MockArchitecture
-from neodroidagent.interfaces.torch_agent import TorchAgent
 from neodroidagent.memory import TrajectoryBuffer
 from warg.gdkc import GDKC
-from warg.kw_passing import passes_kws_to_super_init
+from warg.kw_passing import super_init_pass_on_kws
 
 __author__ = 'Christian Heider Nielsen'
 
 import torch
 
-@passes_kws_to_super_init
+
+@super_init_pass_on_kws
 class PolicyAgent(TorchAgent):
   '''
   All policy iteration agents should inherit from this class
@@ -109,8 +110,6 @@ class PolicyAgent(TorchAgent):
     self._distribution_regressor = distribution_regressor
     self._deterministic = deterministic
 
-
-
   def __build__(self,
                 observation_space: ObservationSpace,
                 action_space: ActionSpace,
@@ -118,9 +117,16 @@ class PolicyAgent(TorchAgent):
                 metric_writer: Writer = MockWriter(),
                 print_model_repr=True,
                 **kwargs):
+    self._policy_arch_spec.kwargs['input_shape'] = self._input_shape
+    if action_space.is_discrete:
+      self._policy_arch_spec = GDKC(CategoricalMLP, self._policy_arch_spec.kwargs)
+      self._policy_arch_spec.kwargs['output_shape'] = self._output_shape
+    else:
+      self._policy_arch_spec = GDKC(MultiDimensionalNormalMLP, self._policy_arch_spec.kwargs)
+      self._policy_arch_spec.kwargs['output_shape'] = self._output_shape
 
     self._distribution_regressor = self._policy_arch_spec().to(
-        self._device)
+      self._device)
 
     self.optimiser = self._optimiser_spec(self._distribution_regressor.parameters())
 
@@ -148,22 +154,6 @@ class PolicyAgent(TorchAgent):
 
   # endregion
 
-  # region Protected
-
-  def _post_io_inference(self,
-                         observation_space: ObservationSpace,
-                         action_space: ActionSpace,
-                         signal_space: SignalSpace):
-
-    self._policy_arch_spec.kwargs['input_shape'] = self._input_shape
-    if action_space.is_discrete:
-      self._policy_arch_spec = GDKC(CategoricalMLP, self._policy_arch_spec.kwargs)
-      self._policy_arch_spec.kwargs['output_shape'] = self._output_shape
-    else:
-      self._policy_arch_spec = GDKC(MultiDimensionalNormalMLP, self._policy_arch_spec.kwargs)
-      self._policy_arch_spec.kwargs['output_shape'] = self._output_shape
-
-      # endregion
 
   # region Abstract
 

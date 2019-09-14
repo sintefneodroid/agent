@@ -7,7 +7,7 @@ __author__ = 'Christian Heider Nielsen'
 
 class RandomProcess(ABC):
 
-  def __init__(self,**kwargs):
+  def __init__(self, **kwargs):
     pass
 
   def reset(self):

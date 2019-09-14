@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-from neodroidagent.interfaces.specifications import TrajectoryPoint
 from neodroidagent.memory import ExpandableCircularBuffer
+from neodroidagent.utilities.specifications import TrajectoryPoint
 from warg.arguments import namedtuple_args
 
 __author__ = 'Christian Heider Nielsen'

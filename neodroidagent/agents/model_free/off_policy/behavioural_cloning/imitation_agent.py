@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 from abc import ABC
 
-from neodroidagent.interfaces.torch_agent import TorchAgent
+from neodroidagent.agents.torch_agent import TorchAgent
 
 __author__ = 'Christian Heider Nielsen'
 

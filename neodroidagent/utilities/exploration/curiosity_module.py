@@ -12,6 +12,6 @@ __doc__ = r'''
 class CuriosityMeta(metaclass=ABCMeta):
   pass
 
+
 class CuriosityModule(CuriosityMeta, nn.Module):
   pass
-

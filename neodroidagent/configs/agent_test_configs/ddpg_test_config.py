@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+import torch
+
 from neodroidagent.architectures import SingleHeadMLP
 from neodroidagent.architectures.experimental.merged import SingleHeadMergedInputMLP
 from neodroidagent.memory import TransitionBuffer

@@ -36,7 +36,7 @@ class UCB1:
 
     value = self._values[option_index]
     new_value = ((options_counts_float - 1) / options_counts_float) * value + (
-        1 / options_counts_float) * signal
+      1 / options_counts_float) * signal
     self._values[option_index] = new_value
 
   @property

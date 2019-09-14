@@ -25,7 +25,7 @@ def train_agent(config, agent):
 
   agent.build(env)
 
-  listener = add_early_stopping_key_combination(agent.stop_training)
+  listener = add_early_stopping_key_combination(agent.stop_procedure)
 
   listener.start()
   try:

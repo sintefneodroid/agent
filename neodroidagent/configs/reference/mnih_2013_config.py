@@ -71,16 +71,16 @@ EPSILON = 0.01
 
 # Architecture
 ARCHITECTURE_CONFIGURATION = NOD(
-    input_shape=-1,
-    hidden_layers=[64, 32, 16],
-    output_shape=-1
-    )
+  input_shape=-1,
+  hidden_layers=[64, 32, 16],
+  output_shape=-1
+  )
 
 # Layer, Input,  Filter size,	Stride,	Number of filters,	Activation,	Output
 ARC = NOD(
-    conv1={'84x84x4', '8x8', '4', '32', 'ReLU', '20x20x32'},
-    conv2={'20x20x32', '4x4', '2', '64', 'ReLU', '9x9x64'},
-    conv3={'9x9x64', '3x3', '1', '64', 'ReLU', '7x7x64'},
-    fc4={'7x7x64', '', '', '512', 'ReLU', '512'},
-    fc5={'512', '', '', '2', 'Linear', '2'}
-    )
+  conv1={'84x84x4', '8x8', '4', '32', 'ReLU', '20x20x32'},
+  conv2={'20x20x32', '4x4', '2', '64', 'ReLU', '9x9x64'},
+  conv3={'9x9x64', '3x3', '1', '64', 'ReLU', '7x7x64'},
+  fc4={'7x7x64', '', '', '512', 'ReLU', '512'},
+  fc5={'512', '', '', '2', 'Linear', '2'}
+  )

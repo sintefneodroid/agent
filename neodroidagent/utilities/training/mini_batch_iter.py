@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 from typing import Sequence
 
-from neodroidagent.interfaces.specifications import AdvantageDiscountedTransition, ValuedTransition
+from neodroidagent.utilities.specifications import AdvantageDiscountedTransition, ValuedTransition
 
 __author__ = 'Christian Heider Nielsen'
 __doc__ = r'''

@@ -18,7 +18,7 @@ class WienerProcess(RandomProcess):
     self.dt = dt
     self.last_x = initial
 
-  def sample(self,size=1):
+  def sample(self, size=1):
     x = self.last_x + norm.rvs(scale=self.delta ** 2 * self.dt)
     self.last_x = x
     return x
@@ -72,16 +72,16 @@ Note that the initial value `x0` is not included in the returned array.
   x0 = numpy.asarray(x0)
 
   r = norm.rvs(
-      size=x0.shape + (n,), scale=delta * sqrt(dt)
-      )  # For each element of x0, generate a sample of n numbers from a normal distribution.
+    size=x0.shape + (n,), scale=delta * sqrt(dt)
+    )  # For each element of x0, generate a sample of n numbers from a normal distribution.
 
   # If `out` was not given, create an output array.
   if out is None:
     out = numpy.empty(r.shape)
 
   numpy.cumsum(
-      r, axis=-1, out=out
-      )  # This computes the Brownian motion by forming the cumulative sum of the random samples.
+    r, axis=-1, out=out
+    )  # This computes the Brownian motion by forming the cumulative sum of the random samples.
 
   out += numpy.expand_dims(x0, axis=-1)  # Add the initial condition.
 

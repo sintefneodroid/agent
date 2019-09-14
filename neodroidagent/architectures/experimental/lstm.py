@@ -8,7 +8,7 @@ from torch.autograd import Variable
 from torch.nn import functional as F
 
 # LSTM Memory
-from neodroidagent.interfaces.architecture import Architecture
+from neodroidagent.architectures.architecture import Architecture
 
 LSTM_MEMORY = 128
 
@@ -20,8 +20,8 @@ class LSTM_DQN(Architecture):
     self._n_action = n_action
 
     self.conv1 = nn.Conv2d(
-        4, 32, kernel_size=8, stride=1, padding=1
-        )  # (In Channel, Out Channel, ...)
+      4, 32, kernel_size=8, stride=1, padding=1
+      )  # (In Channel, Out Channel, ...)
     self.conv2 = nn.Conv2d(32, 64, kernel_size=5, stride=1, padding=1)
     self.conv3 = nn.Conv2d(64, 64, kernel_size=3, stride=1, padding=1)
     self.conv4 = nn.Conv2d(64, 64, kernel_size=3, stride=1, padding=1)
@@ -42,8 +42,8 @@ class LSTM_DQN(Architecture):
     # LSTM
     h = h.view(h.size(0), h.size(1), 16)  # (32, 64, 4, 4) -> (32, 64, 16)
     h, (next_hidden_state, next_cell_state) = self.lstm(
-        h, (hidden_state, cell_state)
-        )
+      h, (hidden_state, cell_state)
+      )
     h = h.view(h.size(0), -1)  # (32, 64, 256) -> (32, 16348)
 
     # Fully Connected Layers

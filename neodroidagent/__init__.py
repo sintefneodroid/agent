@@ -12,11 +12,11 @@ from apppath.app_path import AppPath
 __project__ = 'NeodroidAgent'
 __author__ = "Christian Heider Nielsen"
 __version__ = "0.4.1"
-__doc__ = r"""
+__doc__ = r'''
 Created on 27/04/2019
 
 @author: cnheider
-"""
+'''
 
 '''
 def dist_is_editable(dist):
@@ -31,8 +31,8 @@ def dist_is_editable(dist):
     return False
 '''
 
-PROJECT_NAME = __project__.lower().strip().replace(' ','_')
-PROJECT_AUTHOR = __author__.lower().strip().replace(' ','_')
+PROJECT_NAME = __project__.lower().strip().replace(' ', '_')
+PROJECT_AUTHOR = __author__.lower().strip().replace(' ', '_')
 PROJECT_APP_PATH = AppPath(app_name=PROJECT_NAME, app_author=PROJECT_AUTHOR)
 
 distributions = {v.key:v for v in pkg_resources.working_set}
@@ -74,8 +74,8 @@ def get_version(append_time=DEVELOP):
       # Publications using datetime versions should only be made from master
       # to represent the HEAD moving forward.
       warn(
-          f"Environment variable VERSION is not set, only using datetime: {date_version}"
-          )
+        f"Environment variable VERSION is not set, only using datetime: {date_version}"
+        )
 
       # warn(f'Environment variable VERSION is not set, only using timestamp: {version}')
 

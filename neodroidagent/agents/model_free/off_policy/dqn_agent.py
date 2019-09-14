@@ -7,7 +7,7 @@ from draugr.torch_utilities.to_tensor import to_tensor
 from draugr.writers import MockWriter
 from draugr.writers.writer import Writer
 from neodroid.environments.environment import Environment
-from neodroid.interfaces.unity_specifications import EnvironmentSnapshot
+from neodroid.utilities.unity_specifications import EnvironmentSnapshot
 from neodroidagent.agents.model_free.off_policy.value_agent import ValueAgent
 
 __author__ = 'Christian Heider Nielsen'
@@ -118,7 +118,7 @@ class DQNAgent(ValueAgent):
     p = self._value_model(states)[0]
     Q_state = p.gather(-1, action_indices).squeeze(-1)
 
-    return self._evaluation_function(Q_state, Q_expected)
+    return self._loss_function(Q_state, Q_expected)
 
   def rollout(self,
               initial_state: EnvironmentSnapshot,
@@ -159,8 +159,8 @@ class DQNAgent(ValueAgent):
                                          )
 
       if (len(self._memory_buffer) >= self._batch_size
-          and self._sample_i > self._initial_observation_period
-          and self._sample_i % self._learning_frequency == 0
+        and self._sample_i > self._initial_observation_period
+        and self._sample_i % self._learning_frequency == 0
       ):
 
         self.update()
@@ -204,26 +204,9 @@ class DQNAgent(ValueAgent):
 # region Test
 
 
-def dqn_test(rollouts=None, skip=True):
-  from neodroidagent.training.agent_session_entry_point import agent_session_entry_point
-  from neodroidagent.training.sessions.parallel_training import parallelised_training
-  import neodroidagent.configs.agent_test_configs.dqn_test_config as C
-
-  # import configs.cnn_dqn_config as C
-  if rollouts:
-    C.ROLLOUTS = rollouts
-
-  agent_session_entry_point(DQNAgent,
-                            C,
-                            parse_args=False,
-                            training_session=parallelised_training,
-                            skip_confirmation=skip)
-  # test_cnn_dqn_agent(C)
-
-
 def dqn_run(rollouts=None, skip=True):
-  from neodroidagent.training.agent_session_entry_point import agent_session_entry_point
-  from neodroidagent.training.sessions.parallel_training import parallelised_training
+  from neodroidagent.sessions.session_entry_point import session_entry_point
+  from neodroidagent.sessions.parallel import ParallelSession
   import neodroidagent.configs.agent_test_configs.dqn_test_config as C
 
   if rollouts:
@@ -231,12 +214,31 @@ def dqn_run(rollouts=None, skip=True):
 
   C.CONNECT_TO_RUNNING = True
 
-  agent_session_entry_point(DQNAgent,
-                            C,
-                            training_session=parallelised_training,
-                            skip_confirmation=skip)
+  session_entry_point(DQNAgent,
+                      C,
+                      session=ParallelSession,
+                      skip_confirmation=skip)
+
+
+def dqn_test(rollouts=None, skip=True):
+  from neodroidagent.sessions.session_entry_point import session_entry_point
+  from neodroidagent.sessions.parallel import ParallelSession
+  import neodroidagent.configs.agent_test_configs.dqn_test_config as C
+
+  # import configs.cnn_dqn_config as C
+  if rollouts:
+    C.ROLLOUTS = rollouts
+
+  session_entry_point(DQNAgent,
+                      C,
+                      parse_args=False,
+                      session=ParallelSession,
+                      skip_confirmation=skip)
+  # test_cnn_dqn_agent(C)
 
 
 if __name__ == '__main__':
+
   dqn_test()
+  # dqn_run()
 # endregion

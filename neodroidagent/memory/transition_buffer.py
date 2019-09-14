@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-from neodroidagent.interfaces.specifications import Transition
 from neodroidagent.memory import ExpandableCircularBuffer
+from neodroidagent.utilities.specifications import Transition
 from warg.arguments import namedtuple_args
 
 __author__ = 'Christian Heider Nielsen'

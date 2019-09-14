@@ -10,7 +10,7 @@ class AnnealedGaussianProcess(RandomProcess):
   def sample(self, size):
     pass
 
-  def __init__(self, mean, sigma, sigma_min, n_steps_annealing,**kwargs):
+  def __init__(self, mean, sigma, sigma_min, n_steps_annealing, **kwargs):
     super().__init__()
     self.mean = mean
     self.sigma = sigma

@@ -37,11 +37,11 @@ OPTIMISER_SPEC = GDKC(torch.optim.RMSprop, {})  # torch.optim.Adam
 
 # Architecture
 VALUE_ARCH_SPEC = GDKC(CNN, NOD(
-    input_shape=None,  # Obtain from environment
-    input_channels=None,
-    hidden_layers=[64, 32, 16],
-    output_shape=None,  # Obtain from environment
-    output_channels=None,
-    hidden_layer_activation=F.relu,
-    use_bias=True
-    ))
+  input_shape=None,  # Obtain from environment
+  input_channels=None,
+  hidden_layers=[64, 32, 16],
+  output_shape=None,  # Obtain from environment
+  output_channels=None,
+  hidden_layer_activation=F.relu,
+  use_bias=True
+  ))

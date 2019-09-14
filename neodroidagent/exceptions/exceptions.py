@@ -5,28 +5,52 @@ __author__ = 'Christian Heider Nielsen'
 
 
 class HasNoEnvError(Exception):
-  """
+  '''
   Raised when an agent has no environment assigned and some implicit next or step called.
-  """
+  '''
 
-  def __init__(self):
-    msg = 'Agent has no env assigned'
+  def __init__(self, msg='Agent has no env assigned'):
+    Exception.__init__(self, msg)
+
+class NoEnvironment(Exception):
+  '''
+
+  '''
+
+  def __init__(self, msg='No Environment'):
+    Exception.__init__(self, msg)
+
+class NoProcedure(Exception):
+  '''
+
+  '''
+
+  def __init__(self, msg='No Procedure'):
     Exception.__init__(self, msg)
 
 
-class NoTrainingProcedure(Exception):
-  def __init__(self):
-    msg = 'No TrainingProcedure'
+class NoAgent(Exception):
+  '''
+
+  '''
+
+  def __init__(self, msg='No Agent'):
     Exception.__init__(self, msg)
 
 
 class NoTrajectoryException(Exception):
-  def __init__(self):
-    msg = 'No Trajectory Available'
+  '''
+
+  '''
+
+  def __init__(self, msg='No Trajectory Available'):
     Exception.__init__(self, msg)
 
 
 class ActionSpaceNotSupported(Exception):
-  def __init__(self):
-    msg = 'Action space not supported by agent'
+  '''
+
+  '''
+
+  def __init__(self, msg='Action space not supported by agent'):
     Exception.__init__(self, msg)

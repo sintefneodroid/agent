@@ -3,12 +3,12 @@
 
 import numpy
 import torch
+from neodroid.interfaces import ActionSpace, ObservationSpace
 from torch import nn
 from torch.distributions import Categorical
 from torch.nn import CrossEntropyLoss, MSELoss
 
 from draugr.torch_utilities.to_tensor import to_tensor
-from neodroid.interfaces import ActionSpace, ObservationSpace
 from neodroidagent.utilities.exploration.curiosity_module import CuriosityModule
 
 __author__ = 'Christian Heider Nielsen'
@@ -26,12 +26,12 @@ class ForwardModel(nn.Module):
     else:
       self.action_encoder = nn.Linear(action_converter.shape[0], action_latent_features)
     self.hidden = nn.Sequential(
-        nn.Linear(action_latent_features + state_latent_features, 128),
-        nn.ReLU(inplace=True),
-        nn.Linear(128, 128),
-        nn.ReLU(inplace=True),
-        nn.Linear(128, state_latent_features)
-        )
+      nn.Linear(action_latent_features + state_latent_features, 128),
+      nn.ReLU(inplace=True),
+      nn.Linear(128, 128),
+      nn.ReLU(inplace=True),
+      nn.Linear(128, state_latent_features)
+      )
 
   def forward(self, state_latent: torch.Tensor, action: torch.Tensor):
     action = self.action_encoder(action.long()
@@ -103,12 +103,12 @@ class MLPICM(CuriosityModule):
     self.intrinsic_reward_integration = intrinsic_reward_integration
 
     self.encoder = nn.Sequential(
-        nn.Linear(observation_space.shape[0], 128),
-        nn.ReLU(inplace=True),
-        nn.Linear(128, 128),
-        nn.ReLU(inplace=True),
-        nn.Linear(128, 128)
-        )
+      nn.Linear(observation_space.shape[0], 128),
+      nn.ReLU(inplace=True),
+      nn.Linear(128, 128),
+      nn.ReLU(inplace=True),
+      nn.Linear(128, 128)
+      )
 
     self.forward_model = ForwardModel(action_space, 128)
     self.inverse_model = InverseModel(action_space, 128)

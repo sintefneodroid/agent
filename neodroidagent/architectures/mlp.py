@@ -6,8 +6,8 @@ from typing import Sequence
 import numpy
 from numpy import prod
 
-from draugr.torch_utilities import xavier_init, to_tensor
-from neodroidagent.interfaces.architecture import Architecture
+from draugr.torch_utilities import to_tensor, xavier_init
+from neodroidagent.architectures.architecture import Architecture
 from warg.named_ordered_dictionary import NOD
 
 __author__ = 'Christian Heider Nielsen'

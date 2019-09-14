@@ -14,20 +14,21 @@ from draugr.torch_utilities import copy_state
 from draugr.visualisation import sprint
 from draugr.writers import MockWriter, TensorBoardPytorchWriter
 from draugr.writers.writer import Writer
-
-from neodroid.interfaces.spaces import ObservationSpace, ActionSpace, SignalSpace
+from neodroid.utilities.spaces import ActionSpace, ObservationSpace, SignalSpace
+from neodroidagent.agents.torch_agent import TorchAgent
 from neodroidagent.architectures import MLP
+from neodroidagent.architectures.architecture import Architecture
 from neodroidagent.architectures.mock import MockArchitecture
-from neodroidagent.interfaces.architecture import Architecture
-from neodroidagent.interfaces.specifications import ExplorationSpecification
-from neodroidagent.interfaces.torch_agent import TorchAgent
+from neodroidagent.exceptions.exceptions import ActionSpaceNotSupported
 from neodroidagent.memory import ReplayBuffer
+from neodroidagent.utilities.specifications import ExplorationSpecification
 from warg.gdkc import GDKC
-from warg.kw_passing import passes_kws_to_super_init
+from warg.kw_passing import super_init_pass_on_kws
 
 __author__ = 'Christian Heider Nielsen'
 
-@passes_kws_to_super_init(super_base=TorchAgent)
+
+@super_init_pass_on_kws(super_base=TorchAgent)
 class ValueAgent(TorchAgent):
   '''
 All value iteration agents should inherit from this class
@@ -36,14 +37,16 @@ All value iteration agents should inherit from this class
   # region Private
 
   def __init__(self,
-               exploration_spec=ExplorationSpecification(start=0.99, end=0.04, decay=10000),
+               exploration_spec=ExplorationSpecification(start=0.99,
+                                                         end=0.04,
+                                                         decay=10000),
                initial_observation_period=0,
                value_model: Architecture = MockArchitecture(),
                target_value_model: Architecture = MockArchitecture(),
                naive_max_policy=False,
                memory_buffer=ReplayBuffer(10000),
                # self._memory = U.PrioritisedReplayMemory(config.REPLAY_MEMORY_SIZE)  # Cuda trouble
-               evaluation_function=smooth_l1_loss,
+               loss_function=smooth_l1_loss, #huber_loss
                value_arch_spec: Architecture = GDKC(MLP,
                                                     input_shape=None,  # Obtain from environment
                                                     hidden_layers=None,
@@ -74,7 +77,7 @@ All value iteration agents should inherit from this class
     :param target_value_model:
     :param naive_max_policy:
     :param memory_buffer:
-    :param evaluation_function:
+    :param loss_function:
     :param value_arch_spec:
     :param batch_size:
     :param discount_factor:
@@ -98,7 +101,7 @@ All value iteration agents should inherit from this class
     self._naive_max_policy = naive_max_policy
     self._memory_buffer = memory_buffer
     # self._memory = U.PrioritisedReplayMemory(config.REPLAY_MEMORY_SIZE)  # Cuda trouble
-    self._evaluation_function = evaluation_function
+    self._loss_function = loss_function
     self._value_arch_spec: Architecture = value_arch_spec
     self._batch_size = batch_size
     self._discount_factor = discount_factor
@@ -114,8 +117,6 @@ All value iteration agents should inherit from this class
     self._early_stopping_condition = early_stopping_condition
     self._optimiser_spec = optimiser_spec
 
-
-
   def __build__(self,
                 observation_space: ObservationSpace,
                 action_space: ActionSpace,
@@ -124,12 +125,17 @@ All value iteration agents should inherit from this class
                 print_model_repr=True,
                 **kwargs):
 
+    if action_space.is_continuous:
+      raise ActionSpaceNotSupported
+
+    self._value_arch_spec.kwargs['input_shape'] = self._input_shape
+    self._value_arch_spec.kwargs['output_shape'] = self._output_shape
     self._value_model = self._value_arch_spec().to(self._device)
 
     self._target_value_model = self._value_arch_spec().to(self._device)
     self._target_value_model: Architecture = copy_state(
-        target=self._target_value_model,
-        source=self._value_model)
+      target=self._target_value_model,
+      source=self._value_model)
     self._target_value_model.eval()
 
     self._optimiser = self._optimiser_spec(self._value_model.parameters())
@@ -189,7 +195,7 @@ All value iteration agents should inherit from this class
       metric_writer.scalar('Current Eps Threshold', self._current_eps_threshold, self._sample_i)
 
     if ((s and self._sample_i > self._initial_observation_period) or
-        no_random):
+      no_random):
 
       return self._sample_model(state)
 
@@ -203,11 +209,6 @@ All value iteration agents should inherit from this class
 
   # region Protected
 
-  def _post_io_inference(self, observation_space: ObservationSpace,
-                action_space: ActionSpace,
-                signal_space: SignalSpace):
-    self._value_arch_spec.kwargs['input_shape'] = self._input_shape
-    self._value_arch_spec.kwargs['output_shape'] = self._output_shape
 
   def _sample_random_process(self, state):
     r = numpy.arange(self._output_shape[0])

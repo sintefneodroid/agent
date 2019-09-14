@@ -7,8 +7,8 @@ __author__ = 'Christian Heider Nielsen'
 import random
 from collections import deque
 
-from neodroidagent.interfaces.specifications import TrajectoryPoint, Transition
 from neodroidagent.memory import ExpandableCircularBuffer
+from neodroidagent.utilities.specifications import TrajectoryPoint, Transition
 from warg.arguments import namedtuple_args
 
 

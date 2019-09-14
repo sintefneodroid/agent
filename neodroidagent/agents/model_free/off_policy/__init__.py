@@ -3,3 +3,7 @@
 
 __author__ = 'Christian Heider Nielsen'
 __doc__ = ''
+
+
+from .value_agent import *
+from .dqn_agent import *

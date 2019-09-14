@@ -1,11 +1,12 @@
 from itertools import count
 from typing import Any
 
-from draugr.writers import Writer, MockWriter
-from neodroid.interfaces.unity_specifications import EnvironmentSnapshot
-
-from neodroidagent.interfaces.agent import Agent
-from neodroidagent.training.procedures import train_episodically, VectorUnityEnvironment
+from draugr.writers import MockWriter, Writer
+from neodroid.environments.unity.vector_unity_environment import VectorUnityEnvironment
+from neodroid.utilities import ActionSpace, ObservationSpace, SignalSpace
+from neodroid.utilities.unity_specifications import EnvironmentSnapshot
+from neodroidagent.agents.agent import Agent
+from neodroidagent.procedures import StepWise
 
 
 class RandomAgent(Agent):
@@ -13,16 +14,22 @@ class RandomAgent(Agent):
   def _update(self, *args, metric_writer: Writer = MockWriter(), **kwargs) -> None:
     pass
 
-  def _sample(self, state: EnvironmentSnapshot, *args, no_random: bool = False,
-              metric_writer: Writer = MockWriter(), **kwargs) -> Any:
+  def _sample(self,
+              state: EnvironmentSnapshot,
+              *args,
+              no_random: bool = False,
+              metric_writer: Writer = MockWriter(),
+              **kwargs) -> Any:
     self._sample_i += 1
     return self.action_space.sample()
 
   # region Private
 
-  def __build__(self,observation_space,
-                   action_space,
-                   signal_space,  **kwargs) -> None:
+  def __build__(self,
+                observation_space: ObservationSpace,
+                action_space: ActionSpace,
+                signal_space: SignalSpace,
+                **kwargs) -> None:
     self.action_space = action_space
 
   # endregion
@@ -34,13 +41,11 @@ class RandomAgent(Agent):
 
   def rollout(self,
               initial_state,
-              environment:VectorUnityEnvironment,
+              environment: VectorUnityEnvironment,
               *,
               train=True,
               render=False,
               **kwargs) -> Any:
-
-
 
     episode_signal = 0
     episode_length = 0
@@ -74,34 +79,35 @@ class RandomAgent(Agent):
 
 # region Test
 def random_test(rollouts=None, skip=True):
-  from neodroidagent.training.agent_session_entry_point import agent_session_entry_point
-  from neodroidagent.training.sessions.parallel_training import parallelised_training
+  from neodroidagent.sessions.session_entry_point import session_entry_point
+  from neodroidagent.sessions.parallel import ParallelSession
   import neodroidagent.configs.agent_test_configs.dqn_test_config as C
 
   if rollouts:
     C.ROLLOUTS = rollouts
 
-  agent_session_entry_point(RandomAgent,
-                            C,
-                            parse_args=False,
-                            training_session=parallelised_training,
-                            skip_confirmation=skip)
+  session_entry_point(RandomAgent,
+                      C,
+                      parse_args=False,
+                      session=ParallelSession,
+                      skip_confirmation=skip)
 
 
 def random_run(rollouts=None, skip=True):
-  from neodroidagent.training.agent_session_entry_point import agent_session_entry_point
-  from neodroidagent.training.sessions.parallel_training import parallelised_training
+  from neodroidagent.sessions.session_entry_point import session_entry_point
+  from neodroidagent.sessions.parallel import ParallelSession
   import neodroidagent.configs.agent_test_configs.pg_test_config as C
 
   if rollouts:
     C.ROLLOUTS = rollouts
 
-  C.CONNECT_TO_RUNNING = True
-
-  agent_session_entry_point(RandomAgent,
-                            C,
-                            training_session=parallelised_training(training_procedure=train_episodically),
-                            skip_confirmation=skip)
+  session_entry_point(RandomAgent,
+                      C,
+                      session=ParallelSession('',
+                                              StepWise,
+                                              auto_reset_on_terminal_state=True,
+                                              connect_to_running=True),
+                      skip_confirmation=skip)
 
 
 if __name__ == '__main__':

@@ -40,16 +40,18 @@ def tile_images(img_nhwc):
 
 
 if __name__ == '__main__':
-  def sigmoid(x: numpy.array, derivative:bool=False) -> numpy.array:
+  def sigmoid(x: numpy.array, derivative: bool = False) -> numpy.array:
     sigm = 1. / (1. + numpy.exp(-x))
     if derivative:
       return sigm * (1. - sigm)
     return sigm
 
+
   import cv2
-  s = (4,8,8,3)
+
+  s = (4, 8, 8, 3)
   a = numpy.array(range(int(prod(s))))
-  a = a*0.003
+  a = a * 0.003
   a = sigmoid(a)
   a = a.reshape(s)
   r = tile_images(a)

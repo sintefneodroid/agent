@@ -12,7 +12,7 @@ class OrnsteinUhlenbeckProcess(AnnealedGaussianProcess):
 
   def __init__(self,
                *,
-               theta: float=.15,
+               theta: float = .15,
                mean: float = 0.,
                sigma: float = 1.,
                dt: float = 1e-2,

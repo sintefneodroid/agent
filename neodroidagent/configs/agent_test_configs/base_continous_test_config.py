@@ -11,5 +11,4 @@ from neodroidagent.configs.base_config import *
 CONFIG_NAME = __name__
 CONFIG_FILE = __file__
 
-
 ENVIRONMENT_NAME = 'Pendulum-v0'

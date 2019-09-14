@@ -6,13 +6,9 @@ from draugr.torch_utilities.to_tensor import to_tensor
 from draugr.writers import MockWriter
 from draugr.writers.writer import Writer
 from neodroid.environments.environment import Environment
-from neodroid.interfaces.unity_specifications import EnvironmentSnapshot
+from neodroid.utilities.unity_specifications import EnvironmentSnapshot
 from neodroidagent.agents.model_free.on_policy.policy_agent import PolicyAgent
-
 from neodroidagent.exceptions.exceptions import NoTrajectoryException
-
-from neodroidagent.training.procedures import train_episodically
-
 
 __author__ = 'Christian Heider Nielsen'
 
@@ -31,7 +27,6 @@ class PGAgent(PolicyAgent):
 
 
   '''
-
 
   # region Protected
 
@@ -128,8 +123,10 @@ class PGAgent(PolicyAgent):
   def rollout(self,
               initial_state: EnvironmentSnapshot,
               environment: Environment,
+              *,
               render: bool = False,
               metric_writer: Writer = MockWriter(),
+              rollout_drawer=None,  # = MockDrawer()
               train: bool = True,
               max_length: int = None,
               disable_stdout: bool = False,
@@ -223,38 +220,43 @@ class PGAgent(PolicyAgent):
 
 
 # region Test
-def pg_test(rollouts=None, skip=True):
-  from neodroidagent.training.agent_session_entry_point import agent_session_entry_point
-  from neodroidagent.training.sessions.parallel_training import parallelised_training
-  import neodroidagent.configs.agent_test_configs.pg_test_config as C
-
-  if rollouts:
-    C.ROLLOUTS = rollouts
-
-  agent_session_entry_point(PGAgent,
-                            C,
-                            parse_args=False,
-                            training_session=parallelised_training,
-                            skip_confirmation=skip)
 
 
 def pg_run(rollouts=None, skip=True):
-  from neodroidagent.training.agent_session_entry_point import agent_session_entry_point
-  from neodroidagent.training.sessions.parallel_training import parallelised_training
+  from neodroidagent.sessions.session_entry_point import session_entry_point
+  from neodroidagent.procedures.training.episodic import Episodic
+  from neodroidagent.sessions.parallel import ParallelSession
   import neodroidagent.configs.agent_test_configs.pg_test_config as C
 
   if rollouts:
     C.ROLLOUTS = rollouts
 
-  C.CONNECT_TO_RUNNING = True
 
-  agent_session_entry_point(PGAgent,
-                            C,
-                            training_session=parallelised_training(training_procedure=train_episodically),
-                            skip_confirmation=skip)
+  session_entry_point(PGAgent,
+                      C,
+                      session=ParallelSession('',
+                                              Episodic,
+                                              connect_to_running=True),
+                      skip_confirmation=skip)
+
+
+def pg_test(rollouts=None, skip=True):
+  from neodroidagent.sessions.session_entry_point import session_entry_point
+  from neodroidagent.sessions.parallel import ParallelSession
+  import neodroidagent.configs.agent_test_configs.pg_test_config as C
+
+  if rollouts:
+    C.ROLLOUTS = rollouts
+
+  session_entry_point(PGAgent,
+                      C,
+                      parse_args=False,
+                      session=ParallelSession,
+                      skip_confirmation=skip)
 
 
 if __name__ == '__main__':
-  # pg_test()
-  pg_run()
+
+  pg_test()
+  # pg_run()
 # endregion

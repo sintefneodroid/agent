@@ -17,10 +17,11 @@ import pathlib
 import re
 
 with open(pathlib.Path(__file__).parent / "neodroidagent" / "__init__.py", "r") as project_init_file:
+  str_reg_exp = "['\"]([^'\"]*)['\"]"
   content = project_init_file.read()  # get strings from module
-  version = re.search(r"__version__ = ['\"]([^'\"]*)['\"]", content, re.M).group(1)
-  project_name = re.search(r"__project__ = ['\"]([^'\"]*)['\"]", content, re.M).group(1)
-  author = re.search(r"__author__ = ['\"]([^'\"]*)['\"]", content, re.M).group(1)
+  version = re.search(rf"__version__ = {str_reg_exp}", content, re.M).group(1)
+  project_name = re.search(rf"__project__ = {str_reg_exp}", content, re.M).group(1)
+  author = re.search(rf"__author__ = {str_reg_exp}", content, re.M).group(1)
 
 __author__ = author
 
@@ -117,6 +118,22 @@ class NeodroidAgentPackage:
         # 'ExtraName':['package-name; platform_system == "System(Linux,Windows)"'
 
         }
+
+    path: pathlib.Path = pathlib.Path(__file__).parent
+
+    for file in path.iterdir():
+      if (file.name.startswith('requirements_')):
+
+        requirements_group = []
+        with open(str(file.absolute())) as f:
+          requirements = f.readlines()
+
+          for requirement in requirements:
+            requirements_group.append(requirement.strip())
+
+        group_name_ = '_'.join(file.name.strip('.txt').split('_')[1:])
+
+        these_extras[group_name_] = requirements_group
 
     all_dependencies = []
 

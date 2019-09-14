@@ -6,7 +6,7 @@ from typing import Any
 
 from tqdm import tqdm
 
-from neodroidagent.interfaces.agent import Agent
+from neodroidagent.agents.agent import Agent
 
 __author__ = 'Christian Heider Nielsen'
 
