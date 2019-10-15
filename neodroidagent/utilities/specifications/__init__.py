@@ -7,5 +7,4 @@ from .exploration_specification import *
 from .points import *
 from .procedure_specification import *
 from .training_resume import *
-from .environment_session import *
 from .transitions import *

@@ -10,7 +10,9 @@ Author: Christian Heider Nielsen
 from neodroidagent.configs.base_config import *
 
 CONFIG_NAME = __name__
-CONFIG_FILE = __file__
+import pathlib
+
+CONFIG_FILE_PATH = pathlib.Path(__file__)
 
 ROLLOUTS = 10000
 INITIAL_OBSERVATION_PERIOD = 0

@@ -19,7 +19,7 @@ class ConstantEnvironment(NoRenderEnv):
     ranges = [Range(min_value=0, max_value=1, decimal_granularity=0) for i in range(n_obs)]
     self.action_space = Space(ranges, discrete_binary=True)
     self.observation_space = Space([Range(min_value=0, max_value=1, decimal_granularity=0) for i in range(
-        n_actions)])
+      n_actions)])
 
     self.obs = self.observation_space.sample()
 

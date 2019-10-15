@@ -11,7 +11,9 @@ Author: Christian Heider Nielsen
 from neodroidagent.configs.base_config import *
 
 CONFIG_NAME = __name__
-CONFIG_FILE = __file__
+import pathlib
+
+CONFIG_FILE_PATH = pathlib.Path(__file__)
 
 # Paths
 AGENT_TYPE_NAME = "DefaultAgent"

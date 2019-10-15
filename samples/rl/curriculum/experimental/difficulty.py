@@ -24,25 +24,25 @@ def sample_configuration2(current_difficulty, info):
 
   b = [
     neodroid.Configuration(
-        'ManipulatorTriDOFConfigurableX', goal_pos[0] + perturbation[0]
-        ),
+      'ManipulatorTriDOFConfigurableX', goal_pos[0] + perturbation[0]
+      ),
     neodroid.Configuration(
-        'ManipulatorTriDOFConfigurableY', goal_pos[1] + perturbation[1]
-        ),
+      'ManipulatorTriDOFConfigurableY', goal_pos[1] + perturbation[1]
+      ),
     neodroid.Configuration(
-        'ManipulatorTriDOFConfigurableZ', goal_pos[2] + perturbation[2]
-        ),
+      'ManipulatorTriDOFConfigurableZ', goal_pos[2] + perturbation[2]
+      ),
     ]
 
   return b + color_sample('Wall1') + color_sample('Wall2') + color_sample(
-      'Wall3'
-      ) + color_sample(
-      'Wall4'
-      ) + color_sample(
-      'Roof'
-      ) + color_sample(
-      'Ground'
-      )
+    'Wall3'
+    ) + color_sample(
+    'Wall4'
+    ) + color_sample(
+    'Roof'
+    ) + color_sample(
+    'Ground'
+    )
 
 
 def sample_configuration(current_difficulty, info):

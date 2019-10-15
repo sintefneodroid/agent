@@ -230,14 +230,14 @@ def patched_make_field(self, types, domain, items, **kw):
         typename = typename.replace('float', 'python:float')
         typename = typename.replace('type', 'python:type')
         par.extend(
-            self.make_xrefs(
-                self.typerolename,
-                domain,
-                typename,
-                addnodes.literal_emphasis,
-                **kw
-                )
+          self.make_xrefs(
+            self.typerolename,
+            domain,
+            typename,
+            addnodes.literal_emphasis,
+            **kw
             )
+          )
       else:
         par += fieldtype
       par += nodes.Text(')')

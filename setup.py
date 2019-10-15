@@ -7,8 +7,8 @@ def python_version_check(major=3, minor=6):
   import sys
 
   assert sys.version_info.major == major and sys.version_info.minor >= minor, (
-      f"This project is utilises language features only present Python {major}.{minor} and greater. "
-      f"You are running {sys.version_info}."
+    f"This project is utilises language features only present Python {major}.{minor} and greater. "
+    f"You are running {sys.version_info}."
   )
 
 
@@ -31,15 +31,15 @@ class NeodroidAgentPackage:
   @property
   def dependencies_testing(self) -> list:
     return [
-        'pytest',
-        'mock'
-        ]
+      'pytest',
+      'mock'
+      ]
 
   @property
   def setup_dependencies(self) -> list:
     return [
-        'pytest-runner'
-        ]
+      'pytest-runner'
+      ]
 
   @property
   def package_name(self) -> str:
@@ -60,10 +60,10 @@ class NeodroidAgentPackage:
   @property
   def packages(self):
     return find_packages(
-        exclude=[
-            # 'Path/To/Exclude'
-            ]
-        )
+      exclude=[
+        # 'Path/To/Exclude'
+        ]
+      )
 
   @property
   def author_name(self):
@@ -85,39 +85,39 @@ class NeodroidAgentPackage:
   def package_data(self):
     # data = glob.glob('data/', recursive=True)
     return {
-        # 'PackageName':[
-        # *data
-        #  ]
-        }
+      # 'PackageName':[
+      # *data
+      #  ]
+      }
 
   @property
   def entry_points(self):
     return {
-        'console_scripts':[
-            # "name_of_executable = module.with:function_to_execute"
-            'neodroid-rnd = neodroidagent.agents.random_agent:random_run',
-            'neodroid-ppo = neodroidagent.agents.model_free.hybrid.ppo_agent:ppo_run',
-            'neodroid-dqn = neodroidagent.agents.model_free.off_policy.dqn_agent:dqn_run',
-            'neodroid-pg = neodroidagent.agents.model_free.on_policy.pg_agent:pg_run',
-            'neodroid-ddpg = neodroidagent.agents.model_free.hybrid.ddpg_agent:ddpg_run',
-            'neodroid-cma = neodroidagent.agents.experimental.cma_agent:cma_run',
+      'console_scripts':[
+        # "name_of_executable = module.with:function_to_execute"
+        'neodroid-rnd = neodroidagent.agents.random_agent:random_run',
+        'neodroid-ppo = neodroidagent.agents.torch_agents.model_free.hybrid.ppo_agent:ppo_run',
+        'neodroid-dqn = neodroidagent.agents.torch_agents.model_free.off_policy.dqn_agent:dqn_run',
+        'neodroid-pg = neodroidagent.agents.torch_agents.model_free.on_policy.pg_agent:pg_run',
+        'neodroid-ddpg = neodroidagent.agents.torch_agents.model_free.hybrid.ddpg_agent:ddpg_run',
 
-            'neodroid-ppo-gym = neodroidagent.agents.model_free.hybrid.ppo_agent:ppo_test',
-            'neodroid-dqn-gym = neodroidagent.agents.model_free.off_policy.dqn_agent:dqn_test',
-            'neodroid-pg-gym = neodroidagent.agents.model_free.on_policy.pg_agent:pg_test',
-            'neodroid-ddpg-gym = neodroidagent.agents.model_free.hybrid.ddpg_agent:ddpg_test',
-            'neodroid-tb = neodroidagent.entry_points.tensorboard_entry_point:main',
-            'neodroid-clean-all = neodroidagent.entry_points.clean:clean_all',
-            'neodroid-open-data = neodroidagent.entry_points.open_data:main',
-            ]
-        }
+        'neodroid-ppo-gym = neodroidagent.agents.torch_agents.model_free.hybrid.ppo_agent:ppo_test',
+        'neodroid-dqn-gym = neodroidagent.agents.torch_agents.model_free.off_policy.dqn_agent:dqn_test',
+        'neodroid-pg-gym = neodroidagent.agents.torch_agents.model_free.on_policy.pg_agent:pg_test',
+        'neodroid-ddpg-gym = neodroidagent.agents.torch_agents.model_free.hybrid.ddpg_agent:ddpg_test',
+
+        'neodroid-tb = neodroidagent.entry_points.tensorboard_entry_point:main',
+        'neodroid-clean-all = neodroidagent.entry_points.clean:clean_all',
+        'neodroid-open-data = neodroidagent.entry_points.open_data:main',
+        ]
+      }
 
   @property
   def extras(self):
     these_extras = {
-        # 'ExtraName':['package-name; platform_system == "System(Linux,Windows)"'
+      # 'ExtraName':['package-name; platform_system == "System(Linux,Windows)"'
 
-        }
+      }
 
     path: pathlib.Path = pathlib.Path(__file__).parent
 
@@ -175,20 +175,20 @@ class NeodroidAgentPackage:
   @property
   def classifiers(self):
     return [
-        'Development Status :: 4 - Beta',
-        'Environment :: Console',
-        'Intended Audience :: End Users/Desktop',
-        'Intended Audience :: Developers',
-        'License :: OSI Approved :: Apache Software License',
-        'Operating System :: MacOS :: MacOS X',
-        'Operating System :: Microsoft :: Windows',
-        'Operating System :: POSIX',
-        'Operating System :: OS Independent',
-        'Programming Language :: Python :: 3',
-        'Natural Language :: English',
-        # 'Topic :: Scientific/Engineering :: Artificial Intelligence'
-        # 'Topic :: Software Development :: Bug Tracking',
-        ]
+      'Development Status :: 4 - Beta',
+      'Environment :: Console',
+      'Intended Audience :: End Users/Desktop',
+      'Intended Audience :: Developers',
+      'License :: OSI Approved :: Apache Software License',
+      'Operating System :: MacOS :: MacOS X',
+      'Operating System :: Microsoft :: Windows',
+      'Operating System :: POSIX',
+      'Operating System :: OS Independent',
+      'Programming Language :: Python :: 3',
+      'Natural Language :: English',
+      # 'Topic :: Scientific/Engineering :: Artificial Intelligence'
+      # 'Topic :: Software Development :: Bug Tracking',
+      ]
 
   @property
   def version(self):

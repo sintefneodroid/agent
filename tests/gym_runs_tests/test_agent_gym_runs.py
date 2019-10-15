@@ -2,9 +2,9 @@
 # -*- coding: utf-8 -*-
 import pytest
 
-from neodroidagent.agents.model_free.hybrid.ddpg_agent import ddpg_test
-from neodroidagent.agents.model_free.policy_optimisation.pg_agent import pg_test
-from neodroidagent.agents.model_free.q_learning.dqn_agent import dqn_test
+from neodroidagent.agents.torch_agents.model_free import ddpg_test
+from neodroidagent.agents.torch_agents.model_free import pg_test
+from neodroidagent.agents.torch_agents.model_free import dqn_test
 
 __author__ = 'Christian Heider Nielsen'
 __doc__ = ''

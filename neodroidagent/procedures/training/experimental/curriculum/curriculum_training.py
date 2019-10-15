@@ -4,14 +4,14 @@ import time
 from pathlib import Path
 
 import torch
-from neodroidagent.agents.model_free.policy_optimisation.pg_agent import PGAgent
+from neodroidagent.agents.torch_agents.model_free import PGAgent
 from tqdm import tqdm
 
 import neodroidagent.configs.curriculum.curriculum_config as C
 from draugr.visualisation import sprint
 from draugr.writers import TensorBoardPytorchWriter, Union
 from neodroid.wrappers import NeodroidCurriculumWrapper
-from neodroidagent.agents.torch_agent import TorchAgent
+from neodroidagent.agents.torch_agents.torch_agent import TorchAgent
 from neodroidagent.utilities.exploration import sample
 from neodroidagent.utilities.specifications import TR
 from samples.rl.curriculum.grid_world import (display_actor_configurations,

@@ -2,19 +2,18 @@
 # -*- coding: utf-8 -*-
 import os
 import types
-from typing import Type
+from typing import Type, Union
 
 import torch
 
-from draugr.visualisation import sprint
+from draugr.writers import sprint
 from neodroidagent.agents.agent import Agent
 from neodroidagent.agents.random_agent import RandomAgent
 from neodroidagent.exceptions.exceptions import NoProcedure
-from neodroidagent.procedures import RolloutInference, Procedure, Episodic
-from neodroidagent.sessions import ParallelSession
-from neodroidagent.sessions.linear import LinearSession
+from neodroidagent.procedures import RolloutInference
+from neodroidagent.sessions import ParallelSession, EnvironmentSession
+from neodroidagent.sessions.single_agent.linear import LinearSession
 from neodroidagent.sessions.parse_arguments import parse_arguments
-from neodroidagent.utilities.specifications import EnvironmentSession
 from warg.arguments import config_to_mapping
 from warg.named_ordered_dictionary import NOD
 
@@ -25,7 +24,7 @@ __doc__ = ''
 def session_entry_point(agent: Type[Agent],
                         config: object,
                         *,
-                        session: EnvironmentSession = LinearSession,
+                        session:Union[Type[EnvironmentSession], EnvironmentSession]  = LinearSession,
                         parse_args: bool = True,
                         save: bool = True,
                         has_x_server: bool = True,

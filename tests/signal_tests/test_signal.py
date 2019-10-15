@@ -14,17 +14,17 @@ import numpy
 
 def sample_transitions():
   signals = numpy.array([[1, 2, 3, 4, 5],
-                      [5, 4, 3, 2, 1]
-                      ],
-                     numpy.float32)
+                         [5, 4, 3, 2, 1]
+                         ],
+                        numpy.float32)
   terminal = numpy.array([[0, 0, 1, 0, 0],
-                       [0, 0, 0, 0, 0]
-                       ],
-                      numpy.float32)
+                          [0, 0, 0, 0, 0]
+                          ],
+                         numpy.float32)
   values = numpy.array([[-100, 10, 20, 30, 40, 50],
-                     [-150, 15, 25, 35, 45, 55]
-                     ],
-                    numpy.float32)  # Future values
+                        [-150, 15, 25, 35, 45, 55]
+                        ],
+                       numpy.float32)  # Future values
 
   return NOD.nod_of(signals, terminal, values)
 
@@ -46,7 +46,7 @@ def test_discounted_gae_returns(transitions):
   # then
   expected = numpy.array([
     [(s[0, 0] + d * v[0, 1] - v[0, 0]) + d * steps * (
-        (s[0, 1] + d * v[0, 2] - v[0, 1]) + d * steps * (s[0, 2] - v[0, 2])
+      (s[0, 1] + d * v[0, 2] - v[0, 1]) + d * steps * (s[0, 2] - v[0, 2])
     ),
      (s[0, 1] + d * v[0, 2] - v[0, 1]) + d * steps * (s[0, 2] - v[0, 2]),
      (s[0, 2] - v[0, 2]),
@@ -55,13 +55,13 @@ def test_discounted_gae_returns(transitions):
      ],
 
     [(s[1, 0] + d * v[1, 1] - v[1, 0]) + d * steps * ((s[1, 1] + d * v[1, 2] - v[1, 1]) + d * steps * (
-        (s[1, 2] + d * v[1, 3] - v[1, 2]) + d * steps * (
-        (s[1, 3] + d * v[1, 4] - v[1, 3]) + d * steps * (s[1, 4] + d * v[1, 5] - v[1, 4])))),
+      (s[1, 2] + d * v[1, 3] - v[1, 2]) + d * steps * (
+      (s[1, 3] + d * v[1, 4] - v[1, 3]) + d * steps * (s[1, 4] + d * v[1, 5] - v[1, 4])))),
      (s[1, 1] + d * v[1, 2] - v[1, 1]) + d * steps * (
-         (s[1, 2] + d * v[1, 3] - v[1, 2]) + d * steps * ((s[1, 3] + d * v[1, 4] - v[1, 3]) + d * steps * (
-         s[1, 4] + d * v[1, 5] - v[1, 4]))),
+       (s[1, 2] + d * v[1, 3] - v[1, 2]) + d * steps * ((s[1, 3] + d * v[1, 4] - v[1, 3]) + d * steps * (
+       s[1, 4] + d * v[1, 5] - v[1, 4]))),
      (s[1, 2] + d * v[1, 3] - v[1, 2]) + d * steps * (
-         (s[1, 3] + d * v[1, 4] - v[1, 3]) + d * steps * (s[1, 4] + d * v[1, 5] - v[1, 4])),
+       (s[1, 3] + d * v[1, 4] - v[1, 3]) + d * steps * (s[1, 4] + d * v[1, 5] - v[1, 4])),
      (s[1, 3] + d * v[1, 4] - v[1, 3]) + d * steps * (s[1, 4] + d * v[1, 5] - v[1, 4]),
      (s[1, 4] + d * v[1, 5] - v[1, 4])
      ]
@@ -140,19 +140,19 @@ def test_ge_returns(transitions):
   # then
   expected = numpy.array([
     [(s[0, 0] + d * v[0, 1] - v[0, 0]) + d * steps * (
-        (s[0, 1] + d * v[0, 2] - v[0, 1]) + d * steps * (s[0, 2] - v[0, 2])),
+      (s[0, 1] + d * v[0, 2] - v[0, 1]) + d * steps * (s[0, 2] - v[0, 2])),
      (s[0, 1] + d * v[0, 2] - v[0, 1]) + d * steps * (s[0, 2] - v[0, 2]),
      (s[0, 2] - v[0, 2]),
      (s[0, 3] + d * v[0, 4] - v[0, 3]) + d * steps * (s[0, 4] + d * v[0, 5] - v[0, 4]),
      (s[0, 4] + d * v[0, 5] - v[0, 4]),
      ],
     [(s[1, 0] + d * v[1, 1] - v[1, 0]) + d * steps * ((s[1, 1] + d * v[1, 2] - v[1, 1]) + d * steps * (
-        (s[1, 2] + d * v[1, 3] - v[1, 2]) + d * steps * (
-        (s[1, 3] + d * v[1, 4] - v[1, 3]) + d * steps * (s[1, 4] + d * v[1, 5] - v[1, 4])))),
+      (s[1, 2] + d * v[1, 3] - v[1, 2]) + d * steps * (
+      (s[1, 3] + d * v[1, 4] - v[1, 3]) + d * steps * (s[1, 4] + d * v[1, 5] - v[1, 4])))),
      (s[1, 1] + d * v[1, 2] - v[1, 1]) + d * steps * ((s[1, 2] + d * v[1, 3] - v[1, 2]) + d * steps * (
-         (s[1, 3] + d * v[1, 4] - v[1, 3]) + d * steps * (s[1, 4] + d * v[1, 5] - v[1, 4]))),
+       (s[1, 3] + d * v[1, 4] - v[1, 3]) + d * steps * (s[1, 4] + d * v[1, 5] - v[1, 4]))),
      (s[1, 2] + d * v[1, 3] - v[1, 2]) + d * steps * ((s[1, 3] + d * v[1, 4] - v[1, 3]) + d * steps * (
-         s[1, 4] + d * v[1, 5] - v[1, 4])),
+       s[1, 4] + d * v[1, 5] - v[1, 4])),
      (s[1, 3] + d * v[1, 4] - v[1, 3]) + d * steps * (s[1, 4] + d * v[1, 5] - v[1, 4]),
      (s[1, 4] + d * v[1, 5] - v[1, 4])
      ]

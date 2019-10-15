@@ -2,7 +2,7 @@ import os.path as osp
 import tempfile
 
 import filelock
-import matplotlib.pyplot as plt
+from matplotlib import pyplot
 import numpy
 from gym import Env
 from gym.spaces import Box, Discrete
@@ -10,9 +10,9 @@ from gym.spaces import Box, Discrete
 
 class MnistEnv(Env):
   def render(self, mode='human'):
-    plt.imshow(self.state[0])
-    plt.title(self.state[1])
-    plt.show()
+    pyplot.imshow(self.state[0])
+    pyplot.title(self.state[1])
+    pyplot.show()
 
   def __init__(self,
                seed=0,

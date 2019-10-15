@@ -21,8 +21,8 @@ def grid_world_sample_entire_configuration_space(environment):
     z_space = actor_z_conf.configurable_space
     x_steps = x_space.discrete_steps
     z_steps = z_space.discrete_steps
-    x_min, x_max = x_space.min_value, x_space.max_value
-    z_min, z_max = z_space.min_value, z_space.max_value
+    x_min, x_max = x_space.min_unnorm, x_space.max_unnorm
+    z_min, z_max = z_space.min_unnorm, z_space.max_unnorm
     for x in numpy.linspace(x_min, x_max, x_steps):
       for z in numpy.linspace(z_min, z_max, z_steps):
         # for y in numpy.linspace(y_space.min_value, y_space.max_value, y_space.discrete_steps):
@@ -46,8 +46,8 @@ def grid_world_random_sample_uniformly_entire_configuration_space(environment):
     x_space = actor_x_conf.configurable_space
     # y_space = actor_y_conf.configurable_space
     z_space = actor_z_conf.configurable_space
-    for x in numpy.linspace(x_space.min_value, x_space.max_value, x_space.discrete_steps):
-      for z in numpy.linspace(z_space.min_value, z_space.max_value, z_space.discrete_steps):
+    for x in numpy.linspace(x_space.min_unnorm, x_space.max_unnorm, x_space.discrete_steps):
+      for z in numpy.linspace(z_space.min_unnorm, z_space.max_unnorm, z_space.discrete_steps):
         # for y in numpy.linspace(y_space.min_value, y_space.max_value, y_space.discrete_steps):
         initial_configuration = [
           Configuration('Vertical', x),

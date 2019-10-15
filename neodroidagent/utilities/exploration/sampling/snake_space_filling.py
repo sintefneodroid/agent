@@ -5,9 +5,9 @@ __author__ = 'Christian Heider Nielsen'
 import math
 from enum import Enum, auto
 
-import matplotlib.pyplot as plt
+from matplotlib import pyplot
 
-plt.ion()
+pyplot.ion()
 
 
 class States(Enum):
@@ -71,8 +71,8 @@ if __name__ == '__main__':
   if end_scaled < 4:
     end_scaled = 4
   size = (end_scaled, end_scaled)
-  fig, ax = plt.subplots(figsize=size)
-  line = plt.Line2D(xs, ys)
+  fig, ax = pyplot.subplots(figsize=size)
+  line = pyplot.Line2D(xs, ys)
   ax.add_line(line)
 
   if annotate:
@@ -82,4 +82,4 @@ if __name__ == '__main__':
 
   ax.axis((-1, end + 1, -1, end + 1))
 
-  plt.show()
+  pyplot.show()

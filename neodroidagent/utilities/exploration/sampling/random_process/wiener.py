@@ -6,7 +6,7 @@ __author__ = 'Christian Heider Nielsen'
 
 from math import sqrt
 
-import matplotlib.pyplot as plt
+from matplotlib import pyplot
 import numpy
 from scipy.stats import norm
 
@@ -146,7 +146,7 @@ def main_3d():
 
 
 def plot_3d_trajectory(x):
-  fig = plt.figure()
+  fig = pyplot.figure()
   ax = fig.add_subplot(111, projection='3d')
   ax.plot(x[0], x[1], x[2])
 
@@ -157,35 +157,35 @@ def plot_3d_trajectory(x):
   ax.set_ylabel('Y Label')
   ax.set_zlabel('Z Label')
 
-  plt.title('3D Brownian Motion')
-  plt.axis('equal')
-  plt.show()
+  pyplot.title('3D Brownian Motion')
+  pyplot.axis('equal')
+  pyplot.show()
 
 
 def plot_1d_trajectory(x, t, m):
   for k in range(m):
-    plt.plot(t, x[k])
-  plt.xlabel('t', fontsize=16)
-  plt.ylabel('x', fontsize=16)
-  plt.grid(True)
-  plt.show()
+    pyplot.plot(t, x[k])
+  pyplot.xlabel('t', fontsize=16)
+  pyplot.ylabel('x', fontsize=16)
+  pyplot.grid(True)
+  pyplot.show()
 
 
 def plot_2d_trajectory(x):
   # Plot the 2D trajectory.
-  plt.plot(x[0], x[1])
+  pyplot.plot(x[0], x[1])
 
   # Mark the start and end points.
-  plt.plot(x[0, 0], x[1, 0], 'go')
-  plt.plot(x[0, -1], x[1, -1], 'ro')
+  pyplot.plot(x[0, 0], x[1, 0], 'go')
+  pyplot.plot(x[0, -1], x[1, -1], 'ro')
 
   # More plot decorations.
-  plt.title('2D Brownian Motion')
-  plt.xlabel('x', fontsize=16)
-  plt.ylabel('y', fontsize=16)
-  plt.axis('equal')
-  plt.grid(True)
-  plt.show()
+  pyplot.title('2D Brownian Motion')
+  pyplot.xlabel('x', fontsize=16)
+  pyplot.ylabel('y', fontsize=16)
+  pyplot.axis('equal')
+  pyplot.grid(True)
+  pyplot.show()
 
 
 def main_class():

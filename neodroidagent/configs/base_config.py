@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+import pathlib
 import time
 
 import torch
@@ -19,13 +20,12 @@ Author: Christian Heider Nielsen
 
 PROJECT_NAME = PROJECT_NAME
 CONFIG_NAME = __name__
-CONFIG_FILE = __file__
+CONFIG_FILE_PATH = pathlib.Path(__file__)
 CONFIG_AUTHOR = __author__
 LOAD_TIME = str(int(time.time()))
 
 VERBOSE = False
 USE_LOGGING = True
-
 
 # Architecture
 POLICY_ARCH_SPEC = GDKC(CategoricalMLP,
@@ -92,4 +92,7 @@ if not START_VISDOM_SERVER:
 MOVING_AVERAGE_WINDOW = 100
 SPACER_SIZE = 60
 SAVE_MODEL_INTERVAL = 100
-SEED = 2**24 - 1 # Upto power 32
+SEED = 2 ** 24 - 1  # Upto power 32
+
+if __name__ == '__main__':
+  print(CONFIG_FILE_PATH)

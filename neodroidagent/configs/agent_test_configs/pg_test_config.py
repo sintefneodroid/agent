@@ -6,7 +6,9 @@ from .base_dicrete_test_config import *
 __author__ = 'Christian Heider Nielsen'
 
 CONFIG_NAME = __name__
-CONFIG_FILE = __file__
+import pathlib
+
+CONFIG_FILE_PATH = pathlib.Path(__file__)
 
 CONNECT_TO_RUNNING = False
 RENDER_ENVIRONMENT = True

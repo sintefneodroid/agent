@@ -6,6 +6,7 @@ from typing import Union
 import torch
 
 from draugr.writers import TensorBoardPytorchWriter
+from neodroidagent.procedures.training.sampling.rollout import rollout_pg
 
 __author__ = 'Christian Heider Nielsen'
 __doc__ = ''
@@ -45,14 +46,15 @@ class Episodic(Procedure):
 
     # with torchsnooper.snoop():
     with torch.autograd.detect_anomaly():
-      with TensorBoardPytorchWriter(str(log_directory)) as metric_writer:
+      with TensorBoardPytorchWriter(log_directory) as metric_writer:
         E = range(1, iterations)
         E = tqdm(E, leave=False)
 
         for episode_i in E:
           initial_state = self.environment.reset()
 
-          self.agent.rollout(initial_state,
+          rollout_pg(self.agent,
+                     initial_state,
                              self.
                              environment,
                              render=(True
@@ -69,4 +71,3 @@ class Episodic(Procedure):
 
           if self.early_stop:
             break
-

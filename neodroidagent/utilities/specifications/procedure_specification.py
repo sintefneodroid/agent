@@ -5,7 +5,7 @@ from pathlib import Path
 from typing import Union
 
 from neodroid.environments.unity.vector_unity_environment import VectorUnityEnvironment
-from neodroidagent.agents.torch_agent import TorchAgent
+from neodroidagent.agents.torch_agents.torch_agent import TorchAgent
 
 __author__ = 'Christian Heider Nielsen'
 __doc__ = ''

@@ -12,6 +12,7 @@ class HasNoEnvError(Exception):
   def __init__(self, msg='Agent has no env assigned'):
     Exception.__init__(self, msg)
 
+
 class NoEnvironment(Exception):
   '''
 
@@ -19,6 +20,7 @@ class NoEnvironment(Exception):
 
   def __init__(self, msg='No Environment'):
     Exception.__init__(self, msg)
+
 
 class NoProcedure(Exception):
   '''

@@ -20,7 +20,9 @@ SAVE_MODEL_INTERVAL = 1000
 
 # General
 CONFIG_NAME = __name__
-CONFIG_FILE = __file__
+import pathlib
+
+CONFIG_FILE_PATH = pathlib.Path(__file__)
 USE_CUDA = True
 
 # Visualisation

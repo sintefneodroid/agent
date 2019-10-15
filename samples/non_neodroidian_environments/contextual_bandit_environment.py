@@ -13,9 +13,9 @@ class ContextualBanditEnvironment(object):
     self.np_random.seed(seed)
 
     self.bandits = numpy.array([[0.8, 0.0, 0.0, 0.9],
-                             [0.6, 0.0, 1.0, 0.2],
-                             [0.6, 0.0, 0.0, 0.5]
-                             ])
+                                [0.6, 0.0, 1.0, 0.2],
+                                [0.6, 0.0, 0.0, 0.5]
+                                ])
     self.num_bandits = self.bandits.shape[0]
     self.num_actions = self.bandits.shape[1]
 

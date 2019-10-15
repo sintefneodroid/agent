@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-from neodroidagent.agents.model_free.policy_optimisation.pg_agent import PGAgent
+from neodroidagent.agents.torch_agents.model_free import PGAgent
 from neodroidagent.architectures import MLP
 from neodroidagent.memory import ReplayBuffer
 
@@ -12,7 +12,9 @@ Author: Christian Heider Nielsen
 from neodroidagent.configs.base_config import *
 
 CONFIG_NAME = __name__
-CONFIG_FILE = __file__
+import pathlib
+
+CONFIG_FILE_PATH = pathlib.Path(__file__)
 
 ROLLOUTS = 1000
 INITIAL_OBSERVATION_PERIOD = 0

@@ -9,7 +9,9 @@ Author: Christian Heider Nielsen
 from neodroidagent.configs.base_config import *
 
 CONFIG_NAME = __name__
-CONFIG_FILE = __file__
+import pathlib
+
+CONFIG_FILE_PATH = pathlib.Path(__file__)
 
 # Mujoco
 # ENVIRONMENT_NAME = 'FetchPickAndPlace-v0'

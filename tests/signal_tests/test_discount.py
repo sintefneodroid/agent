@@ -11,15 +11,15 @@ import numpy
 def test_discounting_respects_episode_end():
   # given
   s = numpy.array([[1, 2, 3, 4, 5],
-                [5, 4, 3, 2, 1]
-                ],
-               numpy.float32)
-  t = numpy.array([[0, 0, 1, 0, 0],
-                [0, 0, 0, 0, 0]
-                ],
-               numpy.float32)
-  last = numpy.array([6, 0],
+                   [5, 4, 3, 2, 1]
+                   ],
                   numpy.float32)
+  t = numpy.array([[0, 0, 1, 0, 0],
+                   [0, 0, 0, 0, 0]
+                   ],
+                  numpy.float32)
+  last = numpy.array([6, 0],
+                     numpy.float32)
   d = 0.9
   # when
   actual = valued_discount(s, last, t, d)
@@ -44,21 +44,21 @@ def test_discounting_respects_episode_end():
 def test_discounting_respects_episode_end_T():
   # given
   s = numpy.array([[1, 5],
-                [2, 4],
-                [3, 3],
-                [4, 2],
-                [5, 1]
-                ],
-               numpy.float32).T
+                   [2, 4],
+                   [3, 3],
+                   [4, 2],
+                   [5, 1]
+                   ],
+                  numpy.float32).T
   t = numpy.array([[0, 0],
-                [0, 0],
-                [1, 0],
-                [0, 0],
-                [0, 0]
-                ],
-               numpy.float32).T
+                   [0, 0],
+                   [1, 0],
+                   [0, 0],
+                   [0, 0]
+                   ],
+                  numpy.float32).T
   last = numpy.array([6, 0],
-                  numpy.float32)
+                     numpy.float32)
   d = 0.9
   # when
   actual = valued_discount(s, last, t, d)

@@ -12,7 +12,9 @@ Author: Christian Heider Nielsen
 '''
 
 CONFIG_NAME = __name__
-CONFIG_FILE = __file__
+import pathlib
+
+CONFIG_FILE_PATH = pathlib.Path(__file__)
 
 INITIAL_OBSERVATION_PERIOD = 0
 LEARNING_FREQUENCY = 1

@@ -39,8 +39,7 @@ class RolloutInference(Procedure):
     :return:
     '''
     with torch.no_grad():
-      with TensorBoardPytorchWriter(str(log_directory)) as metric_writer:
-
+      with TensorBoardPytorchWriter(log_directory) as metric_writer:
 
         B = tqdm(count(),
                  f'step {0}, {iterations}',
@@ -48,10 +47,9 @@ class RolloutInference(Procedure):
 
         for _ in B:
           initial_state = self.environment.reset()
-          self.agent.rollout(initial_state,self.environment)
+          self.agent.rollout(initial_state, self.environment)
 
           if self.early_stop:
             break
 
     return TR(self.agent.models, [])
-

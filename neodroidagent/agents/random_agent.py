@@ -1,8 +1,8 @@
 from itertools import count
 from typing import Any
 
-from draugr.writers import MockWriter, Writer
-from neodroid.environments.unity.vector_unity_environment import VectorUnityEnvironment
+from draugr import MockWriter, Writer
+from neodroid.environments import VectorUnityEnvironment
 from neodroid.utilities import ActionSpace, ObservationSpace, SignalSpace
 from neodroid.utilities.unity_specifications import EnvironmentSnapshot
 from neodroidagent.agents.agent import Agent
@@ -11,7 +11,10 @@ from neodroidagent.procedures import StepWise
 
 class RandomAgent(Agent):
 
-  def _update(self, *args, metric_writer: Writer = MockWriter(), **kwargs) -> None:
+  def _update(self,
+              *args,
+              metric_writer: Writer = MockWriter(),
+              **kwargs) -> None:
     pass
 
   def _sample(self,
@@ -80,7 +83,7 @@ class RandomAgent(Agent):
 # region Test
 def random_test(rollouts=None, skip=True):
   from neodroidagent.sessions.session_entry_point import session_entry_point
-  from neodroidagent.sessions.parallel import ParallelSession
+  from neodroidagent.sessions.single_agent.parallel import ParallelSession
   import neodroidagent.configs.agent_test_configs.dqn_test_config as C
 
   if rollouts:
@@ -95,7 +98,7 @@ def random_test(rollouts=None, skip=True):
 
 def random_run(rollouts=None, skip=True):
   from neodroidagent.sessions.session_entry_point import session_entry_point
-  from neodroidagent.sessions.parallel import ParallelSession
+  from neodroidagent.sessions.single_agent.parallel import ParallelSession
   import neodroidagent.configs.agent_test_configs.pg_test_config as C
 
   if rollouts:

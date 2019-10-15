@@ -35,7 +35,7 @@ def main(connect_to_running=False):
   _environment = SingleUnityEnvironment(environment_name='mab',
                                         connect_to_running=connect_to_running)
 
-  num_arms = _environment.action_space.num_discrete_actions
+  num_arms = _environment.action_space.num_binary_discrete_actions
   totals = [0] * num_arms
 
   ucb1 = UCB1(num_arms)

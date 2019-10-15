@@ -1,16 +1,12 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 from abc import ABC, abstractmethod
-from itertools import count
-from typing import Any, Tuple, Sequence
+from typing import Any, Sequence, Tuple
 
-import numpy
 from tqdm import tqdm
 
-from draugr.visualisation import sprint
-from draugr.writers import MockWriter
+from draugr.writers import MockWriter, sprint
 from draugr.writers.writer import Writer
-from neodroid.environments.unity.vector_unity_environment import VectorUnityEnvironment
 from neodroid.utilities.spaces import ActionSpace, ObservationSpace, SignalSpace
 from neodroid.utilities.unity_specifications import EnvironmentSnapshot
 
@@ -32,7 +28,7 @@ All agent should inherit from this class
   def __init__(self,
                input_shape: Sequence = None,
                output_shape: Sequence = None,
-               divide_by_zero_safety=1e-10,
+               divide_by_zero_safety: float = 1e-10,
                **kwargs):
     self._input_shape = input_shape
     self._output_shape = output_shape
@@ -52,9 +48,9 @@ All agent should inherit from this class
       self.__setattr__(k_lowered, v)
 
   def __infer_io_shapes(self,
-                        observation_space,
-                        action_space,
-                        signal_space,
+                        observation_space: ObservationSpace,
+                        action_space: ActionSpace,
+                        signal_space: SignalSpace,
                         print_inferred_io_shapes: bool = True) -> None:
     '''
 Tries to infer input and output size from env if either _input_shape or _output_shape, is None or -1 (int)
@@ -87,105 +83,6 @@ Tries to infer input and output size from env if either _input_shape or _output_
 
   # region Public
 
-  def run(self,
-          environment: VectorUnityEnvironment,
-          render: bool = True) -> None:
-
-    state = environment.reset().observables
-
-    F = count(1)
-    F = tqdm(F, leave=False, disable=not render)
-    for frame_i in F:
-      F.set_description(f'Frame {frame_i}')
-
-      action, *_ = self.sample(state, no_random=True)
-      state, signal, terminated, info = environment.react(action, render=render)
-
-      if terminated.all():
-        state = environment.reset().observables
-
-  def rollout(self,
-              initial_state: EnvironmentSnapshot,
-              environment: VectorUnityEnvironment,
-              *,
-              train: bool = True,
-              render: bool = False,
-              **kwargs) -> Any:
-    self._update_i += 1
-
-    state = initial_state.observables
-    episode_signal = []
-    episode_length = []
-
-    T = count(1)
-    T = tqdm(T, f'Rollout #', leave=False, disable=not render)
-
-    for t in T:
-      self._sample_i += 1
-
-      action = self.sample(state)
-      snapshot = environment.react(action)
-
-      (next_state, signal, terminated) = (snapshot.observables,
-                                          snapshot.signal,
-                                          snapshot.terminated)
-
-      episode_signal.append(signal)
-
-      if terminated.all():
-        episode_length = t
-        break
-
-      state = next_state
-
-    ep = numpy.array(episode_signal).sum(axis=0).mean()
-    el = episode_length
-
-    return ep, el
-
-  def take_n_steps(self,
-                   initial_state: EnvironmentSnapshot,
-                   environment: VectorUnityEnvironment,
-                   n: int = 100,
-                   *,
-                   train: bool = False,
-                   render: bool = False,
-                   **kwargs) -> Any:
-    state = initial_state.observables
-
-    accumulated_signal = []
-
-    snapshot = None
-    transitions = []
-    terminated = False
-    T = tqdm(range(1, n + 1),
-             f'Step #{self._sample_i} - {0}/{n}',
-             leave=False,
-             disable=not render)
-    for _ in T:
-      self._sample_i += 1
-      action, *_ = self.sample(state)
-
-      snapshot = environment.react(action)
-
-      (successor_state, signal, terminated) = (snapshot.observables,
-                                               snapshot.signal,
-                                               snapshot.terminated)
-
-      transitions.append((state, successor_state, signal, terminated))
-
-      state = successor_state
-
-      accumulated_signal += signal
-
-      if numpy.array(terminated).all():
-        snapshot = environment.reset()
-        (state, signal, terminated) = (snapshot.observables,
-                                       snapshot.signal,
-                                       snapshot.terminated)
-
-    return transitions, accumulated_signal, terminated, snapshot
-
   def build(self,
             observation_space,
             action_space,
@@ -194,9 +91,9 @@ Tries to infer input and output size from env if either _input_shape or _output_
     self.__infer_io_shapes(observation_space,
                            action_space,
                            signal_space)
-    self.__build__(observation_space,
-                   action_space,
-                   signal_space,
+    self.__build__(observation_space=observation_space,
+                   action_space=action_space,
+                   signal_space=signal_space,
                    **kwargs)
 
   @property
@@ -222,7 +119,7 @@ Tries to infer input and output size from env if either _input_shape or _output_
              *args,
              no_random: bool = False,
              metric_writer: Writer = MockWriter(),
-             **kwargs) -> Tuple[Sequence, Any]:
+             **kwargs) -> Tuple[Any,  ...]:
     self._sample_i += 1
     return self._sample(state,
                         *args,
@@ -243,9 +140,10 @@ Tries to infer input and output size from env if either _input_shape or _output_
 
   @abstractmethod
   def __build__(self,
-                observation_space: ObservationSpace,
-                action_space: ActionSpace,
-                signal_space: SignalSpace,
+                *,
+                observation_space: ObservationSpace = None,
+                action_space: ActionSpace = None,
+                signal_space: SignalSpace = None,
                 **kwargs) -> None:
     raise NotImplementedError
 
@@ -263,7 +161,7 @@ Tries to infer input and output size from env if either _input_shape or _output_
               *args,
               no_random: bool = False,
               metric_writer: Writer = MockWriter(),
-              **kwargs) -> Tuple[Sequence, Any]:
+              **kwargs) -> Tuple[Any, ...]:
     raise NotImplementedError
 
   @abstractmethod
