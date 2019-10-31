@@ -15,7 +15,7 @@ from draugr.writers import MockWriter, TensorBoardPytorchWriter, sprint
 from draugr.writers.writer import Writer
 from neodroid.utilities.spaces import ActionSpace, ObservationSpace, SignalSpace
 from neodroidagent.agents.torch_agents.torch_agent import TorchAgent
-from neodroidagent.architectures import MLP
+from neodroidagent.architectures import MLP, SingleHeadMLP
 from neodroidagent.architectures.architecture import Architecture
 from neodroidagent.architectures.mock import MockArchitecture
 from neodroidagent.exceptions.exceptions import ActionSpaceNotSupported
@@ -39,21 +39,19 @@ All value iteration agents should inherit from this class
                exploration_spec=ExplorationSpecification(start=0.99,
                                                          end=0.04,
                                                          decay=10000),
-               initial_observation_period=0,
                value_model: Architecture = MockArchitecture(),
                target_value_model: Architecture = MockArchitecture(),
                naive_max_policy=False,
                memory_buffer=ReplayBuffer(10000),
                # self._memory = U.PrioritisedReplayMemory(config.REPLAY_MEMORY_SIZE)  # Cuda trouble
                loss_function=smooth_l1_loss,  # huber_loss
-               value_arch_spec: Architecture = GDKC(MLP,
+               value_arch_spec: Architecture = GDKC(SingleHeadMLP,
                                                     input_shape=None,  # Obtain from environment
                                                     hidden_layers=None,
                                                     output_shape=None  # Obtain from environment
                                                     ),
                batch_size=128,
                discount_factor=0.95,
-               learning_frequency=1,
                sync_target_model_frequency=1000,
                state_type=torch.float,
                value_type=torch.float,
@@ -94,7 +92,6 @@ All value iteration agents should inherit from this class
     '''
     super().__init__(**kwargs)
     self._exploration_spec = exploration_spec
-    self._initial_observation_period = initial_observation_period
     self._value_model: Architecture = value_model
     self._target_value_model: Architecture = target_value_model
     self._naive_max_policy = naive_max_policy
@@ -104,8 +101,6 @@ All value iteration agents should inherit from this class
     self._value_arch_spec: Architecture = value_arch_spec
     self._batch_size = batch_size
     self._discount_factor = discount_factor
-    self._learning_frequency = learning_frequency
-    self._initial_observation_period = initial_observation_period
     self._sync_target_model_frequency = sync_target_model_frequency
     self._state_type = state_type
     self._value_type = value_type
@@ -183,6 +178,14 @@ All value iteration agents should inherit from this class
 
   # region Abstract
 
+  @abstractmethod
+  def _sample_model(self, state, **kwargs) -> Any:
+    raise NotImplementedError
+
+  # endregion
+
+  # region Protected
+
   def _sample(self,
               state: Sequence,
               no_random=False,
@@ -200,17 +203,9 @@ All value iteration agents should inherit from this class
 
     return self._sample_random_process(state)
 
-  @abstractmethod
-  def _sample_model(self, state, **kwargs) -> Any:
-    raise NotImplementedError
-
-  # endregion
-
-  # region Protected
-
   def _sample_random_process(self, state):
-    r = numpy.arange(self._output_shape[0])
-    sample = numpy.random.choice(r, len(state))
-    return sample
+    r = numpy.arange(self.output_shape[0])
+    sample = numpy.random.choice(r, len(state)).item()
+    return [sample]
 
   # endregion

@@ -6,12 +6,12 @@ import types
 from typing import Type, Union
 
 from draugr.stopping.stopping_key import add_early_stopping_key_combination
-from draugr.torch_utilities import set_seeds
+from draugr.torch_utilities import torch_seed
 from neodroid.environments.environment import Environment
 from neodroidagent import PROJECT_APP_PATH
 from neodroidagent.agents.torch_agents.torch_agent import TorchAgent
 from neodroidagent.exceptions.exceptions import NoAgent, NoEnvironment
-from neodroidagent.procedures.training.episodic import Episodic
+from neodroidagent.procedures.training.on_policy_episodic import OnPolicyEpisodic
 from neodroidagent.utilities.specifications.procedure_specification import Procedure
 from warg.named_ordered_dictionary import NOD
 
@@ -22,8 +22,9 @@ __doc__ = ''
 class EnvironmentSession(abc.ABC):
 
   def __init__(self,
+               *,
                environment: Environment,
-               procedure: Union[Type[Procedure], Procedure] = Episodic,
+               procedure: Union[Type[Procedure], Procedure] = OnPolicyEpisodic,
                **kwargs):
     self._environment = environment
     self._procedure = procedure
@@ -31,10 +32,11 @@ class EnvironmentSession(abc.ABC):
   def __call__(self,
                agent: Type[TorchAgent],
                *,
-               environment_name,
+               environment_name,  # not used
                load_time,
                seed,
                save_model: bool = True,
+               load_previous_environment_model_if_available: bool = False,
                **kwargs):
     '''
     Start a session, builds Agent and starts/connect environment(s), and runs Procedure
@@ -48,17 +50,11 @@ class EnvironmentSession(abc.ABC):
     if agent is None:
       raise NoAgent
 
-    agent_class_name = agent.__name__
-    model_directory = (PROJECT_APP_PATH.user_data / environment_name /
-                       agent_class_name / load_time / 'models')
-    log_directory = (PROJECT_APP_PATH.user_log / environment_name /
-                     agent_class_name / load_time)
-
     if isinstance(agent, (types.ClassType)):
-      set_seeds(seed)
+      torch_seed(seed)
       self._environment.seed(seed)
 
-      agent = agent(environment_name=environment_name,
+      agent = agent(environment_name=self._environment.environment_name,
                     load_time=load_time,
                     seed=seed,
                     **kwargs)
@@ -66,9 +62,35 @@ class EnvironmentSession(abc.ABC):
                   self._environment.action_space,
                   self._environment.signal_space)
 
-    listener = add_early_stopping_key_combination(self._procedure.stop_procedure,**kwargs)
+    agent_class_name = agent.__class__.__name__
+    agent_models = '-'.join(agent.models.keys())
 
-    proc = self._procedure(agent, self._environment)
+    total_shape = '_'.join([str(i) for i in (
+      self._environment.observation_space.shape +
+      self._environment.action_space.shape +
+      self._environment.signal_space.shape)])
+
+    base_model_dir = (PROJECT_APP_PATH.user_data /
+                      self._environment.environment_name /
+                      agent_class_name /
+                      f'{agent_models}{total_shape}'
+                      )
+    base_config_dir = (PROJECT_APP_PATH.user_log /
+                       self._environment.environment_name /
+                       agent_class_name /
+                       f'{agent_models}{total_shape}'
+                       )
+
+    model_directory = (base_model_dir / load_time)
+    log_directory = (base_config_dir / load_time)
+
+    if load_previous_environment_model_if_available:
+      agent.load(model_path=base_model_dir, evaluation=False)
+
+    listener = add_early_stopping_key_combination(self._procedure.stop_procedure,
+                                                  **kwargs)
+
+    proc = self._procedure(agent, environment=self._environment)
 
     training_start_timestamp = time.time()
     if listener:
@@ -76,14 +98,14 @@ class EnvironmentSession(abc.ABC):
 
     try:
       training_resume = proc(
-                             log_directory=log_directory,
-                             environment_name=environment_name,
-                             load_time=load_time,
-                             seed=seed,
-                             **kwargs)
+        log_directory=log_directory,
+        environment_name=self._environment.environment_name,
+        load_time=load_time,
+        seed=seed,
+        **kwargs)
       if training_resume and 'stats' in training_resume:
         training_resume.stats.save(
-                                   log_directory=log_directory,**kwargs)
+          log_directory=log_directory, **kwargs)
 
     except KeyboardInterrupt:
       pass
@@ -97,7 +119,8 @@ class EnvironmentSession(abc.ABC):
     print(f'\n{"-" * line_width} {end_message} {"-" * line_width}\n')
 
     if save_model:
-      agent.save(model_directory=model_directory,config_directory=model_directory, **kwargs)
+      agent.save(save_directory=model_directory,
+                 **kwargs)
 
     try:
       self._environment.close()

@@ -4,5 +4,5 @@
 __author__ = 'Christian Heider Nielsen'
 
 from .batched import *
-from .episodic import *
+from .on_policy_episodic import *
 from .step_wise import *

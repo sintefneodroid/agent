@@ -2,27 +2,36 @@
 # -*- coding: utf-8 -*-
 import logging
 
-from draugr.torch_utilities import copy_state
+from draugr import copy_state
 from draugr.torch_utilities.to_tensor import to_tensor
 from draugr.writers import MockWriter
-from draugr.writers.writer import Writer
-from neodroid.environments.environment import Environment
-from neodroid.utilities.unity_specifications import EnvironmentSnapshot
 from neodroidagent.agents.torch_agents.model_free.off_policy.value_agent import ValueAgent
+from neodroidagent.procedures.training.off_policy_episodic import OffPolicyEpisodic
 
 __author__ = 'Christian Heider Nielsen'
-from itertools import count
 
-import numpy
 import torch
-
-from tqdm import tqdm
 
 
 class DQNAgent(ValueAgent):
   '''
 
 '''
+
+  def _remember(self,
+                *,
+                state,
+                action,
+                signal,
+                next_state,
+                terminated,
+                **kwargs):
+    self._memory_buffer.add_transition(state,
+                                       action,
+                                       signal,
+                                       next_state,
+                                       terminated
+                                       )
 
   # region Protected
 
@@ -44,7 +53,7 @@ class DQNAgent(ValueAgent):
     model_input = to_tensor(state, device=self._device, dtype=self._state_type)
 
     with torch.no_grad():
-      action_value_estimates = self._value_model(model_input)[0]
+      action_value_estimates = self._value_model(model_input)
       max_value_action_idx = action_value_estimates.max(-1)[1].to('cpu').numpy().tolist()
 
     return max_value_action_idx
@@ -63,6 +72,12 @@ class DQNAgent(ValueAgent):
       # self._memory.batch_update(indices, td_error.tolist())  # Cuda trouble
     else:
       logging.info('Batch size is larger than current memory size, skipping update')
+
+    if self._use_double_dqn and self.update_i % self._sync_target_model_frequency == 0:
+      self._target_value_model = copy_state(target=self._target_value_model,
+                                            source=self._value_model)
+      if metric_writer:
+        metric_writer.scalar('Target Model Synced', self.update_i, self.update_i)
 
   # endregion
 
@@ -98,13 +113,13 @@ class DQNAgent(ValueAgent):
 
     # Calculate Q of successors
     with torch.no_grad():
-      Q_successors = self._value_model(successor_states)[0]
+      Q_successors = self._value_model(successor_states)
 
     Q_successors_max_action_indices = Q_successors.max(-1)[1]
     Q_successors_max_action_indices = Q_successors_max_action_indices.unsqueeze(-1)
     if self._use_double_dqn:
       with torch.no_grad():
-        Q_successors = self._target_value_model(successor_states)[0]
+        Q_successors = self._target_value_model(successor_states)
 
     max_next_values = Q_successors.gather(-1, Q_successors_max_action_indices).squeeze(-1)
     # a = Q_max_successor[non_terminal_mask]
@@ -115,78 +130,10 @@ class DQNAgent(ValueAgent):
 
     # Calculate Q of state
     action_indices = action_indices.unsqueeze(-1)
-    p = self._value_model(states)[0]
+    p = self._value_model(states)
     Q_state = p.gather(-1, action_indices).squeeze(-1)
 
     return self._loss_function(Q_state, Q_expected)
-
-  def rollout(self,
-              initial_state: EnvironmentSnapshot,
-              environment: Environment,
-              *,
-              render=False,
-              metric_writer: Writer = MockWriter(),
-              train=True,
-              disallow_random_sample=False,
-              **kwargs):
-
-    state = initial_state.observables
-    episode_signal = []
-    episode_length = []
-
-    T = count(1)
-    T = tqdm(T, f'Rollout #{self._update_i}', leave=False, disable=not render)
-
-    for t in T:
-      self._sample_i += 1
-
-      action = self.sample(state, no_random=disallow_random_sample, metric_writer=metric_writer)
-      snapshot = environment.react(action)
-
-      next_state, signal, terminated = snapshot.observables, snapshot.signal, snapshot.terminated
-
-      if render:
-        environment.render()
-
-      if self._signal_clipping:
-        signal = numpy.clip(signal, -1.0, 1.0)
-
-      self._memory_buffer.add_transition(state,
-                                         action,
-                                         signal,
-                                         next_state,
-                                         terminated
-                                         )
-
-      if (len(self._memory_buffer) >= self._batch_size
-        and self._sample_i > self._initial_observation_period
-        and self._sample_i % self._learning_frequency == 0
-      ):
-
-        self.update()
-
-      if self._use_double_dqn and self._sample_i % self._sync_target_model_frequency == 0:
-        self._target_value_model = copy_state(target=self._target_value_model, source=self._value_model)
-        if metric_writer:
-          metric_writer.scalar('Target Model Synced', self._sample_i, self._sample_i)
-
-      episode_signal.append(signal)
-
-      if terminated.all():
-        episode_length = t
-        break
-
-      state = next_state
-
-    ep = numpy.array(episode_signal).sum(axis=0).mean()
-    el = episode_length
-
-    if metric_writer:
-      metric_writer.scalar('duration', el, self._update_i)
-      metric_writer.scalar('signal', ep, self._update_i)
-      metric_writer.scalar('current_eps_threshold', self._current_eps_threshold, self._update_i)
-
-    return ep, el
 
   def infer(self, state, **kwargs):
     model_input = to_tensor(state, device=self._device, dtype=self._state_type)
@@ -203,8 +150,7 @@ class DQNAgent(ValueAgent):
 
 # region Test
 
-
-def dqn_run(rollouts=None, skip=True):
+def dqn_run(rollouts=None, skip=True, connect_to_running=True):
   from neodroidagent.sessions.session_entry_point import session_entry_point
   from neodroidagent.sessions.single_agent.parallel import ParallelSession
   import neodroidagent.configs.agent_test_configs.dqn_test_config as C
@@ -212,33 +158,19 @@ def dqn_run(rollouts=None, skip=True):
   if rollouts:
     C.ROLLOUTS = rollouts
 
-  C.CONNECT_TO_RUNNING = True
+  C.CONNECT_TO_RUNNING = connect_to_running
 
   session_entry_point(DQNAgent,
                       C,
-                      session=ParallelSession,
+                      session=ParallelSession(procedure=OffPolicyEpisodic,
+                                              auto_reset_on_terminal_state=True),
                       skip_confirmation=skip)
 
 
-def dqn_test(rollouts=None, skip=True):
-  from neodroidagent.sessions.session_entry_point import session_entry_point
-  from neodroidagent.sessions.single_agent.parallel import ParallelSession
-  import neodroidagent.configs.agent_test_configs.dqn_test_config as C
-
-  # import configs.cnn_dqn_config as C
-  if rollouts:
-    C.ROLLOUTS = rollouts
-
-  session_entry_point(DQNAgent,
-                      C,
-                      parse_args=False,
-                      session=ParallelSession,
-                      skip_confirmation=skip)
-  # test_cnn_dqn_agent(C)
+def dqn_test():
+  dqn_run(rollouts=None, skip=True, connect_to_running=False)
 
 
 if __name__ == '__main__':
-
   dqn_test()
-  # dqn_run()
 # endregion

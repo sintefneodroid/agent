@@ -96,6 +96,7 @@ class NeodroidAgentPackage:
       'console_scripts':[
         # "name_of_executable = module.with:function_to_execute"
         'neodroid-rnd = neodroidagent.agents.random_agent:random_run',
+        'neodroid-ucb1 = neodroidagent.agents.numpy_agents.non_contextual.ucb1_policy:main',
         'neodroid-ppo = neodroidagent.agents.torch_agents.model_free.hybrid.ppo_agent:ppo_run',
         'neodroid-dqn = neodroidagent.agents.torch_agents.model_free.off_policy.dqn_agent:dqn_run',
         'neodroid-pg = neodroidagent.agents.torch_agents.model_free.on_policy.pg_agent:pg_run',

@@ -49,9 +49,7 @@ class PolicyAgent(TorchAgent):
                use_batched_updates=False,
                batch_size=5,
                policy_entropy_regularisation=1,
-               signal_clipping=False,
-               signal_clip_high=1.0,
-               signal_clip_low=-1.0,
+
                optimiser_spec=GDKC(torch.optim.Adam,
                                    lr=3e-4,
                                    weight_decay=3e-3,
@@ -59,9 +57,7 @@ class PolicyAgent(TorchAgent):
                state_type=torch.float,
                signals_tensor_type=torch.float,
                discrete=True,
-               grad_clip=False,
-               grad_clip_low=-1,
-               grad_clip_high=1,
+
                std=.3,
                distribution_regressor: Architecture = MockArchitecture(),
                deterministic=True,
@@ -100,16 +96,13 @@ class PolicyAgent(TorchAgent):
     self._use_batched_updates = use_batched_updates
     self._batch_size = batch_size
     self._policy_entropy_regularisation = policy_entropy_regularisation
-    self._signal_clipping = signal_clipping
-    self._signal_clip_high = signal_clip_high
-    self._signal_clip_low = signal_clip_low
+
+    self._discrete = discrete
+
     self._optimiser_spec = optimiser_spec
     self._state_type = state_type
     self._signals_tensor_type = signals_tensor_type
-    self._discrete = discrete
-    self._grad_clip = grad_clip
-    self._grad_clip_low = grad_clip_low
-    self._grad_clip_high = grad_clip_high
+
     self._std = std
     self._distribution_regressor = distribution_regressor
     self._deterministic = deterministic

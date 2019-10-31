@@ -7,7 +7,7 @@ from typing import Dict
 import torch
 from tqdm import tqdm
 
-from draugr import save_model
+from draugr import save_model, load_latest_model
 from neodroidagent.agents.agent import Agent
 from neodroidagent.architectures.architecture import Architecture
 from warg import passes_kws_to, super_init_pass_on_kws
@@ -52,27 +52,41 @@ All agent should inherit from this class
     for k, v in self.models.items():
       save_model(v, model_name=k, **kwargs)
 
-  @passes_kws_to(Agent.__build__)
   def load(self,
            model_path: Path,
            evaluation=False,
            **kwargs) -> None:
 
-    self.__build__(**kwargs)
+    if len(self.models.items()) > 1:
+      for k, v in self.models.items():
+        model_p = model_path / f'-{k}'
+        if model_p.exists():
+          print('Loading model: ' + str(model_path))
+          model = getattr(self, k)
+          model.load_state_dict(torch.load(model_p))
 
-    for k, v in self.models.items():
-      model_p = model_path / f'-{k}'
-      print('Loading model: ' + str(model_path))
-      model = getattr(self, k)
-      model.load_state_dict(torch.load(model_p))
+          if evaluation:
+            model = model.eval()
+            model.train(False)
 
-      if evaluation:
-        model = model.eval()
-        model.train(False)
+          model = model.to(self._device)
 
-      model = model.to(self._device)
+          setattr(self, k, model)
+    else:
+      for k, v in self.models.items():
+        model_p = load_latest_model(model_path)
+        if model_p:
+          print('Loading model: ' + str(model_path))
+          model = getattr(self, k)
+          model.load_state_dict(model_p)
 
-      setattr(self, k, model)
+          if evaluation:
+            model = model.eval()
+            model.train(False)
+
+          model = model.to(self._device)
+
+          setattr(self, k, model)
 
   # endregion
 

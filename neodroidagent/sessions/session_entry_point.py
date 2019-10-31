@@ -24,7 +24,7 @@ __doc__ = ''
 def session_entry_point(agent: Type[Agent],
                         config: object,
                         *,
-                        session:Union[Type[EnvironmentSession], EnvironmentSession]  = LinearSession,
+                        session: Union[Type[EnvironmentSession], EnvironmentSession] = LinearSession,
                         parse_args: bool = True,
                         save: bool = True,
                         has_x_server: bool = True,
@@ -35,16 +35,12 @@ def session_entry_point(agent: Type[Agent],
     confirming configuration to use before training and overwriting of default training configurations
   '''
 
+  load = False
   if parse_args:
     args = parse_arguments(f'{type(agent)}', NOD(config.__dict__))
 
     skip_confirmation = args.SKIP_CONFIRMATION
-
-    if args.INFERENCE:
-      if args.PRETRAINED_PATH != '':
-        session._procedure = RolloutInference
-
-    # TODO: load earlier model and inference flags
+    load = args.LOAD
 
     if 'CONFIG' in args.keys() and args['CONFIG']:
       import importlib.util
@@ -78,12 +74,13 @@ def session_entry_point(agent: Type[Agent],
   if session is None:
     raise NoProcedure
   elif isinstance(session, (types.ClassType)):
-    session = session(config_mapping.environment_name, **config_mapping)
+    session = session(**config_mapping)
 
   try:
     session(agent,
             save=save,
             has_x_server=has_x_server,
+            load_previous_environment_model_if_available=load,
             **config_mapping)
   except KeyboardInterrupt:
     print('Stopping')
@@ -99,7 +96,6 @@ if __name__ == '__main__':
   session_entry_point(RandomAgent,
                       C,
                       session=ParallelSession(
-                        'connect_to_running',
                         RolloutInference,
                         connect_to_running=True,
                         auto_reset_on_terminal_state=True))

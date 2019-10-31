@@ -2,7 +2,7 @@ from itertools import count
 from typing import Any
 
 from draugr import MockWriter, Writer
-from neodroid.environments import VectorUnityEnvironment
+from neodroid.environments.unity_environment import VectorUnityEnvironment
 from neodroid.utilities import ActionSpace, ObservationSpace, SignalSpace
 from neodroid.utilities.unity_specifications import EnvironmentSnapshot
 from neodroidagent.agents.agent import Agent
@@ -106,8 +106,7 @@ def random_run(rollouts=None, skip=True):
 
   session_entry_point(RandomAgent,
                       C,
-                      session=ParallelSession('',
-                                              StepWise,
+                      session=ParallelSession(StepWise,
                                               auto_reset_on_terminal_state=True,
                                               connect_to_running=True),
                       skip_confirmation=skip)

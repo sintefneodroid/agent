@@ -53,8 +53,6 @@ class DDPGAgent(ActorCriticAgent):
                actor_arch_spec=GDKC(SingleHeadMLP),
                critic_arch_spec=GDKC(SingleHeadMergedInputMLP),
                discount_factor=0.95,
-               initial_observation_period=10000,
-               learning_frequency=4,
                sync_target_model_frequency=10000,
                state_type=torch.float,
                value_type=torch.float,
@@ -101,8 +99,6 @@ class DDPGAgent(ActorCriticAgent):
     self._actor_arch_spec = actor_arch_spec
     self._critic_arch_spec = critic_arch_spec
     self._discount_factor = discount_factor
-    self._initial_observation_period = initial_observation_period
-    self._learning_frequency = learning_frequency
     self._sync_target_model_frequency = sync_target_model_frequency
     self._state_type = state_type
     self._value_type = value_type
@@ -275,7 +271,7 @@ class DDPGAgent(ActorCriticAgent):
 
 
 def ddpg_test(rollouts=None, skip=True):
-  from neodroidagent.procedures.training import Episodic
+  from neodroidagent.procedures.training import OnPolicyEpisodic
   from neodroidagent.sessions.session_entry_point import session_entry_point
   from neodroidagent.sessions.single_agent.parallel import ParallelSession
   import neodroidagent.configs.agent_test_configs.ddpg_test_config as C
@@ -284,15 +280,15 @@ def ddpg_test(rollouts=None, skip=True):
 
   session_entry_point(DDPGAgent,
                       C,
-                      session=ParallelSession('',
-                                              Episodic,
-                                              auto_reset_on_terminal_state=True),
+                      session=ParallelSession(
+                        OnPolicyEpisodic,
+                        auto_reset_on_terminal_state=True),
                       parse_args=False,
                       skip_confirmation=skip)
 
 
 def ddpg_run(rollouts=None, skip=True):
-  from neodroidagent.procedures.training import Episodic
+  from neodroidagent.procedures.training import OnPolicyEpisodic
   from neodroidagent.sessions.session_entry_point import session_entry_point
   from neodroidagent.sessions.single_agent.parallel import ParallelSession
   import neodroidagent.configs.agent_test_configs.ddpg_test_config as C
@@ -301,10 +297,10 @@ def ddpg_run(rollouts=None, skip=True):
 
   session_entry_point(DDPGAgent,
                       C,
-                      session=ParallelSession('',
-                                              Episodic,
-                                              connect_to_running=True,
-                                              auto_reset_on_terminal_state=True),
+                      session=ParallelSession(
+                        OnPolicyEpisodic,
+                        connect_to_running=True,
+                        auto_reset_on_terminal_state=True),
                       parse_args=False,
                       skip_confirmation=skip)
 

@@ -5,31 +5,31 @@ import os
 from warnings import warn
 
 import pkg_resources
-from pip._internal.utils.misc import dist_is_editable
+import sys
+from pathlib import Path
 
 from apppath.app_path import AppPath
 
 __project__ = 'NeodroidAgent'
 __author__ = "Christian Heider Nielsen"
-__version__ = "0.4.1"
+__version__ = "0.4.3"
 __doc__ = r'''
 Created on 27/04/2019
 
 @author: cnheider
 '''
 
-'''
+
 def dist_is_editable(dist):
-    # type: (Distribution) -> bool
-    """
-    Return True if given Distribution is an editable install.
-    """
-    for path_item in sys.path:
-        egg_link = os.path.join(path_item, dist.project_name + '.egg-link')
-        if os.path.isfile(egg_link):
-            return True
-    return False
-'''
+  """
+  Return True if given Distribution is an editable install.
+  """
+  for path_item in sys.path:
+    egg_link = Path(path_item) / f'{dist.project_name}.egg-link'
+    if egg_link.is_file():
+      return True
+  return False
+
 
 PROJECT_NAME = __project__.lower().strip().replace(' ', '_')
 PROJECT_AUTHOR = __author__.lower().strip().replace(' ', '_')
@@ -88,5 +88,3 @@ if __version__ is None:
   __version__ = get_version(append_time=True)
 
 __version_info__ = tuple(int(segment) for segment in __version__.split("."))
-
-

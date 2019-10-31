@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+from neodroidagent import PROJECT_APP_PATH
 from warg.named_ordered_dictionary import NOD
 
 __author__ = 'Christian Heider Nielsen'
@@ -20,13 +21,6 @@ def parse_arguments(agent_description,
                       metavar="ENVIRONMENT_NAME",
                       help="Name of the environment to run",
                       )
-  parser.add_argument("--PRETRAINED_PATH",
-                      "-T",
-                      metavar="PATH",
-                      type=str,
-                      default="",
-                      help="Path of pre-trained model"
-                      )
   add_bool_arg(parser,
                "render",
                dest="RENDER_ENVIRONMENT",
@@ -34,10 +28,10 @@ def parse_arguments(agent_description,
                help="Rendering of the environment",
                )
   add_bool_arg(parser,
-               "inference",
-               dest="INFERENCE",
-               default=False,
-               help="Should be an inference session",
+               "load_previous",
+               dest="LOAD",
+               default=True,
+               help="Should load a previous fitting model",
                )
   parser.add_argument("--NUM_WORKERS",
                       "-N",

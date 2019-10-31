@@ -14,8 +14,6 @@ __doc__ = r'''
            Created on 23/09/2019
            '''
 
-
-
 import numpy
 import torch
 from tqdm import tqdm
@@ -29,6 +27,14 @@ class PGAgent(PolicyAgent):
 
 
   '''
+
+  def _remember(self,
+                *,
+                signal,
+                action_log_prob,
+                entropy,
+                **kwargs):
+    self._trajectory_trace.add_point(signal, action_log_prob, entropy)
 
   # region Protected
 
@@ -128,24 +134,7 @@ class PGAgent(PolicyAgent):
 # region Test
 
 
-def pg_run(rollouts=None, skip=True):
-  from neodroidagent.sessions.session_entry_point import session_entry_point
-  from neodroidagent.procedures.training.episodic import Episodic
-  from neodroidagent.sessions.single_agent.parallel import ParallelSession
-  import neodroidagent.configs.agent_test_configs.pg_test_config as C
-
-  if rollouts:
-    C.ROLLOUTS = rollouts
-
-  session_entry_point(PGAgent,
-                      C,
-                      session=ParallelSession('',
-                                              Episodic,
-                                              connect_to_running=True),
-                      skip_confirmation=skip)
-
-
-def pg_test(rollouts=None, skip=True):
+def pg_run(rollouts=None, skip=True, connect_to_running=True):
   from neodroidagent.sessions.session_entry_point import session_entry_point
   from neodroidagent.sessions.single_agent.parallel import ParallelSession
   import neodroidagent.configs.agent_test_configs.pg_test_config as C
@@ -153,15 +142,19 @@ def pg_test(rollouts=None, skip=True):
   if rollouts:
     C.ROLLOUTS = rollouts
 
+  C.CONNECT_TO_RUNNING = connect_to_running
+
   session_entry_point(PGAgent,
                       C,
-                      parse_args=False,
                       session=ParallelSession,
                       skip_confirmation=skip)
 
 
-if __name__ == '__main__':
+def pg_test():
+  pg_run(connect_to_running=False)
 
+
+if __name__ == '__main__':
   pg_test()
-  # pg_run()
+
 # endregion

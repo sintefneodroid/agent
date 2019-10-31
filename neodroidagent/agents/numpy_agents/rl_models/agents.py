@@ -4,7 +4,6 @@ from collections import defaultdict
 import numpy as np
 
 from ._utils import EnvModel, env_stats, tile_state_space
-from ..utils.data_structures import Dict
 
 
 class AgentBase(ABC):
@@ -16,21 +15,23 @@ class AgentBase(ABC):
     self.derived_variables = {}
     self.env_info = env_stats(env)
 
-  def _create_2num_dicts(self, obs_encoder=None, act_encoder=None):
+  def _create_2num_dicts(self,
+                         obs_encoder=None,
+                         act_encoder=None):
     E = self.env_info
     n_states = np.prod(E["n_obs_per_dim"])
     n_actions = np.prod(E["n_actions_per_dim"])
 
     # create action -> scalar dictionaries
-    self._num2action = Dict()
-    self._action2num = Dict(act_encoder)
+    self._num2action = dict()
+    self._action2num = dict(act_encoder)
     if n_actions != np.inf:
       self._action2num = {act:i for i, act in enumerate(E["action_ids"])}
       self._num2action = {i:act for act, i in self._action2num.items()}
 
     # create obs -> scalar dictionaries
-    self._num2obs = Dict()
-    self._obs2num = Dict(obs_encoder)
+    self._num2obs = dict()
+    self._obs2num = dict(obs_encoder)
     if n_states != np.inf:
       self._obs2num = {act:i for i, act in enumerate(E["obs_ids"])}
       self._num2obs = {i:act for act, i in self._obs2num.items()}

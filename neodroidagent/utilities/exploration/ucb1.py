@@ -1,6 +1,8 @@
 import math
 import sys
 
+import numpy
+
 from warg.named_ordered_dictionary import NOD
 
 
@@ -30,13 +32,13 @@ class UCB1:
 
     return index_of_max(ucb_values)
 
-  def update_belief(self, option_index, signal):
+  def update_belief(self, option_index, signal, min_value=1e-9):
     self._counts[option_index] = options_counts_int = self._counts[option_index] + 1
     options_counts_float = float(options_counts_int)
 
     value = self._values[option_index]
     new_value = ((options_counts_float - 1) / options_counts_float) * value + (
-      1 / options_counts_float) * signal
+      1 / options_counts_float) * signal + min_value
     self._values[option_index] = new_value
 
   @property

@@ -16,9 +16,9 @@ RENDER_ENVIRONMENT = True
 EVALUATION_FUNCTION = torch.nn.CrossEntropyLoss
 
 OPTIMISER_SPEC = GDKC(torch.optim.Adam,
-                      NOD(lr=3e-5,
-                          weight_decay=3e-9,
-                          eps=3e-4))
+                      NOD(lr=3e-4,
+                          weight_decay=3e-11,
+                          eps=3e-6))
 
 DISCOUNT_FACTOR = 0.95
 PG_ENTROPY_REG = 3e-9

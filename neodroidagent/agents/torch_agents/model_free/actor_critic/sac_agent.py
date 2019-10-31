@@ -15,6 +15,7 @@ from IPython.display import clear_output, display
 from matplotlib import animation, pyplot
 from torch.distributions import Normal
 
+from draugr.torch_utilities.initialisation.seeding import get_torch_device
 from draugr.writers import MockWriter, Writer
 from neodroid.utilities import ActionSpace, EnvironmentSnapshot, ObservationSpace, SignalSpace
 from neodroidagent import PROJECT_APP_PATH
@@ -136,21 +137,21 @@ class PolicyNetwork(nn.Module):
 
     normal = Normal(0, 1)
     z = normal.sample()
-    action = torch.tanh(mean + std * z.to(device))
-    log_prob = Normal(mean, std).log_prob(mean + std * z.to(device)) - torch.log(
+    action = torch.tanh(mean + std * z.to(get_torch_device()))
+    log_prob = Normal(mean, std).log_prob(mean + std * z.to(get_torch_device())) - torch.log(
       1 - action.pow(2) + epsilon)
     return action, log_prob, z, mean, log_std
 
   def get_action(self, state):
     # Then to get the action we use the reparameterization trick
-    state = torch.FloatTensor(state).unsqueeze(0).to(device)
+    state = torch.FloatTensor(state).unsqueeze(0).to(get_torch_device())
     mean, log_std = self.forward(state)
     std = log_std.exp()
 
     # we sample a noise from a Standard Normal distribution
     normal = Normal(0, 1)
     # multiply it with our standard devation
-    z = normal.sample().to(device)
+    z = normal.sample().to(get_torch_device())
     # add it to the mean and make it activated with a tanh to give our function
     action = torch.tanh(mean + std * z)
 
@@ -181,15 +182,15 @@ class SACAgent(ActorCriticAgent):
 
     hidden_dim = 256
 
-    self.q1 = SoftQNetwork(state_dim, action_dim, hidden_dim).to(device)
-    self.q1_target = SoftQNetwork(state_dim, action_dim, hidden_dim).to(device)
+    self.q1 = SoftQNetwork(state_dim, action_dim, hidden_dim).to(get_torch_device())
+    self.q1_target = SoftQNetwork(state_dim, action_dim, hidden_dim).to(get_torch_device())
     self._update_target(target_model=self.q1_target, source_model=self.q1, copy_percentage=1)
 
-    self.q2 = SoftQNetwork(state_dim, action_dim, hidden_dim).to(device)
-    self.q2_target = SoftQNetwork(state_dim, action_dim, hidden_dim).to(device)
+    self.q2 = SoftQNetwork(state_dim, action_dim, hidden_dim).to(get_torch_device())
+    self.q2_target = SoftQNetwork(state_dim, action_dim, hidden_dim).to(get_torch_device())
     self._update_target(target_model=self.q2_target, source_model=self.q2, copy_percentage=1)
 
-    self.policy_net = PolicyNetwork(state_dim, action_dim, hidden_dim).to(device)
+    self.policy_net = PolicyNetwork(state_dim, action_dim, hidden_dim).to(get_torch_device())
 
     self.q_criterion = nn.MSELoss()
 
@@ -224,11 +225,11 @@ class SACAgent(ActorCriticAgent):
               **kwargs) -> None:
     state, action, reward, next_state, terminals = self._memory.sample(batch_size)
 
-    state = torch.FloatTensor(state).to(device)
-    next_state = torch.FloatTensor(next_state).to(device)
-    action = torch.FloatTensor(action).to(device)
-    reward = torch.FloatTensor(reward).unsqueeze(1).to(device)
-    terminals = torch.FloatTensor(np.float32(terminals)).unsqueeze(1).to(device)
+    state = torch.FloatTensor(state).to(get_torch_device())
+    next_state = torch.FloatTensor(next_state).to(get_torch_device())
+    action = torch.FloatTensor(action).to(get_torch_device())
+    reward = torch.FloatTensor(reward).unsqueeze(1).to(get_torch_device())
+    terminals = torch.FloatTensor(np.float32(terminals)).unsqueeze(1).to(get_torch_device())
 
     predicted_q_value1 = self.q1(state, action)
     predicted_q_value2 = self.q2(state, action)

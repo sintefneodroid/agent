@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+
 import draugr
-from neodroid.wrappers import BinaryActionEncodingWrapper, NeodroidGymWrapper
-from warg import get_upper_case_vars_or_protected_of, parse_arguments
+from draugr.stopping.stopping_key import add_early_stopping_key_combination
+from neodroid.environments.unity_environment import SingleUnityEnvironment
 
 __author__ = 'Christian Heider Nielsen'
 
@@ -17,13 +18,13 @@ from neodroidagent import utilities as U
 def train_agent(config, agent):
   torch.manual_seed(config.SEED)
 
-  env = NeodroidGymWrapper(BinaryActionEncodingWrapper(environment_name=config.ENVIRONMENT_NAME,
-                                                       connect_to_running=config.CONNECT_TO_RUNNING))
+  env = SingleUnityEnvironment(environment_name=config.ENVIRONMENT_NAME,
+                               connect_to_running=config.CONNECT_TO_RUNNING)
   env.seed(config.SEED)
 
   agent.build(env)
 
-  listener = U.add_early_stopping_key_combination(agent.stop_procedure)
+  listener = add_early_stopping_key_combination(agent.stop_procedure)
 
   if listener:
     listener.start()
@@ -31,15 +32,7 @@ def train_agent(config, agent):
     (trained_model,
      running_signals,
      running_lengths,
-     *training_statistics) = agent.train(env,
-                                         env,
-                                         rollouts=config.ROLLOUTS,
-                                         render=config.RENDER_ENVIRONMENT)
-  except ValueError as e:
-    running_signals = None
-    running_lengths = None
-    trained_model = None
-    raise e
+     *training_statistics) = agent.train(env, config.ROLLOUTS, render=config.RENDER_ENVIRONMENT)
   finally:
     if listener:
       listener.stop()
@@ -47,22 +40,24 @@ def train_agent(config, agent):
   draugr.save_statistic(running_signals,
                         stat_name='running_signals',
                         config_name=C.CONFIG_NAME,
-                        project_name=C.PROJECT_NAME,
+                        project_name=C.PROJECT,
                         directory=C.LOG_DIRECTORY)
   draugr.save_statistic(running_lengths,
                         stat_name='running_lengths',
                         directory=C.LOG_DIRECTORY,
                         config_name=C.CONFIG_NAME,
-                        project_name=C.PROJECT_NAME)
+                        project_name=C.PROJECT)
   U.save_model(trained_model, **config)
 
   env.close()
 
 
 if __name__ == '__main__':
-  import samples.rl.grid_world.grid_world_config as C
+  import experiments.rl.continuous.c2d_config as C
 
-  args = parse_arguments('Regular small grid world experiment', C)
+  from neodroidagent.configs import parse_arguments, get_upper_case_vars_or_protected_of
+
+  args = parse_arguments('C2D', C)
 
   for key, arg in args.__dict__.items():
     setattr(C, key, arg)
@@ -73,7 +68,7 @@ if __name__ == '__main__':
       print(f'{key} = {arg}')
     input('\nPress Enter to begin... ')
 
-  _agent = C.AGENT_SPEC.constructor(C)
+  _agent = C.AGENT_TYPE(C)
 
   try:
     train_agent(C, _agent)

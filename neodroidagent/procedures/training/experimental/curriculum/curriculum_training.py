@@ -14,11 +14,11 @@ from neodroid.wrappers import NeodroidCurriculumWrapper
 from neodroidagent.agents.torch_agents.torch_agent import TorchAgent
 from neodroidagent.utilities.exploration import sample
 from neodroidagent.utilities.specifications import TR
-from samples.rl.curriculum.grid_world import (display_actor_configurations,
-                                              estimate_entire_state_space,
-                                              estimate_initial_state_expected_return,
-                                              get_initial_configuration_from_goal,
-                                              )
+from samples.rl import (display_actor_configurations,
+                        estimate_entire_state_space,
+                        estimate_initial_state_expected_return,
+                        get_initial_configuration_from_goal,
+                        )
 from warg.arguments import get_upper_case_vars_or_protected_of
 
 __author__ = 'Christian Heider Nielsen'

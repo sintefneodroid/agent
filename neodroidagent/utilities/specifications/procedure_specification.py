@@ -4,7 +4,7 @@ import abc
 from pathlib import Path
 from typing import Union
 
-from neodroid.environments.unity.vector_unity_environment import VectorUnityEnvironment
+from neodroid.environments.unity_environment.vector_unity_environment import VectorUnityEnvironment
 from neodroidagent.agents.torch_agents.torch_agent import TorchAgent
 
 __author__ = 'Christian Heider Nielsen'
@@ -16,6 +16,7 @@ class Procedure(abc.ABC):
 
   def __init__(self,
                agent: TorchAgent,
+               *,
                environment: VectorUnityEnvironment,
                **kwargs):
     self.agent = agent

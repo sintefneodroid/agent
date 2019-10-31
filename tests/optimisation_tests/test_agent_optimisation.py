@@ -2,11 +2,10 @@
 # -*- coding: utf-8 -*-
 import pytest
 
-from neodroidagent.agents.torch_agents.model_free import DDPGAgent
-from neodroidagent.agents.torch_agents.model_free import PPOAgent
-from neodroidagent.agents.torch_agents.model_free import PGAgent
-from neodroidagent.agents.torch_agents.model_free import DQNAgent
-from neodroid.wrappers import NeodroidGymWrapper
+from neodroid.environments.gym_environment import NeodroidGymWrapper
+from neodroidagent.agents.torch_agents.model_free.actor_critic import PPOAgent, DDPGAgent
+from neodroidagent.agents.torch_agents.model_free.off_policy.dqn_agent import DQNAgent
+from neodroidagent.agents.torch_agents.model_free.on_policy.pg_agent import PGAgent
 
 __author__ = 'Christian Heider Nielsen'
 __doc__ = 'Tests of agents'
@@ -55,7 +54,7 @@ def agent_test(agent, env):
 
 
 if __name__ == '__main__':
-  test_pg_agent()
-  test_dqn_agent()
-  test_ppo_agent()
-  test_ddpg_agent()
+  test_pg_agent_optimisation()
+  test_dqn_agent_optimisation()
+  test_ppo_agent_optimisation()
+  test_ddpg_agent_optimisation()

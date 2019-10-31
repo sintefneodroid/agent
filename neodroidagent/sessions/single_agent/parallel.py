@@ -3,9 +3,14 @@
 
 from typing import Type, Union
 
-from neodroid.environments.unity.vector_unity_environment import VectorUnityEnvironment
-from neodroid.wrappers import NeodroidGymWrapper
-from neodroidagent.sessions import EnvironmentSession, Environment, Procedure, Episodic
+from neodroid.environments.unity_environment.vector_unity_environment import VectorUnityEnvironment
+from neodroidagent.agents.torch_agents.model_free.on_policy.pg_agent import PGAgent
+from neodroidagent.sessions import (EnvironmentSession,
+                                    Environment,
+                                    Procedure,
+                                    OnPolicyEpisodic,
+                                    NeodroidGymWrapper,
+                                    )
 from trolls.multiple_environments_wrapper import SubProcessEnvironments, make_gym_env
 from warg.kw_passing import super_init_pass_on_kws
 
@@ -17,9 +22,9 @@ __doc__ = ''
 class ParallelSession(EnvironmentSession):
 
   def __init__(self,
-               environment: Union[str, Environment],
-               procedure: Union[Type[Procedure], Procedure] = Episodic,
                *,
+               procedure: Union[Type[Procedure], Procedure] = OnPolicyEpisodic,
+               environment: Union[str, Environment] = '',
                default_num_train_envs=6,
                auto_reset_on_terminal_state=False,
                connect_to_running=False,
@@ -37,17 +42,16 @@ class ParallelSession(EnvironmentSession):
         environment = VectorUnityEnvironment(name=environment,
                                              connect_to_running=connect_to_running)
 
-    super().__init__(environment, procedure, **kwargs)
+    super().__init__(environment=environment, procedure=procedure, **kwargs)
 
 
 if __name__ == '__main__':
   import neodroidagent.configs.agent_test_configs.pg_test_config as C
-  from neodroidagent.agents.torch_agents.model_free.on_policy import PGAgent
 
   env = VectorUnityEnvironment(name=C.ENVIRONMENT_NAME,
                                connect_to_running=C.CONNECT_TO_RUNNING)
   env.seed(C.SEED)
 
-  ParallelSession('', Episodic)(PGAgent,
-                                config=C,
-                                environment=env)
+  ParallelSession()(PGAgent,
+                    config=C,
+                    environment=env)

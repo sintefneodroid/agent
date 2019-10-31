@@ -9,7 +9,7 @@ from torch.utils.data import DataLoader
 from draugr.torch_utilities.to_tensor import to_tensor
 from draugr.writers import MockWriter
 from draugr.writers.writer import Writer
-from neodroid.environments.unity.vector_unity_environment import VectorUnityEnvironment
+from neodroid.environments.unity_environment.vector_unity_environment import VectorUnityEnvironment
 from neodroid.utilities.unity_specifications import EnvironmentSnapshot
 from neodroidagent.agents.torch_agents.model_free.actor_critic import ActorCriticAgent
 from neodroidagent.utilities.signal.advantage_estimation import torch_compute_gae
@@ -337,9 +337,10 @@ def ppo_test(rollouts=None, skip: bool = True):
 
   session_entry_point(PPOAgent,
                       C,
-                      session=ParallelSession(C.ENVIRONMENT_NAME,
-                                              StepWise,
-                                              auto_reset_on_terminal_state=True),
+                      session=ParallelSession(
+                        StepWise,
+                        environment=C.ENVIRONMENT_NAME,
+                        auto_reset_on_terminal_state=True),
                       parse_args=False,
                       skip_confirmation=skip)
 
@@ -355,9 +356,9 @@ def ppo_run(rollouts=None, skip: bool = True):
 
   session_entry_point(PPOAgent,
                       C,
-                      session=ParallelSession('',
-                                              StepWise,
-                                              auto_reset_on_terminal_state=True, connect_to_running=True),
+                      session=ParallelSession(
+                        StepWise,
+                        auto_reset_on_terminal_state=True, connect_to_running=True),
                       parse_args=False,
                       skip_confirmation=skip)
 

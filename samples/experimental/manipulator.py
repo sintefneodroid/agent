@@ -1,27 +1,31 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 import draugr
-from neodroid.wrappers import BinaryActionEncodingWrapper
 
 __author__ = 'Christian Heider Nielsen'
 
 import torch
+
 from tqdm import tqdm
 
 tqdm.monitor_interval = 0
+
+from neodroid.environments.gym_wrapper import NeodroidGymEnvironment as neo
 from neodroidagent import utilities as U
 
 
 def train_agent(config, agent):
+  neo.seed(config.SEED)
   torch.manual_seed(config.SEED)
 
-  env = BinaryActionEncodingWrapper(environment_name=config.ENVIRONMENT_NAME,
-                                    connect_to_running=config.CONNECT_TO_RUNNING)
+  env = neo(environment_name=config.ENVIRONMENT_NAME,
+            connect_to_running=config.CONNECT_TO_RUNNING
+            )
   env.seed(config.SEED)
 
   agent.build(env)
 
-  listener = U.add_early_stopping_key_combination(agent.stop_procedure)
+  listener = add_early_stopping_key_combination(agent.stop_procedure)
 
   if listener:
     listener.start()
@@ -40,24 +44,24 @@ def train_agent(config, agent):
   draugr.save_statistic(running_signals,
                         stat_name='running_signals',
                         config_name=C.CONFIG_NAME,
-                        project_name=C.PROJECT,
+                        project_name=C.PROJECT_NAME,
                         directory=C.LOG_DIRECTORY)
   draugr.save_statistic(running_lengths,
                         stat_name='running_lengths',
                         directory=C.LOG_DIRECTORY,
                         config_name=C.CONFIG_NAME,
-                        project_name=C.PROJECT)
+                        project_name=C.PROJECT_NAME)
   U.save_model(trained_model, **config)
 
   env.close()
 
 
 if __name__ == '__main__':
-  import experiments.rl.grid_world.grid_world_config as C
+  import neodroidagent.configs.agent_test_configs.ddpg_test_config as C
 
   from neodroidagent.configs import parse_arguments, get_upper_case_vars_or_protected_of
 
-  args = parse_arguments('Curriculum grid world experiment', C)
+  args = parse_arguments('Manipulator experiment', C)
 
   for key, arg in args.__dict__.items():
     setattr(C, key, arg)
@@ -68,7 +72,7 @@ if __name__ == '__main__':
       print(f'{key} = {arg}')
     input('\nPress Enter to begin... ')
 
-  _agent = C.AGENT_TYPE(C)
+  _agent = C.AGENT(C)
 
   try:
     train_agent(C, _agent)

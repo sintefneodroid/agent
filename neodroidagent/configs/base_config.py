@@ -6,6 +6,7 @@ import time
 import torch
 import torch.nn.functional as F
 
+from draugr.torch_utilities.initialisation.seeding import get_torch_device
 from neodroidagent import PROJECT_NAME
 from neodroidagent.architectures.distributional.categorical import CategoricalMLP
 from neodroidagent.utilities.specifications.exploration_specification import ExplorationSpecification
@@ -73,12 +74,7 @@ OPTIMISER_SPEC = GDKC(torch.optim.Adam,
 
 # CUDA
 USE_CUDA = True
-if USE_CUDA:  # If available
-  USE_CUDA = torch.cuda.is_available()
-
-DEVICE = 'cpu'
-if USE_CUDA:
-  DEVICE = 'cuda'
+DEVICE = get_torch_device(USE_CUDA)
 
 # Visualisation
 USE_VISDOM = False

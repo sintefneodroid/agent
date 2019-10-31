@@ -56,5 +56,3 @@ POLICY_ARCH_SPEC = GDKC(CategoricalMLP,
                             use_bias=True
                             )
                         )
-
-ROLLOUTS = 10000
