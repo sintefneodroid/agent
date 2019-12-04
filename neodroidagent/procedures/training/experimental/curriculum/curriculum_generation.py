@@ -3,6 +3,7 @@
 from neodroid.utilities.unity_specifications import Configuration
 
 __author__ = "Christian Heider Nielsen"
+
 from collections import namedtuple
 from itertools import count
 

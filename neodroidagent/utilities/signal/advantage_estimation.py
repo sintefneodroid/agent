@@ -20,29 +20,29 @@ def torch_advantage_estimate(
     divide_by_zero_safety=1e-10
 ):
     """
-    Computes advantages and discounted returns.
-    If the advantage is positive for an action, then it yielded a more positive signal than expected. And thus
-    expectations can be adjust to make actions more likely.
+  Computes advantages and discounted returns.
+  If the advantage is positive for an action, then it yielded a more positive signal than expected. And thus
+  expectations can be adjust to make actions more likely.
 
-      :param value_estimate:
-      :param non_terminal:
-      :param signal:
-      :param device:
-    :param use_cuda:
-    :type use_cuda:
-    :param signals:
-    :type signals:
-    :param value_estimates:
-    :type value_estimates:
-    :param non_terminals:
-    :type non_terminals:
-    :param discount_factor:
-    :type discount_factor:
-    :param tau:
-    :type tau:
-    :return:
-    :rtype:
-  """
+    :param value_estimate:
+    :param non_terminal:
+    :param signal:
+    :param device:
+  :param use_cuda:
+  :type use_cuda:
+  :param signals:
+  :type signals:
+  :param value_estimates:
+  :type value_estimates:
+  :param non_terminals:
+  :type non_terminals:
+  :param discount_factor:
+  :type discount_factor:
+  :param tau:
+  :type tau:
+  :return:
+  :rtype:
+"""
 
     signals = to_tensor(signal, device=device)
     non_terminals = to_tensor(non_terminal, device=device)

@@ -14,24 +14,24 @@ https://en.wikipedia.org/wiki/Segment_tree
 Can be used as regular array, but with two
 important differences:
 
-    a) setting item's value is slightly slower.
-       It is O(lg capacity) instead of O(1).
-    b) user has access to an efficient `reduce`
-       operation which reduces `operation` over
-       a contiguous subsequence of items in the
-       array.
+a) setting item's value is slightly slower.
+   It is O(lg capacity) instead of O(1).
+b) user has access to an efficient `reduce`
+   operation which reduces `operation` over
+   a contiguous subsequence of items in the
+   array.
 
 Parameters
 ---------
 capacity: int
-    Total size of the array - must be a power of two.
+Total size of the array - must be a power of two.
 operation: lambda obj, obj -> obj
-    and operation for combining elements (eg. sum, max)
-    must for a mathematical group together with the set of
-    possible values for array elements.
+and operation for combining elements (eg. sum, max)
+must for a mathematical group together with the set of
+possible values for array elements.
 neutral_element: obj
-    neutral element for the operation above. eg. float('-inf')
-    for max and 0 for sum.
+neutral element for the operation above. eg. float('-inf')
+for max and 0 for sum.
 """
         assert (
             capacity > 0 and capacity & (capacity - 1) == 0
@@ -59,19 +59,19 @@ neutral_element: obj
         """Returns result of applying `self.operation`
 to a contiguous subsequence of the array.
 
-    self.operation(arr[start], operation(arr[start+1], operation(... arr[end])))
+self.operation(arr[start], operation(arr[start+1], operation(... arr[end])))
 
 Parameters
 ----------
 start: int
-    beginning of the subsequence
+beginning of the subsequence
 end: int
-    end of the subsequences
+end of the subsequences
 
 Returns
 -------
 reduced: obj
-    result of reducing self.operation over the specified range of array elements.
+result of reducing self.operation over the specified range of array elements.
 """
         if end is None:
             end = self._capacity
@@ -107,7 +107,7 @@ class SumSegmentTree(SegmentTree):
     def find_prefix_sum_idx(self, prefix_sum):
         """
 Find the highest index `i` in the array such that
-    sum(arr[0] + arr[1] + ... + arr[i - i]) <= prefix_sum
+sum(arr[0] + arr[1] + ... + arr[i - i]) <= prefix_sum
 
 if array values are probabilities, this function
 allows to sample indexes according to the discrete

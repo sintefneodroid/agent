@@ -17,25 +17,25 @@ tqdm.monitor_interval = 0
 
 class WorldModelAgent(Agent):
     """
-  As of https://worldmodels.github.io/, https://arxiv.org/abs/1803.10122
+As of https://worldmodels.github.io/, https://arxiv.org/abs/1803.10122
 
-  Parameters
-  ----------
-      actor_optimizer_spec: OptimiserSpec
-          Specifying the constructor and kwargs, as well as learning rate and other
-          parameters for the optimiser
-      critic_optimizer_spec: OptimiserSpec
-      num_feature: int
-          The number of features of the environmental state
-      num_action: int
-          The number of available actions that agent can choose from
-      replay_memory_size: int
-          How many memories to store in the replay memory.
-      batch_size: int
-          How many transitions to sample each time experience is replayed.
-      tau: float
-          The update rate that target networks slowly track the learned networks.
-  """
+Parameters
+----------
+    actor_optimizer_spec: OptimiserSpec
+        Specifying the constructor and kwargs, as well as learning rate and other
+        parameters for the optimiser
+    critic_optimizer_spec: OptimiserSpec
+    num_feature: int
+        The number of features of the environmental state
+    num_action: int
+        The number of available actions that agent can choose from
+    replay_memory_size: int
+        How many memories to store in the replay memory.
+    batch_size: int
+        How many transitions to sample each time experience is replayed.
+    tau: float
+        The update rate that target networks slowly track the learned networks.
+"""
 
     def _train(
         self,

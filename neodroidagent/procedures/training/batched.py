@@ -31,16 +31,16 @@ class Batched(Procedure):
     ) -> None:
         """
 
-    :param device:
-    :param log_directory:
-    :param num_steps:
-    :param iterations:
-    :param stat_frequency:
-    :param render_frequency:
-    :param disable_stdout:
-    :param kwargs:
-    :return:
-    """
+:param device:
+:param log_directory:
+:param num_steps:
+:param iterations:
+:param stat_frequency:
+:param render_frequency:
+:param disable_stdout:
+:param kwargs:
+:return:
+"""
         with torch.autograd.detect_anomaly():
             with TensorBoardPytorchWriter(str(log_directory)) as metric_writer:
                 state = self.environment.reset()
@@ -121,56 +121,56 @@ class Batched(Procedure):
                         break
 
     """
-  def train_episodically(self,
-                         env,
-                         rollouts=10000,
-                         render=False,
-                         render_frequency=1000,
-                         stat_frequency=10,
-                         **kwargs):
-  
-    self._rollout_i = 1
-  
+def train_episodically(self,
+                       env,
+                       rollouts=10000,
+                       render=False,
+                       render_frequency=1000,
+                       stat_frequency=10,
+                       **kwargs):
+
+  self._rollout_i = 1
+
+  initial_state = env.reset()
+
+  B = tqdm(range(1, rollouts + 1), f'Batch {0}, {rollouts} - Rollout {self._rollout_i}', leave=False,
+           disable=not render)
+  for batch_i in B:
+    if self.end_training or batch_i > rollouts:
+      break
+
+    if batch_i % stat_frequency == 0:
+      B.set_description(f'Batch {batch_i}, {rollouts} - Rollout {self._rollout_i}')
+
+    if render and batch_i % render_frequency == 0:
+      transitions, accumulated_signal, terminated, *_ = self.rollout(initial_state,
+                                                                     env,
+                                                                     render=render
+                                                                     )
+    else:
+      transitions, accumulated_signal, terminated, *_ = self.rollout(initial_state,
+                                                                     env
+                                                                     )
+
     initial_state = env.reset()
-  
-    B = tqdm(range(1, rollouts + 1), f'Batch {0}, {rollouts} - Rollout {self._rollout_i}', leave=False,
-             disable=not render)
-    for batch_i in B:
-      if self.end_training or batch_i > rollouts:
-        break
-  
-      if batch_i % stat_frequency == 0:
-        B.set_description(f'Batch {batch_i}, {rollouts} - Rollout {self._rollout_i}')
-  
-      if render and batch_i % render_frequency == 0:
-        transitions, accumulated_signal, terminated, *_ = self.rollout(initial_state,
-                                                                       env,
-                                                                       render=render
-                                                                       )
-      else:
-        transitions, accumulated_signal, terminated, *_ = self.rollout(initial_state,
-                                                                       env
-                                                                       )
-  
-      initial_state = env.reset()
-  
-      if batch_i >= self._initial_observation_period:
-        advantage_memories = self.back_trace_advantages(transitions)
-  
-        for memory in advantage_memories:
-          self._memory_buffer._add(memory)
-  
-        self.update()
-        self._memory_buffer.clear()
-  
-        if self._rollout_i % self._update_target_interval == 0:
-          self.update_target(target_model=self._target_actor, source_model=self._actor,
-                             target_update_tau=self._target_update_tau)
-          self.update_target(target_model=self._target_critic, source_model=self._critic,
-                             target_update_tau=self._target_update_tau)
-  
-      if self.end_training:
-        break
-  
-    return self._actor, self._critic, []
-  """
+
+    if batch_i >= self._initial_observation_period:
+      advantage_memories = self.back_trace_advantages(transitions)
+
+      for memory in advantage_memories:
+        self._memory_buffer._add(memory)
+
+      self.update()
+      self._memory_buffer.clear()
+
+      if self._rollout_i % self._update_target_interval == 0:
+        self.update_target(target_model=self._target_actor, source_model=self._actor,
+                           target_update_tau=self._target_update_tau)
+        self.update_target(target_model=self._target_critic, source_model=self._critic,
+                           target_update_tau=self._target_update_tau)
+
+    if self.end_training:
+      break
+
+  return self._actor, self._critic, []
+"""

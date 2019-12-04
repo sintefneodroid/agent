@@ -33,9 +33,9 @@ def session_entry_point(
     **kwargs,
 ):
     r"""
-    Entry point start a starting a training session with the functionality of parsing cmdline arguments and
-    confirming configuration to use before training and overwriting of default training configurations
-  """
+  Entry point start a starting a training session with the functionality of parsing cmdline arguments and
+  confirming configuration to use before training and overwriting of default training configurations
+"""
 
     continue_training = False
     if parse_args:

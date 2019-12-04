@@ -13,8 +13,8 @@ __author__ = "Christian Heider Nielsen"
 
 class EVOAgent(Agent, ABC):
     """
-  Base class for evolution strategy (ES) based agents
-  """
+Base class for evolution strategy (ES) based agents
+"""
 
     # region Public
 

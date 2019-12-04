@@ -155,9 +155,9 @@ OOOO hidden_layer_size * (Weights,Biases)
     def forward(self, *x, **kwargs):
         """
 
-    :param x:
-    :return output:
-    """
+:param x:
+:return output:
+"""
 
         x_len = len(x)
         if x_len != self.input_shape[0]:

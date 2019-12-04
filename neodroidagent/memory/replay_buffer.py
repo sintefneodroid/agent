@@ -11,7 +11,6 @@ from neodroidagent.memory import ExpandableCircularBuffer
 from neodroidagent.utilities.specifications import TrajectoryPoint, Transition
 from warg.arguments import namedtuple_args
 
-
 __all__ = ["ReplayBuffer", "TransitionBuffer", "TrajectoryBuffer"]
 
 

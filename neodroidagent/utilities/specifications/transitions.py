@@ -15,8 +15,8 @@ __author__ = "Christian Heider Nielsen"
 @dataclass
 class Transition(IterValuesMixin, IndexDictTuplesMixin):
     """
-    __slots__=['state','action','signal','successor_state','terminal']
-  """
+  __slots__=['state','action','signal','successor_state','terminal']
+"""
 
     __slots__ = ["state", "action", "signal", "successor_state", "terminal"]
     state: Any
@@ -56,8 +56,8 @@ class Transition(IterValuesMixin, IndexDictTuplesMixin):
 @dataclass
 class ValuedTransition(Transition):
     """
-    __slots__=['state','action','signal','successor_state','terminal','action_prob','value_estimate']
-  """
+  __slots__=['state','action','signal','successor_state','terminal','action_prob','value_estimate']
+"""
 
     __slots__ = Transition.__slots__ + ["action_prob", "value_estimate"]
     state: Any
@@ -72,8 +72,8 @@ class ValuedTransition(Transition):
 @dataclass
 class AdvantageDiscountedTransition(IterValuesMixin):
     """
-    __slots__=['state','action','signal','successor_state','terminal','action_prob','value_estimate']
-  """
+  __slots__=['state','action','signal','successor_state','terminal','action_prob','value_estimate']
+"""
 
     __slots__ = [
         "state",

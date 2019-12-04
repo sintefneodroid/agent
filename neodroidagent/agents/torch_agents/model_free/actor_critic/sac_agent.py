@@ -100,8 +100,8 @@ class SoftQNetwork(nn.Module):
 
 class PolicyNetwork(nn.Module):
     """
-  # The policy network has two outputs: The mean and the log standard deviation
-  """
+# The policy network has two outputs: The mean and the log standard deviation
+"""
 
     def __init__(
         self,
@@ -169,8 +169,8 @@ class PolicyNetwork(nn.Module):
 
 class SACAgent(ActorCriticAgent):
     """
-  Soft Actor Critic
-  """
+Soft Actor Critic
+"""
 
     @property
     def models(self) -> Dict[str, Architecture]:
@@ -374,8 +374,8 @@ if __name__ == "__main__":
     def inference():
         def display_frames_as_gif(frames):
             """
-      Displays a list of frames as a gif, with controls
-      """
+Displays a list of frames as a gif, with controls
+"""
             # pyplot.figure(figsize=(frames[0].shape[1] / 72.0, frames[0].shape[0] / 72.0), dpi = 72)
             patch = pyplot.imshow(frames[0])
             pyplot.axis("off")

@@ -6,6 +6,7 @@ from draugr.torch_utilities import atari_initializer, ortho_weights
 from neodroidagent.architectures.architecture import Architecture
 
 __author__ = "Christian Heider Nielsen"
+
 from torch import nn
 from torch.nn import functional as F
 
@@ -54,7 +55,7 @@ class AtariCNN(nn.Module):
 Equivalent to the network in the original DQN paper.
 
 Args:
-    num_actions (int): the number of available discrete actions
+num_actions (int): the number of available discrete actions
 """
         super().__init__()
 
@@ -85,11 +86,11 @@ Args:
         """ Module forward pass
 
 Args:
-    conv_in (Variable): convolutional input, shaped [N x 4 x 84 x 84]
+conv_in (Variable): convolutional input, shaped [N x 4 x 84 x 84]
 
 Returns:
-    pi (Variable): action probability logits, shaped [N x self.num_actions]
-    v (Variable): value predictions, shaped [N x 1]
+pi (Variable): action probability logits, shaped [N x self.num_actions]
+v (Variable): value predictions, shaped [N x 1]
 """
         N = conv_in.size()[0]
 

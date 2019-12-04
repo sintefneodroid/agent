@@ -11,12 +11,12 @@ __doc__ = r"""
 
 def exploration_action(self, state):
     """
-  choose an action based on state with random noise added for exploration in training
+choose an action based on state with random noise added for exploration in training
 
-  :param self:
-  :param state:
-  :return:
-  """
+:param self:
+:param state:
+:return:
+"""
 
     softmax_action = self._sample_model(state)
     epsilon = self.epsilon_end + (self.epsilon_start - self.epsilon_end) * numpy.exp(

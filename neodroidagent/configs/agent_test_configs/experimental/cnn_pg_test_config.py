@@ -21,7 +21,6 @@ EVALUATION_FUNCTION = torch.nn.CrossEntropyLoss
 DISCOUNT_FACTOR = 0.95
 OPTIMISER_LEARNING_RATE = 1e-4
 
-
 # Architecture
 POLICY_ARCH_SPEC = GDKC(
     CategoricalCNN,

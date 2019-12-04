@@ -30,15 +30,15 @@ class RolloutInference(Procedure):
     ) -> TR:
         """
 
-    :param num_steps_per_btach:
-    :param num_updates:
-    :param iterations:
-    :param log_directory:
-    :param render_frequency:
-    :param stat_frequency:
-    :param kwargs:
-    :return:
-    """
+:param num_steps_per_btach:
+:param num_updates:
+:param iterations:
+:param log_directory:
+:param render_frequency:
+:param stat_frequency:
+:param kwargs:
+:return:
+"""
         with torch.no_grad():
             with TensorBoardPytorchWriter(log_directory) as metric_writer:
 

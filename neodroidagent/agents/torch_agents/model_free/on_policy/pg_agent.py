@@ -25,10 +25,10 @@ tqdm.monitor_interval = 0
 
 class PGAgent(PolicyAgent):
     """
-  REINFORCE, Vanilla Policy Gradient method
+REINFORCE, Vanilla Policy Gradient method
 
 
-  """
+"""
 
     def _remember(self, *, signal, action_log_prob, entropy, **kwargs):
         self._trajectory_trace.add_point(signal, action_log_prob, entropy)
@@ -56,12 +56,12 @@ class PGAgent(PolicyAgent):
     def _update(self, *, metric_writer=MockWriter(), **kwargs):
         """
 
-    :param metric_writer:
-    :param args:
-    :param kwargs:
+:param metric_writer:
+:param args:
+:param kwargs:
 
-    :returns:
-    """
+:returns:
+"""
 
         self._optimiser.zero_grad()
         error = self.evaluate()

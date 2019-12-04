@@ -56,17 +56,17 @@ All value iteration agents should inherit from this class
     ):
         """
 
-    :param copy_percentage:
-    :param signal_clipping:
-    :param action_clipping:
-    :param memory_buffer:
-    :param actor_optimiser_spec:
-    :param critic_optimiser_spec:
-    :param actor_arch_spec:
-    :param critic_arch_spec:
-    :param random_process_spec:
-    :param kwargs:
-    """
+:param copy_percentage:
+:param signal_clipping:
+:param action_clipping:
+:param memory_buffer:
+:param actor_optimiser_spec:
+:param critic_optimiser_spec:
+:param actor_arch_spec:
+:param critic_arch_spec:
+:param random_process_spec:
+:param kwargs:
+"""
         super().__init__(**kwargs)
 
         self._target_update_tau = copy_percentage

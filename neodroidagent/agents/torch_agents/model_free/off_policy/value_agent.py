@@ -68,28 +68,28 @@ All value iteration agents should inherit from this class
     ):
         """
 
-    :param exploration_spec:
-    :param initial_observation_period:
-    :param value_model:
-    :param target_value_model:
-    :param naive_max_policy:
-    :param memory_buffer:
-    :param loss_function:
-    :param value_arch_spec:
-    :param batch_size:
-    :param discount_factor:
-    :param learning_frequency:
-    :param sync_target_model_frequency:
-    :param state_type:
-    :param value_type:
-    :param action_type:
-    :param use_double_dqn:
-    :param clamp_gradient:
-    :param signal_clipping:
-    :param early_stopping_condition:
-    :param optimiser_spec:
-    :param kwargs:
-    """
+:param exploration_spec:
+:param initial_observation_period:
+:param value_model:
+:param target_value_model:
+:param naive_max_policy:
+:param memory_buffer:
+:param loss_function:
+:param value_arch_spec:
+:param batch_size:
+:param discount_factor:
+:param learning_frequency:
+:param sync_target_model_frequency:
+:param state_type:
+:param value_type:
+:param action_type:
+:param use_double_dqn:
+:param clamp_gradient:
+:param signal_clipping:
+:param early_stopping_condition:
+:param optimiser_spec:
+:param kwargs:
+"""
         super().__init__(**kwargs)
         self._exploration_spec = exploration_spec
         self._value_model: Architecture = value_model

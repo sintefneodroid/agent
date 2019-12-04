@@ -72,7 +72,7 @@ All agent should inherit from this class
 Tries to infer input and output size from env if either _input_shape or _output_shape, is None or -1 (int)
 
 :rtype: object
-    """
+"""
 
         if self._input_shape is None or self._input_shape == -1:
             self._input_shape = observation_space.shape

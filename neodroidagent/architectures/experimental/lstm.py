@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 __author__ = "Christian Heider Nielsen"
+
 import torch
 from torch import nn
 from torch.autograd import Variable

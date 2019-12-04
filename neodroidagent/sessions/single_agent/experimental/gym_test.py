@@ -3,6 +3,7 @@
 
 __author__ = "Christian Heider Nielsen"
 __doc__ = ""
+
 import glob
 import os
 
@@ -14,8 +15,8 @@ from neodroidagent.utilities.specifications import EnvironmentSession
 class agent_test_gym(EnvironmentSession):
     def __call__(self, *args, **kwargs):
         """
-      Executes training session
-    """
+  Executes training session
+"""
 
         import neodroidagent.configs.agent_test_configs.pg_test_config as C
         from neodroidagent.agents.torch_agents.model_free import PGAgent

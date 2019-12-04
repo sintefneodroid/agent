@@ -24,25 +24,25 @@ tqdm.monitor_interval = 0
 
 class DDPGAgent(ActorCriticAgent):
     """
-  The Deep Deterministic Policy Gradient (DDPG) Agent
+The Deep Deterministic Policy Gradient (DDPG) Agent
 
-  Parameters
-  ----------
-      actor_optimizer_spec: OptimiserSpec
-          Specifying the constructor and kwargs, as well as learning rate and other
-          parameters for the optimiser
-      critic_optimizer_spec: OptimiserSpec
-      num_feature: int
-          The number of features of the environmental state
-      num_action: int
-          The number of available actions that agent can choose from
-      replay_memory_size: int
-          How many memories to store in the replay memory.
-      batch_size: int
-          How many transitions to sample each time experience is replayed.
-      tau: float
-          The update rate that target networks slowly track the learned networks.
-  """
+Parameters
+----------
+    actor_optimizer_spec: OptimiserSpec
+        Specifying the constructor and kwargs, as well as learning rate and other
+        parameters for the optimiser
+    critic_optimizer_spec: OptimiserSpec
+    num_feature: int
+        The number of features of the environmental state
+    num_action: int
+        The number of available actions that agent can choose from
+    replay_memory_size: int
+        How many memories to store in the replay memory.
+    batch_size: int
+        How many transitions to sample each time experience is replayed.
+    tau: float
+        The update rate that target networks slowly track the learned networks.
+"""
 
     # region Private
 
@@ -70,28 +70,28 @@ class DDPGAgent(ActorCriticAgent):
     ):
         """
 
-    :param random_process_spec:
-    :param memory_buffer:
-    :param evaluation_function:
-    :param actor_arch_spec:
-    :param critic_arch_spec:
-    :param discount_factor:
-    :param initial_observation_period:
-    :param learning_frequency:
-    :param sync_target_model_frequency:
-    :param state_type:
-    :param value_type:
-    :param action_type:
-    :param exploration_epsilon_start:
-    :param exploration_epsilon_end:
-    :param exploration_epsilon_decay:
-    :param early_stopping_condition:
-    :param batch_size:
-    :param noise_factor:
-    :param low_action_clip:
-    :param high_action_clip:
-    :param kwargs:
-    """
+:param random_process_spec:
+:param memory_buffer:
+:param evaluation_function:
+:param actor_arch_spec:
+:param critic_arch_spec:
+:param discount_factor:
+:param initial_observation_period:
+:param learning_frequency:
+:param sync_target_model_frequency:
+:param state_type:
+:param value_type:
+:param action_type:
+:param exploration_epsilon_start:
+:param exploration_epsilon_end:
+:param exploration_epsilon_decay:
+:param early_stopping_condition:
+:param batch_size:
+:param noise_factor:
+:param low_action_clip:
+:param high_action_clip:
+:param kwargs:
+"""
         super().__init__(**kwargs)
         # Adds noise for exploration
         self._random_process_spec = random_process_spec
@@ -132,7 +132,7 @@ class DDPGAgent(ActorCriticAgent):
     def evaluate(self, batch):
         """
 
-    :param batch:
+:param batch:
 :type kwargs: object
 """
         (
@@ -191,11 +191,11 @@ class DDPGAgent(ActorCriticAgent):
 
     def _update(self, *, metric_writer: Writer = MockWriter(), **kwargs):
         """
-  Update the target networks
+Update the target networks
 
-  :return:
-  :rtype:
-  """
+:return:
+:rtype:
+"""
         if len(self._memory_buffer) < self._batch_size:
             return
 
@@ -216,8 +216,8 @@ class DDPGAgent(ActorCriticAgent):
     def _optimise(self, *, temporal_difference_error, state_batch) -> float:
         """
 
-    :type kwargs: object
-    """
+:type kwargs: object
+"""
         self._optimise_critic(temporal_difference_error)
 
         ### Actor ###

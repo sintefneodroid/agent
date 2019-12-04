@@ -30,8 +30,8 @@ __doc__ = r"""
 @super_init_pass_on_kws
 class PolicyAgent(TorchAgent):
     """
-  All policy iteration agents should inherit from this class
-  """
+All policy iteration agents should inherit from this class
+"""
 
     # region Private
 
@@ -63,28 +63,28 @@ class PolicyAgent(TorchAgent):
     ):
         """
 
-    :param evaluation_function:
-    :param trajectory_trace:
-    :param policy_arch_spec:
-    :param discount_factor:
-    :param use_batched_updates:
-    :param batch_size:
-    :param policy_entropy_regularisation:
-    :param signal_clipping:
-    :param signal_clip_high:
-    :param signal_clip_low:
-    :param optimiser_spec:
-    :param state_type:
-    :param signals_tensor_type:
-    :param discrete:
-    :param grad_clip:
-    :param grad_clip_low:
-    :param grad_clip_high:
-    :param std:
-    :param distribution_regressor:
-    :param deterministic:
-    :param kwargs:
-    """
+:param evaluation_function:
+:param trajectory_trace:
+:param policy_arch_spec:
+:param discount_factor:
+:param use_batched_updates:
+:param batch_size:
+:param policy_entropy_regularisation:
+:param signal_clipping:
+:param signal_clip_high:
+:param signal_clip_low:
+:param optimiser_spec:
+:param state_type:
+:param signals_tensor_type:
+:param discrete:
+:param grad_clip:
+:param grad_clip_low:
+:param grad_clip_high:
+:param std:
+:param distribution_regressor:
+:param deterministic:
+:param kwargs:
+"""
         super().__init__(**kwargs)
 
         self._accumulated_error = to_tensor(0.0, device=self._device)

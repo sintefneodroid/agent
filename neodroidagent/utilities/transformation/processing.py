@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 __author__ = "Christian Heider Nielsen"
+
 import json
 from ast import literal_eval as make_tuple
 

@@ -33,8 +33,8 @@ ENVIRONMENT_NAME = "CartPole-v1"
 """
 
 Description
-A pole is attached by an un-actuated joint to a cart, which moves along a frictionless track. The pendulum 
-starts upright, and the goal is to prevent it from falling over by increasing and reducing the cart's 
+A pole is attached by an un-actuated joint to a cart, which moves along a frictionless track. The pendulum
+starts upright, and the goal is to prevent it from falling over by increasing and reducing the cart's
 velocity.
 
 Source
@@ -55,8 +55,8 @@ Num	Action
 0	Push cart to the left
 1	Push cart to the right
 
-Note: The amount the velocity is reduced or increased is not fixed as it depends on the angle the pole is 
-pointing. This is because the center of gravity of the pole increases the amount of energy needed to move 
+Note: The amount the velocity is reduced or increased is not fixed as it depends on the angle the pole is
+pointing. This is because the center of gravity of the pole increases the amount of energy needed to move
 the cart underneath it
 
 Reward

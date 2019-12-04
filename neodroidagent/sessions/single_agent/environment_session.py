@@ -41,13 +41,13 @@ class EnvironmentSession(abc.ABC):
         **kwargs,
     ):
         """
-    Start a session, builds Agent and starts/connect environment(s), and runs Procedure
+Start a session, builds Agent and starts/connect environment(s), and runs Procedure
 
 
-    :param args:
-    :param kwargs:
-    :return:
-    """
+:param args:
+:param kwargs:
+:return:
+"""
 
         if agent is None:
             raise NoAgent

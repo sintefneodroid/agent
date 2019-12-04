@@ -17,15 +17,15 @@ def discounted_nstep(
     n,
 ) -> numpy.ndarray:
     r"""
-  Implementation of n-step reward given by the equation:
+Implementation of n-step reward given by the equation:
 
-  .. math:: G_{t:t+n} = R_{t+1} + \gamma R_{t+2} + \cdots + \gamma^{n-1} R_{t+n} + \gamma^n V_{t+n-1}(S_{t+n})
+.. math:: G_{t:t+n} = R_{t+1} + \gamma R_{t+2} + \cdots + \gamma^{n-1} R_{t+n} + \gamma^n V_{t+n-1}(S_{t+n})
 
 
-  :param discount_factor: discount value. Should be between `(0, 1]`
-  :param n: (optional) number of steps to compute reward over. If `None` then calculates it till
-         the end of episode
-  """
+:param discount_factor: discount value. Should be between `(0, 1]`
+:param n: (optional) number of steps to compute reward over. If `None` then calculates it till
+       the end of episode
+"""
 
     if n is None:
         return valued_discount(signals, values[:, -1], terminals, discount_factor)
@@ -51,13 +51,13 @@ def discounted_nstep_adv(
     n=None,
 ) -> numpy.ndarray:
     r"""
-  Implementation of n-step advantage given by the equation:
+Implementation of n-step advantage given by the equation:
 
-  .. math:: \hat{A}_{t:t+n} = R_{t+1} + \gamma R_{t+2} + \cdots + \gamma^{n-1} R_{t+n} + \gamma^n V_{
-  t+n-1}(S_{t+n})
-   - V_{t+n-1}(S_{t+1})
+.. math:: \hat{A}_{t:t+n} = R_{t+1} + \gamma R_{t+2} + \cdots + \gamma^{n-1} R_{t+n} + \gamma^n V_{
+t+n-1}(S_{t+n})
+ - V_{t+n-1}(S_{t+1})
 
-  """
+"""
     return (
         discounted_nstep(signals, values, terminals, discount_factor, n)
         - values[:, :-1]

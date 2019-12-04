@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 __author__ = "Christian Heider Nielsen"
+
 import math
 from enum import Enum, auto
 

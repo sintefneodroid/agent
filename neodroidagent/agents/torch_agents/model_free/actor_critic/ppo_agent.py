@@ -31,7 +31,7 @@ import torch.nn.functional as F
 
 class PPOAgent(ActorCriticAgent):
     """
-  PPO, Proximal Policy Optimization method
+PPO, Proximal Policy Optimization method
 
 
 """
@@ -66,30 +66,30 @@ class PPOAgent(ActorCriticAgent):
     ) -> None:
         """
 
-    :param discount_factor:
-    :param gae_tau:
-    :param actor_lr:
-    :param critic_lr:
-    :param entropy_reg_coef:
-    :param value_reg_coef:
-    :param mini_batches:
-    :param copy_percentage:
-    :param update_target_interval:
-    :param max_grad_norm:
-    :param solved_threshold:
-    :param test_interval:
-    :param early_stop:
-    :param rollouts:
-    :param surrogate_clipping_value:
-    :param ppo_optimisation_epochs:
-    :param state_type:
-    :param value_type:
-    :param action_type:
-    :param exploration_epsilon_start:
-    :param exploration_epsilon_end:
-    :param exploration_epsilon_decay:
-    :param kwargs:
-    """
+:param discount_factor:
+:param gae_tau:
+:param actor_lr:
+:param critic_lr:
+:param entropy_reg_coef:
+:param value_reg_coef:
+:param mini_batches:
+:param copy_percentage:
+:param update_target_interval:
+:param max_grad_norm:
+:param solved_threshold:
+:param test_interval:
+:param early_stop:
+:param rollouts:
+:param surrogate_clipping_value:
+:param ppo_optimisation_epochs:
+:param state_type:
+:param value_type:
+:param action_type:
+:param exploration_epsilon_start:
+:param exploration_epsilon_end:
+:param exploration_epsilon_decay:
+:param kwargs:
+"""
         super().__init__(**kwargs)
 
         self._discount_factor = discount_factor
@@ -146,19 +146,19 @@ class PPOAgent(ActorCriticAgent):
 
     def _sample_model(self, state, *args, **kwargs):
         """
-      continuous
-        randomly sample from normal distribution, whose mean and variance come from policy network.
-        [batch, action_size]
+  continuous
+    randomly sample from normal distribution, whose mean and variance come from policy network.
+    [batch, action_size]
 
-      :param state:
-      :type state:
-      :param continuous:
-      :type continuous:
-      :param kwargs:
-      :type kwargs:
-      :return:
-      :rtype:
-    """
+  :param state:
+  :type state:
+  :param continuous:
+  :type continuous:
+  :param kwargs:
+  :type kwargs:
+  :return:
+  :rtype:
+"""
 
         model_input = to_tensor(state, device=self._device, dtype=self._state_type)
 

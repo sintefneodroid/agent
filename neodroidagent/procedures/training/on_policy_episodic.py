@@ -19,6 +19,7 @@ from warg.kw_passing import drop_unused_kws
 
 __author__ = "Christian Heider Nielsen"
 __doc__ = ""
+
 from tqdm import tqdm
 
 from neodroidagent.utilities.specifications import TR, Procedure
@@ -39,24 +40,24 @@ def rollout_on_policy(
 ):
     """Perform a single rollout until termination in environment
 
-  :param agent:
-  :param rollout_drawer:
-  :param disable_stdout:
-  :param metric_writer:
-  :type max_length: int
-  :param max_length:
-  :type train: bool
-  :type render: bool
-  :param initial_state: The initial state observation in the environment
-  :param environment: The environment the agent interacts with
-  :param render: Whether to render environment interaction
-  :param train: Whether the agent should use the rollout to update its model
-  :param kwargs:
-  :return:
-    -episode_signal (:py:class:`float`) - first output
-    -episode_length-
-    -average_episode_entropy-
-  """
+:param agent:
+:param rollout_drawer:
+:param disable_stdout:
+:param metric_writer:
+:type max_length: int
+:param max_length:
+:type train: bool
+:type render: bool
+:param initial_state: The initial state observation in the environment
+:param environment: The environment the agent interacts with
+:param render: Whether to render environment interaction
+:param train: Whether the agent should use the rollout to update its model
+:param kwargs:
+:return:
+  -episode_signal (:py:class:`float`) - first output
+  -episode_length-
+  -average_episode_entropy-
+"""
 
     episode_signal = []
     episode_length = 0
@@ -121,20 +122,20 @@ class OnPolicyEpisodic(Procedure):
         **kwargs,
     ) -> TR:
         """
-      :param log_directory:
-      :param disable_stdout: Whether to disable stdout statements or not
-      :type disable_stdout: bool
-      :param environment: The environment the agent should interact with
-      :type environment: UnityEnvironment
-      :param iterations: How many iterations to train for
-      :type iterations: int
-      :param render_frequency: How often to render environment
-      :type render_frequency: int
-      :param stat_frequency: How often to write statistics
-      :type stat_frequency: int
-      :return: A training resume containing the trained agents models and some statistics
-      :rtype: TR
-    """
+  :param log_directory:
+  :param disable_stdout: Whether to disable stdout statements or not
+  :type disable_stdout: bool
+  :param environment: The environment the agent should interact with
+  :type environment: UnityEnvironment
+  :param iterations: How many iterations to train for
+  :type iterations: int
+  :param render_frequency: How often to render environment
+  :type render_frequency: int
+  :param stat_frequency: How often to write statistics
+  :type stat_frequency: int
+  :return: A training resume containing the trained agents models and some statistics
+  :rtype: TR
+"""
 
         # with torchsnooper.snoop():
         with torch.autograd.detect_anomaly():

@@ -37,17 +37,17 @@ class Procedure(abc.ABC):
         **kwargs
     ) -> None:
         """
-    Collects environment snapshots and forwards it to the agent and vice versa.
+Collects environment snapshots and forwards it to the agent and vice versa.
 
-    :param agent:
-    :param environment:
-    :param num_steps_per_btach:
-    :param num_updates:
-    :param iterations:
-    :param log_directory:
-    :param render_frequency:
-    :param stat_frequency:
-    :param kwargs:
-    :return:
-    """
+:param agent:
+:param environment:
+:param num_steps_per_btach:
+:param num_updates:
+:param iterations:
+:param log_directory:
+:param render_frequency:
+:param stat_frequency:
+:param kwargs:
+:return:
+"""
         pass
