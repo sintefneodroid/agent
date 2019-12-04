@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-__author__ = 'Christian Heider Nielsen'
-__doc__ = '''
+__author__ = "Christian Heider Nielsen"
+__doc__ = """
 Description: Config for training
 Author: Christian Heider Nielsen
-'''
+"""
 
 from neodroidagent.configs.base_config import *
 
@@ -31,7 +31,7 @@ CONFIG_FILE_PATH = pathlib.Path(__file__)
 # ENVIRONMENT_NAME = 'Pendulum-v0'
 
 # ENVIRONMENT_NAME = 'PongNoFrameskip-v4'
-ENVIRONMENT_NAME = 'CartPole-v1'
+ENVIRONMENT_NAME = "CartPole-v1"
 # ENVIRONMENT_NAME = 'Acrobot-v1'
 
 # ENVIRONMENT_NAME = 'LunarLander-v2'
@@ -48,11 +48,13 @@ ENVIRONMENT_NAME = 'CartPole-v1'
 
 
 # Architecture
-POLICY_ARCH_SPEC = GDKC(CategoricalMLP,
-                        NOD(input_shape=None,  # Obtain from environment
-                            hidden_layers=(32, 32),  # Estimate from input and output size
-                            output_shape=None,  # Obtain from environment
-                            hidden_layer_activation=torch.relu,
-                            use_bias=True
-                            )
-                        )
+POLICY_ARCH_SPEC = GDKC(
+    CategoricalMLP,
+    NOD(
+        input_shape=None,  # Obtain from environment
+        hidden_layers=(32, 32),  # Estimate from input and output size
+        output_shape=None,  # Obtain from environment
+        hidden_layer_activation=torch.relu,
+        use_bias=True,
+    ),
+)

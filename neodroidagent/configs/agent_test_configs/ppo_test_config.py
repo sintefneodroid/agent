@@ -6,11 +6,11 @@ from neodroidagent.architectures.distributional.normal import MultiDimensionalNo
 from neodroidagent.architectures.experimental.merged import MergedInputMLP
 from .base_continous_test_config import *
 
-__author__ = 'Christian Heider Nielsen'
-'''
+__author__ = "Christian Heider Nielsen"
+"""
 Description: Config for training
 Author: Christian Heider Nielsen
-'''
+"""
 
 # General
 
@@ -37,7 +37,7 @@ MAX_GRADIENT_NORM = None
 GAE_TAU = 0.95
 DISCOUNT_FACTOR = 0.95
 
-REACHED_HORIZON_PENALTY = -10.
+REACHED_HORIZON_PENALTY = -10.0
 
 # CRITIC_LOSS = F.smooth_l1_loss
 CRITIC_LOSS = MSELoss
@@ -50,32 +50,39 @@ VALUE_REG_COEF = 0.5
 ENTROPY_REG_COEF = 1.0
 
 SURROGATE_CLIPPING_VALUE = 0.2  # initial probability ratio clipping range
-SURROGATE_CLIP_FUNC = lambda a:SURROGATE_CLIPPING_VALUE * (1. - a)  # clip range schedule function
+SURROGATE_CLIP_FUNC = lambda a: SURROGATE_CLIPPING_VALUE * (
+    1.0 - a
+)  # clip range schedule function
 
 # Architecture
-ACTOR_ARCH_SPEC = GDKC(MultiDimensionalNormalMLP,
-                       NOD(**{
-                         'input_shape':            None,  # Obtain from environment
-                         'hidden_layers':          None,
-                         'hidden_layer_activation':torch.relu,
-                         'output_shape':           None,  # Obtain from environment
-                         }))
+ACTOR_ARCH_SPEC = GDKC(
+    MultiDimensionalNormalMLP,
+    NOD(
+        **{
+            "input_shape": None,  # Obtain from environment
+            "hidden_layers": None,
+            "hidden_layer_activation": torch.relu,
+            "output_shape": None,  # Obtain from environment
+        }
+    ),
+)
 
-CRITIC_ARCH_SPEC = GDKC(MergedInputMLP,
-                        NOD(**{
-                          'input_shape':            None,  # Obtain from environment
-                          'hidden_layers':          None,
-                          'hidden_layer_activation':torch.relu,
-                          'output_shape':           None,  # Obtain from environment
-                          }))
+CRITIC_ARCH_SPEC = GDKC(
+    MergedInputMLP,
+    NOD(
+        **{
+            "input_shape": None,  # Obtain from environment
+            "hidden_layers": None,
+            "hidden_layer_activation": torch.relu,
+            "output_shape": None,  # Obtain from environment
+        }
+    ),
+)
 
-ACTOR_OPTIMISER_SPEC = GDKC(constructor=torch.optim.Adam,
-                            kwargs=NOD(lr=3e-4)
-                            )
+ACTOR_OPTIMISER_SPEC = GDKC(constructor=torch.optim.Adam, kwargs=NOD(lr=3e-4))
 
-CRITIC_OPTIMISER_SPEC = GDKC(constructor=torch.optim.Adam,
-                             kwargs=NOD(lr=3e-3,
-                                        weight_decay=3e-2),
-                             )
+CRITIC_OPTIMISER_SPEC = GDKC(
+    constructor=torch.optim.Adam, kwargs=NOD(lr=3e-3, weight_decay=3e-2)
+)
 
-LR_FUNC = lambda a:CRITIC_OPTIMISER_SPEC.kwargs['lr'] * (1. - a)
+LR_FUNC = lambda a: CRITIC_OPTIMISER_SPEC.kwargs["lr"] * (1.0 - a)

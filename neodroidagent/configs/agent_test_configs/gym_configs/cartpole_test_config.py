@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-__author__ = 'Christian Heider Nielsen'
-__doc__ = '''
+__author__ = "Christian Heider Nielsen"
+__doc__ = """
 Description: Config for training
 Author: Christian Heider Nielsen
-'''
+"""
 
 # noinspection PyUnresolvedReferences
 from neodroidagent.configs.base_config import *
@@ -16,19 +16,21 @@ import pathlib
 CONFIG_FILE_PATH = pathlib.Path(__file__)
 
 # Architecture
-POLICY_ARCH_SPEC = GDKC(CategoricalMLP,
-                        NOD(input_shape=None,  # Obtain from environment
-                            hidden_layers=(32, 32),  # Estimate from input and output size
-                            output_shape=None,  # Obtain from environment
-                            hidden_layer_activation=torch.relu,
-                            use_bias=True
-                            )
-                        )
+POLICY_ARCH_SPEC = GDKC(
+    CategoricalMLP,
+    NOD(
+        input_shape=None,  # Obtain from environment
+        hidden_layers=(32, 32),  # Estimate from input and output size
+        output_shape=None,  # Obtain from environment
+        hidden_layer_activation=torch.relu,
+        use_bias=True,
+    ),
+)
 
 ROLLOUTS = 10000
 
-ENVIRONMENT_NAME = 'CartPole-v1'
-'''
+ENVIRONMENT_NAME = "CartPole-v1"
+"""
 
 Description
 A pole is attached by an un-actuated joint to a cart, which moves along a frictionless track. The pendulum 
@@ -70,4 +72,4 @@ Episode length is greater than 200
 Solved Requirements
 Considered solved when the average reward is greater than or equal to 195.0 over 100 consecutive trials.
 
-'''
+"""

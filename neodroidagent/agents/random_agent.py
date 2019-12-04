@@ -10,114 +10,127 @@ from neodroidagent.procedures import StepWise
 
 
 class RandomAgent(Agent):
+    def _update(self, *args, metric_writer: Writer = MockWriter(), **kwargs) -> None:
+        pass
 
-  def _update(self,
-              *args,
-              metric_writer: Writer = MockWriter(),
-              **kwargs) -> None:
-    pass
+    def _sample(
+        self,
+        state: EnvironmentSnapshot,
+        *args,
+        no_random: bool = False,
+        metric_writer: Writer = MockWriter(),
+        **kwargs
+    ) -> Any:
+        self._sample_i += 1
+        return self.action_space.sample()
 
-  def _sample(self,
-              state: EnvironmentSnapshot,
-              *args,
-              no_random: bool = False,
-              metric_writer: Writer = MockWriter(),
-              **kwargs) -> Any:
-    self._sample_i += 1
-    return self.action_space.sample()
+    def _remember(self, *, signal, **kwargs):
+        pass
 
-  # region Private
+    # region Private
 
-  def __build__(self,
-                observation_space: ObservationSpace,
-                action_space: ActionSpace,
-                signal_space: SignalSpace,
-                **kwargs) -> None:
-    self.action_space = action_space
+    def __build__(
+        self,
+        observation_space: ObservationSpace,
+        action_space: ActionSpace,
+        signal_space: SignalSpace,
+        **kwargs
+    ) -> None:
+        self.action_space = action_space
 
-  # endregion
+    models = {}
 
-  # region Public
+    # endregion
 
-  def evaluate(self, batch, *args, **kwargs) -> Any:
-    pass
+    # region Public
 
-  def rollout(self,
-              initial_state,
-              environment: VectorUnityEnvironment,
-              *,
-              train=True,
-              render=False,
-              **kwargs) -> Any:
+    def evaluate(self, batch, *args, **kwargs) -> Any:
+        pass
 
-    episode_signal = 0
-    episode_length = 0
+    def rollout(
+        self,
+        initial_state,
+        environment: VectorUnityEnvironment,
+        *,
+        train=True,
+        render=False,
+        **kwargs
+    ) -> Any:
 
-    state = initial_state
+        episode_signal = 0
+        episode_length = 0
 
-    T = count(1)
+        state = initial_state
 
-    for t in T:
-      action = self.sample(state)
+        T = count(1)
 
-      state, signal, terminated, info = environment.react(action).to_gym_like_output()
+        for t in T:
+            action = self.sample(state)
 
-      if terminated[0]:
-        episode_length = t
-        break
+            state, signal, terminated, info = environment.react(
+                action
+            ).to_gym_like_output()
 
-    if train:
-      self.update()
+            if terminated[0]:
+                episode_length = t
+                break
 
-    return episode_signal, episode_length
+        if train:
+            self.update()
 
-  def load(self, *args, **kwargs) -> None:
-    pass
+        return episode_signal, episode_length
 
-  def save(self, *args, **kwargs) -> None:
-    pass
+    def load(self, *args, **kwargs) -> None:
+        pass
 
-  # endregion
+    def save(self, *args, **kwargs) -> None:
+        pass
+
+    # endregion
 
 
 # region Test
 def random_test(rollouts=None, skip=True):
-  from neodroidagent.sessions.session_entry_point import session_entry_point
-  from neodroidagent.sessions.single_agent.parallel import ParallelSession
-  import neodroidagent.configs.agent_test_configs.dqn_test_config as C
+    from neodroidagent.sessions.session_entry_point import session_entry_point
+    from neodroidagent.sessions.single_agent.parallel import ParallelSession
+    import neodroidagent.configs.agent_test_configs.dqn_test_config as C
 
-  if rollouts:
-    C.ROLLOUTS = rollouts
+    if rollouts:
+        C.ROLLOUTS = rollouts
 
-  session_entry_point(RandomAgent,
-                      C,
-                      parse_args=False,
-                      session=ParallelSession,
-                      skip_confirmation=skip)
+    session_entry_point(
+        RandomAgent,
+        C,
+        parse_args=False,
+        session=ParallelSession,
+        skip_confirmation=skip,
+    )
 
 
 def random_run(rollouts=None, skip=True):
-  from neodroidagent.sessions.session_entry_point import session_entry_point
-  from neodroidagent.sessions.single_agent.parallel import ParallelSession
-  import neodroidagent.configs.agent_test_configs.pg_test_config as C
+    from neodroidagent.sessions.session_entry_point import session_entry_point
+    from neodroidagent.sessions.single_agent.parallel import ParallelSession
+    import neodroidagent.configs.agent_test_configs.pg_test_config as C
 
-  if rollouts:
-    C.ROLLOUTS = rollouts
+    if rollouts:
+        C.ROLLOUTS = rollouts
 
-  session_entry_point(RandomAgent,
-                      C,
-                      session=ParallelSession(StepWise,
-                                              auto_reset_on_terminal_state=True,
-                                              connect_to_running=True),
-                      skip_confirmation=skip)
+    session_entry_point(
+        RandomAgent,
+        C,
+        session=ParallelSession(
+            procedure=StepWise, auto_reset_on_terminal_state=True, environment_type=True
+        ),
+        skip_confirmation=skip,
+    )
 
 
-if __name__ == '__main__':
-  # pg_test()
-  random_run()
+if __name__ == "__main__":
+    # pg_test()
+    random_run()
 # endregion
 
-if __name__ == '__main__':
+if __name__ == "__main__":
 
-  random_test()
+    random_test()
 # endregion

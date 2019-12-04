@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 
-__author__ = 'Christian Heider Nielsen'
+__author__ = "Christian Heider Nielsen"
 
 import random
 from collections import deque
@@ -12,57 +12,57 @@ from neodroidagent.utilities.specifications import TrajectoryPoint, Transition
 from warg.arguments import namedtuple_args
 
 
+__all__ = ["ReplayBuffer", "TransitionBuffer", "TrajectoryBuffer"]
+
+
 class ReplayBuffer(object):
+    def __init__(self, capacity=int(3e6)):
+        self._buffer = deque(maxlen=capacity)
 
-  def __init__(self, capacity=int(3e6)):
-    self._buffer = deque(maxlen=capacity)
+    def add(self, item):
+        self._buffer.append(item)
 
-  def add(self, item):
-    self._buffer.append(item)
+    def sample(self, batch_size):
+        assert batch_size <= len(self._buffer)
+        return random.sample(self._buffer, batch_size)
 
-  def sample(self, batch_size):
-    assert batch_size <= len(self._buffer)
-    return random.sample(self._buffer, batch_size)
+    def __len__(self):
+        return len(self._buffer)
 
-  def __len__(self):
-    return len(self._buffer)
+    @namedtuple_args(Transition)
+    def add_transition(self, transition):
+        self.add(transition)
 
-  @namedtuple_args(Transition)
-  def add_transition(self, transition):
-    self.add(transition)
-
-  def sample_transitions(self, num):
-    values = self.sample(num)
-    batch = Transition(*zip(*values))
-    return batch
+    def sample_transitions(self, num):
+        values = self.sample(num)
+        batch = Transition(*zip(*values))
+        return batch
 
 
 class TransitionBuffer(ExpandableCircularBuffer):
+    def add_transitions(self, transitions):
+        for t in transitions:
+            self.add_transition(t)
 
-  def add_transitions(self, transitions):
-    for t in transitions:
-      self.add_transition(t)
+    @namedtuple_args(Transition)
+    def add_transition(self, transition):
+        self._add(transition)
 
-  @namedtuple_args(Transition)
-  def add_transition(self, transition):
-    self._add(transition)
-
-  def sample_transitions(self, num):
-    '''Randomly sample transitions from memory.'''
-    if len(self):
-      batch = Transition(*zip(*self._sample(num)))
-      return batch
-    return [None] * Transition._fields.__len__()
+    def sample_transitions(self, num):
+        """Randomly sample transitions from memory."""
+        if len(self):
+            batch = Transition(*zip(*self._sample(num)))
+            return batch
+        return [None] * Transition._fields.__len__()
 
 
 class TrajectoryBuffer(ExpandableCircularBuffer):
+    @namedtuple_args(TrajectoryPoint)
+    def add_point(self, point):
+        self._add(point)
 
-  @namedtuple_args(TrajectoryPoint)
-  def add_point(self, point):
-    self._add(point)
-
-  def retrieve_trajectory(self):
-    if len(self):
-      batch = TrajectoryPoint(*zip(*self._memory))
-      return batch
-    return [None] * TrajectoryPoint._fields.__len__()
+    def retrieve_trajectory(self):
+        if len(self):
+            batch = TrajectoryPoint(*zip(*self._memory))
+            return batch
+        return [None] * TrajectoryPoint._fields.__len__()

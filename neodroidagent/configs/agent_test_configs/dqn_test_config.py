@@ -5,11 +5,11 @@ from neodroidagent.memory import ReplayBuffer
 
 from .base_dicrete_test_config import *
 
-__author__ = 'Christian Heider Nielsen'
-'''
+__author__ = "Christian Heider Nielsen"
+"""
 Description: Config for training
 Author: Christian Heider Nielsen
-'''
+"""
 
 CONFIG_NAME = __name__
 import pathlib
@@ -32,10 +32,15 @@ INITIAL_OBSERVATION_PERIOD = 0
 OPTIMISER_SPEC = GDKC(torch.optim.RMSprop, {})  # torch.optim.Adam
 
 # Architecture
-VALUE_ARCH_SPEC = GDKC(SingleHeadMLP,
-                       NOD(**{'input_shape':            None,  # Obtain from environment
-                              'hidden_layers':          None,
-                              'output_shape':           None,  # Obtain from environment
-                              'hidden_layer_activation':torch.sigmoid,
-                              'use_bias':               True,
-                              }))
+VALUE_ARCH_SPEC = GDKC(
+    SingleHeadMLP,
+    NOD(
+        **{
+            "input_shape": None,  # Obtain from environment
+            "hidden_layers": None,
+            "output_shape": None,  # Obtain from environment
+            "hidden_layer_activation": torch.sigmoid,
+            "use_bias": True,
+        }
+    ),
+)

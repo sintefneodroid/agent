@@ -3,11 +3,11 @@
 from neodroidagent.architectures import CategoricalCNN
 from neodroidagent.utilities import ReplayBuffer
 
-__author__ = 'Christian Heider Nielsen'
-'''
+__author__ = "Christian Heider Nielsen"
+"""
 Description: Config for training
 Author: Christian Heider Nielsen
-'''
+"""
 from neodroidagent.configs.base_config import *
 
 CONFIG_NAME = __name__
@@ -35,16 +35,16 @@ ARCH = CategoricalCNN
 OPTIMISER_TYPE = torch.optim.Adam
 OPTIMISER_LEARNING_RATE = 0.0025
 # ENVIRONMENT_NAME = 'CartPole-v0'
-ENVIRONMENT_NAME = 'grd_camera'
+ENVIRONMENT_NAME = "grd_camera"
 # 'LunarLander-v2' #(coord_x, coord_y, vel_x, vel_y, angle,
 # angular_vel, l_leg_on_ground, r_leg_on_ground)
 
 
 POLICY_ARCH_PARAMS = {
-  'input_shape':            None,  # Obtain from environment
-  'hidden_layer_activation':F.leaky_relu,
-  'hidden_layers':          [128, 64, 32, 16],
-  'output_shape':           None,  # Obtain from environment
-  'use_bias':               True,
-  }
+    "input_shape": None,  # Obtain from environment
+    "hidden_layer_activation": F.leaky_relu,
+    "hidden_layers": [128, 64, 32, 16],
+    "output_shape": None,  # Obtain from environment
+    "use_bias": True,
+}
 POLICY_ARCH = CategoricalCNN

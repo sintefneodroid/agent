@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 from .random_process import RandomProcess
 
-__author__ = 'Christian Heider Nielsen'
+__author__ = "Christian Heider Nielsen"
 
 from math import sqrt
 
@@ -12,20 +12,19 @@ from scipy.stats import norm
 
 
 class WienerProcess(RandomProcess):
+    def __init__(self, delta, dt, initial, size=1):
+        self.delta = delta
+        self.dt = dt
+        self.last_x = initial
 
-  def __init__(self, delta, dt, initial, size=1):
-    self.delta = delta
-    self.dt = dt
-    self.last_x = initial
-
-  def sample(self, size=1):
-    x = self.last_x + norm.rvs(scale=self.delta ** 2 * self.dt)
-    self.last_x = x
-    return x
+    def sample(self, size=1):
+        x = self.last_x + norm.rvs(scale=self.delta ** 2 * self.dt)
+        self.last_x = x
+        return x
 
 
 def wiener(x0, n, dt, delta, out=None):
-  '''
+    """
 Generate an instance of Brownian motion (i.e. the Wiener process):
 
     X(t) = X(0) + N(0, delta**2 * t; 0, t)
@@ -67,145 +66,145 @@ Returns
 A numpy array of floats with shape `x0.shape + (n,)`.
 
 Note that the initial value `x0` is not included in the returned array.
-'''
+"""
 
-  x0 = numpy.asarray(x0)
+    x0 = numpy.asarray(x0)
 
-  r = norm.rvs(
-    size=x0.shape + (n,), scale=delta * sqrt(dt)
+    r = norm.rvs(
+        size=x0.shape + (n,), scale=delta * sqrt(dt)
     )  # For each element of x0, generate a sample of n numbers from a normal distribution.
 
-  # If `out` was not given, create an output array.
-  if out is None:
-    out = numpy.empty(r.shape)
+    # If `out` was not given, create an output array.
+    if out is None:
+        out = numpy.empty(r.shape)
 
-  numpy.cumsum(
-    r, axis=-1, out=out
+    numpy.cumsum(
+        r, axis=-1, out=out
     )  # This computes the Brownian motion by forming the cumulative sum of the random samples.
 
-  out += numpy.expand_dims(x0, axis=-1)  # Add the initial condition.
+    out += numpy.expand_dims(x0, axis=-1)  # Add the initial condition.
 
-  return out
+    return out
 
 
 def main_1d():
-  # The Wiener process parameter.
-  delta = 0.1
-  # Total time.
-  T = 1
-  # Number of steps.
-  N = 50
-  # Time step size
-  dt = T / N
-  # Number of realizations to generate.
-  m = 5
-  # Create an empty array to store the realizations.
-  x = numpy.empty((m, N + 1))
-  # Initial values of x.
-  x[:, 0] = 0
+    # The Wiener process parameter.
+    delta = 0.1
+    # Total time.
+    T = 1
+    # Number of steps.
+    N = 50
+    # Time step size
+    dt = T / N
+    # Number of realizations to generate.
+    m = 5
+    # Create an empty array to store the realizations.
+    x = numpy.empty((m, N + 1))
+    # Initial values of x.
+    x[:, 0] = 0
 
-  wiener(x[:, 0], N, dt, delta, out=x[:, 1:])
+    wiener(x[:, 0], N, dt, delta, out=x[:, 1:])
 
-  t = numpy.linspace(0.0, N * dt, N + 1)
-  plot_1d_trajectory(x, t, m)
+    t = numpy.linspace(0.0, N * dt, N + 1)
+    plot_1d_trajectory(x, t, m)
 
 
 def main_2d():
-  # The Wiener process parameter.
-  delta = 0.25
-  # Total time.
-  T = 1.0
-  # Number of steps.
-  N = 50
-  # Time step size
-  dt = T / N
-  # Initial values of x.
-  x = numpy.empty((2, N + 1))
-  x[:, 0] = 0.0
+    # The Wiener process parameter.
+    delta = 0.25
+    # Total time.
+    T = 1.0
+    # Number of steps.
+    N = 50
+    # Time step size
+    dt = T / N
+    # Initial values of x.
+    x = numpy.empty((2, N + 1))
+    x[:, 0] = 0.0
 
-  wiener(x[:, 0], N, dt, delta, out=x[:, 1:])
+    wiener(x[:, 0], N, dt, delta, out=x[:, 1:])
 
-  plot_2d_trajectory(x)
+    plot_2d_trajectory(x)
 
 
 def main_3d():
-  # The Wiener process parameter.
-  delta = 0.25
-  # Total time.
-  T = 1.0
-  # Number of steps.
-  N = 1000
-  # Time step size
-  dt = T / N
-  # Initial values of x.
-  x = numpy.zeros((3, N + 1))
+    # The Wiener process parameter.
+    delta = 0.25
+    # Total time.
+    T = 1.0
+    # Number of steps.
+    N = 1000
+    # Time step size
+    dt = T / N
+    # Initial values of x.
+    x = numpy.zeros((3, N + 1))
 
-  wiener(x[:, 0], N, dt, delta, out=x[:, 1:])
+    wiener(x[:, 0], N, dt, delta, out=x[:, 1:])
 
-  plot_3d_trajectory(x)
+    plot_3d_trajectory(x)
 
 
 def plot_3d_trajectory(x):
-  fig = pyplot.figure()
-  ax = fig.add_subplot(111, projection='3d')
-  ax.plot(x[0], x[1], x[2])
+    fig = pyplot.figure()
+    ax = fig.add_subplot(111, projection="3d")
+    ax.plot(x[0], x[1], x[2])
 
-  ax.scatter(x[0, 0], x[1, 0], x[2, 0], 'go')
-  ax.scatter(x[0, -1], x[1, -1], x[2, -1], 'ro')
+    ax.scatter(x[0, 0], x[1, 0], x[2, 0], "go")
+    ax.scatter(x[0, -1], x[1, -1], x[2, -1], "ro")
 
-  ax.set_xlabel('X Label')
-  ax.set_ylabel('Y Label')
-  ax.set_zlabel('Z Label')
+    ax.set_xlabel("X Label")
+    ax.set_ylabel("Y Label")
+    ax.set_zlabel("Z Label")
 
-  pyplot.title('3D Brownian Motion')
-  pyplot.axis('equal')
-  pyplot.show()
+    pyplot.title("3D Brownian Motion")
+    pyplot.axis("equal")
+    pyplot.show()
 
 
 def plot_1d_trajectory(x, t, m):
-  for k in range(m):
-    pyplot.plot(t, x[k])
-  pyplot.xlabel('t', fontsize=16)
-  pyplot.ylabel('x', fontsize=16)
-  pyplot.grid(True)
-  pyplot.show()
+    for k in range(m):
+        pyplot.plot(t, x[k])
+    pyplot.xlabel("t", fontsize=16)
+    pyplot.ylabel("x", fontsize=16)
+    pyplot.grid(True)
+    pyplot.show()
 
 
 def plot_2d_trajectory(x):
-  # Plot the 2D trajectory.
-  pyplot.plot(x[0], x[1])
+    # Plot the 2D trajectory.
+    pyplot.plot(x[0], x[1])
 
-  # Mark the start and end points.
-  pyplot.plot(x[0, 0], x[1, 0], 'go')
-  pyplot.plot(x[0, -1], x[1, -1], 'ro')
+    # Mark the start and end points.
+    pyplot.plot(x[0, 0], x[1, 0], "go")
+    pyplot.plot(x[0, -1], x[1, -1], "ro")
 
-  # More plot decorations.
-  pyplot.title('2D Brownian Motion')
-  pyplot.xlabel('x', fontsize=16)
-  pyplot.ylabel('y', fontsize=16)
-  pyplot.axis('equal')
-  pyplot.grid(True)
-  pyplot.show()
+    # More plot decorations.
+    pyplot.title("2D Brownian Motion")
+    pyplot.xlabel("x", fontsize=16)
+    pyplot.ylabel("y", fontsize=16)
+    pyplot.axis("equal")
+    pyplot.grid(True)
+    pyplot.show()
 
 
 def main_class():
-  # The Wiener process parameter.
-  delta = 1
-  # Total time.
-  T = 1.0
-  # Number of steps.
-  N = 50
-  # Time step size
-  dt = T / N
-  # Initial values of x.
-  x = numpy.empty((2, N + 1))
-  x[:, 0] = 0.0
+    # The Wiener process parameter.
+    delta = 1
+    # Total time.
+    T = 1.0
+    # Number of steps.
+    N = 50
+    # Time step size
+    dt = T / N
+    # Initial values of x.
+    x = numpy.empty((2, N + 1))
+    x[:, 0] = 0.0
 
-  brownian = WienerProcess(delta, dt, 0)
+    brownian = WienerProcess(delta, dt, 0)
 
-  for i in range(N):
-    print(brownian.sample())
+    for i in range(N):
+        print(brownian.sample())
 
 
-if __name__ == '__main__':
-  main_3d()
+if __name__ == "__main__":
+    main_3d()

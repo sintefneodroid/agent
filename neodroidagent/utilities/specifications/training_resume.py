@@ -2,8 +2,7 @@
 # -*- coding: utf-8 -*-
 from collections import namedtuple
 
-__author__ = 'Christian Heider Nielsen'
+__author__ = "Christian Heider Nielsen"
 
-TrainingResume = namedtuple('TrainingResume', ('models',
-                                               'stats'))
+TrainingResume = namedtuple("TrainingResume", ("models", "stats"))
 TR = TrainingResume

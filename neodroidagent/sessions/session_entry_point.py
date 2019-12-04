@@ -17,85 +17,93 @@ from neodroidagent.sessions.parse_arguments import parse_arguments
 from warg.arguments import config_to_mapping
 from warg.named_ordered_dictionary import NOD
 
-__author__ = 'Christian Heider Nielsen'
-__doc__ = ''
+__author__ = "Christian Heider Nielsen"
+__doc__ = ""
 
 
-def session_entry_point(agent: Type[Agent],
-                        config: object,
-                        *,
-                        session: Union[Type[EnvironmentSession], EnvironmentSession] = LinearSession,
-                        parse_args: bool = True,
-                        save: bool = True,
-                        has_x_server: bool = True,
-                        skip_confirmation: bool = True
-                        ):
-  r'''
+def session_entry_point(
+    agent: Type[Agent],
+    config: object,
+    *,
+    session: Union[Type[EnvironmentSession], EnvironmentSession] = LinearSession,
+    parse_args: bool = True,
+    save: bool = True,
+    has_x_server: bool = True,
+    skip_confirmation: bool = True,
+    **kwargs,
+):
+    r"""
     Entry point start a starting a training session with the functionality of parsing cmdline arguments and
     confirming configuration to use before training and overwriting of default training configurations
-  '''
+  """
 
-  load = False
-  if parse_args:
-    args = parse_arguments(f'{type(agent)}', NOD(config.__dict__))
+    continue_training = False
+    if parse_args:
+        args = parse_arguments(f"{type(agent)}", NOD(config.__dict__))
 
-    skip_confirmation = args.SKIP_CONFIRMATION
-    load = args.LOAD
+        skip_confirmation = args.SKIP_CONFIRMATION
+        continue_training = args.CONTINUE
 
-    if 'CONFIG' in args.keys() and args['CONFIG']:
-      import importlib.util
-      spec = importlib.util.spec_from_file_location('overloaded.config', args['CONFIG'])
-      config = importlib.util.module_from_spec(spec)
-      spec.loader.exec_module(config)
-    else:
-      for key, arg in args.items():
-        if key != 'CONFIG':
-          setattr(config, key, arg)
+        if "CONFIG" in args.keys() and args["CONFIG"]:
+            import importlib.util
 
-  if has_x_server:
-    display_env = os.getenv('DISPLAY', None)
-    if display_env is None:
-      config.RENDER_ENVIRONMENT = False
-      has_x_server = False
+            spec = importlib.util.spec_from_file_location(
+                "overloaded.config", args["CONFIG"]
+            )
+            config = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(config)
+        else:
+            for key, arg in args.items():
+                if key != "CONFIG":
+                    setattr(config, key, arg)
 
-  config_mapping = config_to_mapping(config)
+    if has_x_server:
+        display_env = os.getenv("DISPLAY", None)
+        if display_env is None:
+            config.RENDER_ENVIRONMENT = False
+            has_x_server = False
 
-  if not skip_confirmation:
-    sprint(f'\nUsing config: {config}\n',
-           highlight=True,
-           color='yellow')
-    for key, arg in config_mapping:
-      print(f'{key} = {arg}')
+    config_mapping = config_to_mapping(config)
+    config_mapping.update(**kwargs)
 
-    sprint(f'\n.. Also save:{save},'
-           f' has_x_server:{has_x_server}')
-    input('\nPress Enter to begin... ')
+    if not skip_confirmation:
+        sprint(f"\nUsing config: {config}\n", highlight=True, color="yellow")
+        for key, arg in config_mapping:
+            print(f"{key} = {arg}")
 
-  if session is None:
-    raise NoProcedure
-  elif isinstance(session, (types.ClassType)):
-    session = session(**config_mapping)
+        sprint(f"\n.. Also save:{save}," f" has_x_server:{has_x_server}")
+        input("\nPress Enter to begin... ")
 
-  try:
-    session(agent,
+    if session is None:
+        raise NoProcedure
+    elif isinstance(session, (types.ClassType)):
+        session = session(**config_mapping)
+
+    try:
+        session(
+            agent,
             save=save,
             has_x_server=has_x_server,
-            load_previous_environment_model_if_available=load,
-            **config_mapping)
-  except KeyboardInterrupt:
-    print('Stopping')
+            load_previous_environment_model_if_available=continue_training,
+            **config_mapping,
+        )
+    except KeyboardInterrupt:
+        print("Stopping")
 
-  torch.cuda.empty_cache()
+    torch.cuda.empty_cache()
 
-  exit(0)
+    exit(0)
 
 
-if __name__ == '__main__':
-  import neodroidagent.configs.base_config as C
+if __name__ == "__main__":
+    import neodroidagent.configs.base_config as C
 
-  session_entry_point(RandomAgent,
-                      C,
-                      session=ParallelSession(
-                        RolloutInference,
-                        connect_to_running=True,
-                        auto_reset_on_terminal_state=True))
+    session_entry_point(
+        RandomAgent,
+        C,
+        session=ParallelSession(
+            procedure=RolloutInference,
+            environment_type=True,
+            auto_reset_on_terminal_state=True,
+        ),
+    )

@@ -8,64 +8,66 @@ from tqdm import tqdm
 
 from neodroidagent.agents.agent import Agent
 
-__author__ = 'Christian Heider Nielsen'
+__author__ = "Christian Heider Nielsen"
 
 
 class EVOAgent(Agent, ABC):
-  '''
+    """
   Base class for evolution strategy (ES) based agents
-  '''
+  """
 
-  # region Public
+    # region Public
 
-  def sample(self, state, **kwargs):
-    pass
+    def sample(self, state, **kwargs):
+        pass
 
-  def evaluate(self, batch, **kwargs):
-    pass
+    def evaluate(self, batch, **kwargs):
+        pass
 
-  def rollout(self,
-              initial_state,
-              environment,
-              *,
-              train=True,
-              render=False,
-              random_sample=True,
-              **kwargs) -> Any:
-    if train:
-      self._update_i += 1
+    def rollout(
+        self,
+        initial_state,
+        environment,
+        *,
+        train=True,
+        render=False,
+        random_sample=True,
+        **kwargs,
+    ) -> Any:
+        if train:
+            self._update_i += 1
 
-    episode_signal = 0
-    episode_length = 0
+        episode_signal = 0
+        episode_length = 0
 
-    state = initial_state
+        state = initial_state
 
-    T = count(1)
-    T = tqdm(T, f'Rollout #{self._update_i}', leave=False, disable=not render)
+        T = count(1)
+        T = tqdm(T, f"Rollout #{self._update_i}", leave=False, disable=not render)
 
-    for t in T:
-      action = int(self.sample(state)[0])
+        for t in T:
+            action = int(self.sample(state)[0])
 
-      (state, signal, terminated, info) = environment.act(action=action)
-      episode_signal += signal
+            (state, signal, terminated, info) = environment.act(action=action)
+            episode_signal += signal
 
-      if render:
-        environment.render()
+            if render:
+                environment.render()
 
-      if terminated:
-        episode_length = t
-        break
+            if terminated:
+                episode_length = t
+                break
 
-    if train:
-      self.update()
+        if train:
+            self.update()
 
-    return episode_signal, episode_length
+        return episode_signal, episode_length
 
-  # endregion
+    # endregion
 
-  # region Protected
+    # region Protected
 
-  def _optimise(self, error, **kwargs):
-    pass
+    def _optimise(self, error, **kwargs):
+        pass
 
-  # endregion
+    # endregion

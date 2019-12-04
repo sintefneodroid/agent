@@ -7,60 +7,58 @@ from ._utils import EnvModel, env_stats, tile_state_space
 
 
 class AgentBase(ABC):
-  def __init__(self, env):
-    super().__init__()
-    self.env = env
-    self.parameters = {}
-    self.hyperparameters = {}
-    self.derived_variables = {}
-    self.env_info = env_stats(env)
+    def __init__(self, env):
+        super().__init__()
+        self.env = env
+        self.parameters = {}
+        self.hyperparameters = {}
+        self.derived_variables = {}
+        self.env_info = env_stats(env)
 
-  def _create_2num_dicts(self,
-                         obs_encoder=None,
-                         act_encoder=None):
-    E = self.env_info
-    n_states = np.prod(E["n_obs_per_dim"])
-    n_actions = np.prod(E["n_actions_per_dim"])
+    def _create_2num_dicts(self, obs_encoder=None, act_encoder=None):
+        E = self.env_info
+        n_states = np.prod(E["n_obs_per_dim"])
+        n_actions = np.prod(E["n_actions_per_dim"])
 
-    # create action -> scalar dictionaries
-    self._num2action = dict()
-    self._action2num = dict(act_encoder)
-    if n_actions != np.inf:
-      self._action2num = {act:i for i, act in enumerate(E["action_ids"])}
-      self._num2action = {i:act for act, i in self._action2num.items()}
+        # create action -> scalar dictionaries
+        self._num2action = dict()
+        self._action2num = dict(act_encoder)
+        if n_actions != np.inf:
+            self._action2num = {act: i for i, act in enumerate(E["action_ids"])}
+            self._num2action = {i: act for act, i in self._action2num.items()}
 
-    # create obs -> scalar dictionaries
-    self._num2obs = dict()
-    self._obs2num = dict(obs_encoder)
-    if n_states != np.inf:
-      self._obs2num = {act:i for i, act in enumerate(E["obs_ids"])}
-      self._num2obs = {i:act for act, i in self._obs2num.items()}
+        # create obs -> scalar dictionaries
+        self._num2obs = dict()
+        self._obs2num = dict(obs_encoder)
+        if n_states != np.inf:
+            self._obs2num = {act: i for i, act in enumerate(E["obs_ids"])}
+            self._num2obs = {i: act for act, i in self._obs2num.items()}
 
-  def flush_history(self):
-    """Clear the episode history"""
-    for k, v in self.episode_history.items():
-      self.episode_history[k] = []
+    def flush_history(self):
+        """Clear the episode history"""
+        for k, v in self.episode_history.items():
+            self.episode_history[k] = []
 
-  @abstractmethod
-  def act(self, obs):
-    raise NotImplementedError
+    @abstractmethod
+    def act(self, obs):
+        raise NotImplementedError
 
-  @abstractmethod
-  def greedy_policy(self, **kwargs):
-    raise NotImplementedError
+    @abstractmethod
+    def greedy_policy(self, **kwargs):
+        raise NotImplementedError
 
-  @abstractmethod
-  def run_episode(self, max_steps, render=False):
-    raise NotImplementedError
+    @abstractmethod
+    def run_episode(self, max_steps, render=False):
+        raise NotImplementedError
 
-  @abstractmethod
-  def update(self):
-    raise NotImplementedError
+    @abstractmethod
+    def update(self):
+        raise NotImplementedError
 
 
 class CrossEntropyAgent(AgentBase):
-  def __init__(self, env, n_samples_per_episode=500, retain_prcnt=0.2):
-    """
+    def __init__(self, env, n_samples_per_episode=500, retain_prcnt=0.2):
+        """
     A cross-entropy method agent.
 
     Notes
@@ -106,45 +104,45 @@ class CrossEntropyAgent(AgentBase):
         The percentage of `n_samples_per_episode` to use when calculating
         the parameter update at the end of the episode. Default is 0.2.
     """
-    super().__init__(env)
+        super().__init__(env)
 
-    self.retain_prcnt = retain_prcnt
-    self.n_samples_per_episode = n_samples_per_episode
-    self._init_params()
+        self.retain_prcnt = retain_prcnt
+        self.n_samples_per_episode = n_samples_per_episode
+        self._init_params()
 
-  def _init_params(self):
-    E = self.env_info
-    assert not E["continuous_actions"], "Action space must be discrete"
+    def _init_params(self):
+        E = self.env_info
+        assert not E["continuous_actions"], "Action space must be discrete"
 
-    self._create_2num_dicts()
-    b_len = np.prod(E["n_actions_per_dim"])
-    W_len = b_len * np.prod(E["obs_dim"])
-    theta_dim = b_len + W_len
+        self._create_2num_dicts()
+        b_len = np.prod(E["n_actions_per_dim"])
+        W_len = b_len * np.prod(E["obs_dim"])
+        theta_dim = b_len + W_len
 
-    # init mean and variance for mv gaussian with dimensions theta_dim
-    theta_mean = np.random.rand(theta_dim)
-    theta_var = np.ones(theta_dim)
+        # init mean and variance for mv gaussian with dimensions theta_dim
+        theta_mean = np.random.rand(theta_dim)
+        theta_var = np.ones(theta_dim)
 
-    self.parameters = {"theta_mean":theta_mean, "theta_var":theta_var}
-    self.derived_variables = {
-      "b_len":             b_len,
-      "W_len":             W_len,
-      "W_samples":         [],
-      "b_samples":         [],
-      "episode_num":       0,
-      "cumulative_rewards":[],
-      }
+        self.parameters = {"theta_mean": theta_mean, "theta_var": theta_var}
+        self.derived_variables = {
+            "b_len": b_len,
+            "W_len": W_len,
+            "W_samples": [],
+            "b_samples": [],
+            "episode_num": 0,
+            "cumulative_rewards": [],
+        }
 
-    self.hyperparameters = {
-      "agent":                "CrossEntropyAgent",
-      "retain_prcnt":         self.retain_prcnt,
-      "n_samples_per_episode":self.n_samples_per_episode,
-      }
+        self.hyperparameters = {
+            "agent": "CrossEntropyAgent",
+            "retain_prcnt": self.retain_prcnt,
+            "n_samples_per_episode": self.n_samples_per_episode,
+        }
 
-    self.episode_history = {"rewards":[], "state_actions":[]}
+        self.episode_history = {"rewards": [], "state_actions": []}
 
-  def act(self, obs):
-    """
+    def act(self, obs):
+        """
     Generate actions according to a softmax policy.
 
     Notes
@@ -171,23 +169,23 @@ class CrossEntropyAgent(AgentBase):
         An action sampled from the distribution over actions defined by the
         softmax policy.
     """
-    E, P = self.env_info, self.parameters
-    W, b = P["W"], P["b"]
+        E, P = self.env_info, self.parameters
+        W, b = P["W"], P["b"]
 
-    s = self._obs2num[obs]
-    s = np.array([s]) if E["obs_dim"] == 1 else s
+        s = self._obs2num[obs]
+        s = np.array([s]) if E["obs_dim"] == 1 else s
 
-    # compute softmax
-    Z = s.T @ W + b
-    e_Z = np.exp(Z - np.max(Z, axis=-1, keepdims=True))
-    action_probs = e_Z / e_Z.sum(axis=-1, keepdims=True)
+        # compute softmax
+        Z = s.T @ W + b
+        e_Z = np.exp(Z - np.max(Z, axis=-1, keepdims=True))
+        action_probs = e_Z / e_Z.sum(axis=-1, keepdims=True)
 
-    # sample action
-    a = np.random.multinomial(1, action_probs).argmax()
-    return self._num2action[a]
+        # sample action
+        a = np.random.multinomial(1, action_probs).argmax()
+        return self._num2action[a]
 
-  def run_episode(self, max_steps, render=False):
-    """
+    def run_episode(self, max_steps, render=False):
+        """
     Run the agent on a single episode.
 
     Parameters
@@ -205,29 +203,29 @@ class CrossEntropyAgent(AgentBase):
         The total number of steps taken on the episode, averaged over the
         theta samples.
     """
-    self._sample_thetas()
+        self._sample_thetas()
 
-    E, D = self.env_info, self.derived_variables
-    n_actions = np.prod(E["n_actions_per_dim"])
-    W_len, obs_dim = D["W_len"], E["obs_dim"]
-    steps, rewards = [], []
+        E, D = self.env_info, self.derived_variables
+        n_actions = np.prod(E["n_actions_per_dim"])
+        W_len, obs_dim = D["W_len"], E["obs_dim"]
+        steps, rewards = [], []
 
-    for theta in D["theta_samples"]:
-      W = theta[:W_len].reshape(obs_dim, n_actions)
-      b = theta[W_len:]
+        for theta in D["theta_samples"]:
+            W = theta[:W_len].reshape(obs_dim, n_actions)
+            b = theta[W_len:]
 
-      total_rwd, n_steps = self._episode(W, b, max_steps, render)
-      rewards.append(total_rwd)
-      steps.append(n_steps)
+            total_rwd, n_steps = self._episode(W, b, max_steps, render)
+            rewards.append(total_rwd)
+            steps.append(n_steps)
 
-    # return the average reward and average number of steps across all
-    # samples on the current episode
-    D["episode_num"] += 1
-    D["cumulative_rewards"] = rewards
-    return np.mean(D["cumulative_rewards"]), np.mean(steps)
+        # return the average reward and average number of steps across all
+        # samples on the current episode
+        D["episode_num"] += 1
+        D["cumulative_rewards"] = rewards
+        return np.mean(D["cumulative_rewards"]), np.mean(steps)
 
-  def _episode(self, W, b, max_steps, render):
-    """
+    def _episode(self, W, b, max_steps, render):
+        """
     Run the agent for an episode.
 
     Parameters
@@ -248,36 +246,36 @@ class CrossEntropyAgent(AgentBase):
     steps : float
         The total number of steps taken on the episode.
     """
-    rwds, sa = [], []
-    H = self.episode_history
-    total_reward, n_steps = 0.0, 1
-    obs = self.env.reset()
+        rwds, sa = [], []
+        H = self.episode_history
+        total_reward, n_steps = 0.0, 1
+        obs = self.env.reset()
 
-    self.parameters["W"] = W
-    self.parameters["b"] = b
+        self.parameters["W"] = W
+        self.parameters["b"] = b
 
-    for i in range(max_steps):
-      if render:
-        self.env.render()
+        for i in range(max_steps):
+            if render:
+                self.env.render()
 
-      n_steps += 1
-      action = self.act(obs)
-      s, a = self._obs2num[obs], self._action2num[action]
-      sa.append((s, a))
+            n_steps += 1
+            action = self.act(obs)
+            s, a = self._obs2num[obs], self._action2num[action]
+            sa.append((s, a))
 
-      obs, reward, done, _ = self.env.step(action)
-      rwds.append(reward)
-      total_reward += reward
+            obs, reward, done, _ = self.env.step(action)
+            rwds.append(reward)
+            total_reward += reward
 
-      if done:
-        break
+            if done:
+                break
 
-    H["rewards"].append(rwds)
-    H["state_actions"].append(sa)
-    return total_reward, n_steps
+        H["rewards"].append(rwds)
+        H["state_actions"].append(sa)
+        return total_reward, n_steps
 
-  def update(self):
-    """
+    def update(self):
+        """
     Update :math:`\mu` and :math:`\Sigma` according to the rewards accrued on
     the current episode.
 
@@ -287,29 +285,29 @@ class CrossEntropyAgent(AgentBase):
         The average reward earned by the best `retain_prcnt` theta samples
         on the current episode.
     """
-    D, P = self.derived_variables, self.parameters
-    n_retain = int(self.retain_prcnt * self.n_samples_per_episode)
+        D, P = self.derived_variables, self.parameters
+        n_retain = int(self.retain_prcnt * self.n_samples_per_episode)
 
-    # sort the cumulative rewards for each theta sample from greatest to least
-    sorted_y_val_idxs = np.argsort(D["cumulative_rewards"])[::-1]
-    top_idxs = sorted_y_val_idxs[:n_retain]
+        # sort the cumulative rewards for each theta sample from greatest to least
+        sorted_y_val_idxs = np.argsort(D["cumulative_rewards"])[::-1]
+        top_idxs = sorted_y_val_idxs[:n_retain]
 
-    # update theta_mean and theta_var with the best theta value
-    P["theta_mean"] = np.mean(D["theta_samples"][top_idxs], axis=0)
-    P["theta_var"] = np.var(D["theta_samples"][top_idxs], axis=0)
+        # update theta_mean and theta_var with the best theta value
+        P["theta_mean"] = np.mean(D["theta_samples"][top_idxs], axis=0)
+        P["theta_var"] = np.var(D["theta_samples"][top_idxs], axis=0)
 
-  def _sample_thetas(self):
-    """
+    def _sample_thetas(self):
+        """
     Sample `n_samples_per_episode` thetas from a multivariate Gaussian with
     mean `theta_mean` and covariance `diag(theta_var)`
     """
-    P, N = self.parameters, self.n_samples_per_episode
-    Mu, Sigma = P["theta_mean"], np.diag(P["theta_var"])
-    samples = np.random.multivariate_normal(Mu, Sigma, N)
-    self.derived_variables["theta_samples"] = samples
+        P, N = self.parameters, self.n_samples_per_episode
+        Mu, Sigma = P["theta_mean"], np.diag(P["theta_var"])
+        samples = np.random.multivariate_normal(Mu, Sigma, N)
+        self.derived_variables["theta_samples"] = samples
 
-  def greedy_policy(self, max_steps, render=True):
-    """
+    def greedy_policy(self, max_steps, render=True):
+        """
     Execute a greedy policy using the current agent parameters.
 
     Parameters
@@ -326,22 +324,22 @@ class CrossEntropyAgent(AgentBase):
     n_steps : float
         The total number of steps taken on the episode.
     """
-    E, D, P = self.env_info, self.derived_variables, self.parameters
-    Mu, Sigma = P["theta_mean"], np.diag(P["theta_var"])
-    sample = np.random.multivariate_normal(Mu, Sigma, 1)
+        E, D, P = self.env_info, self.derived_variables, self.parameters
+        Mu, Sigma = P["theta_mean"], np.diag(P["theta_var"])
+        sample = np.random.multivariate_normal(Mu, Sigma, 1)
 
-    W_len, obs_dim = D["W_len"], E["obs_dim"]
-    n_actions = np.prod(E["n_actions_per_dim"])
+        W_len, obs_dim = D["W_len"], E["obs_dim"]
+        n_actions = np.prod(E["n_actions_per_dim"])
 
-    W = sample[0, :W_len].reshape(obs_dim, n_actions)
-    b = sample[0, W_len:]
-    total_reward, n_steps = self._episode(W, b, max_steps, render)
-    return total_reward, n_steps
+        W = sample[0, :W_len].reshape(obs_dim, n_actions)
+        b = sample[0, W_len:]
+        total_reward, n_steps = self._episode(W, b, max_steps, render)
+        return total_reward, n_steps
 
 
 class MonteCarloAgent(AgentBase):
-  def __init__(self, env, off_policy=False, temporal_discount=0.9, epsilon=0.1):
-    """
+    def __init__(self, env, off_policy=False, temporal_discount=0.9, epsilon=0.1):
+        """
     A Monte-Carlo learning agent trained using either first-visit Monte
     Carlo updates (on-policy) or incremental weighted importance sampling
     (off-policy).
@@ -362,52 +360,52 @@ class MonteCarloAgent(AgentBase):
         The epsilon value in the epsilon-soft policy. Larger values
         encourage greater exploration during training. Default is 0.1.
     """
-    super().__init__(env)
+        super().__init__(env)
 
-    self.epsilon = epsilon
-    self.off_policy = off_policy
-    self.temporal_discount = temporal_discount
+        self.epsilon = epsilon
+        self.off_policy = off_policy
+        self.temporal_discount = temporal_discount
 
-    self._init_params()
+        self._init_params()
 
-  def _init_params(self):
-    E = self.env_info
-    assert not E["continuous_actions"], "Action space must be discrete"
-    assert not E["continuous_observations"], "Observation space must be discrete"
+    def _init_params(self):
+        E = self.env_info
+        assert not E["continuous_actions"], "Action space must be discrete"
+        assert not E["continuous_observations"], "Observation space must be discrete"
 
-    n_states = np.prod(E["n_obs_per_dim"])
-    n_actions = np.prod(E["n_actions_per_dim"])
+        n_states = np.prod(E["n_obs_per_dim"])
+        n_actions = np.prod(E["n_actions_per_dim"])
 
-    self._create_2num_dicts()
+        self._create_2num_dicts()
 
-    # behavior policy is stochastic, epsilon-soft policy
-    self.behavior_policy = self.target_policy = self._epsilon_soft_policy
-    if self.off_policy:
-      self.parameters["C"] = np.zeros((n_states, n_actions))
+        # behavior policy is stochastic, epsilon-soft policy
+        self.behavior_policy = self.target_policy = self._epsilon_soft_policy
+        if self.off_policy:
+            self.parameters["C"] = np.zeros((n_states, n_actions))
 
-      # target policy is deterministic, greedy policy
-      self.target_policy = self._greedy
+            # target policy is deterministic, greedy policy
+            self.target_policy = self._greedy
 
-    # initialize Q function
-    self.parameters["Q"] = np.random.rand(n_states, n_actions)
+        # initialize Q function
+        self.parameters["Q"] = np.random.rand(n_states, n_actions)
 
-    # initialize returns object for each state-action pair
-    self.derived_variables = {
-      "returns":    {(s, a):[] for s in range(n_states) for a in range(n_actions)},
-      "episode_num":0,
-      }
+        # initialize returns object for each state-action pair
+        self.derived_variables = {
+            "returns": {(s, a): [] for s in range(n_states) for a in range(n_actions)},
+            "episode_num": 0,
+        }
 
-    self.hyperparameters = {
-      "agent":            "MonteCarloAgent",
-      "epsilon":          self.epsilon,
-      "off_policy":       self.off_policy,
-      "temporal_discount":self.temporal_discount,
-      }
+        self.hyperparameters = {
+            "agent": "MonteCarloAgent",
+            "epsilon": self.epsilon,
+            "off_policy": self.off_policy,
+            "temporal_discount": self.temporal_discount,
+        }
 
-    self.episode_history = {"state_actions":[], "rewards":[]}
+        self.episode_history = {"state_actions": [], "rewards": []}
 
-  def _epsilon_soft_policy(self, s, a=None):
-    """
+    def _epsilon_soft_policy(self, s, a=None):
+        """
     Epsilon-soft exploration policy.
 
     Notes
@@ -455,28 +453,28 @@ class MonteCarloAgent(AgentBase):
         over actions defined by the epsilon-soft policy. If `a` is not
         None, this is the probability of `a` under the epsilon-soft policy.
     """
-    E, P = self.env_info, self.parameters
+        E, P = self.env_info, self.parameters
 
-    # TODO: this assumes all actions are available in every state
-    n_actions = np.prod(E["n_actions_per_dim"])
+        # TODO: this assumes all actions are available in every state
+        n_actions = np.prod(E["n_actions_per_dim"])
 
-    a_star = P["Q"][s, :].argmax()
-    p_a_star = 1.0 - self.epsilon + (self.epsilon / n_actions)
-    p_a = self.epsilon / n_actions
+        a_star = P["Q"][s, :].argmax()
+        p_a_star = 1.0 - self.epsilon + (self.epsilon / n_actions)
+        p_a = self.epsilon / n_actions
 
-    action_probs = np.ones(n_actions) * p_a
-    action_probs[a_star] = p_a_star
-    np.testing.assert_allclose(np.sum(action_probs), 1)
+        action_probs = np.ones(n_actions) * p_a
+        action_probs[a_star] = p_a_star
+        np.testing.assert_allclose(np.sum(action_probs), 1)
 
-    if a is not None:
-      return action_probs[a]
+        if a is not None:
+            return action_probs[a]
 
-    # sample action
-    a = np.random.multinomial(1, action_probs).argmax()
-    return self._num2action[a]
+        # sample action
+        a = np.random.multinomial(1, action_probs).argmax()
+        return self._num2action[a]
 
-  def _greedy(self, s, a=None):
-    """
+    def _greedy(self, s, a=None):
+        """
     A greedy behavior policy.
 
     Notes
@@ -501,15 +499,15 @@ class MonteCarloAgent(AgentBase):
         over actions defined by the greedy policy. If `a` is not
         None, this is the probability of `a` under the greedy policy.
     """
-    a_star = self.parameters["Q"][s, :].argmax()
-    if a is None:
-      out = self._num2action[a_star]
-    else:
-      out = 1 if a == a_star else 0
-    return out
+        a_star = self.parameters["Q"][s, :].argmax()
+        if a is None:
+            out = self._num2action[a_star]
+        else:
+            out = 1 if a == a_star else 0
+        return out
 
-  def _on_policy_update(self):
-    """
+    def _on_policy_update(self):
+        """
     Update the `Q` function using an on-policy first-visit Monte Carlo
     update.
 
@@ -531,22 +529,22 @@ class MonteCarloAgent(AgentBase):
     for the optimal policy, but for a *near*-optimal policy that still
     explores (the epsilon-soft policy).
     """
-    D, P, HS = self.derived_variables, self.parameters, self.episode_history
+        D, P, HS = self.derived_variables, self.parameters, self.episode_history
 
-    ep_rewards = HS["rewards"]
-    sa_tuples = set(HS["state_actions"])
+        ep_rewards = HS["rewards"]
+        sa_tuples = set(HS["state_actions"])
 
-    locs = [HS["state_actions"].index(sa) for sa in sa_tuples]
-    cumulative_returns = [np.sum(ep_rewards[i:]) for i in locs]
+        locs = [HS["state_actions"].index(sa) for sa in sa_tuples]
+        cumulative_returns = [np.sum(ep_rewards[i:]) for i in locs]
 
-    # update Q value with the average of the first-visit return across
-    # episodes
-    for (s, a), cr in zip(sa_tuples, cumulative_returns):
-      D["returns"][(s, a)].append(cr)
-      P["Q"][s, a] = np.mean(D["returns"][(s, a)])
+        # update Q value with the average of the first-visit return across
+        # episodes
+        for (s, a), cr in zip(sa_tuples, cumulative_returns):
+            D["returns"][(s, a)].append(cr)
+            P["Q"][s, a] = np.mean(D["returns"][(s, a)])
 
-  def _off_policy_update(self):
-    """
+    def _off_policy_update(self):
+        """
     Update `Q` using weighted importance sampling.
 
     Notes
@@ -568,28 +566,28 @@ class MonteCarloAgent(AgentBase):
 
     This algorithm converges to Q* in the limit.
     """
-    P = self.parameters
-    HS = self.episode_history
-    ep_rewards = HS["rewards"]
-    T = len(ep_rewards)
+        P = self.parameters
+        HS = self.episode_history
+        ep_rewards = HS["rewards"]
+        T = len(ep_rewards)
 
-    G, W = 0.0, 1.0
-    for t in reversed(range(T)):
-      s, a = HS["state_actions"][t]
-      G = self.temporal_discount * G + ep_rewards[t]
-      P["C"][s, a] += W
+        G, W = 0.0, 1.0
+        for t in reversed(range(T)):
+            s, a = HS["state_actions"][t]
+            G = self.temporal_discount * G + ep_rewards[t]
+            P["C"][s, a] += W
 
-      # update Q(s, a) using weighted importance sampling
-      P["Q"][s, a] += (W / P["C"][s, a]) * (G - P["Q"][s, a])
+            # update Q(s, a) using weighted importance sampling
+            P["Q"][s, a] += (W / P["C"][s, a]) * (G - P["Q"][s, a])
 
-      # multiply the importance sampling ratio by the current weight
-      W *= self.target_policy(s, a) / self.behavior_policy(s, a)
+            # multiply the importance sampling ratio by the current weight
+            W *= self.target_policy(s, a) / self.behavior_policy(s, a)
 
-      if W == 0.0:
-        break
+            if W == 0.0:
+                break
 
-  def act(self, obs):
-    """
+    def act(self, obs):
+        """
     Execute the behavior policy--an :math:`\epsilon`-soft policy used to
     generate actions during training.
 
@@ -604,11 +602,11 @@ class MonteCarloAgent(AgentBase):
         An action sampled from the distribution over actions defined by the
         epsilon-soft policy.
     """
-    s = self._obs2num[obs]
-    return self.behavior_policy(s)
+        s = self._obs2num[obs]
+        return self.behavior_policy(s)
 
-  def run_episode(self, max_steps, render=False):
-    """
+    def run_episode(self, max_steps, render=False):
+        """
     Run the agent on a single episode.
 
     Parameters
@@ -625,14 +623,14 @@ class MonteCarloAgent(AgentBase):
     steps : float
         The number of steps taken on the episode.
     """
-    D = self.derived_variables
-    total_rwd, n_steps = self._episode(max_steps, render)
+        D = self.derived_variables
+        total_rwd, n_steps = self._episode(max_steps, render)
 
-    D["episode_num"] += 1
-    return total_rwd, n_steps
+        D["episode_num"] += 1
+        return total_rwd, n_steps
 
-  def _episode(self, max_steps, render):
-    """
+    def _episode(self, max_steps, render):
+        """
     Execute agent on an episode.
 
     Parameters
@@ -649,50 +647,50 @@ class MonteCarloAgent(AgentBase):
     steps : float
         The number of steps taken on the episode.
     """
-    obs = self.env.reset()
-    HS = self.episode_history
-    total_reward, n_steps = 0.0, 0
+        obs = self.env.reset()
+        HS = self.episode_history
+        total_reward, n_steps = 0.0, 0
 
-    for i in range(max_steps):
-      if render:
-        self.env.render()
+        for i in range(max_steps):
+            if render:
+                self.env.render()
 
-      n_steps += 1
-      action = self.act(obs)
+            n_steps += 1
+            action = self.act(obs)
 
-      s = self._obs2num[obs]
-      a = self._action2num[action]
+            s = self._obs2num[obs]
+            a = self._action2num[action]
 
-      # store (state, action) tuple
-      HS["state_actions"].append((s, a))
+            # store (state, action) tuple
+            HS["state_actions"].append((s, a))
 
-      # take action
-      obs, reward, done, info = self.env.step(action)
+            # take action
+            obs, reward, done, info = self.env.step(action)
 
-      # record rewards
-      HS["rewards"].append(reward)
-      total_reward += reward
+            # record rewards
+            HS["rewards"].append(reward)
+            total_reward += reward
 
-      if done:
-        break
+            if done:
+                break
 
-    return total_reward, n_steps
+        return total_reward, n_steps
 
-  def update(self):
-    """
+    def update(self):
+        """
     Update the parameters of the model following the completion of an
     episode. Flush the episode history after the update is complete.
     """
-    H = self.hyperparameters
-    if H["off_policy"]:
-      self._off_policy_update()
-    else:
-      self._on_policy_update()
+        H = self.hyperparameters
+        if H["off_policy"]:
+            self._off_policy_update()
+        else:
+            self._on_policy_update()
 
-    self.flush_history()
+        self.flush_history()
 
-  def greedy_policy(self, max_steps, render=True):
-    """
+    def greedy_policy(self, max_steps, render=True):
+        """
     Execute a greedy policy using the current agent parameters.
 
     Parameters
@@ -709,50 +707,50 @@ class MonteCarloAgent(AgentBase):
     n_steps : float
         The total number of steps taken on the episode.
     """
-    H = self.episode_history
-    obs = self.env.reset()
+        H = self.episode_history
+        obs = self.env.reset()
 
-    total_reward, n_steps = 0.0, 0
-    for i in range(max_steps):
-      if render:
-        self.env.render()
+        total_reward, n_steps = 0.0, 0
+        for i in range(max_steps):
+            if render:
+                self.env.render()
 
-      n_steps += 1
-      action = self._greedy(obs)
+            n_steps += 1
+            action = self._greedy(obs)
 
-      s = self._obs2num[obs]
-      a = self._action2num[action]
+            s = self._obs2num[obs]
+            a = self._action2num[action]
 
-      # store (state, action) tuple
-      H["state_actions"].append((s, a))
+            # store (state, action) tuple
+            H["state_actions"].append((s, a))
 
-      # take action
-      obs, reward, done, info = self.env.step(action)
+            # take action
+            obs, reward, done, info = self.env.step(action)
 
-      # record rewards
-      H["rewards"].append(reward)
-      total_reward += reward
+            # record rewards
+            H["rewards"].append(reward)
+            total_reward += reward
 
-      if done:
-        break
+            if done:
+                break
 
-    return total_reward, n_steps
+        return total_reward, n_steps
 
 
 class TemporalDifferenceAgent(AgentBase):
-  def __init__(
-    self,
-    env,
-    lr=0.4,
-    epsilon=0.1,
-    n_tilings=8,
-    obs_max=None,
-    obs_min=None,
-    grid_dims=[8, 8],
-    off_policy=False,
-    temporal_discount=0.99,
+    def __init__(
+        self,
+        env,
+        lr=0.4,
+        epsilon=0.1,
+        n_tilings=8,
+        obs_max=None,
+        obs_min=None,
+        grid_dims=[8, 8],
+        off_policy=False,
+        temporal_discount=0.99,
     ):
-    """
+        """
     A temporal difference learning agent with expected SARSA (on-policy) or
     TD(0) `Q`-learning (off-policy) updates.
 
@@ -797,65 +795,65 @@ class TemporalDifferenceAgent(AgentBase):
         values result in greater discounting of future rewards. Default is
         0.9.
     """
-    super().__init__(env)
+        super().__init__(env)
 
-    self.lr = lr
-    self.obs_max = obs_max
-    self.obs_min = obs_min
-    self.epsilon = epsilon
-    self.n_tilings = n_tilings
-    self.grid_dims = grid_dims
-    self.off_policy = off_policy
-    self.temporal_discount = temporal_discount
+        self.lr = lr
+        self.obs_max = obs_max
+        self.obs_min = obs_min
+        self.epsilon = epsilon
+        self.n_tilings = n_tilings
+        self.grid_dims = grid_dims
+        self.off_policy = off_policy
+        self.temporal_discount = temporal_discount
 
-    self._init_params()
+        self._init_params()
 
-  def _init_params(self):
-    E = self.env_info
-    assert not E["continuous_actions"], "Action space must be discrete"
+    def _init_params(self):
+        E = self.env_info
+        assert not E["continuous_actions"], "Action space must be discrete"
 
-    obs_encoder = None
-    if E["continuous_observations"]:
-      obs_encoder, _ = tile_state_space(
-        self.env,
-        self.env_info,
-        self.n_tilings,
-        state_action=False,
-        obs_max=self.obs_max,
-        obs_min=self.obs_min,
-        grid_size=self.grid_dims,
-        )
+        obs_encoder = None
+        if E["continuous_observations"]:
+            obs_encoder, _ = tile_state_space(
+                self.env,
+                self.env_info,
+                self.n_tilings,
+                state_action=False,
+                obs_max=self.obs_max,
+                obs_min=self.obs_min,
+                grid_size=self.grid_dims,
+            )
 
-    self._create_2num_dicts(obs_encoder=obs_encoder)
+        self._create_2num_dicts(obs_encoder=obs_encoder)
 
-    # behavior policy is stochastic, epsilon-soft policy
-    self.behavior_policy = self.target_policy = self._epsilon_soft_policy
-    if self.off_policy:
-      # target policy is deterministic, greedy policy
-      self.target_policy = self._greedy
+        # behavior policy is stochastic, epsilon-soft policy
+        self.behavior_policy = self.target_policy = self._epsilon_soft_policy
+        if self.off_policy:
+            # target policy is deterministic, greedy policy
+            self.target_policy = self._greedy
 
-    # initialize Q function
-    self.parameters["Q"] = defaultdict(np.random.rand)
+        # initialize Q function
+        self.parameters["Q"] = defaultdict(np.random.rand)
 
-    # initialize returns object for each state-action pair
-    self.derived_variables = {"episode_num":0}
+        # initialize returns object for each state-action pair
+        self.derived_variables = {"episode_num": 0}
 
-    self.hyperparameters = {
-      "agent":            "TemporalDifferenceAgent",
-      "lr":               self.lr,
-      "obs_max":          self.obs_max,
-      "obs_min":          self.obs_min,
-      "epsilon":          self.epsilon,
-      "n_tilings":        self.n_tilings,
-      "grid_dims":        self.grid_dims,
-      "off_policy":       self.off_policy,
-      "temporal_discount":self.temporal_discount,
-      }
+        self.hyperparameters = {
+            "agent": "TemporalDifferenceAgent",
+            "lr": self.lr,
+            "obs_max": self.obs_max,
+            "obs_min": self.obs_min,
+            "epsilon": self.epsilon,
+            "n_tilings": self.n_tilings,
+            "grid_dims": self.grid_dims,
+            "off_policy": self.off_policy,
+            "temporal_discount": self.temporal_discount,
+        }
 
-    self.episode_history = {"state_actions":[], "rewards":[]}
+        self.episode_history = {"state_actions": [], "rewards": []}
 
-  def run_episode(self, max_steps, render=False):
-    """
+    def run_episode(self, max_steps, render=False):
+        """
     Run the agent on a single episode without updating the priority queue
     or performing backups.
 
@@ -874,10 +872,10 @@ class TemporalDifferenceAgent(AgentBase):
         The total number of steps taken on the episode, averaged over the
         theta samples.
     """
-    return self._episode(max_steps, render, update=False)
+        return self._episode(max_steps, render, update=False)
 
-  def train_episode(self, max_steps, render=False):
-    """
+    def train_episode(self, max_steps, render=False):
+        """
     Train the agent on a single episode.
 
     Parameters
@@ -894,15 +892,15 @@ class TemporalDifferenceAgent(AgentBase):
     steps : float
         The number of steps taken on the episode.
     """
-    D = self.derived_variables
-    total_rwd, n_steps = self._episode(max_steps, render, update=True)
+        D = self.derived_variables
+        total_rwd, n_steps = self._episode(max_steps, render, update=True)
 
-    D["episode_num"] += 1
+        D["episode_num"] += 1
 
-    return total_rwd, n_steps
+        return total_rwd, n_steps
 
-  def _episode(self, max_steps, render, update=True):
-    """
+    def _episode(self, max_steps, render, update=True):
+        """
     Run or train the agent on an episode.
 
     Parameters
@@ -922,49 +920,49 @@ class TemporalDifferenceAgent(AgentBase):
     steps : float
         The number of steps taken on the episode.
     """
-    self.flush_history()
+        self.flush_history()
 
-    obs = self.env.reset()
-    HS = self.episode_history
+        obs = self.env.reset()
+        HS = self.episode_history
 
-    action = self.act(obs)
-    s = self._obs2num[obs]
-    a = self._action2num[action]
+        action = self.act(obs)
+        s = self._obs2num[obs]
+        a = self._action2num[action]
 
-    # store initial (state, action) tuple
-    HS["state_actions"].append((s, a))
+        # store initial (state, action) tuple
+        HS["state_actions"].append((s, a))
 
-    total_reward, n_steps = 0.0, 0
-    for i in range(max_steps):
-      if render:
-        self.env.render()
+        total_reward, n_steps = 0.0, 0
+        for i in range(max_steps):
+            if render:
+                self.env.render()
 
-      # take action
-      obs, reward, done, info = self.env.step(action)
-      n_steps += 1
+            # take action
+            obs, reward, done, info = self.env.step(action)
+            n_steps += 1
 
-      # record rewards
-      HS["rewards"].append(reward)
-      total_reward += reward
+            # record rewards
+            HS["rewards"].append(reward)
+            total_reward += reward
 
-      # generate next state and action
-      action = self.act(obs)
-      s_ = self._obs2num[obs] if not done else None
-      a_ = self._action2num[action]
+            # generate next state and action
+            action = self.act(obs)
+            s_ = self._obs2num[obs] if not done else None
+            a_ = self._action2num[action]
 
-      # store next (state, action) tuple
-      HS["state_actions"].append((s_, a_))
+            # store next (state, action) tuple
+            HS["state_actions"].append((s_, a_))
 
-      if update:
-        self.update()
+            if update:
+                self.update()
 
-      if done:
-        break
+            if done:
+                break
 
-    return total_reward, n_steps
+        return total_reward, n_steps
 
-  def _epsilon_soft_policy(self, s, a=None):
-    """
+    def _epsilon_soft_policy(self, s, a=None):
+        """
     Epsilon-soft exploration policy.
 
     In epsilon-soft policies, :math:`\pi(a|s) > 0` for all s ∈ S and all a ∈ A(s) at
@@ -1008,28 +1006,28 @@ class TemporalDifferenceAgent(AgentBase):
         If `a` is not None, returns the probability of `a` under the
         epsilon-soft policy.
     """
-    E, P = self.env_info, self.parameters
+        E, P = self.env_info, self.parameters
 
-    # TODO: this assumes all actions are available in every state
-    n_actions = np.prod(E["n_actions_per_dim"])
+        # TODO: this assumes all actions are available in every state
+        n_actions = np.prod(E["n_actions_per_dim"])
 
-    a_star = np.argmax([P["Q"][(s, aa)] for aa in range(n_actions)])
-    p_a_star = 1.0 - self.epsilon + (self.epsilon / n_actions)
-    p_a = self.epsilon / n_actions
+        a_star = np.argmax([P["Q"][(s, aa)] for aa in range(n_actions)])
+        p_a_star = 1.0 - self.epsilon + (self.epsilon / n_actions)
+        p_a = self.epsilon / n_actions
 
-    action_probs = np.ones(n_actions) * p_a
-    action_probs[a_star] = p_a_star
-    np.testing.assert_allclose(np.sum(action_probs), 1)
+        action_probs = np.ones(n_actions) * p_a
+        action_probs[a_star] = p_a_star
+        np.testing.assert_allclose(np.sum(action_probs), 1)
 
-    if a is not None:
-      return action_probs[a]
+        if a is not None:
+            return action_probs[a]
 
-    # sample action
-    a = np.random.multinomial(1, action_probs).argmax()
-    return self._num2action[a]
+        # sample action
+        a = np.random.multinomial(1, action_probs).argmax()
+        return self._num2action[a]
 
-  def _greedy(self, s, a=None):
-    """
+    def _greedy(self, s, a=None):
+        """
     A greedy behavior policy. Only used when off-policy is true.
 
     Parameters
@@ -1055,17 +1053,17 @@ class TemporalDifferenceAgent(AgentBase):
         If `a` is not None, returns the probability of `a` under the
         greedy policy.
     """
-    P, E = self.parameters, self.env_info
-    n_actions = np.prod(E["n_actions_per_dim"])
-    a_star = np.argmax([P["Q"][(s, aa)] for aa in range(n_actions)])
-    if a is None:
-      out = self._num2action[a_star]
-    else:
-      out = 1 if a == a_star else 0
-    return out
+        P, E = self.parameters, self.env_info
+        n_actions = np.prod(E["n_actions_per_dim"])
+        a_star = np.argmax([P["Q"][(s, aa)] for aa in range(n_actions)])
+        if a is None:
+            out = self._num2action[a_star]
+        else:
+            out = 1 if a == a_star else 0
+        return out
 
-  def _on_policy_update(self, s, a, r, s_, a_):
-    """
+    def _on_policy_update(self, s, a, r, s_, a_):
+        """
     Update the Q function using the expected SARSA on-policy TD(0) update:
 
         Q[s, a] <- Q[s, a] + lr * [r + temporal_discount * E[Q[s', a'] | s'] - Q[s, a]]
@@ -1093,20 +1091,20 @@ class TemporalDifferenceAgent(AgentBase):
     a_ : int as returned by `self._action2num`
         The id for the action taken at timestep t
     """
-    Q, E, pi = self.parameters["Q"], self.env_info, self.behavior_policy
+        Q, E, pi = self.parameters["Q"], self.env_info, self.behavior_policy
 
-    # TODO: this assumes that all actions are available in each state
-    n_actions = np.prod(E["n_actions_per_dim"])
+        # TODO: this assumes that all actions are available in each state
+        n_actions = np.prod(E["n_actions_per_dim"])
 
-    # compute the expected value of Q(s', a') given that we are in state s'
-    E_Q = np.sum([pi(s_, aa) * Q[(s_, aa)] for aa in range(n_actions)]) if s_ else 0
+        # compute the expected value of Q(s', a') given that we are in state s'
+        E_Q = np.sum([pi(s_, aa) * Q[(s_, aa)] for aa in range(n_actions)]) if s_ else 0
 
-    # perform the expected SARSA TD(0) update
-    qsa = Q[(s, a)]
-    Q[(s, a)] = qsa + self.lr * (r + self.temporal_discount * E_Q - qsa)
+        # perform the expected SARSA TD(0) update
+        qsa = Q[(s, a)]
+        Q[(s, a)] = qsa + self.lr * (r + self.temporal_discount * E_Q - qsa)
 
-  def _off_policy_update(self, s, a, r, s_):
-    """
+    def _off_policy_update(self, s, a, r, s_):
+        """
     Update the `Q` function using the TD(0) Q-learning update:
 
         Q[s, a] <- Q[s, a] + lr * (r + temporal_discount * max_a { Q[s', a] } - Q[s, a])
@@ -1122,28 +1120,28 @@ class TemporalDifferenceAgent(AgentBase):
     s_ : int as returned by `self._obs2num`
         The id for the state/observation at timestep `t`
     """
-    Q, E = self.parameters["Q"], self.env_info
-    n_actions = np.prod(E["n_actions_per_dim"])
+        Q, E = self.parameters["Q"], self.env_info
+        n_actions = np.prod(E["n_actions_per_dim"])
 
-    qsa = Q[(s, a)]
-    Qs_ = [Q[(s_, aa)] for aa in range(n_actions)] if s_ else [0]
-    Q[(s, a)] = qsa + self.lr * (r + self.temporal_discount * np.max(Qs_) - qsa)
+        qsa = Q[(s, a)]
+        Qs_ = [Q[(s_, aa)] for aa in range(n_actions)] if s_ else [0]
+        Q[(s, a)] = qsa + self.lr * (r + self.temporal_discount * np.max(Qs_) - qsa)
 
-  def update(self):
-    """
+    def update(self):
+        """
     Update the parameters of the model online after each new state-action.
     """
-    H, HS = self.hyperparameters, self.episode_history
-    (s, a), r = HS["state_actions"][-2], HS["rewards"][-1]
-    s_, a_ = HS["state_actions"][-1]
+        H, HS = self.hyperparameters, self.episode_history
+        (s, a), r = HS["state_actions"][-2], HS["rewards"][-1]
+        s_, a_ = HS["state_actions"][-1]
 
-    if H["off_policy"]:
-      self._off_policy_update(s, a, r, s_)
-    else:
-      self._on_policy_update(s, a, r, s_, a_)
+        if H["off_policy"]:
+            self._off_policy_update(s, a, r, s_)
+        else:
+            self._on_policy_update(s, a, r, s_, a_)
 
-  def act(self, obs):
-    """
+    def act(self, obs):
+        """
     Execute the behavior policy--an :math:`\epsilon`-soft policy used to
     generate actions during training.
 
@@ -1158,11 +1156,11 @@ class TemporalDifferenceAgent(AgentBase):
         An action sampled from the distribution over actions defined by the
         epsilon-soft policy.
     """
-    s = self._obs2num[obs]
-    return self.behavior_policy(s)
+        s = self._obs2num[obs]
+        return self.behavior_policy(s)
 
-  def greedy_policy(self, max_steps, render=True):
-    """
+    def greedy_policy(self, max_steps, render=True):
+        """
     Execute a deterministic greedy policy using the current agent
     parameters.
 
@@ -1180,53 +1178,53 @@ class TemporalDifferenceAgent(AgentBase):
     n_steps : float
         The total number of steps taken on the episode.
     """
-    self.flush_history()
+        self.flush_history()
 
-    H = self.episode_history
-    obs = self.env.reset()
+        H = self.episode_history
+        obs = self.env.reset()
 
-    total_reward, n_steps = 0.0, 0
-    for i in range(max_steps):
-      if render:
-        self.env.render()
+        total_reward, n_steps = 0.0, 0
+        for i in range(max_steps):
+            if render:
+                self.env.render()
 
-      s = self._obs2num[obs]
-      action = self._greedy(s)
-      a = self._action2num[action]
+            s = self._obs2num[obs]
+            action = self._greedy(s)
+            a = self._action2num[action]
 
-      # store (state, action) tuple
-      H["state_actions"].append((s, a))
+            # store (state, action) tuple
+            H["state_actions"].append((s, a))
 
-      # take action
-      obs, reward, done, info = self.env.step(action)
-      n_steps += 1
+            # take action
+            obs, reward, done, info = self.env.step(action)
+            n_steps += 1
 
-      # record rewards
-      H["rewards"].append(reward)
-      total_reward += reward
+            # record rewards
+            H["rewards"].append(reward)
+            total_reward += reward
 
-      if done:
-        break
+            if done:
+                break
 
-    return total_reward, n_steps
+        return total_reward, n_steps
 
 
 class DynaAgent(AgentBase):
-  def __init__(
-    self,
-    env,
-    lr=0.4,
-    epsilon=0.1,
-    n_tilings=8,
-    obs_max=None,
-    obs_min=None,
-    q_plus=False,
-    grid_dims=[8, 8],
-    explore_weight=0.05,
-    temporal_discount=0.9,
-    n_simulated_actions=50,
+    def __init__(
+        self,
+        env,
+        lr=0.4,
+        epsilon=0.1,
+        n_tilings=8,
+        obs_max=None,
+        obs_min=None,
+        q_plus=False,
+        grid_dims=[8, 8],
+        explore_weight=0.05,
+        temporal_discount=0.9,
+        n_simulated_actions=50,
     ):
-    """
+        """
     A Dyna-`Q` / Dyna-`Q+` agent with full TD(0) `Q`-learning updates via
     prioritized-sweeping.
 
@@ -1271,75 +1269,75 @@ class DynaAgent(AgentBase):
         THe number of simulated actions to perform for each "real" action.
         Default is 50.
     """
-    super().__init__(env)
+        super().__init__(env)
 
-    self.lr = lr
-    self.q_plus = q_plus
-    self.obs_max = obs_max
-    self.obs_min = obs_min
-    self.epsilon = epsilon
-    self.n_tilings = n_tilings
-    self.grid_dims = grid_dims
-    self.explore_weight = explore_weight
-    self.temporal_discount = temporal_discount
-    self.n_simulated_actions = n_simulated_actions
+        self.lr = lr
+        self.q_plus = q_plus
+        self.obs_max = obs_max
+        self.obs_min = obs_min
+        self.epsilon = epsilon
+        self.n_tilings = n_tilings
+        self.grid_dims = grid_dims
+        self.explore_weight = explore_weight
+        self.temporal_discount = temporal_discount
+        self.n_simulated_actions = n_simulated_actions
 
-    self._init_params()
+        self._init_params()
 
-  def _init_params(self):
-    E = self.env_info
-    assert not E["continuous_actions"], "Action space must be discrete"
+    def _init_params(self):
+        E = self.env_info
+        assert not E["continuous_actions"], "Action space must be discrete"
 
-    obs_encoder = None
-    if E["continuous_observations"]:
-      obs_encoder, _ = tile_state_space(
-        self.env,
-        self.env_info,
-        self.n_tilings,
-        state_action=False,
-        obs_max=self.obs_max,
-        obs_min=self.obs_min,
-        grid_size=self.grid_dims,
-        )
+        obs_encoder = None
+        if E["continuous_observations"]:
+            obs_encoder, _ = tile_state_space(
+                self.env,
+                self.env_info,
+                self.n_tilings,
+                state_action=False,
+                obs_max=self.obs_max,
+                obs_min=self.obs_min,
+                grid_size=self.grid_dims,
+            )
 
-    self._create_2num_dicts(obs_encoder=obs_encoder)
-    self.behavior_policy = self.target_policy = self._epsilon_soft_policy
+        self._create_2num_dicts(obs_encoder=obs_encoder)
+        self.behavior_policy = self.target_policy = self._epsilon_soft_policy
 
-    # initialize Q function and model
-    self.parameters["Q"] = defaultdict(np.random.rand)
-    self.parameters["model"] = EnvModel()
+        # initialize Q function and model
+        self.parameters["Q"] = defaultdict(np.random.rand)
+        self.parameters["model"] = EnvModel()
 
-    # initialize returns object for each state-action pair
-    self.derived_variables = {
-      "episode_num":           0,
-      "sweep_queue":           {},
-      "visited":               set([]),
-      "steps_since_last_visit":defaultdict(lambda:0),
-      }
+        # initialize returns object for each state-action pair
+        self.derived_variables = {
+            "episode_num": 0,
+            "sweep_queue": {},
+            "visited": set([]),
+            "steps_since_last_visit": defaultdict(lambda: 0),
+        }
 
-    if self.q_plus:
-      self.derived_variables["steps_since_last_visit"] = defaultdict(
-        np.random.rand
-        )
+        if self.q_plus:
+            self.derived_variables["steps_since_last_visit"] = defaultdict(
+                np.random.rand
+            )
 
-    self.hyperparameters = {
-      "agent":              "DynaAgent",
-      "lr":                 self.lr,
-      "q_plus":             self.q_plus,
-      "obs_max":            self.obs_max,
-      "obs_min":            self.obs_min,
-      "epsilon":            self.epsilon,
-      "n_tilings":          self.n_tilings,
-      "grid_dims":          self.grid_dims,
-      "explore_weight":     self.explore_weight,
-      "temporal_discount":  self.temporal_discount,
-      "n_simulated_actions":self.n_simulated_actions,
-      }
+        self.hyperparameters = {
+            "agent": "DynaAgent",
+            "lr": self.lr,
+            "q_plus": self.q_plus,
+            "obs_max": self.obs_max,
+            "obs_min": self.obs_min,
+            "epsilon": self.epsilon,
+            "n_tilings": self.n_tilings,
+            "grid_dims": self.grid_dims,
+            "explore_weight": self.explore_weight,
+            "temporal_discount": self.temporal_discount,
+            "n_simulated_actions": self.n_simulated_actions,
+        }
 
-    self.episode_history = {"state_actions":[], "rewards":[]}
+        self.episode_history = {"state_actions": [], "rewards": []}
 
-  def act(self, obs):
-    """
+    def act(self, obs):
+        """
     Execute the behavior policy--an :math:`\epsilon`-soft policy used to
     generate actions during training.
 
@@ -1354,11 +1352,11 @@ class DynaAgent(AgentBase):
         An action sampled from the distribution over actions defined by the
         epsilon-soft policy.
     """
-    s = self._obs2num[obs]
-    return self.behavior_policy(s)
+        s = self._obs2num[obs]
+        return self.behavior_policy(s)
 
-  def _epsilon_soft_policy(self, s, a=None):
-    """
+    def _epsilon_soft_policy(self, s, a=None):
+        """
     Epsilon-soft exploration policy.
 
     In epsilon-soft policies, pi(a|s) > 0 for all s ∈ S and all a ∈ A(s) at
@@ -1402,28 +1400,28 @@ class DynaAgent(AgentBase):
         If `a` is not None, returns the probability of `a` under the
         epsilon-soft policy.
     """
-    E, P = self.env_info, self.parameters
+        E, P = self.env_info, self.parameters
 
-    # TODO: this assumes all actions are available in every state
-    n_actions = np.prod(E["n_actions_per_dim"])
+        # TODO: this assumes all actions are available in every state
+        n_actions = np.prod(E["n_actions_per_dim"])
 
-    a_star = np.argmax([P["Q"][(s, aa)] for aa in range(n_actions)])
-    p_a_star = 1.0 - self.epsilon + (self.epsilon / n_actions)
-    p_a = self.epsilon / n_actions
+        a_star = np.argmax([P["Q"][(s, aa)] for aa in range(n_actions)])
+        p_a_star = 1.0 - self.epsilon + (self.epsilon / n_actions)
+        p_a = self.epsilon / n_actions
 
-    action_probs = np.ones(n_actions) * p_a
-    action_probs[a_star] = p_a_star
-    np.testing.assert_allclose(np.sum(action_probs), 1)
+        action_probs = np.ones(n_actions) * p_a
+        action_probs[a_star] = p_a_star
+        np.testing.assert_allclose(np.sum(action_probs), 1)
 
-    if a is not None:
-      return action_probs[a]
+        if a is not None:
+            return action_probs[a]
 
-    # sample action
-    a = np.random.multinomial(1, action_probs).argmax()
-    return self._num2action[a]
+        # sample action
+        a = np.random.multinomial(1, action_probs).argmax()
+        return self._num2action[a]
 
-  def _greedy(self, s, a=None):
-    """
+    def _greedy(self, s, a=None):
+        """
     A greedy behavior policy.
 
     Parameters
@@ -1449,17 +1447,17 @@ class DynaAgent(AgentBase):
         If `a` is not None, returns the probability of `a` under the
         greedy policy.
     """
-    E, Q = self.env_info, self.parameters["Q"]
-    n_actions = np.prod(E["n_actions_per_dim"])
-    a_star = np.argmax([Q[(s, aa)] for aa in range(n_actions)])
-    if a is None:
-      out = self._num2action[a_star]
-    else:
-      out = 1 if a == a_star else 0
-    return out
+        E, Q = self.env_info, self.parameters["Q"]
+        n_actions = np.prod(E["n_actions_per_dim"])
+        a_star = np.argmax([Q[(s, aa)] for aa in range(n_actions)])
+        if a is None:
+            out = self._num2action[a_star]
+        else:
+            out = 1 if a == a_star else 0
+        return out
 
-  def update(self):
-    """
+    def update(self):
+        """
     Update the priority queue with the most recent (state, action) pair and
     perform random-sample one-step tabular Q-planning.
 
@@ -1474,12 +1472,12 @@ class DynaAgent(AgentBase):
     until either the queue is empty or we exceed `n_simulated_actions`
     updates.
     """
-    s, a = self.episode_history["state_actions"][-1]
-    self._update_queue(s, a)
-    self._simulate_behavior()
+        s, a = self.episode_history["state_actions"][-1]
+        self._update_queue(s, a)
+        self._simulate_behavior()
 
-  def _update_queue(self, s, a):
-    """
+    def _update_queue(self, s, a):
+        """
     Update the priority queue by calculating the priority for (s, a) and
     inserting it into the queue if it exceeds a fixed (small) threshold.
 
@@ -1490,18 +1488,18 @@ class DynaAgent(AgentBase):
     a : int as returned by `self._action2num`
         The id for the action taken from state `s`
     """
-    sweep_queue = self.derived_variables["sweep_queue"]
+        sweep_queue = self.derived_variables["sweep_queue"]
 
-    # TODO: what's a good threshold here?
-    priority = self._calc_priority(s, a)
-    if priority >= 0.001:
-      if (s, a) in sweep_queue:
-        sweep_queue[(s, a)] = max(priority, sweep_queue[(s, a)])
-      else:
-        sweep_queue[(s, a)] = priority
+        # TODO: what's a good threshold here?
+        priority = self._calc_priority(s, a)
+        if priority >= 0.001:
+            if (s, a) in sweep_queue:
+                sweep_queue[(s, a)] = max(priority, sweep_queue[(s, a)])
+            else:
+                sweep_queue[(s, a)] = priority
 
-  def _calc_priority(self, s, a):
-    """
+    def _calc_priority(self, s, a):
+        """
     Compute the "priority" for state-action pair (s, a). The priority P is
     defined as:
 
@@ -1523,21 +1521,21 @@ class DynaAgent(AgentBase):
         The absolute magnitude of the full-backup TD(0) Q-learning update
         for (s, a)
     """
-    priority = 0.0
-    E = self.env_info
-    Q = self.parameters["Q"]
-    env_model = self.parameters["model"]
-    n_actions = np.prod(E["n_actions_per_dim"])
+        priority = 0.0
+        E = self.env_info
+        Q = self.parameters["Q"]
+        env_model = self.parameters["model"]
+        n_actions = np.prod(E["n_actions_per_dim"])
 
-    outcome_probs = env_model.outcome_probs(s, a)
-    for (r, s_), p_rs_ in outcome_probs:
-      max_q = np.max([Q[(s_, aa)] for aa in range(n_actions)])
-      P = p_rs_ * (r + self.temporal_discount * max_q - Q[(s, a)])
-      priority += np.abs(P)
-    return priority
+        outcome_probs = env_model.outcome_probs(s, a)
+        for (r, s_), p_rs_ in outcome_probs:
+            max_q = np.max([Q[(s_, aa)] for aa in range(n_actions)])
+            P = p_rs_ * (r + self.temporal_discount * max_q - Q[(s, a)])
+            priority += np.abs(P)
+        return priority
 
-  def _simulate_behavior(self):
-    """
+    def _simulate_behavior(self):
+        """
     Perform random-sample one-step tabular Q-planning with prioritized
     sweeping.
 
@@ -1551,32 +1549,32 @@ class DynaAgent(AgentBase):
     queue and the process is repeated until either the queue is empty or we
     have exceeded a `n_simulated_actions` updates.
     """
-    env_model = self.parameters["model"]
-    sweep_queue = self.derived_variables["sweep_queue"]
-    for _ in range(self.n_simulated_actions):
-      if len(sweep_queue) == 0:
-        break
+        env_model = self.parameters["model"]
+        sweep_queue = self.derived_variables["sweep_queue"]
+        for _ in range(self.n_simulated_actions):
+            if len(sweep_queue) == 0:
+                break
 
-      # select (s, a) pair with the largest update (priority)
-      sq_items = list(sweep_queue.items())
-      (s_sim, a_sim), _ = sorted(sq_items, key=lambda x:x[1], reverse=True)[0]
+            # select (s, a) pair with the largest update (priority)
+            sq_items = list(sweep_queue.items())
+            (s_sim, a_sim), _ = sorted(sq_items, key=lambda x: x[1], reverse=True)[0]
 
-      # remove entry from queue
-      del sweep_queue[(s_sim, a_sim)]
+            # remove entry from queue
+            del sweep_queue[(s_sim, a_sim)]
 
-      # update Q function for (s_sim, a_sim) using the full-backup
-      # version of the TD(0) Q-learning update
-      self._update(s_sim, a_sim)
+            # update Q function for (s_sim, a_sim) using the full-backup
+            # version of the TD(0) Q-learning update
+            self._update(s_sim, a_sim)
 
-      # get all (_s, _a) pairs that lead to s_sim (ie., s_sim's predecessors)
-      pairs = env_model.state_action_pairs_leading_to_outcome(s_sim)
+            # get all (_s, _a) pairs that lead to s_sim (ie., s_sim's predecessors)
+            pairs = env_model.state_action_pairs_leading_to_outcome(s_sim)
 
-      # add predecessors to queue if their priority exceeds thresh
-      for (_s, _a) in pairs:
-        self._update_queue(_s, _a)
+            # add predecessors to queue if their priority exceeds thresh
+            for (_s, _a) in pairs:
+                self._update_queue(_s, _a)
 
-  def _update(self, s, a):
-    """
+    def _update(self, s, a):
+        """
     Update Q using a full-backup version of the TD(0) Q-learning update:
 
         Q(s, a) = Q(s, a) + lr *
@@ -1591,27 +1589,27 @@ class DynaAgent(AgentBase):
     a : int as returned by ``self._action2num``
         The id for the action taken from state `s`
     """
-    update = 0.0
-    env_model = self.parameters["model"]
-    E, D, Q = self.env_info, self.derived_variables, self.parameters["Q"]
-    n_actions = np.prod(E["n_actions_per_dim"])
+        update = 0.0
+        env_model = self.parameters["model"]
+        E, D, Q = self.env_info, self.derived_variables, self.parameters["Q"]
+        n_actions = np.prod(E["n_actions_per_dim"])
 
-    # sample rewards from the model
-    outcome_probs = env_model.outcome_probs(s, a)
-    for (r, s_), p_rs_ in outcome_probs:
-      # encourage visiting long-untried actions by adding a "bonus"
-      # reward proportional to the sqrt of the time since last visit
-      if self.q_plus:
-        r += self.explore_weight * np.sqrt(D["steps_since_last_visit"][(s, a)])
+        # sample rewards from the model
+        outcome_probs = env_model.outcome_probs(s, a)
+        for (r, s_), p_rs_ in outcome_probs:
+            # encourage visiting long-untried actions by adding a "bonus"
+            # reward proportional to the sqrt of the time since last visit
+            if self.q_plus:
+                r += self.explore_weight * np.sqrt(D["steps_since_last_visit"][(s, a)])
 
-      max_q = np.max([Q[(s_, a_)] for a_ in range(n_actions)])
-      update += p_rs_ * (r + self.temporal_discount * max_q - Q[(s, a)])
+            max_q = np.max([Q[(s_, a_)] for a_ in range(n_actions)])
+            update += p_rs_ * (r + self.temporal_discount * max_q - Q[(s, a)])
 
-    # update Q value for (s, a) pair
-    Q[(s, a)] += self.lr * update
+        # update Q value for (s, a) pair
+        Q[(s, a)] += self.lr * update
 
-  def run_episode(self, max_steps, render=False):
-    """
+    def run_episode(self, max_steps, render=False):
+        """
     Run the agent on a single episode without performing `Q`-function
     backups.
 
@@ -1630,10 +1628,10 @@ class DynaAgent(AgentBase):
         The number of steps taken on the episode.
     """
 
-    return self._episode(max_steps, render, update=False)
+        return self._episode(max_steps, render, update=False)
 
-  def train_episode(self, max_steps, render=False):
-    """
+    def train_episode(self, max_steps, render=False):
+        """
     Train the agent on a single episode.
 
     Parameters
@@ -1650,13 +1648,13 @@ class DynaAgent(AgentBase):
     steps : float
         The number of steps taken on the episode.
     """
-    D = self.derived_variables
-    total_rwd, n_steps = self._episode(max_steps, render, update=True)
-    D["episode_num"] += 1
-    return total_rwd, n_steps
+        D = self.derived_variables
+        total_rwd, n_steps = self._episode(max_steps, render, update=True)
+        D["episode_num"] += 1
+        return total_rwd, n_steps
 
-  def _episode(self, max_steps, render, update=True):
-    """
+    def _episode(self, max_steps, render, update=True):
+        """
     Run or train the agent on an episode.
 
     Parameters
@@ -1676,59 +1674,59 @@ class DynaAgent(AgentBase):
     steps : float
         The number of steps taken on the episode.
     """
-    self.flush_history()
+        self.flush_history()
 
-    obs = self.env.reset()
-    env_model = self.parameters["model"]
-    HS, D = self.episode_history, self.derived_variables
+        obs = self.env.reset()
+        env_model = self.parameters["model"]
+        HS, D = self.episode_history, self.derived_variables
 
-    action = self.act(obs)
-    s = self._obs2num[obs]
-    a = self._action2num[action]
+        action = self.act(obs)
+        s = self._obs2num[obs]
+        a = self._action2num[action]
 
-    # store initial (state, action) tuple
-    HS["state_actions"].append((s, a))
+        # store initial (state, action) tuple
+        HS["state_actions"].append((s, a))
 
-    total_reward, n_steps = 0.0, 0
-    for i in range(max_steps):
-      if render:
-        self.env.render()
+        total_reward, n_steps = 0.0, 0
+        for i in range(max_steps):
+            if render:
+                self.env.render()
 
-      # take action
-      obs, reward, done, info = self.env.step(action)
-      n_steps += 1
+            # take action
+            obs, reward, done, info = self.env.step(action)
+            n_steps += 1
 
-      # record rewards
-      HS["rewards"].append(reward)
-      total_reward += reward
+            # record rewards
+            HS["rewards"].append(reward)
+            total_reward += reward
 
-      # generate next state and action
-      action = self.act(obs)
-      s_ = self._obs2num[obs] if not done else None
-      a_ = self._action2num[action]
+            # generate next state and action
+            action = self.act(obs)
+            s_ = self._obs2num[obs] if not done else None
+            a_ = self._action2num[action]
 
-      # update model
-      env_model[(s, a, reward, s_)] += 1
+            # update model
+            env_model[(s, a, reward, s_)] += 1
 
-      # update history counter
-      for k in D["steps_since_last_visit"].keys():
-        D["steps_since_last_visit"][k] += 1
-      D["steps_since_last_visit"][(s, a)] = 0
+            # update history counter
+            for k in D["steps_since_last_visit"].keys():
+                D["steps_since_last_visit"][k] += 1
+            D["steps_since_last_visit"][(s, a)] = 0
 
-      if update:
-        self.update()
+            if update:
+                self.update()
 
-      # store next (state, action) tuple
-      HS["state_actions"].append((s_, a_))
-      s, a = s_, a_
+            # store next (state, action) tuple
+            HS["state_actions"].append((s_, a_))
+            s, a = s_, a_
 
-      if done:
-        break
+            if done:
+                break
 
-    return total_reward, n_steps
+        return total_reward, n_steps
 
-  def greedy_policy(self, max_steps, render=True):
-    """
+    def greedy_policy(self, max_steps, render=True):
+        """
     Execute a deterministic greedy policy using the current agent
     parameters.
 
@@ -1746,32 +1744,32 @@ class DynaAgent(AgentBase):
     n_steps : float
         The total number of steps taken on the episode.
     """
-    self.flush_history()
+        self.flush_history()
 
-    H = self.episode_history
-    obs = self.env.reset()
+        H = self.episode_history
+        obs = self.env.reset()
 
-    total_reward, n_steps = 0.0, 0
-    for i in range(max_steps):
-      if render:
-        self.env.render()
+        total_reward, n_steps = 0.0, 0
+        for i in range(max_steps):
+            if render:
+                self.env.render()
 
-      s = self._obs2num[obs]
-      action = self._greedy(s)
-      a = self._action2num[action]
+            s = self._obs2num[obs]
+            action = self._greedy(s)
+            a = self._action2num[action]
 
-      # store (state, action) tuple
-      H["state_actions"].append((s, a))
+            # store (state, action) tuple
+            H["state_actions"].append((s, a))
 
-      # take action
-      obs, reward, done, info = self.env.step(action)
-      n_steps += 1
+            # take action
+            obs, reward, done, info = self.env.step(action)
+            n_steps += 1
 
-      # record rewards
-      H["rewards"].append(reward)
-      total_reward += reward
+            # record rewards
+            H["rewards"].append(reward)
+            total_reward += reward
 
-      if done:
-        break
+            if done:
+                break
 
-    return total_reward, n_steps
+        return total_reward, n_steps

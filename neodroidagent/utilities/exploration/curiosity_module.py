@@ -4,14 +4,14 @@ from abc import ABCMeta
 
 from torch import nn
 
-__author__ = 'Christian Heider Nielsen'
-__doc__ = r'''
-'''
+__author__ = "Christian Heider Nielsen"
+__doc__ = r"""
+"""
 
 
 class CuriosityMeta(metaclass=ABCMeta):
-  pass
+    pass
 
 
 class CuriosityModule(CuriosityMeta, nn.Module):
-  pass
+    pass

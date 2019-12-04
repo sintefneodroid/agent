@@ -4,11 +4,11 @@ from neodroidagent.architectures import CNN
 from neodroidagent.configs.agent_test_configs.base_dicrete_test_config import *
 from neodroidagent.utilities import ReplayBuffer
 
-__author__ = 'Christian Heider Nielsen'
-'''
+__author__ = "Christian Heider Nielsen"
+"""
 Description: Config for training
 Author: Christian Heider Nielsen
-'''
+"""
 
 CONFIG_NAME = __name__
 import pathlib
@@ -38,12 +38,15 @@ SYNC_TARGET_MODEL_FREQUENCY = 1000
 OPTIMISER_SPEC = GDKC(torch.optim.RMSprop, {})  # torch.optim.Adam
 
 # Architecture
-VALUE_ARCH_SPEC = GDKC(CNN, NOD(
-  input_shape=None,  # Obtain from environment
-  input_channels=None,
-  hidden_layers=[64, 32, 16],
-  output_shape=None,  # Obtain from environment
-  output_channels=None,
-  hidden_layer_activation=F.relu,
-  use_bias=True
-  ))
+VALUE_ARCH_SPEC = GDKC(
+    CNN,
+    NOD(
+        input_shape=None,  # Obtain from environment
+        input_channels=None,
+        hidden_layers=[64, 32, 16],
+        output_shape=None,  # Obtain from environment
+        output_channels=None,
+        hidden_layer_activation=F.relu,
+        use_bias=True,
+    ),
+)

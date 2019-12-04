@@ -8,11 +8,11 @@ from neodroidagent.memory import TransitionBuffer
 from neodroidagent.utilities.exploration import OrnsteinUhlenbeckProcess
 from .base_continous_test_config import *
 
-__author__ = 'Christian Heider Nielsen'
-'''
+__author__ = "Christian Heider Nielsen"
+"""
 Description: Config for training
 Author: Christian Heider Nielsen
-'''
+"""
 
 # General
 
@@ -22,7 +22,7 @@ import pathlib
 CONFIG_FILE_PATH = pathlib.Path(__file__)
 
 CONNECT_TO_RUNNING = False
-ENVIRONMENT_NAME = 'Pendulum-v0'
+ENVIRONMENT_NAME = "Pendulum-v0"
 
 # Optimiser
 OPTIMISER_TYPE = torch.optim.Adam
@@ -42,21 +42,18 @@ EVALUATION_FUNCTION = F.smooth_l1_loss
 
 BATCH_SIZE = 64
 
-ACTOR_OPTIMISER_SPEC = GDKC(constructor=OPTIMISER_TYPE,
-                            kwargs=dict(lr=3e-4)
-                            )
+ACTOR_OPTIMISER_SPEC = GDKC(constructor=OPTIMISER_TYPE, kwargs=dict(lr=3e-4))
 
-CRITIC_OPTIMISER_SPEC = GDKC(constructor=OPTIMISER_TYPE,
-                             kwargs=dict(lr=3e-3,
-                                         weight_decay=0.01),
-                             )
+CRITIC_OPTIMISER_SPEC = GDKC(
+    constructor=OPTIMISER_TYPE, kwargs=dict(lr=3e-3, weight_decay=0.01)
+)
 
 RANDOM_PROCESS_THETA = 0.15
 RANDOM_PROCESS_SIGMA = 0.2
-RANDOM_PROCESS = GDKC(constructor=OrnsteinUhlenbeckProcess,
-                      kwargs=dict(theta=RANDOM_PROCESS_THETA,
-                                  sigma=RANDOM_PROCESS_SIGMA)
-                      )
+RANDOM_PROCESS = GDKC(
+    constructor=OrnsteinUhlenbeckProcess,
+    kwargs=dict(theta=RANDOM_PROCESS_THETA, sigma=RANDOM_PROCESS_SIGMA),
+)
 
 MEMORY = TransitionBuffer(REPLAY_MEMORY_SIZE)
 
@@ -66,17 +63,25 @@ SIGNAL_CLIPPING = False
 ROLLOUTS = 1000
 
 # Architecture
-ACTOR_ARCH_SPEC = GDKC(SingleHeadMLP,
-                       NOD(**{
-                         'input_shape':      None,  # Obtain from environment
-                         # 'hidden_layers' : [256],
-                         'output_activation':torch.tanh,
-                         'output_shape':     None,  # Obtain from environment
-                         }))
+ACTOR_ARCH_SPEC = GDKC(
+    SingleHeadMLP,
+    NOD(
+        **{
+            "input_shape": None,  # Obtain from environment
+            # 'hidden_layers' : [256],
+            "output_activation": torch.tanh,
+            "output_shape": None,  # Obtain from environment
+        }
+    ),
+)
 
-CRITIC_ARCH_SPEC = GDKC(SingleHeadMergedInputMLP,
-                        NOD(**{
-                          'input_shape': None,  # Obtain from environment
-                          # 'hidden_layers' : [256],
-                          'output_shape':None,  # Obtain from environment
-                          }))
+CRITIC_ARCH_SPEC = GDKC(
+    SingleHeadMergedInputMLP,
+    NOD(
+        **{
+            "input_shape": None,  # Obtain from environment
+            # 'hidden_layers' : [256],
+            "output_shape": None,  # Obtain from environment
+        }
+    ),
+)

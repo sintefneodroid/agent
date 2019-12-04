@@ -4,11 +4,11 @@ from neodroidagent.agents.torch_agents.model_free import PGAgent
 from neodroidagent.architectures import MLP
 from neodroidagent.memory import ReplayBuffer
 
-__author__ = 'Christian Heider Nielsen'
-'''
+__author__ = "Christian Heider Nielsen"
+"""
 Description: Config for training
 Author: Christian Heider Nielsen
-'''
+"""
 from neodroidagent.configs.base_config import *
 
 CONFIG_NAME = __name__
@@ -40,6 +40,6 @@ VALUE_ARCH = MLP
 OPTIMISER_TYPE = torch.optim.Adam
 OPTIMISER_LEARNING_RATE = 0.1
 # ENVIRONMENT_NAME = 'CartPole-v0'
-ENVIRONMENT_NAME = 'grd'
+ENVIRONMENT_NAME = "grd"
 # 'LunarLander-v2' #(coord_x, coord_y, vel_x, vel_y, angle,
 # angular_vel, l_leg_on_ground, r_leg_on_ground)

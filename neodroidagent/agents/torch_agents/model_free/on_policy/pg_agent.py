@@ -1,18 +1,20 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 from logging import warning
-from typing import Sequence
+from typing import Sequence, Union
 
 from draugr.torch_utilities.to_tensor import to_tensor
 from draugr.writers import MockWriter
-from neodroidagent.agents.torch_agents.model_free.on_policy.policy_agent import PolicyAgent
+from neodroidagent.agents.torch_agents.model_free.on_policy.policy_agent import (
+    PolicyAgent,
+)
 from neodroidagent.exceptions.exceptions import NoTrajectoryException
 
-__author__ = 'Christian Heider Nielsen'
-__doc__ = r'''
+__author__ = "Christian Heider Nielsen"
+__doc__ = r"""
 
            Created on 23/09/2019
-           '''
+           """
 
 import numpy
 import torch
@@ -22,139 +24,141 @@ tqdm.monitor_interval = 0
 
 
 class PGAgent(PolicyAgent):
-  '''
+    """
   REINFORCE, Vanilla Policy Gradient method
 
 
-  '''
+  """
 
-  def _remember(self,
-                *,
-                signal,
-                action_log_prob,
-                entropy,
-                **kwargs):
-    self._trajectory_trace.add_point(signal, action_log_prob, entropy)
+    def _remember(self, *, signal, action_log_prob, entropy, **kwargs):
+        self._trajectory_trace.add_point(signal, action_log_prob, entropy)
 
-  # region Protected
+    # region Protected
 
-  def _optimise(self, loss, **kwargs):
-    self.optimiser.zero_grad()
-    loss.backward()
-    if self._grad_clip:
-      for params in self._distribution_regressor.parameters():
-        params.grad.data.clamp_(self._grad_clip_low, self._grad_clip_high)
-    self.optimiser.step()
+    def _optimise(self, loss, **kwargs):
+        loss.backward()
+        if self._grad_clip:
+            for params in self._distribution_regressor.parameters():
+                params.grad.data.clamp_(self._grad_clip_low, self._grad_clip_high)
+        self._optimiser.step()
 
-  def _sample_model(self, state: Sequence, **kwargs) -> tuple:
-    model_input = to_tensor(state, device=self._device, dtype=self._state_type)
+    def _sample_model(self, state: Sequence, **kwargs) -> tuple:
+        model_input = to_tensor(state, device=self._device, dtype=self._state_type)
 
-    distributions = self._distribution_regressor(model_input)
-    action, log_prob = self._distribution_regressor.sample(distributions)
+        distributions = self._distribution_regressor(model_input)
+        action, log_prob = self._distribution_regressor.sample(distributions)
 
-    with torch.no_grad():
-      entropy = self._distribution_regressor.entropy(distributions)
+        with torch.no_grad():
+            entropy = self._distribution_regressor.entropy(distributions)
 
-    return action, log_prob, entropy
+        return action, log_prob, entropy
 
-  def _update(self,
-              *,
-              metric_writer=MockWriter(),
-              **kwargs):
-    '''
+    def _update(self, *, metric_writer=MockWriter(), **kwargs):
+        """
 
     :param metric_writer:
     :param args:
     :param kwargs:
 
     :returns:
-    '''
+    """
 
-    error = self.evaluate()
+        self._optimiser.zero_grad()
+        error = self.evaluate()
 
-    if metric_writer:
-      metric_writer.scalar('Error', error.detach().to('cpu').numpy())
+        if error is not None:
+            if self._use_batched_updates:
+                self._accumulated_error += error
+                if self._update_i % self._batch_size == 0:
+                    self._optimise(self._accumulated_error / self._batch_size)
+                    self._accumulated_error = to_tensor(0.0, device=self._device)
+            else:
+                self._optimise(error)
 
-    if error is not None:
-      if self._use_batched_updates:
-        self._accumulated_error += error
-        if self._update_i % self._batch_size == 0:
-          self._optimise(self._accumulated_error / self._batch_size)
-          self._accumulated_error = to_tensor(0.0, device=self._device)
-      else:
-        self._optimise(error)
+        if self._scheduler:
+            self._scheduler.step()
 
-  def _sample(self, state: Sequence, *args, **kwargs) -> tuple:
-    return self._sample_model(state)
+        if metric_writer:
+            metric_writer.scalar("Error", error.detach().to("cpu").numpy())
+            for i, param_group in enumerate(self._optimiser.param_groups):
+                metric_writer.scalar(f"lr{i}", param_group["lr"])
 
-  # endregion
+    def _sample(self, state: Sequence, *args, **kwargs) -> tuple:
+        return self._sample_model(state)
 
-  # region Public
+    # endregion
 
-  def evaluate(self, **kwargs):
-    if not len(self._trajectory_trace) > 0:
-      raise NoTrajectoryException
+    # region Public
 
-    trajectory = self._trajectory_trace.retrieve_trajectory()
-    t_signals = trajectory.signal
-    log_probs = trajectory.log_prob
-    entropies = trajectory.entropy
-    self._trajectory_trace.clear()
+    def evaluate(self, **kwargs):
+        if not len(self._trajectory_trace) > 0:
+            raise NoTrajectoryException
 
-    ret = numpy.zeros_like(t_signals[0])
-    policy_loss = []
-    signals = []
+        trajectory = self._trajectory_trace.retrieve_trajectory()
+        t_signals = trajectory.signal
+        log_probs = trajectory.log_prob
+        entropies = trajectory.entropy
+        self._trajectory_trace.clear()
 
-    for r in t_signals[::-1]:
-      ret = r + self._discount_factor * ret
-      signals.insert(0, ret)
+        ret = numpy.zeros_like(t_signals[0])
+        policy_loss = []
+        signals = []
 
-    signals = to_tensor(signals, device=self._device, dtype=self._signals_tensor_type)
+        for r in t_signals[::-1]:
+            ret = r + self._discount_factor * ret
+            signals.insert(0, ret)
 
-    if signals.shape[0] > 1:
-      stddev = signals.std()
-      signals = (signals - signals.mean()) / (stddev + self._divide_by_zero_safety)
-    elif signals.shape[0] == 0:
-      warning(f'No signals received, got signals.shape[0]: {signals.shape[0]}')
+        signals = to_tensor(
+            signals, device=self._device, dtype=self._signals_tensor_type
+        )
 
-    for log_prob, signal, entropy in zip(log_probs, signals, entropies):
-      maximisation_term = signal + self._policy_entropy_regularisation * entropy
-      expected_reward = -log_prob * maximisation_term
-      policy_loss.append(expected_reward)
+        if signals.shape[0] > 1:
+            stddev = signals.std()
+            signals = (signals - signals.mean()) / (
+                stddev + self._divide_by_zero_safety
+            )
+        elif signals.shape[0] == 0:
+            warning(f"No signals received, got signals.shape[0]: {signals.shape[0]}")
 
-    if len(policy_loss[0].shape) < 1:
-      loss = torch.stack(policy_loss).sum()
-    else:
-      loss = torch.cat(policy_loss).sum()
-    return loss
+        for log_prob, signal, entropy in zip(log_probs, signals, entropies):
+            maximisation_term = signal + self._policy_entropy_regularisation * entropy
+            expected_reward = -log_prob * maximisation_term
+            policy_loss.append(expected_reward)
 
-  # endregion
+        if len(policy_loss[0].shape) < 1:
+            loss = torch.stack(policy_loss).sum()
+        else:
+            loss = torch.cat(policy_loss).sum()
+        return loss
+
+    # endregion
 
 
 # region Test
 
 
-def pg_run(rollouts=None, skip=True, connect_to_running=True):
-  from neodroidagent.sessions.session_entry_point import session_entry_point
-  from neodroidagent.sessions.single_agent.parallel import ParallelSession
-  import neodroidagent.configs.agent_test_configs.pg_test_config as C
+def pg_run(rollouts=None, skip=True, connect_to_running: Union[bool, str] = True):
+    from neodroidagent.sessions.session_entry_point import session_entry_point
+    from neodroidagent.sessions.single_agent.parallel import ParallelSession
+    import neodroidagent.configs.agent_test_configs.pg_test_config as C
 
-  if rollouts:
-    C.ROLLOUTS = rollouts
+    if rollouts:
+        C.ROLLOUTS = rollouts
 
-  C.CONNECT_TO_RUNNING = connect_to_running
-
-  session_entry_point(PGAgent,
-                      C,
-                      session=ParallelSession,
-                      skip_confirmation=skip)
+    session_entry_point(
+        PGAgent,
+        C,
+        session=ParallelSession,
+        skip_confirmation=skip,
+        environment_type=connect_to_running,
+    )
 
 
 def pg_test():
-  pg_run(connect_to_running=False)
+    pg_run(connect_to_running="gym")
 
 
-if __name__ == '__main__':
-  pg_test()
+if __name__ == "__main__":
+    pg_test()
 
 # endregion

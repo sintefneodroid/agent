@@ -7,16 +7,18 @@ import numpy
 from numba import jit
 from scipy.signal import lfilter
 
-__author__ = 'Christian Heider Nielsen'
-__doc__ = ''
+__author__ = "Christian Heider Nielsen"
+__doc__ = ""
 
 
 @jit(nopython=True, nogil=True)
-def valued_discount(signal: numpy.ndarray,
-                    next_estimate: numpy.ndarray,
-                    terminal: numpy.ndarray,
-                    discounting_factor: float):
-  r"""
+def valued_discount(
+    signal: numpy.ndarray,
+    next_estimate: numpy.ndarray,
+    terminal: numpy.ndarray,
+    discounting_factor: float,
+):
+    r"""
   Calculates discounted signal according to equation:
 
   .. math:: G_{t:t+n} = R_{t+1} + \gamma R_{t+2} + \cdots + \gamma^{n-1} R_{t+n} + \gamma^n V_{t+n-1}(S_{t+n})
@@ -42,19 +44,19 @@ def valued_discount(signal: numpy.ndarray,
   :return: array of shape ``N*T`` with discounted values for each step
   """
 
-  v: numpy.ndarray = next_estimate
-  discounted = numpy.zeros_like(signal)
-  a = signal.shape[-1]
-  for t in range(a - 1, -1, -1):
-    r, termi = signal[:, t], terminal[:, t]
-    v = (r + discounting_factor * v * (1. - termi)).astype(discounted.dtype)
-    discounted[:, t] = v
+    v: numpy.ndarray = next_estimate
+    discounted = numpy.zeros_like(signal)
+    a = signal.shape[-1]
+    for t in range(a - 1, -1, -1):
+        r, termi = signal[:, t], terminal[:, t]
+        v = (r + discounting_factor * v * (1.0 - termi)).astype(discounted.dtype)
+        discounted[:, t] = v
 
-  return discounted
+    return discounted
 
 
 def discount_signal(x: Union[numpy.ndarray, Iterable, int, float], factor) -> Any:
-  """
+    """
       x = [r1, r2, r3, ..., rN]
       returns [r1 + r2*gamma + r3*gamma^2 + ...,
                  r2 + r3*gamma + r4*gamma^2 + ...,
@@ -73,20 +75,19 @@ def discount_signal(x: Union[numpy.ndarray, Iterable, int, float], factor) -> An
                         - a[1]*y[n-1] - ... - a[N]*y[n-N]
   """
 
-  a: Union[numpy.ndarray, Iterable, int, float] = lfilter([1],
-                                                          [1, -factor],
-                                                          numpy.flip(x, -1),
-                                                          axis=-1)
+    a: Union[numpy.ndarray, Iterable, int, float] = lfilter(
+        [1], [1, -factor], numpy.flip(x, -1), axis=-1
+    )
 
-  return numpy.flip(a, -1)
+    return numpy.flip(a, -1)
 
 
 # @jit(nopython=True, nogil=True)
 def discount_return(x, discount):
-  return numpy.sum(x * (discount ** numpy.arange(len(x))))
+    return numpy.sum(x * (discount ** numpy.arange(len(x))))
 
 
-if __name__ == '__main__':
-  rollout = numpy.zeros((10, 2)).T
-  rollout[:, -1] = 1
-  print(discount_signal(rollout, .5))
+if __name__ == "__main__":
+    rollout = numpy.zeros((10, 2)).T
+    rollout[:, -1] = 1
+    print(discount_signal(rollout, 0.5))
