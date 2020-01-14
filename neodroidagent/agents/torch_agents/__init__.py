@@ -6,3 +6,7 @@ __doc__ = r"""
 
            Created on 23/09/2019
            """
+
+from .torch_agent import *
+from .model_free import *
+from .model_based import *

@@ -3,6 +3,7 @@
 from neodroid.models import Configuration, Displayable, Reaction, ReactionParameters
 
 __author__ = "Christian Heider Nielsen"
+
 import random
 from types import coroutine
 

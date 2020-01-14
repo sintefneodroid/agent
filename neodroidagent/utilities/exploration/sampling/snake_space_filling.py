@@ -10,6 +10,8 @@ from matplotlib import pyplot
 
 pyplot.ion()
 
+__all__ = ["snake_space_filling_generator"]
+
 
 class States(Enum):
     expand_x = auto()

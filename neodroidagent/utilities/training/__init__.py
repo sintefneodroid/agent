@@ -4,3 +4,7 @@
 __author__ = "Christian Heider Nielsen"
 __doc__ = r"""
            """
+
+from .mini_batch_iter import *
+from .training_resume import *
+from .target_updates import *

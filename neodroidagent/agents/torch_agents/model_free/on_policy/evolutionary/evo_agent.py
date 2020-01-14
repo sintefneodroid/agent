@@ -10,6 +10,8 @@ from neodroidagent.agents.agent import Agent
 
 __author__ = "Christian Heider Nielsen"
 
+from warg import drop_unused_kws
+
 
 class EVOAgent(Agent, ABC):
     """
@@ -24,16 +26,8 @@ Base class for evolution strategy (ES) based agents
     def evaluate(self, batch, **kwargs):
         pass
 
-    def rollout(
-        self,
-        initial_state,
-        environment,
-        *,
-        train=True,
-        render=False,
-        random_sample=True,
-        **kwargs,
-    ) -> Any:
+    @drop_unused_kws
+    def rollout(self, initial_state, environment, *, train=True, render=False) -> Any:
         if train:
             self._update_i += 1
 

@@ -3,7 +3,7 @@
 import numpy
 
 from draugr import to_tensor
-from neodroidagent.architectures import MLP
+from neodroidagent.common.architectures import MLP
 
 __author__ = "Christian Heider Nielsen"
 __doc__ = ""

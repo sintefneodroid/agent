@@ -24,7 +24,7 @@ Implementation of n-step reward given by the equation:
 
 :param discount_factor: discount value. Should be between `(0, 1]`
 :param n: (optional) number of steps to compute reward over. If `None` then calculates it till
-       the end of episode
+     the end of episode
 """
 
     if n is None:
@@ -55,7 +55,7 @@ Implementation of n-step advantage given by the equation:
 
 .. math:: \hat{A}_{t:t+n} = R_{t+1} + \gamma R_{t+2} + \cdots + \gamma^{n-1} R_{t+n} + \gamma^n V_{
 t+n-1}(S_{t+n})
- - V_{t+n-1}(S_{t+1})
+- V_{t+n-1}(S_{t+1})
 
 """
     return (

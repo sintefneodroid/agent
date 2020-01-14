@@ -9,6 +9,15 @@ import numpy
 import torch
 from skimage import color, transform
 
+__all__ = [
+    "compute_state",
+    "extract_and_compute_state",
+    "process_rigidbody_data",
+    "spatial_displacement",
+    "normalise_position",
+    "gray_downscale",
+]
+
 
 def compute_state(observations, configuration):
     """

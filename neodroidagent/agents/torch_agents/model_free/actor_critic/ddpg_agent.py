@@ -1,48 +1,67 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-
+from typing import Any, Sequence, Union
 
 import numpy
 import torch
 import torch.nn.functional as F
+from numpy import mean
 from tqdm import tqdm
 
 from draugr.torch_utilities.to_tensor import to_tensor
 from draugr.writers import MockWriter
 from draugr.writers.writer import Writer
-from neodroidagent.agents.torch_agents.model_free.actor_critic import ActorCriticAgent
-from neodroidagent.architectures import SingleHeadMLP
-from neodroidagent.architectures.experimental.merged import SingleHeadMergedInputMLP
-from neodroidagent.memory import TransitionBuffer
+from neodroid.utilities.spaces import ActionSpace, ObservationSpace, SignalSpace
+from neodroidagent.agents.torch_agents.torch_agent import TorchAgent
+from neodroidagent.common.architectures.experimental.merged import (
+    SingleHeadMergedInputMLP,
+)
+from neodroidagent.common.architectures.mlp import SingleHeadMLP
+from neodroidagent.common.memory import TransitionBuffer
+from neodroidagent.common.procedures.training import Batched
+from neodroidagent.utilities import update_target
+from neodroidagent.utilities.exceptions.exceptions import ActionSpaceNotSupported
 from neodroidagent.utilities.exploration.sampling import OrnsteinUhlenbeckProcess
+from warg import drop_unused_kws
 from warg.gdkc import GDKC
+from warg.kw_passing import super_init_pass_on_kws
 
 __author__ = "Christian Heider Nielsen"
+__all__ = ["DDPGAgent"]
 
 tqdm.monitor_interval = 0
 
 
-class DDPGAgent(ActorCriticAgent):
+@super_init_pass_on_kws
+class DDPGAgent(TorchAgent):
     """
 The Deep Deterministic Policy Gradient (DDPG) Agent
 
 Parameters
 ----------
-    actor_optimizer_spec: OptimiserSpec
-        Specifying the constructor and kwargs, as well as learning rate and other
-        parameters for the optimiser
-    critic_optimizer_spec: OptimiserSpec
-    num_feature: int
-        The number of features of the environmental state
-    num_action: int
-        The number of available actions that agent can choose from
-    replay_memory_size: int
-        How many memories to store in the replay memory.
-    batch_size: int
-        How many transitions to sample each time experience is replayed.
-    tau: float
-        The update rate that target networks slowly track the learned networks.
+  actor_optimizer_spec: OptimiserSpec
+      Specifying the constructor and kwargs, as well as learning rate and other
+      parameters for the optimiser
+  critic_optimizer_spec: OptimiserSpec
+  num_feature: int
+      The number of features of the environmental state
+  num_action: int
+      The number of available actions that agent can choose from
+  replay_memory_size: int
+      How many memories to store in the replay memory.
+  batch_size: int
+      How many transitions to sample each time experience is replayed.
+  tau: float
+      The update rate that target networks slowly track the learned networks.
 """
+
+    @drop_unused_kws
+    def _remember(self, *, transitions):
+        self._memory_buffer.add_transitions(transitions)
+
+    @property
+    def models(self):
+        return {"_actor": self._actor, "_critic": self._critic}
 
     # region Private
 
@@ -66,6 +85,11 @@ Parameters
         noise_factor=3e-1,
         low_action_clip=-1.0,
         high_action_clip=1.0,
+        copy_percentage=3e-3,
+        signal_clipping=False,
+        action_clipping=False,
+        actor_optimiser_spec: GDKC = GDKC(constructor=torch.optim.Adam, lr=3e-4),
+        critic_optimiser_spec: GDKC = GDKC(constructor=torch.optim.Adam, lr=3e-4),
         **kwargs
     ):
         """
@@ -93,8 +117,18 @@ Parameters
 :param kwargs:
 """
         super().__init__(**kwargs)
-        # Adds noise for exploration
+
+        self._target_update_tau = copy_percentage
+        self._signal_clipping = signal_clipping
+        self._action_clipping = action_clipping
+        self._actor_optimiser_spec: GDKC = actor_optimiser_spec
+        self._critic_optimiser_spec: GDKC = critic_optimiser_spec
+        self._actor_arch_spec = actor_arch_spec
+        self._critic_arch_spec = critic_arch_spec
         self._random_process_spec = random_process_spec
+
+        # Adds noise for exploration
+
         # self._memory = U.PrioritisedReplayMemory(config.REPLAY_MEMORY_SIZE)  # Cuda trouble
         self._memory_buffer = memory_buffer
         self._evaluation_function = evaluation_function
@@ -126,6 +160,44 @@ Parameters
         self._random_process = None
 
     # endregion
+
+    @drop_unused_kws
+    def __build__(
+        self,
+        observation_space: ObservationSpace,
+        action_space: ActionSpace,
+        signal_space: SignalSpace,
+        metric_writer: Writer = MockWriter(),
+        print_model_repr=True,
+    ) -> None:
+
+        self._actor_arch_spec.kwargs["input_shape"] = self._input_shape
+        if action_space.is_discrete:
+            raise ActionSpaceNotSupported()
+
+        self._actor_arch_spec.kwargs["output_shape"] = self._output_shape
+
+        self._critic_arch_spec.kwargs["input_shape"] = (
+            *self._input_shape,
+            *self._output_shape,
+        )
+        # self._actor_arch_spec = GDCS(MergedInputMLP, self._critic_arch_spec.kwargs)
+        self._critic_arch_spec.kwargs["output_shape"] = 1
+
+        # Construct actor and critic
+        self._actor = self._actor_arch_spec().to(self._device)
+        self._target_actor = self._actor_arch_spec().to(self._device).eval()
+
+        self._critic = self._critic_arch_spec().to(self._device)
+        self._target_critic = self._critic_arch_spec().to(self._device).eval()
+
+        self._random_process = self._random_process_spec(
+            sigma=mean([r.span for r in action_space.ranges])
+        )
+
+        # Construct the optimizers for actor and critic
+        self._actor_optimiser = self._actor_optimiser_spec(self._actor.parameters())
+        self._critic_optimiser = self._critic_optimiser_spec(self._critic.parameters())
 
     # region Public
 
@@ -174,12 +246,12 @@ Parameters
         return td_error, states
 
     def update_targets(self):
-        self._update_target(
+        update_target(
             target_model=self._target_critic,
             source_model=self._critic,
             copy_percentage=self._target_update_tau,
         )
-        self._update_target(
+        update_target(
             target_model=self._target_actor,
             source_model=self._actor,
             copy_percentage=self._target_update_tau,
@@ -189,7 +261,8 @@ Parameters
 
     # region Protected
 
-    def _update(self, *, metric_writer: Writer = MockWriter(), **kwargs):
+    @drop_unused_kws
+    def _update(self, *, metric_writer: Writer = MockWriter()):
         """
 Update the target networks
 
@@ -199,50 +272,36 @@ Update the target networks
         if len(self._memory_buffer) < self._batch_size:
             return
 
+        self._critic_optimiser.zero_grad()
+
         batch = self._memory_buffer.sample_transitions(self._batch_size)
         td_error, state_batch_var = self.evaluate(batch)
-        critic_loss = self._optimise(
-            temporal_difference_error=td_error, state_batch=state_batch_var
-        )
+
+        td_error.backward()
+        self._critic_optimiser.step()  # Optimize the critic
+
+        self._actor_optimiser.zero_grad()
+        action_batch = self._actor(state_batch_var)
+        c = self._critic(state_batch_var, action_batch)
+        loss = -c.mean()
+
+        loss.backward()
+        self._actor_optimiser.step()  # Optimize the actor
 
         self.update_targets()
 
         if metric_writer:
             metric_writer.scalar("td_error", td_error.cpu().item())
-            metric_writer.scalar("critic_loss", critic_loss)
+            metric_writer.scalar("critic_loss", loss)
 
-        return td_error, critic_loss
+        self._memory_buffer.clear()
 
-    def _optimise(self, *, temporal_difference_error, state_batch) -> float:
-        """
+        return td_error, loss
 
-:type kwargs: object
-"""
-        self._optimise_critic(temporal_difference_error)
+    @drop_unused_kws
+    def _sample(self, state: Sequence) -> Any:
+        # self._random_process.reset()
 
-        ### Actor ###
-        action_batch = self._actor(state_batch)
-        c = self._critic(state_batch, action_batch)
-        loss = -c.mean()
-        # loss = -torch.sum(self.critic(state_batch, self.actor(state_batch)))
-
-        self._optimise_actor(loss)
-
-        # self._memory.batch_update(indices, errors.tolist())  # Cuda trouble
-
-        return loss
-
-    def _optimise_critic(self, error):
-        self._critic_optimiser.zero_grad()
-        error.backward()
-        self._critic_optimiser.step()  # Optimize the critic
-
-    def _optimise_actor(self, loss):
-        self._actor_optimiser.zero_grad()
-        loss.backward()
-        self._actor_optimiser.step()  # Optimize the actor
-
-    def _sample_model(self, state, **kwargs):
         state = to_tensor(state, device=self._device, dtype=self._state_type)
 
         with torch.no_grad():
@@ -257,41 +316,20 @@ Update the target networks
                 action_out, self._low_action_clip, self._high_action_clip
             )
 
-        return action_out
+        return action_out, None, None
 
     # endregion
-
-    def rollout(self, *args, **kwargs):
-        self._random_process.reset()
-        super().rollout(*args, **kwargs)
 
 
 # region Test
 
 
-def ddpg_test(rollouts=None, skip=True):
-    from neodroidagent.procedures.training import OnPolicyEpisodic
-    from neodroidagent.sessions.session_entry_point import session_entry_point
-    from neodroidagent.sessions.single_agent.parallel import ParallelSession
-    import neodroidagent.configs.agent_test_configs.ddpg_test_config as C
-
-    if rollouts:
-        C.ROLLOUTS = rollouts
-
-    session_entry_point(
-        DDPGAgent,
-        C,
-        session=ParallelSession(OnPolicyEpisodic, auto_reset_on_terminal_state=True),
-        parse_args=False,
-        skip_confirmation=skip,
-    )
-
-
-def ddpg_run(rollouts=None, skip=True):
-    from neodroidagent.procedures.training import OnPolicyEpisodic
-    from neodroidagent.sessions.session_entry_point import session_entry_point
-    from neodroidagent.sessions.single_agent.parallel import ParallelSession
-    import neodroidagent.configs.agent_test_configs.ddpg_test_config as C
+def ddpg_run(
+    rollouts=None, skip: bool = True, environment_type: Union[bool, str] = True
+):
+    from neodroidagent.common.sessions.session_entry_point import session_entry_point
+    from neodroidagent.common.sessions.single_agent.parallel import ParallelSession
+    from . import ddpg_test_config as C
 
     if rollouts:
         C.ROLLOUTS = rollouts
@@ -300,15 +338,22 @@ def ddpg_run(rollouts=None, skip=True):
         DDPGAgent,
         C,
         session=ParallelSession(
-            OnPolicyEpisodic, environment_type=True, auto_reset_on_terminal_state=True
+            procedure=Batched,
+            environment_name=C.ENVIRONMENT_NAME,
+            environment_type=environment_type,
+            auto_reset_on_terminal_state=True,
         ),
-        parse_args=False,
         skip_confirmation=skip,
+        environment_type=environment_type,
     )
 
 
-if __name__ == "__main__":
-    # ddpg_test()
+def ddpg_test():
+    ddpg_run(environment_type="gym")
 
-    ddpg_run()
+
+if __name__ == "__main__":
+    ddpg_test()
+
+    # ddpg_run()
 # endregion

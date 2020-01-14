@@ -8,17 +8,20 @@ __doc__ = r"""
 
 import numpy
 
+__all__ = ["tile_images"]
+
 
 def tile_images(img_nhwc):
     """
-Tile N images into one big PxQ image
-(P,Q) are chosen to be as close as possible, and if N
-is square, then P=Q.
+  Tile N images into one big PxQ image
+  (P,Q) are chosen to be as close as possible, and if N
+  is square, then P=Q.
 
-:param img_nhwc: (list) list or array of images, ndim=4 once turned into array. img nhwc
+  :param img_nhwc: (list) list or array of images, ndim=4 once turned into array. img nhwc
     n = batch index, h = height, w = width, c = channel
-:return: (numpy float) img_HWc, ndim=3
-"""
+  :return: (numpy float) img_HWc, ndim=3
+  """
+
     img_nhwc = numpy.asarray(img_nhwc)
     n_images, height, width, n_channels = img_nhwc.shape
     # new_height was named H before
@@ -39,14 +42,13 @@ is square, then P=Q.
 
 
 if __name__ == "__main__":
+    import cv2
 
     def sigmoid(x: numpy.array, derivative: bool = False) -> numpy.array:
         sigm = 1.0 / (1.0 + numpy.exp(-x))
         if derivative:
             return sigm * (1.0 - sigm)
         return sigm
-
-    import cv2
 
     s = (4, 8, 8, 3)
     a = numpy.array(range(int(prod(s))))

@@ -4,11 +4,14 @@
 from typing import Any, Iterable, Union
 
 import numpy
+import torch
 from numba import jit
 from scipy.signal import lfilter
 
 __author__ = "Christian Heider Nielsen"
 __doc__ = ""
+
+from draugr import to_tensor
 
 
 @jit(nopython=True, nogil=True)
@@ -33,8 +36,8 @@ calculate the :math:`\gamma^n V_{t+n-1}(S_{t+n})` term
 
 
 Legend for dimensions:
- * ``N`` - number of parallel agents
- * ``T`` - number of time steps
+* ``N`` - number of parallel agents
+* ``T`` - number of time steps
 
 :param signal: array of shape ``N*T`` containing rewards for each time step
 :param next_estimate: array of shape ``(N,)`` containing value estimates for last value(:math:`V_{
@@ -55,13 +58,22 @@ t+n-1}`)
     return discounted
 
 
-def discount_signal(x: Union[numpy.ndarray, Iterable, int, float], factor) -> Any:
+def discount_signal2(signals, value, gamma):
+    discounted_r = numpy.zeros_like(signals)
+    running_add = value
+    for t in reversed(range(0, len(signals))):
+        running_add = running_add * gamma + signals[t]
+        discounted_r[t] = running_add
+    return discounted_r
+
+
+def discount_signal_torch(x: torch.Tensor, discounting_factor: float, device) -> Any:
     """
-    x = [r1, r2, r3, ..., rN]
-    returns [r1 + r2*gamma + r3*gamma^2 + ...,
-               r2 + r3*gamma + r4*gamma^2 + ...,
-                 r3 + r4*gamma + r5*gamma^2 + ...,
-                    ..., ..., rN]
+  x = [r1, r2, r3, ..., rN]
+  returns [r1 + r2*gamma + r3*gamma^2 + ...,
+             r2 + r3*gamma + r4*gamma^2 + ...,
+               r3 + r4*gamma + r5*gamma^2 + ...,
+                  ..., ..., rN]
 
 
 # See https://docs.scipy.org/doc/scipy/reference/tutorial/signal.html#difference-equation-filtering
@@ -72,22 +84,26 @@ def discount_signal(x: Union[numpy.ndarray, Iterable, int, float], factor) -> An
 C[i] = R[i] + discount * C[i+1]
 signal.lfilter(b, a, x, axis=-1, zi=None)
 a[0]*y[n] = b[0]*x[n] + b[1]*x[n-1] + ... + b[M]*x[n-M]
-                      - a[1]*y[n-1] - ... - a[N]*y[n-N]
+                    - a[1]*y[n-1] - ... - a[N]*y[n-N]
 """
 
-    a: Union[numpy.ndarray, Iterable, int, float] = lfilter(
-        [1], [1, -factor], numpy.flip(x, -1), axis=-1
-    )
+    rewards = torch.zeros_like(x, device=device)
+    R = torch.zeros(x.shape[0], device=device)
+    for i in reversed(range(x.shape[1])):
+        R = x[:, i] + discounting_factor * R
+        rewards[:, i] = R
 
-    return numpy.flip(a, -1)
+    return rewards
 
 
 # @jit(nopython=True, nogil=True)
-def discount_return(x, discount):
-    return numpy.sum(x * (discount ** numpy.arange(len(x))))
+def discount_return(signal: numpy.ndarray, discounting_factor: float) -> Any:
+    return numpy.sum(signal * (discounting_factor ** numpy.arange(len(signal))))
 
 
 if __name__ == "__main__":
     rollout = numpy.zeros((10, 2)).T
     rollout[:, -1] = 1
     print(discount_signal(rollout, 0.5))
+
+    print(discount_signal_torch(to_tensor(rollout, device="cpu"), 0.5, device="cpu"))

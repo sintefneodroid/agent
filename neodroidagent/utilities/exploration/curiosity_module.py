@@ -8,6 +8,8 @@ __author__ = "Christian Heider Nielsen"
 __doc__ = r"""
 """
 
+__all__ = ["CuriosityMeta", "CuriosityModule"]
+
 
 class CuriosityMeta(metaclass=ABCMeta):
     pass

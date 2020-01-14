@@ -6,7 +6,8 @@ from neodroid.environments.unity_environment import VectorUnityEnvironment
 from neodroid.utilities import ActionSpace, ObservationSpace, SignalSpace
 from neodroid.utilities.unity_specifications import EnvironmentSnapshot
 from neodroidagent.agents.agent import Agent
-from neodroidagent.procedures import StepWise
+
+__all__ = ["RandomAgent"]
 
 
 class RandomAgent(Agent):
@@ -19,9 +20,9 @@ class RandomAgent(Agent):
         *args,
         no_random: bool = False,
         metric_writer: Writer = MockWriter(),
-        **kwargs
+        **kwargs,
     ) -> Any:
-        self._sample_i += 1
+        self._sample_i_since_update += 1
         return self.action_space.sample()
 
     def _remember(self, *, signal, **kwargs):
@@ -31,10 +32,11 @@ class RandomAgent(Agent):
 
     def __build__(
         self,
-        observation_space: ObservationSpace,
-        action_space: ActionSpace,
-        signal_space: SignalSpace,
-        **kwargs
+        *,
+        observation_space: ObservationSpace = None,
+        action_space: ActionSpace = None,
+        signal_space: SignalSpace = None,
+        **kwargs,
     ) -> None:
         self.action_space = action_space
 
@@ -54,7 +56,7 @@ class RandomAgent(Agent):
         *,
         train=True,
         render=False,
-        **kwargs
+        **kwargs,
     ) -> Any:
 
         episode_signal = 0
@@ -126,11 +128,6 @@ def random_run(rollouts=None, skip=True):
 
 
 if __name__ == "__main__":
-    # pg_test()
     random_run()
-# endregion
 
-if __name__ == "__main__":
-
-    random_test()
-# endregion
+    # random_test()

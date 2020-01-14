@@ -84,6 +84,8 @@ def get_version(append_time=DEVELOP):
     return version
 
 
+from .agents import *
+
 if __version__ is None:
     __version__ = get_version(append_time=True)
 

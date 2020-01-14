@@ -7,42 +7,40 @@ __author__ = "Christian Heider Nielsen"
 
 import torch
 
+__all__ = ["torch_advantage_estimate", "torch_compute_gae"]
+
 
 def torch_advantage_estimate(
     signal,
     non_terminal,
     value_estimate,
     *,
-    discount_factor=0.95,
-    tau=0.95,
-    device="cpu",
-    normalise=True,
-    divide_by_zero_safety=1e-10
+    discount_factor: float = 0.95,
+    tau: float = 0.95,
+    device: str = "cpu",
+    normalise: bool = True,
+    divide_by_zero_safety: float = 1e-10
 ):
     """
   Computes advantages and discounted returns.
   If the advantage is positive for an action, then it yielded a more positive signal than expected. And thus
   expectations can be adjust to make actions more likely.
 
-    :param value_estimate:
-    :param non_terminal:
-    :param signal:
-    :param device:
-  :param use_cuda:
-  :type use_cuda:
-  :param signals:
-  :type signals:
-  :param value_estimates:
-  :type value_estimates:
-  :param non_terminals:
-  :type non_terminals:
   :param discount_factor:
   :type discount_factor:
   :param tau:
   :type tau:
   :return:
   :rtype:
-"""
+  @param device:
+  @param tau:
+  @param discount_factor:
+  @param value_estimate:
+  @param non_terminal:
+  @param signal:
+  @param divide_by_zero_safety:
+  @param normalise:
+  """
 
     signals = to_tensor(signal, device=device)
     non_terminals = to_tensor(non_terminal, device=device)
@@ -79,24 +77,19 @@ def torch_advantage_estimate(
 
 
 def torch_compute_gae(
-    *,
-    signals,
-    non_terminals,
-    values,
-    # next_value,
-    discount_factor=0.95,
-    tau=0.95
+    *, signals, non_terminals, values, next_value, discount_factor=0.95, tau=0.95
 ):
     with torch.no_grad():
-        # values = values + (next_value,)
-        gae = 0.0
+        values = torch.cat((values, next_value))
         adv = []
+        td_i = 0
         for step in reversed(range(len(signals))):
-            delta = (
+            td_i = (
                 signals[step]
                 + discount_factor * values[step + 1] * non_terminals[step]
-                - values[step]
+                + discount_factor * tau * td_i
             )
-            gae = delta + discount_factor * tau * non_terminals[step] * gae
-            adv.insert(0, gae + values[step])
+            adv.append(td_i)
+
+    adv.reverse()
     return adv

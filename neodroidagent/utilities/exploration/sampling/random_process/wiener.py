@@ -27,7 +27,7 @@ def wiener(x0, n, dt, delta, out=None):
     """
 Generate an instance of Brownian motion (i.e. the Wiener process):
 
-  X(t) = X(0) + N(0, delta**2 * t; 0, t)
+X(t) = X(0) + N(0, delta**2 * t; 0, t)
 
 where N(a,b; t0, t1) is a normally distributed random variable with mean a and
 variance b.  The parameters t0 and t1 make explicit the statistical
@@ -37,7 +37,7 @@ are independent.
 
 Written as an iteration scheme,
 
-  X(t + dt) = X(t) + N(0, delta**2 * dt; t, t+dt)
+X(t + dt) = X(t) + N(0, delta**2 * dt; t, t+dt)
 
 
 If `x0` is an array (or array-like), each value in `x0` is treated as
@@ -47,19 +47,19 @@ more dimension than `x0`.
 Arguments
 ---------
 x0 : float or numpy array (or something that can be converted to a numpy array
-   using numpy.asarray(x0)).
-  The initial condition(s) (i.e. position(s)) of the Brownian motion.
+ using numpy.asarray(x0)).
+The initial condition(s) (i.e. position(s)) of the Brownian motion.
 n : int
-  The number of steps to take.
+The number of steps to take.
 dt : float
-  The time step.
+The time step.
 delta : float
-  delta determines the 'speed' of the Brownian motion.  The random variable
-  of the position at time t, X(t), has a normal distribution whose mean is
-  the position at time t=0 and whose variance is delta**2*t.
+delta determines the 'speed' of the Brownian motion.  The random variable
+of the position at time t, X(t), has a normal distribution whose mean is
+the position at time t=0 and whose variance is delta**2*t.
 out : numpy array or None
-  If `out` is not None, it specifies the array in which to put the
-  result.  If `out` is None, a new numpy array is created and returned.
+If `out` is not None, it specifies the array in which to put the
+result.  If `out` is None, a new numpy array is created and returned.
 
 Returns
 -------

@@ -4,6 +4,6 @@
 __author__ = "Christian Heider Nielsen"
 __doc__ = ""
 
-from .actor_critic_agent import *
 from .ddpg_agent import *
 from .ppo_agent import *
+from .sac_agent import *

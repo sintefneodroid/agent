@@ -10,9 +10,9 @@ An object to facilitate agent training and evaluation.
 Parameters
 ----------
 agent : :class:`AgentBase` instance
-    The agent to train.
+The agent to train.
 env : ``gym.wrappers`` or ``gym.envs`` instance
-    The environment to run the agent on.
+The environment to run the agent on.
 """
         self.env = env
         self.agent = agent
@@ -47,20 +47,20 @@ statistics along the way.
 Parameters
 ----------
 n_episodes : int
-    The number of episodes to train the agent across.
+The number of episodes to train the agent across.
 max_steps : int
-    The maximum number of steps the agent can take on each episode.
+The maximum number of steps the agent can take on each episode.
 seed : int or None
-    A seed for the random number generator. Default is None.
+A seed for the random number generator. Default is None.
 plot : bool
-    Whether to generate a plot of the cumulative reward as a function
-    of training episode. Default is True.
+Whether to generate a plot of the cumulative reward as a function
+of training episode. Default is True.
 verbose : bool
-    Whether to print intermediate run statistics to stdout during
-    training. Default is True.
+Whether to print intermediate run statistics to stdout during
+training. Default is True.
 smooth_factor : float in [0, 1]
-    The amount to smooth the cumulative reward across episodes. Larger
-    values correspond to less smoothing.
+The amount to smooth the cumulative reward across episodes. Larger
+values correspond to less smoothing.
 """
         if seed:
             np.random.seed(seed)
@@ -111,8 +111,8 @@ Saves plot to the file ``./img/<agent>-<env>.png``
 Parameters
 ----------
 rwd_greedy : float
-    The cumulative reward earned with a final execution of a greedy
-    target policy.
+The cumulative reward earned with a final execution of a greedy
+target policy.
 """
         try:
             from matplotlib import pyplot

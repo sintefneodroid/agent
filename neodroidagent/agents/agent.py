@@ -4,24 +4,23 @@ from abc import ABC, abstractmethod
 from typing import Any, Sequence, Tuple
 
 import numpy
-from tqdm import tqdm
 
-from draugr.writers import MockWriter, sprint, Writer
+from draugr.writers import MockWriter, Writer, sprint
 from neodroid.utilities.spaces import ActionSpace, ObservationSpace, SignalSpace
 from neodroid.utilities.unity_specifications import EnvironmentSnapshot
 
-tqdm.monitor_interval = 0
-
 __author__ = "Christian Heider Nielsen"
 __doc__ = r"""
-Base class for all Neodroid Agents
-"""
+            Base class for all Neodroid Agents
+          """
+
+__all__ = ["Agent"]
 
 
 class Agent(ABC):
     """
-All agent should inherit from this class
-"""
+  All agents should inherit from this class
+  """
 
     # region Private
 
@@ -31,23 +30,18 @@ All agent should inherit from this class
         output_shape: Sequence = None,
         divide_by_zero_safety: float = 1e-10,
         signal_clipping=False,
-        signal_clip_high=1.0,
         signal_clip_low=-1.0,
-        grad_clip=False,
-        grad_clip_low=-1,
-        grad_clip_high=1,
+        signal_clip_high=1.0,
         **kwargs,
     ):
+        self._sample_i_since_update = 0
+        self._update_i = 0
+
         self._input_shape = input_shape
         self._output_shape = output_shape
-        self._sample_i = 0
-        self._update_i = 0
         self._signal_clipping = signal_clipping
         self._signal_clip_high = signal_clip_high
         self._signal_clip_low = signal_clip_low
-        self._grad_clip = grad_clip
-        self._grad_clip_low = grad_clip_low
-        self._grad_clip_high = grad_clip_high
 
         self._divide_by_zero_safety = divide_by_zero_safety
 
@@ -136,10 +130,6 @@ Tries to infer input and output size from env if either _input_shape or _output_
     def output_shape(self, output_shape: Tuple[int, ...]):
         self._output_shape = output_shape
 
-    @property
-    def update_i(self):
-        return self._update_i
-
     def sample(
         self,
         state: EnvironmentSnapshot,
@@ -148,19 +138,22 @@ Tries to infer input and output size from env if either _input_shape or _output_
         metric_writer: Writer = MockWriter(),
         **kwargs,
     ) -> Tuple[Any, ...]:
-        self._sample_i += 1
+        self._sample_i_since_update += 1
         return self._sample(
             state, *args, no_random=no_random, metric_writer=metric_writer, **kwargs
         )
 
     def update(self, *args, metric_writer: Writer = MockWriter(), **kwargs) -> None:
         self._update_i += 1
-        self._sample_i = 0
-        return self._update(*args, metric_writer=metric_writer, **kwargs)
+        self._sample_i_since_update = 0
+        self._update(*args, metric_writer=metric_writer, **kwargs)
 
-    def remember(self, *, signal, **kwargs):
-        if self._signal_clipping:
-            signal = numpy.clip(signal, self._signal_clip_low, self._signal_clip_high)
+    def remember(self, *, signal=None, **kwargs):
+        if not signal is None:
+            if self._signal_clipping:
+                signal = numpy.clip(
+                    signal, self._signal_clip_low, self._signal_clip_high
+                )
 
         self._remember(signal=signal, **kwargs)
 
@@ -188,7 +181,7 @@ Tries to infer input and output size from env if either _input_shape or _output_
         raise NotImplementedError
 
     @abstractmethod
-    def _remember(self, *, signal, **kwargs):
+    def _remember(self, **kwargs):
         raise NotImplementedError
 
     @abstractmethod

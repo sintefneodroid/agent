@@ -4,6 +4,6 @@ __author__ = "Christian Heider Nielsen"
 
 from .exploration import *
 from .signal import *
-from .specifications import *
 from .training import *
 from .transformation import *
+from .exceptions import *
