@@ -1,3 +1,3 @@
 #!/usr/bin/env bash
-#conda activate Neodroid
+#conda activate Development
 python3 setup.py develop
