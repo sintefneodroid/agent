@@ -3,6 +3,5 @@
 __author__ = "Christian Heider Nielsen"
 
 from .architectures import *
-from .configs import *
 from .memory import *
-from .procedures import *
+from .session_factory import *

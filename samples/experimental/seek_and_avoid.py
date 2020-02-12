@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 import draugr
 from draugr.stopping.stopping_key import add_early_stopping_key_combination
-from neodroid.environments.gym_environment import NeodroidGymWrapper
+from neodroid.environments.gym_environment import NeodroidGymEnvironment
 
 __author__ = "Christian Heider Nielsen"
 
@@ -18,8 +18,8 @@ from neodroidagent import utilities as U
 def train_agent(config, agent):
     torch.manual_seed(config.SEED)
 
-    env = NeodroidGymWrapper(
-        environment_name=config.ENVIRONMENT_NAME,
+    env = NeodroidGymEnvironment(
+        environment=config.ENVIRONMENT_NAME,
         connect_to_running=config.CONNECT_TO_RUNNING,
     )
     env.seed(config.SEED)

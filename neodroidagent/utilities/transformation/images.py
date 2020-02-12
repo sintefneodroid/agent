@@ -13,14 +13,14 @@ __all__ = ["tile_images"]
 
 def tile_images(img_nhwc):
     """
-  Tile N images into one big PxQ image
-  (P,Q) are chosen to be as close as possible, and if N
-  is square, then P=Q.
+Tile N images into one big PxQ image
+(P,Q) are chosen to be as close as possible, and if N
+is square, then P=Q.
 
-  :param img_nhwc: (list) list or array of images, ndim=4 once turned into array. img nhwc
-    n = batch index, h = height, w = width, c = channel
-  :return: (numpy float) img_HWc, ndim=3
-  """
+:param img_nhwc: (list) list or array of images, ndim=4 once turned into array. img nhwc
+  n = batch index, h = height, w = width, c = channel
+:return: (numpy float) img_HWc, ndim=3
+"""
 
     img_nhwc = numpy.asarray(img_nhwc)
     n_images, height, width, n_channels = img_nhwc.shape

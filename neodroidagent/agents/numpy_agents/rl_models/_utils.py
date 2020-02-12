@@ -14,14 +14,14 @@ A simple tabular environment model that maintains the counts of each
 reward-outcome pair given the state and action that preceded them. The
 model can be queried with
 
-  >>> M = EnvModel()
-  >>> M[(state, action, reward, next_state)] += 1
-  >>> M[(state, action, reward, next_state)]
-  1
-  >>> M.state_action_pairs()
-  [(state, action)]
-  >>> M.outcome_probs(state, action)
-  [(next_state, 1)]
+>>> M = EnvModel()
+>>> M[(state, action, reward, next_state)] += 1
+>>> M[(state, action, reward, next_state)]
+1
+>>> M.state_action_pairs()
+[(state, action)]
+>>> M.outcome_probs(state, action)
+[(next_state, 1)]
 """
 
     def __init__(self):
@@ -120,35 +120,35 @@ dimension `grid_size`) of the state space.
 Arguments
 ---------
 env : ``gym.wrappers.time_limit.TimeLimit`` instance
-  An openAI environment.
+An openAI environment.
 n_tilings : int
-  The number of overlapping tilings to use. Should be a power of 2. This
-  determines the dimension of the discretized tile-encoded state vector.
+The number of overlapping tilings to use. Should be a power of 2. This
+determines the dimension of the discretized tile-encoded state vector.
 obs_max : float or np.ndarray
-  The value to treat as the max value of the observation space when
-  calculating the grid widths. If None, use
-  ``env.observation_space.high``. Default is None.
+The value to treat as the max value of the observation space when
+calculating the grid widths. If None, use
+``env.observation_space.high``. Default is None.
 obs_min : float or np.ndarray
-  The value to treat as the min value of the observation space when
-  calculating the grid widths. If None, use
-  ``env.observation_space.low``. Default is None.
+The value to treat as the min value of the observation space when
+calculating the grid widths. If None, use
+``env.observation_space.low``. Default is None.
 state_action : bool
-  Whether to use tile coding to encode state-action values (True) or just
-  state values (False). Default is False.
+Whether to use tile coding to encode state-action values (True) or just
+state values (False). Default is False.
 grid_size : list of length 2
-  A list of ints representing the coarseness of the tilings. E.g., a
-  `grid_size` of [4, 4] would mean each tiling consisted of a 4x4 tile
-  grid. Default is [4, 4].
+A list of ints representing the coarseness of the tilings. E.g., a
+`grid_size` of [4, 4] would mean each tiling consisted of a 4x4 tile
+grid. Default is [4, 4].
 
 Returns
 -------
 encode_obs_as_tile : function
-  A function which takes as input continous observation vector and
-  returns a set of the indices of the active tiles in the tile coded
-  observation space.
+A function which takes as input continous observation vector and
+returns a set of the indices of the active tiles in the tile coded
+observation space.
 n_states : int
-  An integer reflecting the total number of unique states possible under
-  this tile coding regimen.
+An integer reflecting the total number of unique states possible under
+this tile coding regimen.
 """
     obs_max = np.nan_to_num(env.observation_space.high) if obs_max is None else obs_max
     obs_min = np.nan_to_num(env.observation_space.low) if obs_min is None else obs_min
@@ -228,11 +228,11 @@ multidimensional.
 Returns
 -------
 tuple_action : bool
-  Whether the `env`'s action space is an instance of ``gym.spaces.Tuple``
-  or ``gym.spaces.Dict``.
+Whether the `env`'s action space is an instance of ``gym.spaces.Tuple``
+or ``gym.spaces.Dict``.
 tuple_obs : bool
-  Whether the `env`'s observation space is an instance of
-  ``gym.spaces.Tuple`` or ``gym.spaces.Dict``.
+Whether the `env`'s observation space is an instance of
+``gym.spaces.Tuple`` or ``gym.spaces.Dict``.
 """
     tuple_space, dict_space = gym.spaces.Tuple, gym.spaces.dict.Dict
     tuple_action = isinstance(env.action_space, (tuple_space, dict_space))
@@ -254,18 +254,18 @@ includes single action/observation spaces with several dimensions.
 Parameters
 ----------
 env : ``gym.wrappers`` or ``gym.envs`` instance
-  The environment to evaluate.
+The environment to evaluate.
 
 Returns
 -------
 md_action : bool
-  Whether the `env`'s action space is multidimensional.
+Whether the `env`'s action space is multidimensional.
 md_obs : bool
-  Whether the `env`'s observation space is multidimensional.
+Whether the `env`'s observation space is multidimensional.
 tuple_action : bool
-  Whether the `env`'s action space is a ``Tuple`` instance.
+Whether the `env`'s action space is a ``Tuple`` instance.
 tuple_obs : bool
-  Whether the `env`'s observation space is a ``Tuple`` instance.
+Whether the `env`'s observation space is a ``Tuple`` instance.
 """
     md_action, md_obs = True, True
     tuple_action, tuple_obs = is_tuple(env)
@@ -287,20 +287,20 @@ Check if an `env`'s observation and action spaces are continuous.
 Parameters
 ----------
 env : ``gym.wrappers`` or ``gym.envs`` instance
-  The environment to evaluate.
+The environment to evaluate.
 tuple_action : bool
-  Whether the `env`'s action space is an instance of `gym.spaces.Tuple`
-  or `gym.spaces.Dict`.
+Whether the `env`'s action space is an instance of `gym.spaces.Tuple`
+or `gym.spaces.Dict`.
 tuple_obs : bool
-  Whether the `env`'s observation space is an instance of `gym.spaces.Tuple`
-  or `gym.spaces.Dict`.
+Whether the `env`'s observation space is an instance of `gym.spaces.Tuple`
+or `gym.spaces.Dict`.
 
 Returns
 -------
 cont_action : bool
-  Whether the `env`'s action space is continuous.
+Whether the `env`'s action space is continuous.
 cont_obs : bool
-  Whether the `env`'s observation space is continuous.
+Whether the `env`'s observation space is continuous.
 """
     Continuous = gym.spaces.box.Box
     if tuple_obs:
@@ -324,19 +324,19 @@ Get information on `env`'s action space.
 Parameters
 ----------
 md_action : bool
-  Whether the `env`'s action space is multidimensional.
+Whether the `env`'s action space is multidimensional.
 cont_action : bool
-  Whether the `env`'s action space is continuous.
+Whether the `env`'s action space is continuous.
 
 Returns
 -------
 n_actions_per_dim : list of length (action_dim,)
-  The number of possible actions for each dimension of the action space.
+The number of possible actions for each dimension of the action space.
 action_ids : list or None
-  A list of all valid actions within the space. If `cont_action` is
-  True, this value will be None.
+A list of all valid actions within the space. If `cont_action` is
+True, this value will be None.
 action_dim : int or None
-  The number of dimensions in a single action.
+The number of dimensions in a single action.
 """
     if cont_action:
         action_dim = 1
@@ -372,22 +372,22 @@ Get information on the observation space for `env`.
 Parameters
 ----------
 env : ``gym.wrappers`` or ``gym.envs`` instance
-  The environment to evaluate.
+The environment to evaluate.
 md_obs : bool
-  Whether the `env`'s action space is multidimensional.
+Whether the `env`'s action space is multidimensional.
 cont_obs : bool
-  Whether the `env`'s observation space is multidimensional.
+Whether the `env`'s observation space is multidimensional.
 
 Returns
 -------
 n_obs_per_dim : list of length (obs_dim,)
-  The number of possible observation classes for each dimension of the
-  observation space.
+The number of possible observation classes for each dimension of the
+observation space.
 obs_ids : list or None
-  A list of all valid observations within the space. If `cont_obs` is
-  True, this value will be None.
+A list of all valid observations within the space. If `cont_obs` is
+True, this value will be None.
 obs_dim : int or None
-  The number of dimensions in a single observation.
+The number of dimensions in a single observation.
 """
     if cont_obs:
         obs_ids = None
@@ -420,13 +420,13 @@ Compute statistics for the current environment.
 Parameters
 ----------
 env : ``gym.wrappers`` or ``gym.envs`` instance
-  The environment to evaluate.
+The environment to evaluate.
 
 Returns
 -------
 env_info : dict
-  A dictionary containing information about the action and observation
-  spaces of `env`.
+A dictionary containing information about the action and observation
+spaces of `env`.
 """
     md_action, md_obs, tuple_action, tuple_obs = is_multidimensional(env)
     cont_action, cont_obs = is_continuous(env, tuple_action, tuple_obs)

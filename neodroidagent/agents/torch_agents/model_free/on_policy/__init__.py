@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 __author__ = "Christian Heider Nielsen"
-__doc__ = ""
+__doc__ = r"""
 
-from .pg_agent import *
+           Created on 2/7/20
+           """

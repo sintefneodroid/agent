@@ -2,4 +2,7 @@
 # -*- coding: utf-8 -*-
 
 __author__ = "Christian Heider Nielsen"
-__doc__ = ""
+__doc__ = r"""
+
+           Created on 08/02/2020
+           """

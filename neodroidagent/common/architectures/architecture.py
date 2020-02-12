@@ -9,6 +9,7 @@ __author__ = "Christian Heider Nielsen"
 __all__ = ["Architecture"]
 
 from warg import drop_unused_kws
+from draugr import add_indent
 
 
 class Architecture(nn.Module, ABC):
@@ -30,7 +31,13 @@ class Architecture(nn.Module, ABC):
         )
         num_params = sum(param.numel() for param in self.parameters())
 
-        return f"{super().__repr__()}\ntrainable/num_params: {num_trainable_params}/{num_params}\n"
+        di = add_indent(f"{self.__dict__}")
+
+        trainable_params_str = add_indent(
+            f"trainable/num_params: {num_trainable_params}/{num_params}\n"
+        )
+
+        return f"{super().__repr__()}\n{di}\n{trainable_params_str}"
 
 
 if __name__ == "__main__":

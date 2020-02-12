@@ -1,38 +1,36 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 import logging
-import math
 from typing import Sequence
-
+import torch
+from torch import nn, seed
 import numpy
 from numpy import prod
 
-from draugr.torch_utilities import to_tensor, xavier_init
+from draugr import to_tensor, xavier_init, fan_in_init, torch_seed, constant_init
 from neodroidagent.common.architectures.architecture import Architecture
 from warg.named_ordered_dictionary import NOD
 
 __author__ = "Christian Heider Nielsen"
 
-"""
+__doc__ = r"""
 Description: Multi Layer Perceptron
 Author: Christian Heider Nielsen
 """
-import torch
-from torch import nn
 
 __all__ = ["MLP"]
 
 
 class MLP(Architecture):
     """
-OOOO input_shape
-|XX|                                        fc1
-OOOO hidden_layer_size * (Weights,Biases)
-|XX|                                        fc2
-OOOO hidden_layer_size * (Weights,Biases)
-|XX|                                        fc3
-0000 output_shape * (Weights,Biases)
-"""
+  OOOO input_shape
+  |XX|                                        fc1
+  OOOO hidden_layer_size * (Weights,Biases)
+  |XX|                                        fc2
+  OOOO hidden_layer_size * (Weights,Biases)
+  |XX|                                        fc3
+  0000 output_shape * (Weights,Biases)
+  """
 
     def __init__(
         self,
@@ -42,12 +40,13 @@ OOOO hidden_layer_size * (Weights,Biases)
         hidden_layer_activation: callable = torch.relu,
         output_shape: Sequence = None,
         use_bias: bool = True,
-        use_dropout: bool = True,
-        dropout_prob=0.2,
+        use_dropout: bool = False,
+        dropout_prob: float = 0.2,
         auto_build_hidden_layers_if_none=True,
-        input_multiplier=4,
+        input_multiplier: int = 32,
         layer_num_modulator=100,
-        output_multiplier=4,
+        output_multiplier: int = 16,
+        default_init: callable = xavier_init,
         **kwargs,
     ):
         super().__init__(**kwargs)
@@ -61,6 +60,9 @@ OOOO hidden_layer_size * (Weights,Biases)
         self.infer_input_shape(input_shape)
         self.infer_output_shape(output_shape)
 
+        self._hidden_layer_activation = hidden_layer_activation
+        self._use_bias = use_bias
+
         if not hidden_layers and auto_build_hidden_layers_if_none:
             hidden_layers = self.construct_progressive_hidden_layers(
                 self._input_shape,
@@ -72,11 +74,6 @@ OOOO hidden_layer_size * (Weights,Biases)
         elif not isinstance(hidden_layers, Sequence):
             hidden_layers = (hidden_layers,)
 
-        self._hidden_layers = hidden_layers
-        self._hidden_layer_activation = hidden_layer_activation
-        self._use_bias = use_bias
-        previous_layer_size = self._hidden_layers[0] * self._input_shape[0]
-        self.num_of_layer = len(self._hidden_layers)
         if use_dropout:
             AugLinearLayer = lambda *a, **b: nn.Sequential(
                 nn.Linear(*a, **b), nn.Dropout(p=dropout_prob)
@@ -84,34 +81,50 @@ OOOO hidden_layer_size * (Weights,Biases)
         else:
             AugLinearLayer = nn.Linear
 
+        self._hidden_layers = hidden_layers
+        self.num_of_layer = len(self._hidden_layers)
+        previous_layer_size = self._hidden_layers[0] * self._input_shape[0]
+
         for i in range(1, self._input_shape[0] + 1):
-            layer = AugLinearLayer(
-                self._input_shape[1], self._hidden_layers[0], bias=self._use_bias
+            setattr(
+                self,
+                f"_in{i}",
+                AugLinearLayer(
+                    self._input_shape[1], self._hidden_layers[0], bias=self._use_bias
+                ),
             )
-            setattr(self, f"_in{i}", layer)
 
         if self.num_of_layer > 0:
             for i in range(2, self.num_of_layer + 1):
-                layer = AugLinearLayer(
-                    previous_layer_size, self._hidden_layers[i - 1], bias=self._use_bias
+                setattr(
+                    self,
+                    f"_fc{i}",
+                    AugLinearLayer(
+                        previous_layer_size,
+                        self._hidden_layers[i - 1],
+                        bias=self._use_bias,
+                    ),
                 )
-                setattr(self, f"_fc{i}", layer)
                 previous_layer_size = self._hidden_layers[i - 1]
 
         for i in range(1, self._output_shape[0] + 1):
-            layer = nn.Linear(
-                previous_layer_size, self._output_shape[1], bias=self._use_bias
+            setattr(
+                self,
+                f"_out{i}",
+                nn.Linear(
+                    previous_layer_size, self._output_shape[1], bias=self._use_bias
+                ),
             )
-            setattr(self, f"_out{i}", layer)
 
-        xavier_init(self)
+        if default_init:
+            default_init(self)
 
     @staticmethod
     def construct_progressive_hidden_layers(
         _input_shape,
         _output_shape,
-        input_multiplier=4,
-        output_multiplier=4,
+        input_multiplier=32,
+        output_multiplier=16,
         layer_num_divisor=100,
     ):
         h_first_size = int(sum(_input_shape) * input_multiplier)
@@ -187,39 +200,25 @@ OOOO hidden_layer_size * (Weights,Biases)
 
         ins = []
         for i in range(1, self._input_shape[0] + 1):
-            layer = getattr(self, f"_in{i}")
-
-            x_s = x[i - 1]
-            val = layer(x_s)
-            val = self._hidden_layer_activation(val)
-            ins.append(val)
+            ins.append(
+                self._hidden_layer_activation(getattr(self, f"_in{i}")(x[i - 1]))
+            )
 
         val = torch.cat(ins, dim=-1)
-
         for i in range(2, self.num_of_layer + 1):
-            layer = getattr(self, f"_fc{i}")
-            val = layer(val)
-            val = self._hidden_layer_activation(val)
+            val = self._hidden_layer_activation(getattr(self, f"_fc{i}")(val))
 
-        val_dis = val
         outs = []
         for i in range(1, self._output_shape[0] + 1):
-            layer = getattr(self, f"_out{i}")
-            a = layer(val_dis)
-            outs.append(a)
+            outs.append(getattr(self, f"_out{i}")(val))
 
         return outs
 
 
-class SingleHeadMLP(MLP):
-    def forward(self, *x, **kwargs):
-        outs = super().forward(*x, **kwargs)
-        return outs[0]
-
-
 if __name__ == "__main__":
+    torch_seed(4)
 
-    def test_single_dim():
+    def stest_single_dim():
         pos_size = (4,)
         a_size = (1,)
         model = MLP(input_shape=pos_size, output_shape=a_size)
@@ -227,18 +226,55 @@ if __name__ == "__main__":
         pos_1 = to_tensor(numpy.random.rand(64, pos_size[0]), device="cpu")
         print(model(pos_1))
 
-    def test_hidden_dim():
-        pos_size = (4,)
-        hidden_size = (2, 3)
-        a_size = (2,)
+    def stest_hidden_dim():
+        pos_size = (3,)
+        hidden_size = list(range(6, 10))
+        a_size = (4,)
         model = MLP(
-            input_shape=pos_size, hidden_layers=hidden_size, output_shape=a_size
+            input_shape=pos_size,
+            hidden_layers=hidden_size,
+            output_shape=a_size,
+            hidden_layer_activation=torch.tanh,
+            default_init=None,
         )
+
+        model2 = nn.Sequential(
+            *[
+                nn.Linear(3, 6),
+                nn.Tanh(),
+                nn.Linear(6, 7),
+                nn.Tanh(),
+                nn.Linear(7, 8),
+                nn.Tanh(),
+                nn.Linear(8, 9),
+                nn.Tanh(),
+                nn.Linear(9, 4),
+            ]
+        )
+        model3 = nn.Sequential(
+            *[
+                nn.Linear(3, 6),
+                nn.Tanh(),
+                nn.Linear(6, 7),
+                nn.Tanh(),
+                nn.Linear(7, 8),
+                nn.Tanh(),
+                nn.Linear(8, 9),
+                nn.Tanh(),
+                nn.Linear(9, 4),
+            ]
+        )
+        constant_init(model, 0.142)
+        constant_init(model2, 0.142)
+        constant_init(model3, 0.142)
+        print(model, model2, model3)
 
         pos_1 = to_tensor(numpy.random.rand(64, pos_size[0]), device="cpu")
         print(model(pos_1))
+        print(model2(pos_1))
+        print(model3(pos_1))
 
-    def test_multi_dim():
+    def stest_multi_dim():
         pos_size = (2, 3, 2)
         a_size = (2, 4, 5)
         model = MLP(input_shape=pos_size, output_shape=a_size)
@@ -247,6 +283,6 @@ if __name__ == "__main__":
         pos_2 = to_tensor(numpy.random.rand(64, prod(pos_size[1:])), device="cpu")
         print(model(pos_1, pos_2))
 
-    test_single_dim()
-    test_hidden_dim()
-    test_multi_dim()
+    # stest_single_dim()
+    stest_hidden_dim()
+    # stest_multi_dim()

@@ -19,3 +19,4 @@ filelock
 pip
 scipy
 numba
+tensorboard

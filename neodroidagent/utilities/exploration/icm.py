@@ -20,9 +20,14 @@ __all__ = ["ForwardModel", "InverseModel", "MLPICM"]
 class ForwardModel(nn.Module):
     """
 
-  """
+"""
 
     def __init__(self, action_converter: ActionSpace, state_latent_features: int):
+        """
+
+    @param action_converter:
+    @param state_latent_features:
+    """
         super().__init__()
 
         action_latent_features = 128
@@ -43,6 +48,12 @@ class ForwardModel(nn.Module):
         )
 
     def forward(self, state_latent: torch.Tensor, action: torch.Tensor):
+        """
+
+    @param state_latent:
+    @param action:
+    @return:
+    """
         action = self.action_encoder(
             action.long() if self.action_converter.discrete else action
         )
@@ -54,7 +65,7 @@ class ForwardModel(nn.Module):
 class InverseModel(nn.Module):
     """
 
-  """
+"""
 
     def __init__(self, action_space: ActionSpace, state_latent_features: int):
         super().__init__()
@@ -72,16 +83,16 @@ class InverseModel(nn.Module):
 
 class MLPICM(CuriosityModule):
     """
-  Implements the Intrinsic Curiosity Module described in paper: https://arxiv.org/pdf/1705.05363.pdf
+Implements the Intrinsic Curiosity Module described in paper: https://arxiv.org/pdf/1705.05363.pdf
 
-  The overview of the idea is to reward the agent for exploring unseen states. It is achieved by
-  implementing two models. One called forward model that given the encoded state and encoded action
-  computes predicts the encoded next state. The other one called inverse model that given the encoded state
-  and encoded next_state predicts action that
-  must have been taken to move from one state to the other. The final intrinsic reward is the difference
-  between encoded next state and encoded next state predicted by the forward module. Inverse model is there
-  to make sure agent focuses on the states that he actually can control.
-  """
+The overview of the idea is to reward the agent for exploring unseen states. It is achieved by
+implementing two models. One called forward model that given the encoded state and encoded action
+computes predicts the encoded next state. The other one called inverse model that given the encoded state
+and encoded next_state predicts action that
+must have been taken to move from one state to the other. The final intrinsic reward is the difference
+between encoded next state and encoded next state predicted by the forward module. Inverse model is there
+to make sure agent focuses on the states that he actually can control.
+"""
 
     def __init__(
         self,
@@ -93,17 +104,17 @@ class MLPICM(CuriosityModule):
         intrinsic_reward_integration: float,
     ):
         """
-    :param policy_weight: weight to be applied to the ``policy_loss`` in the ``loss`` method. Allows to
-    control how
-       important optimizing policy to optimizing the curiosity module
-    :param reward_scale: scales the intrinsic reward returned by this module. Can be used to control how
-    big the
-       intrinsic reward is
-    :param weight: balances the importance between forward and inverse model
-    :param intrinsic_reward_integration: balances the importance between extrinsic and intrinsic reward.
-    Used when
-       incorporating intrinsic into extrinsic in the ``reward`` method
-    """
+:param policy_weight: weight to be applied to the ``policy_loss`` in the ``loss`` method. Allows to
+control how
+   important optimizing policy to optimizing the curiosity module
+:param reward_scale: scales the intrinsic reward returned by this module. Can be used to control how
+big the
+   intrinsic reward is
+:param weight: balances the importance between forward and inverse model
+:param intrinsic_reward_integration: balances the importance between extrinsic and intrinsic reward.
+Used when
+   incorporating intrinsic into extrinsic in the ``reward`` method
+"""
 
         assert (
             len(observation_space.shape) == 1

@@ -9,4 +9,3 @@ __doc__ = r"""
 
 from .torch_agent import *
 from .model_free import *
-from .model_based import *

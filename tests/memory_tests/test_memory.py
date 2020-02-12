@@ -43,8 +43,8 @@ def test_transition_buffer_list():
     rb = TransitionBuffer()
     a = numpy.random.random((9, 9))
     for e in a:
-        rb.add_transition(e, None, None, None, None)
-    b, *_ = rb.sample_transitions(9)
+        rb.add_transition_point(e, None, None, None, None)
+    b, *_ = rb.sample_transition_points(9)
     assert numpy.array(
         [a.__contains__(i) for i in b]
     ).all(), f"Expected {a} to cover {b}"
@@ -54,7 +54,7 @@ def test_transition_buffer_list():
 def test_trajectory_buffer():
     rb = TrajectoryBuffer()
     a = tuple(range(3))
-    rb.add_point(a, None, None)
+    rb.add_trajectory_point(a, None, None)
     b, *_ = rb.retrieve_trajectory()
     assert (a,) == b, f"Expected {a} and {b} to be equal"
     rb.clear()
@@ -65,10 +65,10 @@ def test_trajectory_buffer():
 def test_trajectory_buffer_more():
     rb = TrajectoryBuffer()
     a = tuple(range(3))
-    rb.add_point(a, None, None)
+    rb.add_trajectory_point(a, None, None)
     b, *_ = rb.retrieve_trajectory()
     c = tuple(range(6))
-    rb.add_point(c, None, None)
+    rb.add_trajectory_point(c, None, None)
     d, *_ = rb.retrieve_trajectory()
     assert d.__contains__(c)
     assert len(d) == 2
@@ -80,7 +80,7 @@ def test_trajectory_list():
     rb = TrajectoryBuffer()
     a = numpy.random.random((9, 9))
     for e in a:
-        rb.add_point(e, None, None)
+        rb.add_trajectory_point(e, None, None)
     b, *_ = rb.retrieve_trajectory()
     assert (a == b).all(), f"Expected {a} and {b} to be equal"
 

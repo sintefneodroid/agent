@@ -153,7 +153,7 @@ given by:
 .. math::
 
 \pi(a | x^{(t)}) = \\text{softmax}(
-    \\text{obs}^{(t)} \cdot \mathbf{W}_i^{(t)} + \mathbf{b}_i^{(t)} )
+\\text{obs}^{(t)} \cdot \mathbf{W}_i^{(t)} + \mathbf{b}_i^{(t)} )
 
 where :math:`\mathbf{W}` is a learned weight matrix, `obs` is the observation
 at timestep `t`, and **b** is a learned bias vector.
@@ -518,8 +518,8 @@ The on-policy first-visit Monte Carlo update is
 .. math::
 
 Q'(s, a) \leftarrow
-    \\text{avg}(\\text{reward following first visit to } (s, a)
-    \\text{ across all episodes})
+\\text{avg}(\\text{reward following first visit to } (s, a)
+\\text{ across all episodes})
 
 RL agents seek to learn action values conditional on subsequent optimal
 behavior, but they need to behave non-optimally in order to explore all
@@ -1578,9 +1578,9 @@ have exceeded a `n_simulated_actions` updates.
 Update Q using a full-backup version of the TD(0) Q-learning update:
 
 Q(s, a) = Q(s, a) + lr *
-    sum_{r, s'} [
-        p(r, s' | s, a) * (r + gamma * max_a { Q(s', a) } - Q(s, a))
-    ]
+sum_{r, s'} [
+    p(r, s' | s, a) * (r + gamma * max_a { Q(s', a) } - Q(s, a))
+]
 
 Parameters
 ----------

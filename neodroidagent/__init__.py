@@ -8,11 +8,11 @@ import pkg_resources
 import sys
 from pathlib import Path
 
-from apppath.app_path import AppPath
+from apppath import AppPath
 
 __project__ = "NeodroidAgent"
 __author__ = "Christian Heider Nielsen"
-__version__ = "0.4.3"
+__version__ = "0.4.4"
 __doc__ = r"""
 Created on 27/04/2019
 
@@ -83,8 +83,6 @@ def get_version(append_time=DEVELOP):
 
     return version
 
-
-from .agents import *
 
 if __version__ is None:
     __version__ = get_version(append_time=True)

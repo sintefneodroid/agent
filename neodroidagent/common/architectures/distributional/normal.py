@@ -3,20 +3,67 @@
 import time
 from typing import Iterable, List, Union, Tuple
 
-# !/usr/bin/env python3
-# -*- coding: utf-8 -*-
 import torch
+from torch import nn
 from torch.distributions import MultivariateNormal, Normal
-from torch.nn.functional import softplus
 
-from draugr.torch_utilities import fan_in_init
-from draugr.torch_utilities.to_tensor import to_tensor
+from draugr import fan_in_init
 from neodroidagent.common.architectures.mlp import MLP
 from typing import Sequence
 
 __author__ = "Christian Heider Nielsen"
 __doc__ = ""
-__all__ = ["MultiDimensionalNormalMLP", "MultiVariateNormalMLP", "MultipleNormalMLP"]
+__all__ = [
+    "ShallowStdNormalMLP",
+    "MultiDimensionalNormalMLP",
+    "MultiVariateNormalMLP",
+    "MultipleNormalMLP",
+]
+
+from warg import passes_kws_to
+
+
+class ShallowStdNormalMLP(MLP):
+    def __init__(self, output_shape: Sequence = (2,), output_activation=None, **kwargs):
+        if not isinstance(output_shape, Iterable):
+            output_shape = (1, output_shape)
+        super().__init__(
+            output_shape=output_shape, output_activation=output_activation, **kwargs
+        )
+
+        self.output_activation = output_activation
+        self.log_std = nn.Parameter(torch.zeros(*output_shape), requires_grad=True)
+
+    def forward(self, *x, min_std=-20, max_std=2, **kwargs):
+        mean = super().forward(*x, min_std=min_std, **kwargs)[0]
+        if self.output_activation:
+            mean = self.output_activation(mean)
+
+        log_std = torch.clamp(self.log_std, min_std, max_std)
+        std = log_std.exp().expand_as(mean)
+        return Normal(mean, std)
+
+
+class ShallowStdMultiVariateNormalMLP(MLP):
+    def __init__(self, output_shape: Sequence = (2,), output_activation=None, **kwargs):
+        if not isinstance(output_shape, Iterable):
+            output_shape = (1, output_shape)
+        super().__init__(
+            output_shape=output_shape, output_activation=output_activation, **kwargs
+        )
+
+        self.output_activation = output_activation
+        self.log_std = nn.Parameter(torch.zeros(*output_shape), requires_grad=True)
+
+    def forward(self, *x, min_std=-20, max_std=2, **kwargs):
+        mean = super().forward(*x, min_std=min_std, **kwargs)[0]
+        if self.output_activation:
+            mean = self.output_activation(mean)
+
+        log_std = torch.clamp(self.log_std, min_std, max_std)
+        std = log_std.exp().expand_as(mean)
+        std = torch.diag_embed(std, 0, dim1=-2, dim2=-1)
+        return MultivariateNormal(mean, std)
 
 
 class MultiDimensionalNormalMLP(MLP):
@@ -27,30 +74,13 @@ class MultiDimensionalNormalMLP(MLP):
             output_shape = (2, output_shape)
         super().__init__(output_shape=output_shape, **kwargs)
 
-    def forward(self, *x, **kwargs) -> Normal:
-        mean, std = super().forward(*x, **kwargs)
-
-        std = softplus(std) + 1e-6
-        return Normal(mean, std)
-
-    @staticmethod
-    def sample(distributions):
-        with torch.no_grad():
-            actions = distributions.sample()
-
-        log_prob = distributions.log_prob(actions)
-
-        actions = actions.to("cpu").numpy().tolist()
-
-        return actions, log_prob
-
-    @staticmethod
-    def entropy(distributions):
-        with torch.no_grad():
-            return torch.mean(distributions.entropy())
+    def forward(self, *x, min_std=-20, max_std=2, **kwargs) -> Normal:
+        mean, log_std = super().forward(*x, min_std=min_std, **kwargs)
+        return Normal(mean, torch.clamp(log_std, min_std, max_std).exp())
 
 
 class MultiVariateNormalMLP(MLP):
+    @passes_kws_to(MLP.__init__)
     def __init__(self, output_shape: Sequence = (2,), **kwargs):
         if isinstance(output_shape, Iterable):
             if len(output_shape) != 2:
@@ -59,25 +89,14 @@ class MultiVariateNormalMLP(MLP):
             output_shape = (2, output_shape)
         super().__init__(output_shape=output_shape, **kwargs)
 
-    def forward(self, *x, **kwargs) -> MultivariateNormal:
-        mean, std = super().forward(*x, **kwargs)
+    @passes_kws_to(MLP.forward)
+    def forward(self, *x, min_std=-20, max_std=2, **kwargs) -> MultivariateNormal:
+        mean, log_std = super().forward(*x, min_std=min_std, **kwargs)
 
-        return MultivariateNormal(mean, softplus(std) + 1e-6)
-
-    @staticmethod
-    def sample(distributions) -> Tuple:
-        with torch.no_grad():
-            actions = distributions.sample()
-
-        log_prob = distributions.log_prob(actions)
-
-        actions = actions.to("cpu").numpy().tolist()
-        return actions, log_prob
-
-    @staticmethod
-    def entropy(distributions):
-        with torch.no_grad():
-            return torch.mean(distributions.entropy())
+        log_std = torch.clamp(log_std, min_std, max_std)
+        std = log_std.exp()
+        std = torch.diag_embed(std, 0, dim1=-2, dim2=-1)
+        return MultivariateNormal(mean, std)
 
 
 class MultipleNormalMLP(MLP):
@@ -91,79 +110,87 @@ class MultipleNormalMLP(MLP):
 
         fan_in_init(self)
 
-    @staticmethod
-    def sample(distributions) -> Tuple:
-        with torch.no_grad():
-            actions = [d.sample() for d in distributions]
-
-        log_prob = [d.log_prob(action) for d, action in zip(distributions, actions)]
-
-        actions = [a.to("cpu").numpy().tolist() for a in actions]
-        return actions, log_prob
-
-    @staticmethod
-    def entropy(distributions):
-        with torch.no_grad():
-            return torch.mean(to_tensor([d.entropy() for d in distributions]))
-
-    def forward(self, *x, **kwargs) -> List[Normal]:
-        out = super().forward(*x, **kwargs)
+    def forward(self, *x, min_std=-20, max_std=2, **kwargs) -> List[Normal]:
+        out = super().forward(*x, min_std=min_std, **kwargs)
         outs = []
         for a in out:
             if a.shape[0] == 2:
-                mean, std = a
+                mean, log_std = a
             else:
-                mean, std = a[0]
-            outs.append(Normal(mean, softplus(std) + 1e-6))
+                mean, log_std = a[0]
+            outs.append(Normal(mean, torch.clamp(log_std, min_std, max_std).exp()))
 
         return outs
 
 
 if __name__ == "__main__":
 
-    def test_normal():
+    def stest_normal():
         s = (10,)
         a = 10
         model = MultipleNormalMLP(input_shape=s, output_shape=a)
 
         inp = torch.rand(s)
         s_ = time.time()
-        a_ = model.sample(model.forward(inp))
+        dis = model.forward(inp)
+        print(dis)
+        a_ = [d.sample() for d in dis]
         print(time.time() - s_, a_)
 
-    def test_multi_dim_normal():
+    def stest_multi_dim_normal():
         s = (4,)
         a = (10,)
         model = MultiDimensionalNormalMLP(input_shape=s, output_shape=a)
 
         inp = torch.rand(s)
         s_ = time.time()
-        a_ = model.sample(model.forward(inp))
+        dis = model.forward(inp)
+        print(dis)
+        a_ = dis.sample()
         print(time.time() - s_, a_)
 
-    def test_multi_dim_normal_2():
+    def stest_multi_dim_normal_2():
         s = (1, 4)
         a = (1, 10)
         model = MultiDimensionalNormalMLP(input_shape=s, output_shape=a)
 
         inp = torch.rand(s)
         s_ = time.time()
-        a_ = model.sample(model.forward(inp))
+        dis = model.forward(inp)
+        print(dis)
+        a_ = dis.sample()
         print(time.time() - s_, a_)
 
-    def test_multi_var_normal():
+    def stest_multi_var_normal():
         s = (10,)
-        a = 10
+        a = (10,)
         model = MultiVariateNormalMLP(input_shape=s, output_shape=a)
 
         inp = torch.rand(s)
         s_ = time.time()
-        a_ = model.sample(model.forward(inp))
+        dis = model.forward(inp)
+        print(dis)
+        a_ = dis.sample()
         print(time.time() - s_, a_)
 
-    test_normal()
+    def stest_shallow():
+        s = (10,)
+        a = (10,)
+        model = ShallowStdNormalMLP(input_shape=s, output_shape=a)
+
+        inp = torch.rand(s)
+        s_ = time.time()
+        dis = model.forward(inp)
+        print(dis)
+        a_ = dis.sample()
+        print(time.time() - s_, a_)
+
+    stest_normal()
     print("\n")
-    test_multi_dim_normal()
+    stest_multi_dim_normal()
     print("\n")
-    test_multi_dim_normal_2()
-    # test_multi_var_normal()
+    stest_multi_dim_normal_2()
+    print("\n")
+    stest_multi_var_normal()
+    print("\n")
+    stest_shallow()

@@ -10,11 +10,19 @@ import random
 
 __all__ = ["ExpandableCircularBuffer"]
 
+from neodroidagent.utilities import is_none_or_zero_or_negative
+
 
 class ExpandableCircularBuffer(object):
-    """For storing element in an expandable buffer."""
+    """
+  For storing element in an expandable buffer.
+  """
 
-    def __init__(self, capacity=0):
+    def __init__(self, capacity: int = 0):
+        """
+
+    @param capacity:
+    """
         self._capacity = capacity
         self._memory = []
         self._position = 0
@@ -32,26 +40,37 @@ class ExpandableCircularBuffer(object):
             if self._capacity != 0:
                 self._position = self._position % self._capacity
 
-    def _sample(self, req_num=None):
+    def _sample(self, num: int = None):
         """Samples random values from memory"""
-        if req_num is None:
-            return numpy.random.shuffle(self._memory)
-        else:
+        if self._capacity > 0:
+            if is_none_or_zero_or_negative(num):
+                a = self._memory
+                numpy.random.shuffle(a)
+                return a
+
             num_entries = len(self._memory)
 
-            if req_num > num_entries:
+            if num > num_entries:
                 logging.info(
                     f"Buffer only has {num_entries},"
                     f" returning {num_entries} entries"
-                    f" of the requested {req_num}"
+                    f" of the requested {num}"
                 )
-                req_num = len(self._memory)
+                num = len(self._memory)
 
-            batch = random.sample(self._memory, req_num)
+            batch = random.sample(self._memory, num)
 
             return batch
+        else:
+            if num and num < len(self._memory):
+                return self._memory[:num]
+            return self._memory
 
     def clear(self):
+        """
+
+    @return:
+    """
         del self._memory[:]
         self._position = 0
 
@@ -59,3 +78,17 @@ class ExpandableCircularBuffer(object):
         """Return the length of the memory list."""
         # return len(self._memory)
         return self._position
+
+
+if __name__ == "__main__":
+    unbounded = ExpandableCircularBuffer()
+    for i in range(100):
+        unbounded._add(i)
+    print(unbounded._sample())
+    print(unbounded._sample(4))
+
+    bounded = ExpandableCircularBuffer(100)
+    for i in range(200):
+        bounded._add(i)
+    print(bounded._sample())
+    print(bounded._sample(4))

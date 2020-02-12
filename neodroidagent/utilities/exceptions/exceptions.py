@@ -49,6 +49,15 @@ class NoTrajectoryException(Exception):
         Exception.__init__(self, msg)
 
 
+class NoData(Exception):
+    """
+
+"""
+
+    def __init__(self, msg="No Data Available"):
+        Exception.__init__(self, msg)
+
+
 class ActionSpaceNotSupported(Exception):
     """
 

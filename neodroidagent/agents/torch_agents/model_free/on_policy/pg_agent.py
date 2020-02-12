@@ -1,30 +1,27 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-import copy
-from logging import warning
-from typing import Any, Sequence, Union
+from typing import Any, Sequence
 
+import numpy
 import torch
+from torch.nn import Module
+from torch.optim import Optimizer
 from tqdm import tqdm
 
-from draugr.torch_utilities.to_tensor import to_tensor
-from draugr.writers import MockWriter, TensorBoardPytorchWriter
-from draugr.writers.terminal import sprint
-from draugr.writers.writer import Writer
-from neodroid.utilities.spaces import ActionSpace, ObservationSpace, SignalSpace
-from neodroidagent.agents.torch_agents.torch_agent import TorchAgent
-from neodroidagent.common import TrajectoryBuffer
-from neodroidagent.common.architectures.architecture import Architecture
-from neodroidagent.common.architectures.distributional.categorical import CategoricalMLP
-from neodroidagent.common.architectures.distributional.normal import (
-    MultiDimensionalNormalMLP,
+from draugr import MockWriter, Writer, to_tensor
+from neodroid.utilities import ActionSpace, ObservationSpace, SignalSpace
+from neodroid.utilities.transformations.terminal_masking import (
+    non_terminal_numerical_mask,
 )
-from neodroidagent.common.architectures.mock import MockArchitecture
-from neodroidagent.utilities.exceptions.exceptions import NoTrajectoryException
-from neodroidagent.utilities.signal.discounting import discount_signal
-from warg import drop_unused_kws
-from warg.gdkc import GDKC
-from warg.kw_passing import super_init_pass_on_kws
+from neodroidagent.agents.torch_agents.torch_agent import TorchAgent
+from neodroidagent.common import (
+    CategoricalMLP,
+    MultiDimensionalNormalMLP,
+    SamplePoint,
+    SampleTrajectoryBuffer,
+)
+from neodroidagent.utilities import NoTrajectoryException, discount_signal_torch
+from warg import GDKC, drop_unused_kws, super_init_pass_on_kws
 
 tqdm.monitor_interval = 0
 
@@ -40,54 +37,32 @@ __all__ = ["PGAgent"]
 @super_init_pass_on_kws
 class PGAgent(TorchAgent):
     r"""
-    REINFORCE, Vanilla Policy Gradient method
+  REINFORCE, Vanilla Policy Gradient method
 
   """
 
     def __init__(
         self,
         evaluation_function=torch.nn.CrossEntropyLoss(),
-        policy_arch_spec=GDKC(
-            CategoricalMLP,
-            input_shape=None,
-            # Obtain from environment
-            hidden_layers=None,
-            output_shape=None,
-            # Obtain from environment
-        ),
+        policy_arch_spec=GDKC(CategoricalMLP),
         discount_factor=0.95,
-        optimiser_spec=GDKC(torch.optim.Adam, lr=2e-2),
+        optimiser_spec=GDKC(torch.optim.Adam, lr=1e-4),
         scheduler_spec=GDKC(torch.optim.lr_scheduler.StepLR, step_size=100, gamma=0.65),
-        state_type=torch.float,
-        signals_tensor_type=torch.float,
-        distribution_regressor: Architecture = MockArchitecture(),
+        memory_buffer=SampleTrajectoryBuffer(),
         **kwargs,
     ) -> None:
-        """
-
-:param evaluation_function:
-:param trajectory_trace:
-:param policy_arch_spec:
-:param discount_factor:
-:param use_batched_updates:
-
-:param signal_clipping:
-:param signal_clip_high:
-:param signal_clip_low:
-:param optimiser_spec:
-:param state_type:
-:param signals_tensor_type:
-:param grad_clip:
-:param grad_clip_low:
-:param grad_clip_high:
-:param std:
-:param distribution_regressor:
-:param kwargs:
-"""
+        r"""
+    :param evaluation_function:
+    :param trajectory_trace:
+    :param policy_arch_spec:
+    :param discount_factor:
+    :param optimiser_spec:
+    :param state_type:
+    :param kwargs:
+    """
         super().__init__(**kwargs)
 
-        self._accumulated_error = to_tensor(0.0, device=self._device)
-        self._trajectory_trace = TrajectoryBuffer()
+        self._memory_buffer = memory_buffer
 
         self._evaluation_function = evaluation_function
         self._policy_arch_spec = policy_arch_spec
@@ -95,10 +70,8 @@ class PGAgent(TorchAgent):
 
         self._optimiser_spec = optimiser_spec
         self._scheduler_spec = scheduler_spec
-        self._state_type = state_type
-        self._signals_tensor_type = signals_tensor_type
 
-        self._distribution_regressor = distribution_regressor
+        self._mask_terminated_signals = False
 
     @drop_unused_kws
     def __build__(
@@ -108,66 +81,106 @@ class PGAgent(TorchAgent):
         signal_space: SignalSpace,
         metric_writer: Writer = MockWriter(),
         print_model_repr: bool = True,
+        *,
+        distributional_regressor: Module = None,
+        optimiser: Optimizer = None,
     ) -> None:
+        """
 
-        self._policy_arch_spec.kwargs["input_shape"] = self._input_shape
-        if action_space.is_discrete:
-            self._policy_arch_spec = GDKC(CategoricalMLP, self._policy_arch_spec.kwargs)
-            self._policy_arch_spec.kwargs["output_shape"] = self._output_shape
+    @param observation_space:
+    @param action_space:
+    @param signal_space:
+    @param metric_writer:
+    @param print_model_repr:
+    @param distributional_regressor:
+    @param optimiser:
+    @return:
+    """
+
+        if distributional_regressor:
+            self.distributional_regressor = distributional_regressor
         else:
-            self._policy_arch_spec = GDKC(
-                MultiDimensionalNormalMLP, self._policy_arch_spec.kwargs
-            )
+            self._policy_arch_spec.kwargs["input_shape"] = self._input_shape
+            if action_space.is_discrete:
+                self._policy_arch_spec = GDKC(
+                    CategoricalMLP, self._policy_arch_spec.kwargs
+                )
+            else:
+                self._policy_arch_spec = GDKC(
+                    MultiDimensionalNormalMLP, self._policy_arch_spec.kwargs
+                )
+
             self._policy_arch_spec.kwargs["output_shape"] = self._output_shape
 
-        self._distribution_regressor = self._policy_arch_spec().to(self._device)
+            self.distributional_regressor = self._policy_arch_spec().to(self._device)
 
-        self._optimiser = self._optimiser_spec(
-            self._distribution_regressor.parameters()
-        )
+        if optimiser:
+            self._optimiser = optimiser
+        else:
+            self._optimiser = self._optimiser_spec(
+                self.distributional_regressor.parameters()
+            )
+
         if self._scheduler_spec:
             self._scheduler = self._scheduler_spec(self._optimiser)
+        else:
+            self._scheduler = None
 
     @property
     def models(self) -> dict:
-        return {"_distribution_regressor": self._distribution_regressor}
+        """
+
+    @return:
+    """
+        return {"distributional_regressor": self.distributional_regressor}
 
     @drop_unused_kws
-    def _sample(self, state: Sequence) -> tuple:
-        model_input = to_tensor(state, device=self._device, dtype=self._state_type)
+    def _sample(self, state: Sequence) -> SamplePoint:
+        """
 
-        distributions = self._distribution_regressor(model_input)
-        action, log_prob = self._distribution_regressor.sample(distributions)
+    @param state:
+    @return:
+    """
+        model_input = to_tensor(state, device=self._device, dtype=torch.float)
+        distribution = self.distributional_regressor(model_input)
 
-        entropy = self._distribution_regressor.entropy(distributions)
+        with torch.no_grad():
+            action = distribution.sample().detach()
+        return SamplePoint(action, distribution)
 
-        return action, log_prob, entropy
+    def extract_action(self, sample: SamplePoint) -> numpy.ndarray:
+        action, _ = sample
+
+        return action.to("cpu").numpy()
 
     @drop_unused_kws
-    def _remember(self, *, signal, action_log_prob, entropy) -> None:
-        self._trajectory_trace.add_point(signal, action_log_prob, entropy)
+    def _remember(self, *, signal: Any, terminated: Any, sample: SamplePoint) -> None:
+        """
+
+    @param signal:
+    @param terminated:
+    @param sample:
+    @return:
+    """
+
+        self._memory_buffer.add_trajectory_point(signal, terminated, *sample)
 
     # region Protected
 
     @drop_unused_kws
-    def _update(self, *, metric_writer=MockWriter()) -> None:
+    def _update(self, *, metric_writer=MockWriter()) -> float:
         """
 
-    :param metric_writer:
-    :param args:
-    :param kwargs:
+:param metric_writer:
 
-    :returns:
-    """
+:returns:
+"""
 
-        self._optimiser.zero_grad()
         loss = self.evaluate()
 
+        self._optimiser.zero_grad()
         loss.backward()
-
-        if self._gradient_clipping:
-            for params in self._distribution_regressor.parameters():
-                params.grad.data.clamp_(self._grad_clip_low, self._grad_clip_high)
+        self.post_process_gradients(self.distributional_regressor)
         self._optimiser.step()
 
         if metric_writer:
@@ -179,70 +192,51 @@ class PGAgent(TorchAgent):
                 for i, param_group in enumerate(self._optimiser.param_groups):
                     metric_writer.scalar(f"lr{i}", param_group["lr"])
 
+        return loss.cpu().item()
+
     # endregion
 
     # region Public
 
     @drop_unused_kws
     def evaluate(self) -> Any:
-        if not len(self._trajectory_trace) > 0:
+        """
+
+    @return:
+    """
+        if not len(self._memory_buffer) > 0:
             raise NoTrajectoryException
 
-        trajectory = self._trajectory_trace.retrieve_trajectory()
-        t_signals = trajectory.signal
-        log_probs = trajectory.log_prob
-        self._trajectory_trace.clear()
+        trajectory = self._memory_buffer.retrieve_trajectory()
+        self._memory_buffer.clear()
 
-        policy_loss = []
-
-        signals = discount_signal(t_signals, self._discount_factor)
-
-        signals = to_tensor(
-            signals, device=self._device, dtype=self._signals_tensor_type
+        log_probs = to_tensor(
+            [d.log_prob(a) for d, a in zip(trajectory.distribution, trajectory.action)],
+            device=self._device,
         )
 
-        if signals.shape[0] > 1:
-            signals = (signals - signals.mean()) / (
-                signals.std() + self._divide_by_zero_safety
+        signal = (
+            to_tensor(trajectory.signal, device=self._device).squeeze(-1).T.squeeze(-1)
+        )
+        non_terminal = (
+            to_tensor(
+                non_terminal_numerical_mask(trajectory.terminated), device=self._device
             )
-        elif signals.shape[0] == 0:
-            warning(f"No signals received, got signals.shape[0]: {signals.shape[0]}")
+            .squeeze(-1)
+            .T.squeeze(-1)
+        )
 
-        for log_prob, signal in zip(log_probs, signals):
-            policy_loss.append(-log_prob * signal)
+        discounted_signal = discount_signal_torch(
+            signal,
+            self._discount_factor,
+            device=self._device,
+            non_terminal=non_terminal,
+        ).T
 
-        return torch.cat(policy_loss, 0).sum()
+        discounted_signal = (discounted_signal - discounted_signal.mean()) / (
+            discounted_signal.std() + self._divide_by_zero_safety
+        )
+
+        return -(log_probs * discounted_signal).mean()
 
     # endregion
-
-
-# region Test
-
-
-def pg_run(
-    rollouts=None, skip: bool = True, environment_type: Union[bool, str] = True
-) -> None:
-    from neodroidagent.common.sessions.session_entry_point import session_entry_point
-    from neodroidagent.common.sessions.single_agent.parallel import ParallelSession
-    from . import pg_test_config as C
-
-    if rollouts:
-        C.ROLLOUTS = rollouts
-
-    session_entry_point(
-        PGAgent,
-        C,
-        session=ParallelSession,
-        skip_confirmation=skip,
-        environment_type=environment_type,
-    )
-
-
-def pg_test() -> None:
-    pg_run(environment_type="gym")
-
-
-if __name__ == "__main__":
-    pg_test()
-
-# endregion

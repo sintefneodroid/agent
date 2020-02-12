@@ -13,12 +13,12 @@ __all__ = ["exploration_action"]
 
 def exploration_action(agent, state):
     """
-  choose an action based on state with random noise added for exploration in training
+choose an action based on state with random noise added for exploration in training
 
-  :param agent:
-  :param state:
-  :return:
-  """
+:param agent:
+:param state:
+:return:
+"""
 
     softmax_action = agent._sample_model(state)
     epsilon = agent.epsilon_end + (agent.epsilon_start - agent.epsilon_end) * numpy.exp(

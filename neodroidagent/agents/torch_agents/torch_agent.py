@@ -3,16 +3,17 @@
 import copy
 from abc import ABC, abstractmethod
 from pathlib import Path
+
+from neodroid.utilities import ObservationSpace, SignalSpace, ActionSpace
 from typing import Dict
 
-from neodroidagent.agents.agent import Agent
+from neodroidagent.agents.agent import Agent, ClipFeature
 from neodroidagent.common.architectures.architecture import Architecture
 import torch
 import hashlib
 from draugr import (
     save_model,
     load_latest_model,
-    drop_unused_kws,
     sprint,
     TensorBoardPytorchWriter,
     Writer,
@@ -20,7 +21,7 @@ from draugr import (
     global_torch_device,
 )
 
-from warg import passes_kws_to, super_init_pass_on_kws
+from warg import passes_kws_to, super_init_pass_on_kws, drop_unused_kws
 
 __author__ = "Christian Heider Nielsen"
 __doc__ = r"""
@@ -32,7 +33,7 @@ __all__ = ["TorchAgent"]
 class TorchAgent(Agent, ABC):
     """
 
-  """
+"""
 
     # region Private
 
@@ -40,47 +41,72 @@ class TorchAgent(Agent, ABC):
         self,
         *,
         device: str = global_torch_device(True),
-        gradient_clipping=False,
-        grad_clip_low=-1.0,
-        grad_clip_high=1.0,
+        gradient_clipping: ClipFeature = ClipFeature(False, -1.0, 1.0),
+        gradient_norm_clipping: ClipFeature = ClipFeature(False, -1.0, 1.0),
         **kwargs,
     ):
         """
 
-    @param device:
-    @param gradient_clipping:
-    @param grad_clip_low:
-    @param grad_clip_high:
-    @param kwargs:
-    """
+@param device:
+@param gradient_clipping:
+@param grad_clip_low:
+@param grad_clip_high:
+@param kwargs:
+"""
         super().__init__(**kwargs)
         self._gradient_clipping = gradient_clipping
-        self._grad_clip_low = grad_clip_low
-        self._grad_clip_high = grad_clip_high
+        self._gradient_norm_clipping = gradient_norm_clipping
         self._device = torch.device(
             device if torch.cuda.is_available() and device != "cpu" else "cpu"
         )
+
+    def post_process_gradients(self, model):
+        """
+
+    @param model:
+    @return:
+    """
+        if self._gradient_clipping.enabled:
+            for params in model.parameters():
+                params.grad.data.clamp_(
+                    self._gradient_clipping.low, self._gradient_clipping.high
+                )
+
+        if self._gradient_norm_clipping.enabled:
+            torch.nn.utils.clip_grad_norm_(
+                model.parameters(), self._gradient_norm_clipping.high
+            )
 
     @property
     def device(self) -> torch.device:
         """
 
-    @return:
-    """
+@return:
+"""
         return self._device
 
     # endregion
 
     def build(
         self,
-        observation_space,
-        action_space,
-        signal_space,
+        observation_space: ObservationSpace,
+        action_space: ActionSpace,
+        signal_space: SignalSpace,
         *,
         metric_writer: Writer = MockWriter(),
-        print_model_repr=True,
+        print_model_repr: bool = True,
         **kwargs,
     ) -> None:
+        """
+
+    @param observation_space:
+    @param action_space:
+    @param signal_space:
+    @param metric_writer:
+    @param print_model_repr:
+    @param kwargs:
+    @return:
+    """
         super().build(
             observation_space,
             action_space,
@@ -108,17 +134,17 @@ class TorchAgent(Agent, ABC):
     def models(self) -> Dict[str, Architecture]:
         """
 
-    @return:
-    """
+@return:
+"""
         raise NotImplementedError
 
     @passes_kws_to(save_model)
     def save(self, **kwargs) -> None:
         """
 
-    @param kwargs:
-    @return:
-    """
+@param kwargs:
+@return:
+"""
         for k, v in self.models.items():
             save_model(v, model_name=self.model_name(k, v), **kwargs)
 
@@ -126,28 +152,32 @@ class TorchAgent(Agent, ABC):
     def model_name(k, v) -> str:
         """
 
-    @param k:
-    @param v:
-    @return:
-    """
-        return f'{k}-{hashlib.md5(f"{v}".encode("utf-8")).hexdigest()}'
+@param k:
+@param v:
+@return:
+"""
+        model_repr = "".join([str(a) for a in v.named_children()])
+        # print(model_repr)
+        model_hash = hashlib.md5(model_repr.encode("utf-8")).hexdigest()
+        return f"{k}-{model_hash}"
 
-    def on_load(self):
+    def on_load(self) -> None:
         pass
 
     @drop_unused_kws
-    def load(self, model_path: Path, evaluation: bool = False, **kwargs) -> None:
+    def load(self, *, save_directory: Path, evaluation: bool = False) -> None:
         """
 
-    @param model_path:
-    @param evaluation:
-    @param kwargs:
-    @return:
-    """
-        if model_path.exists():
-            print("Loading models froms: " + str(model_path))
+@param save_directory:
+@param evaluation:
+@return:
+"""
+        loaded = True
+        if save_directory.exists():
+            print("Loading models froms: " + str(save_directory))
             for k, v in self.models.items():
-                latest = load_latest_model(model_path, self.model_name(k, v))
+                model_identifier = self.model_name(k, v)
+                latest = load_latest_model(save_directory, model_identifier)
                 if latest:
                     model = getattr(self, k)
                     model.load_state_dict(latest)
@@ -159,7 +189,16 @@ class TorchAgent(Agent, ABC):
                     model = model.to(self._device)
 
                     setattr(self, k, model)
+                else:
+                    loaded = False
+                    print(f"Missing a model for {model_identifier}")
+
+        if not loaded:
+            print("Some models where not found in: " + str(save_directory))
 
         self.on_load()
+
+    def eval(self) -> None:
+        [m.eval() for m in self.models.values()]
 
     # endregion

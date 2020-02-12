@@ -2,10 +2,6 @@
 # -*- coding: utf-8 -*-
 import pytest
 
-from neodroidagent.agents.torch_agents.model_free.actor_critic import ddpg_test
-from neodroidagent.agents.torch_agents.model_free.off_policy.dqn_agent import dqn_test
-from neodroidagent.agents.torch_agents.model_free.on_policy.pg_agent import pg_test
-
 __author__ = "Christian Heider Nielsen"
 __doc__ = ""
 

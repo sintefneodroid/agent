@@ -2,14 +2,6 @@
 # -*- coding: utf-8 -*-
 import pytest
 
-from neodroid.environments.gym_environment import NeodroidGymWrapper
-from neodroidagent.agents.torch_agents.model_free.actor_critic import (
-    PPOAgent,
-    DDPGAgent,
-)
-from neodroidagent.agents.torch_agents.model_free.off_policy.dqn_agent import DQNAgent
-from neodroidagent.agents.torch_agents.model_free.on_policy.pg_agent import PGAgent
-
 __author__ = "Christian Heider Nielsen"
 __doc__ = "Tests of agents"
 

@@ -3,3 +3,8 @@
 
 __author__ = "Christian Heider Nielsen"
 __doc__ = ""
+
+from .advantage_estimation import *
+from .discounting import *
+from .objective_regressor import *
+from .experimental import *

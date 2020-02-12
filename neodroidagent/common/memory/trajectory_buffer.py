@@ -3,25 +3,40 @@
 from neodroidagent.common.memory.data_structures.expandable_circular_buffer import (
     ExpandableCircularBuffer,
 )
-from neodroidagent.common.transitions.points import TrajectoryPoint
+from neodroidagent.common.memory.experience.sample_points import SampleTrajectoryPoint
+from neodroidagent.utilities import NoData
 from warg.arguments import wrap_args
 
 __author__ = "Christian Heider Nielsen"
 
-__all__ = ["TrajectoryBuffer"]
+__all__ = ["SampleTrajectoryBuffer"]
 
 
-class TrajectoryBuffer(ExpandableCircularBuffer):
-    @wrap_args(TrajectoryPoint)
-    def add_point(self, point):
+class SampleTrajectoryBuffer(ExpandableCircularBuffer):
+    """
+    Expandable buffer for storing rollout trajectories
+  """
+
+    @wrap_args(SampleTrajectoryPoint)
+    def add_trajectory_point(self, point: SampleTrajectoryPoint):
+        """
+
+    @param point:
+    @return:
+    """
         self._add(point)
 
-    def retrieve_trajectory(self):
+    def retrieve_trajectory(self) -> SampleTrajectoryPoint:
+        """
+
+    @return:
+    """
         if len(self):
-            batch = TrajectoryPoint(*zip(*self._memory))
+            batch = SampleTrajectoryPoint(*zip(*self._memory))
             return batch
-        return [None] * TrajectoryPoint._fields.__len__()
+        raise NoData
 
 
 if __name__ == "__main__":
-    tb = TrajectoryBuffer()
+    tb = SampleTrajectoryBuffer()
+    tb.retrieve_trajectory()

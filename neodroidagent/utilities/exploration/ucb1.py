@@ -6,29 +6,29 @@ from warg.named_ordered_dictionary import NOD
 __all__ = ["UCB1"]
 
 
-def index_of_max(x) -> int:
-    m = max(x)
-    return x.index(m)
-
-
-class UCB1(object):
+class UCB1:
     """
 
-  """
+"""
+
+    @staticmethod
+    def index_of_max(x: list) -> int:
+        m = max(x)
+        return x.index(m)
 
     def __init__(self, n_options):
         """
 
-    @param n_options:
-    """
+@param n_options:
+"""
         self._counts = [0 for _ in range(n_options)]
         self._values = [1 / n_options for _ in range(n_options)]
 
     def select_arm(self):
         """
 
-    @return:
-    """
+@return:
+"""
         n_options = len(self._counts)
 
         for option in range(n_options):
@@ -44,16 +44,16 @@ class UCB1(object):
             )
             ucb_values[option] = self._values[option] + bonus
 
-        return index_of_max(ucb_values)
+        return self.index_of_max(ucb_values)
 
     def update_belief(self, option_index, signal, min_value: float = 1e-9):
         """
 
-    @param option_index:
-    @param signal:
-    @param min_value:
-    @return:
-    """
+@param option_index:
+@param signal:
+@param min_value:
+@return:
+"""
         self._counts[option_index] = options_counts_int = self._counts[option_index] + 1
         options_counts_float = float(options_counts_int)
 
@@ -69,24 +69,24 @@ class UCB1(object):
     def counts(self):
         """
 
-    @return:
-    """
+@return:
+"""
         return self._counts
 
     @property
     def values(self):
         """
 
-    @return:
-    """
+@return:
+"""
         return self._values
 
     @property
     def normalised_values(self):
         """
 
-    @return:
-    """
+@return:
+"""
         s = len(self._values)
         normed = [0] * s
         for i in range(s):
@@ -96,10 +96,10 @@ class UCB1(object):
     def train(self, arms, rollouts: int = 1000) -> NOD:
         """
 
-    @param arms:
-    @param rollouts:
-    @return:
-    """
+@param arms:
+@param rollouts:
+@return:
+"""
         for t in range(rollouts):
             chosen_arm = self.select_arm()
             reward = arms[chosen_arm].draw()

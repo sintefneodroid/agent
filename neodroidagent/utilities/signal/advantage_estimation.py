@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+import numpy
 
 from draugr.torch_utilities import to_tensor
 
@@ -77,10 +78,11 @@ def torch_advantage_estimate(
 
 
 def torch_compute_gae(
-    *, signals, non_terminals, values, next_value, discount_factor=0.95, tau=0.95
+    *, signals, non_terminals, values, discount_factor=0.95, tau=0.95
 ):
+    signals = signals[:-1]
+    non_terminals = non_terminals[:-1]
     with torch.no_grad():
-        values = torch.cat((values, next_value))
         adv = []
         td_i = 0
         for step in reversed(range(len(signals))):
@@ -93,3 +95,31 @@ def torch_compute_gae(
 
     adv.reverse()
     return adv
+
+
+if __name__ == "__main__":
+
+    def s():
+        rollout = numpy.zeros((10, 2)).T
+        rollout_nt = numpy.ones((10, 2)).T
+        rollout_nt[0, 3] = 0
+        rollout_nt[1, 8] = 0
+        rollout[:, -5:] = -1
+        print(discount_signal(rollout[0], 0.5))
+
+        print(discount_signal_numpy(rollout, 0.5))
+
+        print(
+            discount_signal_torch(to_tensor(rollout, device="cpu"), 0.5, device="cpu")
+        )
+
+        print(
+            discount_signal_torch(
+                to_tensor(rollout, device="cpu"),
+                0.5,
+                device="cpu",
+                non_terminal=rollout_nt,
+            )
+        )
+
+    s()

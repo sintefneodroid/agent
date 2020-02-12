@@ -4,7 +4,7 @@ from numpy import prod
 from torch.distributions import Categorical
 from torch.nn import functional as F
 
-from draugr.torch_utilities.to_tensor import to_tensor
+from draugr import to_tensor
 from neodroidagent.common.architectures import MLP
 import numpy
 import torch
@@ -39,20 +39,6 @@ class MultipleCategoricalMLP(MLP):
 
 
 class CategoricalMLP(MLP):
-    @staticmethod
-    def sample(distributions):
-        actions = distributions.sample()
-
-        log_prob = distributions.log_prob(actions)
-
-        actions = actions.to("cpu").numpy().tolist()
-        return actions, log_prob
-
-    @staticmethod
-    def entropy(distributions):
-        with torch.no_grad():
-            return torch.mean(distributions.entropy())
-
     def forward(self, *x, **kwargs):
         out = super().forward(*x, **kwargs)[0]
         return Categorical(F.softmax(out, dim=-1))

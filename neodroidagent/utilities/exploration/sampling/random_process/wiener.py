@@ -47,7 +47,7 @@ more dimension than `x0`.
 Arguments
 ---------
 x0 : float or numpy array (or something that can be converted to a numpy array
- using numpy.asarray(x0)).
+using numpy.asarray(x0)).
 The initial condition(s) (i.e. position(s)) of the Brownian motion.
 n : int
 The number of steps to take.
