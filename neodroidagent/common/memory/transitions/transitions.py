@@ -8,20 +8,20 @@ from neodroid.utilities.transformations.terminal_masking import (
     non_terminal_mask,
     non_terminal_numerical_mask,
 )
-from warg.mixins import IndexDictTuplesMixin, IterValuesMixin
+from warg.mixins.dict_mixins import IndexDictTuplesMixin, IterDictValuesMixin
 
 __author__ = "Christian Heider Nielsen"
 
 __all__ = [
     "Transition",
     "TransitionPoint",
-    "SampleTransitionPoint",
-    "DiscountedTransitionPoint",
+    "ValuedTransitionPoint",
+    "AdvantageTransitionPoint",
 ]
 
 
 @dataclass
-class Transition(IterValuesMixin, IndexDictTuplesMixin):
+class Transition(IterDictValuesMixin, IndexDictTuplesMixin):
     """
 __slots__=['state','action','successor_state']
 """
@@ -35,15 +35,15 @@ __slots__=['state','action','successor_state']
     def get_fields() -> Sized:
         """
 
-    @return:
-    """
+@return:
+"""
         return Transition.__slots__
 
     def __len__(self):
         """
 
-    @return:
-    """
+@return:
+"""
         return len(self.state)
 
 
@@ -63,8 +63,8 @@ __slots__=['state','action','successor_state','signal,'terminal']
     def __post_init__(self):
         """
 
-    @return:
-    """
+@return:
+"""
         if self.terminal:
             self.successor_state = None
 
@@ -72,56 +72,53 @@ __slots__=['state','action','successor_state','signal,'terminal']
     def get_fields() -> Sized:
         """
 
-    @return:
-    """
+@return:
+"""
         return TransitionPoint.__slots__
 
     @property
     def non_terminal(self):
         """
 
-    @return:
-    """
+@return:
+"""
         return non_terminal_mask(self.terminal)
 
     @property
     def non_terminal_numerical(self):
         """
 
-    @return:
-    """
+@return:
+"""
         return non_terminal_numerical_mask(self.terminal)
 
 
 @dataclass
-class SampleTransitionPoint(TransitionPoint):
+class ValuedTransitionPoint(TransitionPoint):
     """
-__slots__=['state','action','successor_state','signal','terminal','distribution']
+__slots__=['state','action','successor_state','signal','terminal',"distribution","value_estimate"]
 """
 
-    __slots__ = TransitionPoint.__slots__ + ["distribution"]
+    __slots__ = TransitionPoint.__slots__ + ["distribution", "value_estimate"]
     state: Any
     action: Any
     successor_state: Any
     signal: Any
     terminal: Any
     distribution: Any
+    value_estimate: Any
 
     @staticmethod
     def get_fields() -> Sized:
         """
 
-    @return:
-    """
-        return SampleTransitionPoint.__slots__
-
-    def __post_init__(self):
-        pass
-        # self.distribution = [self.distribution for _ in range(len(self.action))]
+@return:
+"""
+        return ValuedTransitionPoint.__slots__
 
 
 @dataclass
-class DiscountedTransitionPoint(Transition):
+class AdvantageTransitionPoint(Transition):
     """
 __slots__=['state'
 ,'action',
@@ -129,13 +126,15 @@ __slots__=['state'
 'terminal',
 'action_log_prob',
 "discounted_return",
-    ]
+    'advantage'
+  ]
 """
 
     __slots__ = Transition.__slots__ + [
         "terminal",
         "action_log_prob",
         "discounted_return",
+        "advantage",
     ]
     state: Any
     action: Any
@@ -143,20 +142,21 @@ __slots__=['state'
     terminal: Any
     action_log_prob: Any
     discounted_return: Any
+    advantage: Any
 
     @staticmethod
     def get_fields() -> Sized:
         """
 
-    @return:
-    """
-        return DiscountedTransitionPoint.__slots__
+@return:
+"""
+        return AdvantageTransitionPoint.__slots__
 
 
 if __name__ == "__main__":
     t = Transition(1, 2, 3)
     tp = TransitionPoint(*t, 4, 5)
-    adtp = DiscountedTransitionPoint(*t, 6)
+    adtp = AdvantageTransitionPoint(*t, 6, 7, 8, 9)
 
     print(t, tp, adtp)
 

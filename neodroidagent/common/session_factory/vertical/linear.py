@@ -31,11 +31,11 @@ class LinearSession(SingleAgentEnvironmentSession):
     ):
         """
 
-    @param environment_name:
-    @param procedure:
-    @param environment_type:
-    @param kwargs:
-    """
+@param environment_name:
+@param procedure:
+@param environment_type:
+@param kwargs:
+"""
 
         if isinstance(environment, str) and environment == "gym":
             assert environment_name != ""

@@ -4,8 +4,10 @@ import copy
 from abc import ABC, abstractmethod
 from pathlib import Path
 
+from torch.nn import Parameter
+
 from neodroid.utilities import ObservationSpace, SignalSpace, ActionSpace
-from typing import Dict
+from typing import Dict, Iterable
 
 from neodroidagent.agents.agent import Agent, ClipFeature
 from neodroidagent.common.architectures.architecture import Architecture
@@ -60,21 +62,21 @@ class TorchAgent(Agent, ABC):
             device if torch.cuda.is_available() and device != "cpu" else "cpu"
         )
 
-    def post_process_gradients(self, model):
+    def post_process_gradients(self, parameters: Iterable[Parameter]) -> None:
         """
 
-    @param model:
-    @return:
-    """
+@param model:
+@return:
+"""
         if self._gradient_clipping.enabled:
-            for params in model.parameters():
+            for params in parameters:
                 params.grad.data.clamp_(
                     self._gradient_clipping.low, self._gradient_clipping.high
                 )
 
         if self._gradient_norm_clipping.enabled:
             torch.nn.utils.clip_grad_norm_(
-                model.parameters(), self._gradient_norm_clipping.high
+                parameters, self._gradient_norm_clipping.high
             )
 
     @property
@@ -99,14 +101,14 @@ class TorchAgent(Agent, ABC):
     ) -> None:
         """
 
-    @param observation_space:
-    @param action_space:
-    @param signal_space:
-    @param metric_writer:
-    @param print_model_repr:
-    @param kwargs:
-    @return:
-    """
+@param observation_space:
+@param action_space:
+@param signal_space:
+@param metric_writer:
+@param print_model_repr:
+@param kwargs:
+@return:
+"""
         super().build(
             observation_space,
             action_space,
@@ -197,6 +199,8 @@ class TorchAgent(Agent, ABC):
             print("Some models where not found in: " + str(save_directory))
 
         self.on_load()
+
+        return loaded
 
     def eval(self) -> None:
         [m.eval() for m in self.models.values()]

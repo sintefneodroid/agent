@@ -8,9 +8,9 @@ from neodroidagent.agents import DDPGAgent
 from neodroidagent.common import (
     OffPolicyBatched,
     ParallelSession,
-    SingleHeadConcatInputMLP,
-    SingleHeadMLP,
     TransitionPointBuffer,
+    ConcatInputMLP,
+    MLP,
 )
 from neodroidagent.configs.test_reference.base_continous_test_config import *
 from neodroidagent.entry_points.session_factory import session_factory
@@ -36,16 +36,7 @@ CONNECT_TO_RUNNING = False
 
 # Optimiser
 RENDER_ENVIRONMENT = True
-
-ACTOR_OPTIMISER_SPEC = GDKC(torch.optim.Adam, lr=1e-4)
-CRITIC_OPTIMISER_SPEC = GDKC(torch.optim.Adam, lr=1e-3)
-
-RENDER_FREQUENCY = 10
-
-# Architecture
-ACTOR_ARCH_SPEC = GDKC(SingleHeadMLP, output_activation=torch.tanh)
-
-CRITIC_ARCH_SPEC = GDKC(SingleHeadConcatInputMLP)
+BATCH_SIZE = 256
 
 ddpg_config = globals()
 

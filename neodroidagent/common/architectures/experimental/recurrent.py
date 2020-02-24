@@ -39,3 +39,45 @@ class ExposedRecurrentCategoricalMLP(RecurrentCategoricalMLP):
         out_x = super().forward(x, **kwargs)
 
         return F.softmax(out_x, dim=-1), self._prev_hidden_x
+
+
+class RecurrentBase(nn.Module):
+    def __init__(self, recurrent, recurrent_input_size, hidden_size):
+        super().__init__()
+
+        self._hidden_size = hidden_size
+        self._recurrent = recurrent
+
+        if recurrent:
+            self.gru = nn.GRUCell(recurrent_input_size, hidden_size)
+            nn.init.orthogonal_(self.gru.weight_ih.data)
+            nn.init.orthogonal_(self.gru.weight_hh.data)
+            self.gru.bias_ih.data.fill_(0)
+            self.gru.bias_hh.data.fill_(0)
+
+    def _forward_gru(self, x, hxs, masks):
+        if x.size(0) == hxs.size(0):
+            x = hxs = self.gru(x, hxs * masks)
+        else:
+            # x is a (T, N, -1) tensor that has been flatten to (T * N, -1)
+            N = hxs.size(0)
+            T = int(x.size(0) / N)
+
+            # unflatten
+            x = x.view(T, N, x.size(1))
+
+            # Same deal with masks
+            masks = masks.view(T, N, 1)
+
+            outputs = []
+            for i in range(T):
+                hx = hxs = self.gru(x[i], hxs * masks[i])
+                outputs.append(hx)
+
+            # assert len(outputs) == T
+            # x is a (T, N, -1) tensor
+            x = torch.stack(outputs, dim=0)
+            # flatten
+            x = x.view(T * N, -1)
+
+        return x, hxs

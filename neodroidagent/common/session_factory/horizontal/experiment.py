@@ -27,10 +27,10 @@ class Experiment:
     def __enter__(self):
         """Set self.sess as the default session.
 
-    Returns:
-        This local runner.
+Returns:
+    This local runner.
 
-    """
+"""
 
         return self
 
@@ -54,25 +54,25 @@ class Experiment:
         **kwargs,
     ):
         """Serialize the method call and run the experiment using the
-    specified mode.
+specified mode.
 
-    Args:
-        method_call (callable): A method call.
-        batch_tasks (list[dict]): A batch of method calls.
-        exp_prefix (str): Name prefix for the experiment.
-        exp_name (str): Name of the experiment.
-        log_dir (str): Log directory for the experiment.
-        script (str): The name of the entrance point python script.
-        python_command (str): Python command to run the experiment.
-        dry (bool): Whether to do a dry-run, which only prints the
-            commands without executing them.
-        env (dict): Extra environment variables.
-        variant (dict): If provided, should be a dictionary of parameters.
-        force_cpu (bool): Whether to set all GPU devices invisible
-            to force use CPU.
-        pre_commands (str): Pre commands to run the experiment.
+Args:
+    method_call (callable): A method call.
+    batch_tasks (list[dict]): A batch of method calls.
+    exp_prefix (str): Name prefix for the experiment.
+    exp_name (str): Name of the experiment.
+    log_dir (str): Log directory for the experiment.
+    script (str): The name of the entrance point python script.
+    python_command (str): Python command to run the experiment.
+    dry (bool): Whether to do a dry-run, which only prints the
+        commands without executing them.
+    env (dict): Extra environment variables.
+    variant (dict): If provided, should be a dictionary of parameters.
+    force_cpu (bool): Whether to set all GPU devices invisible
+        to force use CPU.
+    pre_commands (str): Pre commands to run the experiment.
 
-    """
+"""
         if method_call is None and batch_tasks is None:
             raise Exception("Must provide at least either method_call or batch_tasks")
 

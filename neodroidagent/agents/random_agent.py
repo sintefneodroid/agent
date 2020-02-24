@@ -25,13 +25,13 @@ class RandomAgent(Agent):
     ) -> Any:
         """
 
-    @param state:
-    @param args:
-    @param deterministic:
-    @param metric_writer:
-    @param kwargs:
-    @return:
-    """
+@param state:
+@param args:
+@param deterministic:
+@param metric_writer:
+@param kwargs:
+@return:
+"""
         self._sample_i_since_last_update += 1
         return self.action_space.sample()
 
@@ -50,12 +50,12 @@ class RandomAgent(Agent):
     ) -> None:
         """
 
-    @param observation_space:
-    @param action_space:
-    @param signal_space:
-    @param kwargs:
-    @return:
-    """
+@param observation_space:
+@param action_space:
+@param signal_space:
+@param kwargs:
+@return:
+"""
         self.action_space = action_space
 
     def models(self):

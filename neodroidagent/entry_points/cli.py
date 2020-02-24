@@ -33,9 +33,9 @@ class RunAgent:
     def train(self, **overrides):
         """
 
-    @param overrides:
-    @return:
-    """
+@param overrides:
+@return:
+"""
         default_config = NOD(AGENT_CONFIG[self.agent_key])
 
         overrides = upper_dict(overrides)
@@ -60,8 +60,8 @@ class NeodroidAgentCLI:
     @staticmethod
     def version() -> None:
         """
-    Prints the version of this Neodroid installation.
-    """
+Prints the version of this Neodroid installation.
+"""
         draw_cli_header()
         print(f"Version: {get_version()}")
 

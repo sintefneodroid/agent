@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-from typing import Any, Sequence
+from typing import Any, Sequence, Tuple
 
 import numpy
 import torch
@@ -20,7 +20,7 @@ from neodroidagent.common import (
     SamplePoint,
     SampleTrajectoryBuffer,
 )
-from neodroidagent.utilities import NoTrajectoryException, discount_signal_torch
+from neodroidagent.utilities import NoTrajectoryException, discount_rollout_signal_torch
 from warg import GDKC, drop_unused_kws, super_init_pass_on_kws
 
 tqdm.monitor_interval = 0
@@ -37,9 +37,9 @@ __all__ = ["PGAgent"]
 @super_init_pass_on_kws
 class PGAgent(TorchAgent):
     r"""
-  REINFORCE, Vanilla Policy Gradient method
+REINFORCE, Vanilla Policy Gradient method
 
-  """
+"""
 
     def __init__(
         self,
@@ -52,15 +52,17 @@ class PGAgent(TorchAgent):
         **kwargs,
     ) -> None:
         r"""
-    :param evaluation_function:
-    :param trajectory_trace:
-    :param policy_arch_spec:
-    :param discount_factor:
-    :param optimiser_spec:
-    :param state_type:
-    :param kwargs:
-    """
+:param evaluation_function:
+:param trajectory_trace:
+:param policy_arch_spec:
+:param discount_factor:
+:param optimiser_spec:
+:param state_type:
+:param kwargs:
+"""
         super().__init__(**kwargs)
+
+        assert 0 <= discount_factor <= 1.0
 
         self._memory_buffer = memory_buffer
 
@@ -87,15 +89,15 @@ class PGAgent(TorchAgent):
     ) -> None:
         """
 
-    @param observation_space:
-    @param action_space:
-    @param signal_space:
-    @param metric_writer:
-    @param print_model_repr:
-    @param distributional_regressor:
-    @param optimiser:
-    @return:
-    """
+@param observation_space:
+@param action_space:
+@param signal_space:
+@param metric_writer:
+@param print_model_repr:
+@param distributional_regressor:
+@param optimiser:
+@return:
+"""
 
         if distributional_regressor:
             self.distributional_regressor = distributional_regressor
@@ -130,42 +132,52 @@ class PGAgent(TorchAgent):
     def models(self) -> dict:
         """
 
-    @return:
-    """
+@return:
+"""
         return {"distributional_regressor": self.distributional_regressor}
 
     @drop_unused_kws
-    def _sample(self, state: Sequence) -> SamplePoint:
+    def _sample(self, state: Sequence) -> Tuple:
         """
 
-    @param state:
-    @return:
-    """
+@param state:
+@return:
+"""
         model_input = to_tensor(state, device=self._device, dtype=torch.float)
         distribution = self.distributional_regressor(model_input)
 
         with torch.no_grad():
-            action = distribution.sample().detach()
-        return SamplePoint(action, distribution)
+            action = distribution.sample_transition_points().detach()
 
-    def extract_action(self, sample: SamplePoint) -> numpy.ndarray:
-        action, _ = sample
+        if self.action_space.is_discrete:
+            action = action.unsqueeze(-1)
+        else:
+            action = torch.clamp(action, -1, 1)
 
-        return action.to("cpu").numpy()
+        return action, distribution
+
+    def extract_action(self, sample) -> numpy.ndarray:
+        return sample[0].to("cpu").numpy()
 
     @drop_unused_kws
     def _remember(self, *, signal: Any, terminated: Any, sample: SamplePoint) -> None:
         """
 
-    @param signal:
-    @param terminated:
-    @param sample:
-    @return:
-    """
-
-        self._memory_buffer.add_trajectory_point(signal, terminated, *sample)
+@param signal:
+@param terminated:
+@param sample:
+@return:
+"""
+        action, dist = sample
+        self._memory_buffer.add_trajectory_point(signal, terminated, action, dist)
 
     # region Protected
+
+    def get_log_prob(self, dist, action):
+        if self.action_space.is_discrete:
+            return dist.log_prob(action.squeeze(-1)).unsqueeze(-1)
+        else:
+            return dist.log_prob(action).sum(axis=-1, keepdims=True)
 
     @drop_unused_kws
     def _update(self, *, metric_writer=MockWriter()) -> float:
@@ -176,11 +188,37 @@ class PGAgent(TorchAgent):
 :returns:
 """
 
-        loss = self.evaluate()
+        if not len(self._memory_buffer) > 0:
+            raise NoTrajectoryException
+
+        trajectory = self._memory_buffer.retrieve_trajectory()
+        self._memory_buffer.clear()
+
+        log_probs = to_tensor(
+            [
+                self.get_log_prob(d, a)
+                for d, a in zip(trajectory.distribution, trajectory.action)
+            ],
+            device=self._device,
+        )
+
+        signal = to_tensor(trajectory.signal, device=self._device)
+        non_terminal = to_tensor(
+            non_terminal_numerical_mask(trajectory.terminated), device=self._device
+        )
+
+        discounted_signal = discount_rollout_signal_torch(
+            signal,
+            self._discount_factor,
+            device=self._device,
+            non_terminal=non_terminal,
+        )
+
+        loss = -(log_probs * discounted_signal).mean()
 
         self._optimiser.zero_grad()
         loss.backward()
-        self.post_process_gradients(self.distributional_regressor)
+        self.post_process_gradients(self.distributional_regressor.parameters())
         self._optimiser.step()
 
         if metric_writer:
@@ -193,50 +231,5 @@ class PGAgent(TorchAgent):
                     metric_writer.scalar(f"lr{i}", param_group["lr"])
 
         return loss.cpu().item()
-
-    # endregion
-
-    # region Public
-
-    @drop_unused_kws
-    def evaluate(self) -> Any:
-        """
-
-    @return:
-    """
-        if not len(self._memory_buffer) > 0:
-            raise NoTrajectoryException
-
-        trajectory = self._memory_buffer.retrieve_trajectory()
-        self._memory_buffer.clear()
-
-        log_probs = to_tensor(
-            [d.log_prob(a) for d, a in zip(trajectory.distribution, trajectory.action)],
-            device=self._device,
-        )
-
-        signal = (
-            to_tensor(trajectory.signal, device=self._device).squeeze(-1).T.squeeze(-1)
-        )
-        non_terminal = (
-            to_tensor(
-                non_terminal_numerical_mask(trajectory.terminated), device=self._device
-            )
-            .squeeze(-1)
-            .T.squeeze(-1)
-        )
-
-        discounted_signal = discount_signal_torch(
-            signal,
-            self._discount_factor,
-            device=self._device,
-            non_terminal=non_terminal,
-        ).T
-
-        discounted_signal = (discounted_signal - discounted_signal.mean()) / (
-            discounted_signal.std() + self._divide_by_zero_safety
-        )
-
-        return -(log_probs * discounted_signal).mean()
 
     # endregion

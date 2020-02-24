@@ -270,12 +270,14 @@ Whether the `env`'s observation space is a ``Tuple`` instance.
     md_action, md_obs = True, True
     tuple_action, tuple_obs = is_tuple(env)
     if not tuple_action:
-        act = env.action_space.sample()
+        act = env.action_space.sample_transition_points()
         md_action = isinstance(act, (list, tuple, np.ndarray)) and len(act) > 1
 
     if not tuple_obs:
         OS = env.observation_space
-        obs = OS.low if "low" in dir(OS) else OS.sample()  # sample causes problems
+        obs = (
+            OS.low if "low" in dir(OS) else OS.sample_transition_points()
+        )  # sample causes problems
         md_obs = isinstance(obs, (list, tuple, np.ndarray)) and len(obs) > 1
     return md_action, md_obs, tuple_action, tuple_obs
 

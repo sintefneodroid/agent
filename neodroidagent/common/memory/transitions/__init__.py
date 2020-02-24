@@ -3,5 +3,4 @@
 
 __author__ = "Christian Heider Nielsen"
 
-from .sample_points import *
 from .transitions import *

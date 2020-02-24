@@ -5,7 +5,8 @@ from abc import ABC
 from torch import nn
 
 __author__ = "Christian Heider Nielsen"
-
+__doc__ = r"""
+"""
 __all__ = ["Architecture"]
 
 from warg import drop_unused_kws
@@ -31,13 +32,13 @@ class Architecture(nn.Module, ABC):
         )
         num_params = sum(param.numel() for param in self.parameters())
 
-        di = add_indent(f"{self.__dict__}")
+        dict_repr = add_indent(f"{self.__dict__}")
 
         trainable_params_str = add_indent(
             f"trainable/num_params: {num_trainable_params}/{num_params}\n"
         )
 
-        return f"{super().__repr__()}\n{di}\n{trainable_params_str}"
+        return f"{super().__repr__()}\n{dict_repr}\n{trainable_params_str}"
 
 
 if __name__ == "__main__":

@@ -1579,7 +1579,7 @@ Update Q using a full-backup version of the TD(0) Q-learning update:
 
 Q(s, a) = Q(s, a) + lr *
 sum_{r, s'} [
-    p(r, s' | s, a) * (r + gamma * max_a { Q(s', a) } - Q(s, a))
+p(r, s' | s, a) * (r + gamma * max_a { Q(s', a) } - Q(s, a))
 ]
 
 Parameters

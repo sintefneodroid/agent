@@ -3,10 +3,14 @@
 from typing import Union
 
 from torch import nn
+from torch.nn.functional import mse_loss
 
 from neodroidagent.agents import PPOAgent
 from neodroidagent.common import OffPolicyBatched, ParallelSession
-from neodroidagent.common.architectures.mlp_variants.actor_critic import ActorCriticMLP
+from neodroidagent.common.architectures.mlp_variants.actor_critic import (
+    ActorCriticMLP,
+    CategoricalActorCriticMLP,
+)
 from neodroidagent.configs.test_reference.base_continous_test_config import *
 
 __author__ = "Christian Heider Nielsen"
@@ -33,30 +37,9 @@ RENDER_FREQUENCY = 10
 
 INITIAL_OBSERVATION_PERIOD = 0
 
-BATCH_SIZE = 4000
+BATCH_SIZE = 256
 
-CRITIC_CRITERION = nn.MSELoss()
-
-DISCOUNT_FACTOR = 0.99
-NUM_STEPS_PER_BATCH = 4000
-
-# Architecture
-ARCH_SPEC = GDKC(
-    ActorCriticMLP,
-    NOD(
-        **{
-            "input_shape": None,  # Obtain from environment
-            "hidden_layers": None,
-            "hidden_layer_activation": torch.tanh,
-            "output_shape": None,  # Obtain from environment
-        }
-    ),
-)
-
-ENTROPY_REG_COEF = 1e-3
-OPTIMISER_SPEC = GDKC(constructor=torch.optim.Adam, lr=2e-4, eps=1e-4)
-
-GRADIENT_NORM_CLIPPING = ClipFeature(True, 0, 1.0)
+GRADIENT_NORM_CLIPPING = ClipFeature(True, 0, 0.1)
 
 ppo_config = globals()
 

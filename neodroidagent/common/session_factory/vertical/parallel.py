@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-
+from os import cpu_count
 from typing import Type, Union
 
 from neodroid.environments.gym_environment import (
@@ -29,26 +29,26 @@ class ParallelSession(SingleAgentEnvironmentSession):
         *,
         procedure: Union[Type[Procedure], Procedure] = OnPolicyEpisodic,
         environment_name: Union[str] = "",
-        num_envs=6,
+        num_envs=cpu_count(),
         auto_reset_on_terminal_state=False,
         environment: Union[bool, str, Environment] = False,
         **kwargs
     ):
         """
 
-    @param procedure:
-    @param environment_name:
-    @param num_envs:
-    @param auto_reset_on_terminal_state:
-    @param environment:
-    @param kwargs:
-    """
+@param procedure:
+@param environment_name:
+@param num_envs:
+@param auto_reset_on_terminal_state:
+@param environment:
+@param kwargs:
+"""
         assert num_envs > 0
         if isinstance(environment, str) and environment == "gym":
             assert environment_name != ""
             environments = NeodroidVectorGymEnvironment(
                 environment_name=environment_name,
-                default_num_train_envs=num_envs,
+                num__envs=num_envs,
                 auto_reset_on_terminal_state=auto_reset_on_terminal_state,
             )
         elif isinstance(environment, bool):

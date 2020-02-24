@@ -3,6 +3,7 @@
 import math
 import pathlib
 import time
+from os import cpu_count
 
 import torch
 
@@ -31,6 +32,7 @@ ENVIRONMENT_NAME = "ConnectToRunning"
 CONNECT_TO_RUNNING = False
 RENDER_ENVIRONMENT = False
 # CONTINUE_TRAINING = False
+NUM_ENVS = cpu_count()
 
 # Training parameters
 LOAD_PREVIOUS_MODEL_IF_AVAILABLE = False
@@ -39,12 +41,11 @@ LOAD_PREVIOUS_MODEL_IF_AVAILABLE = False
 SIGNAL_CLIPPING = ClipFeature(False, -1.0, 1.0)
 ACTION_CLIPPING = ClipFeature(False, -1.0, 1.0)
 GRADIENT_CLIPPING = ClipFeature(False, -1.0, 1.0)
+GRADIENT_NORM_CLIPPING = ClipFeature(False, 0, 1.0)
 
 DISCOUNT_FACTOR = 0.99
 RENDER_FREQUENCY = 50
 ITERATIONS = 4000
-
-UPDATE_DIFFICULTY_INTERVAL = 1000
 
 # CUDA
 USE_CUDA = True

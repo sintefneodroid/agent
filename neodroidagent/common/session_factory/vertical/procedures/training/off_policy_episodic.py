@@ -7,11 +7,16 @@ from typing import Union
 
 import numpy
 
+from draugr.metrics.accumulation import (
+    lambda_accumulator,
+    mean_accumulator,
+    total_accumulator,
+)
 from draugr.writers import MockWriter, TensorBoardPytorchWriter, Writer
 from neodroid.environments.environment import Environment
 from neodroid.utilities import EnvironmentSnapshot
 from neodroidagent.agents import Agent
-from neodroidagent.common.memory.experience import Transition
+from neodroidagent.common.memory.transitions import Transition, TransitionPoint
 from neodroidagent.common.session_factory.vertical.procedures.procedure_specification import (
     Procedure,
 )
@@ -35,20 +40,24 @@ def rollout_off_policy(
     metric_writer: Writer = MockWriter(),
     train_agent=True,
     disallow_random_sample=False,
+    use_episodic_buffer=True,
 ):
     state = agent.extract_features(initial_state)
-    episode_signal = []
-    episode_length = []
+    episode_length = 0
 
-    T = count(0)
-    T = tqdm(T, desc="Step #", leave=False, disable=not render)
+    running_mean_action = mean_accumulator()
+    episode_signal = total_accumulator()
 
-    for t in T:
+    if use_episodic_buffer:
+        episode_buffer = []
+
+    for step_i in tqdm(count(), desc="Step #", leave=False, disable=not render):
         sample = agent.sample(
             state, deterministic=disallow_random_sample, metric_writer=metric_writer
         )
-        act = agent.extract_action(sample)
-        snapshot = env.react(act)
+        action = agent.extract_action(sample)
+
+        snapshot = env.react(action)
 
         successor_state = agent.extract_features(snapshot)
         signal = agent.extract_signal(snapshot)
@@ -58,34 +67,52 @@ def rollout_off_policy(
             env.render()
 
         if train_agent:
-            agent.remember(
-                signal=signal,
-                terminated=terminated,
-                sample=sample,
-                transition=Transition(state, act, successor_state),
-            )
+            if use_episodic_buffer:
+                a = [
+                    TransitionPoint(*s)
+                    for s in zip(state, action, successor_state, signal, terminated)
+                ]
+                episode_buffer.extend(a)
+            else:
+                agent.remember(
+                    signal=signal,
+                    terminated=terminated,
+                    transition=Transition(state, action, successor_state),
+                )
 
-        episode_signal.append(signal)
+        running_mean_action.send(action.mean())
+        episode_signal.send(signal.mean())
 
         if numpy.array(terminated).all():
-            episode_length = t
             break
 
         state = successor_state
 
-    if train_agent:
-        agent.update(metric_writer=metric_writer)
+    if use_episodic_buffer:
+        t = TransitionPoint(*zip(*episode_buffer))
+        agent.remember(
+            signal=t.signal,
+            terminated=t.terminal,
+            transition=Transition(t.state, t.action, t.successor_state),
+        )
+
+    if step_i > 0:
+        if train_agent:
+            agent.update(metric_writer=metric_writer)
+        else:
+            print("no update")
+
+        esig = next(episode_signal)
+        rma = next(running_mean_action)
+
+        if metric_writer:
+            metric_writer.scalar("duration", episode_length)
+            metric_writer.scalar("running_mean_action", rma)
+            metric_writer.scalar("signal", esig)
+
+        return esig, step_i
     else:
-        print("no update")
-
-    ep = numpy.array(episode_signal).sum(axis=0).mean()
-    el = episode_length
-
-    if metric_writer:
-        metric_writer.scalar("duration", el)
-        metric_writer.scalar("signal", ep)
-
-    return ep, el
+        return 0, 0
 
 
 class OffPolicyEpisodic(Procedure):

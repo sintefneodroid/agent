@@ -12,19 +12,19 @@ __doc__ = ""
 def test_replay_buffer():
     rb = ReplayBuffer()
     a = tuple(range(3))
-    rb.add(a)
-    b = rb.sample(1)
+    rb.push(a)
+    b = rb.sample_transition_points(1)
     assert [a] == b, f"Expected {a} and {b} to be equal"
 
 
 def test_replay_buffer_more():
     rb = ReplayBuffer()
     a = tuple(range(3))
-    rb.add(a)
-    b = rb.sample(1)
+    rb.push(a)
+    b = rb.sample_transition_points(1)
     c = tuple(range(6))
-    rb.add(c)
-    d = rb.sample(2)
+    rb.push(c)
+    d = rb.sample_transition_points(2)
     assert d.__contains__(c)
     assert len(d) == 2
     assert [a] == b, f"Expected {a} and {b} to be equal"

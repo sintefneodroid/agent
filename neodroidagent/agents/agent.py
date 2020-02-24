@@ -43,7 +43,8 @@ All agents should inherit from this class
         self._sample_i = 0
         self._update_i = 0
         self._sample_i_since_last_update = 0
-        if not hasattr(self, "_memory"):
+
+        if not hasattr(self, "_memory_buffer"):
             self._memory_buffer = None
 
         self._input_shape = input_shape
@@ -53,6 +54,7 @@ All agents should inherit from this class
         self._signal_clipping = signal_clipping
 
         self._divide_by_zero_safety = divide_by_zero_safety
+        self._intrinsic_signal = lambda *a: 0  # TODO: ICM
 
         self.__set_protected_attr(**kwargs)
 
@@ -72,7 +74,7 @@ All agents should inherit from this class
         return self._sample_i
 
     @property
-    def memory(self) -> Any:
+    def memory_buffer(self) -> Any:
         return self._memory_buffer
 
     def __repr__(self) -> str:
@@ -91,10 +93,10 @@ All agents should inherit from this class
         print_inferred_io_shapes: bool = True,
     ) -> None:
         """
-    Tries to infer input and output size from env if either _input_shape or _output_shape, is None or -1 (int)
+Tries to infer input and output size from env if either _input_shape or _output_shape, is None or -1 (int)
 
-    :rtype: object
-    """
+:rtype: object
+"""
 
         if self._input_shape is None or self._input_shape == -1:
             self._input_shape = observation_space.shape
@@ -133,15 +135,24 @@ All agents should inherit from this class
     # region Public
 
     # @passes_kws_to(__build__)
-    def build(self, observation_space, action_space, signal_space, **kwargs) -> None:
+    def build(
+        self,
+        observation_space: ObservationSpace,
+        action_space: ActionSpace,
+        signal_space: SignalSpace,
+        **kwargs,
+    ) -> None:
         """
 
-    @param observation_space:
-    @param action_space:
-    @param signal_space:
-    @param kwargs:
-    @return:
-    """
+@param observation_space:
+@param action_space:
+@param signal_space:
+@param kwargs:
+@return:
+"""
+        self.observation_space = observation_space
+        self.action_space = action_space
+        self.signal_space = signal_space
         self.__infer_io_shapes(observation_space, action_space, signal_space)
         self.__build__(
             observation_space=observation_space,
@@ -154,39 +165,39 @@ All agents should inherit from this class
     def input_shape(self) -> [int, ...]:
         """
 
-    @return:
-    """
+@return:
+"""
         return self._input_shape
 
     @input_shape.setter
     def input_shape(self, input_shape: [int, ...]):
         """
 
-    @param input_shape:
-    @return:
-    """
+@param input_shape:
+@return:
+"""
         self._input_shape = input_shape
 
     @property
     def output_shape(self) -> [int, ...]:
         """
 
-    @return:
-    """
+@return:
+"""
         return self._output_shape
 
     @output_shape.setter
     def output_shape(self, output_shape: Tuple[int, ...]):
         """
 
-    @param output_shape:
-    @return:
-    """
+@param output_shape:
+@return:
+"""
         self._output_shape = output_shape
 
     def sample(
         self,
-        state: EnvironmentSnapshot,
+        state: numpy.ndarray,
         *args,
         deterministic: bool = False,
         metric_writer: Writer = MockWriter(),
@@ -194,13 +205,13 @@ All agents should inherit from this class
     ) -> Tuple[Any, ...]:
         """
 
-    @param state:
-    @param args:
-    @param deterministic:
-    @param metric_writer:
-    @param kwargs:
-    @return:
-    """
+@param state:
+@param args:
+@param deterministic:
+@param metric_writer:
+@param kwargs:
+@return:
+"""
         self._sample_i += 1
         self._sample_i_since_last_update += 1
         action = self._sample(
@@ -241,7 +252,13 @@ All agents should inherit from this class
     @param kwargs:
     @return:
     """
-        return numpy.array(snapshot.signal)
+
+        signal_out = numpy.array(snapshot.signal)
+
+        if self._intrinsic_signal:
+            signal_out += self._intrinsic_signal()
+
+        return signal_out
 
     def eval(self) -> None:
         """
@@ -292,47 +309,47 @@ All agents should inherit from this class
     ) -> None:
         """
 
-    @param observation_space:
-    @param action_space:
-    @param signal_space:
-    @param kwargs:
-    @return:
-    """
+@param observation_space:
+@param action_space:
+@param signal_space:
+@param kwargs:
+@return:
+"""
         raise NotImplementedError
 
     @abstractmethod
     def load(self, *, save_directory, **kwargs) -> None:
         """
 
-    @param save_directory:
-    @param kwargs:
-    @return:
-    """
+@param save_directory:
+@param kwargs:
+@return:
+"""
         raise NotImplementedError
 
     @abstractmethod
     def save(self, *, save_directory, **kwargs) -> None:
         """
 
-    @param save_directory:
-    @param kwargs:
-    @return:
-    """
+@param save_directory:
+@param kwargs:
+@return:
+"""
         raise NotImplementedError
 
     @abstractmethod
     def _remember(self, *, signal, terminated, **kwargs) -> None:
         """
 
-    @param kwargs:
-    @return:
-    """
+@param kwargs:
+@return:
+"""
         raise NotImplementedError
 
     @abstractmethod
     def _sample(
         self,
-        state: EnvironmentSnapshot,
+        state: numpy.ndarray,
         *args,
         deterministic: bool = False,
         metric_writer: Writer = MockWriter(),
@@ -340,24 +357,24 @@ All agents should inherit from this class
     ) -> Tuple[Any, ...]:
         """
 
-    @param state:
-    @param args:
-    @param deterministic:
-    @param metric_writer:
-    @param kwargs:
-    @return:
-    """
+@param state:
+@param args:
+@param deterministic:
+@param metric_writer:
+@param kwargs:
+@return:
+"""
         raise NotImplementedError
 
     @abstractmethod
     def _update(self, *args, metric_writer: Writer = MockWriter(), **kwargs) -> Any:
         """
 
-    @param args:
-    @param metric_writer:
-    @param kwargs:
-    @return:
-    """
+@param args:
+@param metric_writer:
+@param kwargs:
+@return:
+"""
         raise NotImplementedError
 
     # endregion

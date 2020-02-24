@@ -28,11 +28,11 @@ class Procedure(abc.ABC):
     ):
         """
 
-    @param agent:
-    @param environment:
-    @param on_improvement_callbacks:
-    @param save_best_throughtout_training:
-    """
+@param agent:
+@param environment:
+@param on_improvement_callbacks:
+@param save_best_throughtout_training:
+"""
         self.agent = agent
         self.environment = environment
         if save_best_throughtout_training:
@@ -42,17 +42,17 @@ class Procedure(abc.ABC):
     def stop_procedure(self) -> None:
         """
 
-    @return:
-    """
+@return:
+"""
         self.early_stop = True
 
     def call_on_improvement_callbacks(self, *, verbose: bool = True, **kwargs):
         """
 
-    @param verbose:
-    @param kwargs:
-    @return:
-    """
+@param verbose:
+@param kwargs:
+@return:
+"""
         if verbose:
             print("Model improved")
 
@@ -72,17 +72,17 @@ class Procedure(abc.ABC):
         **kwargs
     ):
         """
-    Collects environment snapshots and forwards it to the agent and vice versa.
+Collects environment snapshots and forwards it to the agent and vice versa.
 
-    :param agent:
-    :param environment:
-    :param num_steps_per_btach:
-    :param num_updates:
-    :param iterations:
-    :param log_directory:
-    :param render_frequency:
-    :param stat_frequency:
-    :param kwargs:
-    :return:
-    """
+:param agent:
+:param environment:
+:param num_steps_per_btach:
+:param num_updates:
+:param iterations:
+:param log_directory:
+:param render_frequency:
+:param stat_frequency:
+:param kwargs:
+:return:
+"""
         raise NotImplementedError

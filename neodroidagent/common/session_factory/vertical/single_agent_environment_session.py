@@ -40,13 +40,13 @@ class SingleAgentEnvironmentSession(EnvironmentSession):
         **kwargs,
     ):
         """
-    Start a session, builds Agent and starts/connect environment(s), and runs Procedure
+Start a session, builds Agent and starts/connect environment(s), and runs Procedure
 
 
-    :param args:
-    :param kwargs:
-    :return:
-    """
+:param args:
+:param kwargs:
+:return:
+"""
 
         if agent is None:
             raise NoAgent
@@ -96,10 +96,21 @@ class SingleAgentEnvironmentSession(EnvironmentSession):
             train_agent=train_agent,
         )
 
+        found = False
         if continue_training:
-            print("Searching for previous trained models for initialisation")
-            agent.load(save_directory=save_directory, evaluation=not train_agent)
-        else:
+            print(
+                "Searching for previously trained models for initialisation for this configuration "
+                "(Architecture, Action Space, Observation Space, ...)"
+            )
+            found = agent.load(
+                save_directory=save_directory, evaluation=not train_agent
+            )
+            if not found:
+                print(
+                    "Did not find any previously trained models for this configuration"
+                )
+
+        if not found:
             print("Training from new initialisation")
 
         listener = add_early_stopping_key_combination(

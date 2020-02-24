@@ -25,9 +25,9 @@ class ForwardModel(nn.Module):
     def __init__(self, action_converter: ActionSpace, state_latent_features: int):
         """
 
-    @param action_converter:
-    @param state_latent_features:
-    """
+@param action_converter:
+@param state_latent_features:
+"""
         super().__init__()
 
         action_latent_features = 128
@@ -50,10 +50,10 @@ class ForwardModel(nn.Module):
     def forward(self, state_latent: torch.Tensor, action: torch.Tensor):
         """
 
-    @param state_latent:
-    @param action:
-    @return:
-    """
+@param state_latent:
+@param action:
+@return:
+"""
         action = self.action_encoder(
             action.long() if self.action_converter.discrete else action
         )
@@ -106,14 +106,14 @@ to make sure agent focuses on the states that he actually can control.
         """
 :param policy_weight: weight to be applied to the ``policy_loss`` in the ``loss`` method. Allows to
 control how
-   important optimizing policy to optimizing the curiosity module
+important optimizing policy to optimizing the curiosity module
 :param reward_scale: scales the intrinsic reward returned by this module. Can be used to control how
 big the
-   intrinsic reward is
+intrinsic reward is
 :param weight: balances the importance between forward and inverse model
 :param intrinsic_reward_integration: balances the importance between extrinsic and intrinsic reward.
 Used when
-   incorporating intrinsic into extrinsic in the ``reward`` method
+incorporating intrinsic into extrinsic in the ``reward`` method
 """
 
         assert (

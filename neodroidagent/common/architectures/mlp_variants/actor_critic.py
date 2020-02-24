@@ -22,34 +22,57 @@ __all__ = ["ActorCriticMLP", "CategoricalActorCriticMLP"]
 
 
 class ActorCriticMLP(MLP):
-    def __init__(self, output_shape: Sequence = (2,), default_std=1e-3, **kwargs):
-        if not isinstance(output_shape, Iterable):
-            output_shape = (1, output_shape)
-        super().__init__(output_shape=output_shape, default_std=default_std, **kwargs)
+    def __init__(
+        self,
+        output_shape: Sequence = (2,),
+        disjunction_size=256,
+        subnet_size=128,
+        hidden_layer_activation=nn.ReLU(),
+        default_log_std: float = 0,
+        **kwargs
+    ):
+
+        super().__init__(
+            output_shape=(disjunction_size,),
+            default_log_std=default_log_std,
+            hidden_layer_activation=hidden_layer_activation,
+            output_activation=nn.Identity(),
+            **kwargs
+        )
+
+        self.policy_subnet = torch.nn.Sequential(
+            torch.nn.Linear(disjunction_size, subnet_size),
+            hidden_layer_activation,
+            torch.nn.Linear(subnet_size, output_shape[-1]),
+        )
+
+        self.value_subnet = torch.nn.Sequential(
+            torch.nn.Linear(disjunction_size, subnet_size),
+            hidden_layer_activation,
+            torch.nn.Linear(subnet_size, 1),
+        )
 
         self.log_std = nn.Parameter(
-            torch.ones(output_shape[-1]) * default_std, requires_grad=True
+            torch.ones(output_shape[-1]) * default_log_std, requires_grad=True
         )
-        self.value_out = nn.Linear(output_shape[-1], 1)
 
-    def forward(self, *x, min_std=-20, max_std=2, **kwargs):
-        x = super().forward(*x, min_std=min_std, **kwargs)[0]
-        std = torch.clamp(self.log_std, min_std, max_std).exp().expand_as(x)
-        return Normal(x, std), self.value_out(x)
+    def forward(self, *act, min_std=-20, max_std=2, **kwargs):
+        dis = super().forward(*act, min_std=min_std, **kwargs)
+
+        act = self.policy_subnet(dis)
+        val = self.value_subnet(dis)
+        std = torch.clamp(self.log_std, min_std, max_std).exp().expand_as(act)
+        return Normal(torch.tanh(act), std), val
 
 
 class CategoricalActorCriticMLP(MLP):
     def __init__(self, output_shape: Sequence = (2,), **kwargs):
-        if not isinstance(output_shape, Iterable):
-            output_shape = (1, output_shape)
+        aug_output_shape = (*output_shape, 1)
+        super().__init__(output_shape=aug_output_shape, **kwargs)
 
-        super().__init__(output_shape=output_shape, **kwargs)
-
-        self.value_out = nn.Linear(output_shape[-1], 1)
-
-    def forward(self, *x, **kwargs):
-        x = super().forward(*x, **kwargs)[0]
-        return Categorical(torch.softmax(x, dim=-1)), self.value_out(x)
+    def forward(self, *act, **kwargs):
+        act, val = super().forward(*act, **kwargs)
+        return Categorical(torch.softmax(act, dim=-1)), val
 
 
 if __name__ == "__main__":
@@ -68,8 +91,8 @@ if __name__ == "__main__":
                             to_tensor(
                                 numpy.random.rand(batch_size, pos_size[0]), device="cpu"
                             )
-                        )[0].sample()
-                        for _ in range(10000)
+                        )[0].sample_transition_points()
+                        for _ in range(1000)
                     ]
                 )
             )
@@ -89,7 +112,7 @@ if __name__ == "__main__":
                             to_tensor(
                                 numpy.random.rand(batch_size, pos_size[0]), device="cpu"
                             )
-                        )[0].sample()
+                        )[0].sample_transition_points()
                         for _ in range(1000)
                     ]
                 )
@@ -97,4 +120,4 @@ if __name__ == "__main__":
         )
 
     stest_single_dim_cat()
-    # stest_single_dim()
+    stest_single_dim()

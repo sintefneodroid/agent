@@ -8,7 +8,7 @@ from neodroidagent.common import (
     ParallelSession,
     TransitionPointBuffer,
 )
-from neodroidagent.common.architectures.mlp_variants import SingleHeadMLP
+from neodroidagent.common.architectures import MLP
 from neodroidagent.configs.test_reference.base_dicrete_test_config import *
 
 __author__ = "Christian Heider Nielsen"
@@ -29,36 +29,10 @@ import pathlib
 
 CONFIG_FILE_PATH = pathlib.Path(__file__)
 
-MEMORY = TransitionPointBuffer(int(1e5))
-DOUBLE_DQN = True
-LEARNING_FREQUENCY = 4
-BATCH_SIZE = 128
-EXPLORATION_DECAY = ITERATIONS * 5
-EXPLORATION_SPEC = ExplorationSpecification(0.95, 0.05, EXPLORATION_DECAY)
+EXPLORATION_SPEC = ExplorationSpecification(0.95, 0.05, ITERATIONS)
 
-DISCOUNT_FACTOR = 0.999
-RENDER_ENVIRONMENT = True
-
-TRAIN_AGENT = True
-ITERATIONS = int(1e5)
-SYNC_TARGET_MODEL_FREQUENCY = 0
-INITIAL_OBSERVATION_PERIOD = 100
-UPDATE_TARGET_PERCENTAGE = 1 / 10
-
-CONTINUE = True
-
-OPTIMISER_SPEC = GDKC(torch.optim.Adam, lr=1e-2)
-SCHEDULER_SPEC = None
-
-RENDER_FREQUENCY = 1
-
-# Architecture
-VALUE_ARCH_SPEC = GDKC(
-    SingleHeadMLP,
-    hidden_layers=None,
-    hidden_layer_activation=torch.tanh,
-    use_dropout=False,
-)
+INITIAL_OBSERVATION_PERIOD = 1
+LEARNING_FREQUENCY = 1
 
 dqn_config = globals()
 
@@ -74,7 +48,6 @@ def dqn_run(
         session=ParallelSession(
             environment_name=ENVIRONMENT_NAME,
             procedure=OffPolicyEpisodic,
-            # auto_reset_on_terminal_state=True,
             environment=environment_type,
         ),
         skip_confirmation=skip_confirmation,

@@ -3,7 +3,7 @@
 __author__ = "Christian Heider Nielsen"
 
 from .data_structures import *
-from .trajectory_buffer import *
+from neodroidagent.common.memory.trajectories.trajectory_buffer import *
 from .transition_point_buffer import *
 from .sample_transition_buffer import *
-from .experience import *
+from .transitions import *

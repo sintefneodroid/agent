@@ -11,9 +11,6 @@ from warnings import warn
 
 
 def check_tensorised_shapes(tensorised) -> None:
-
-    return
-
     aa = iter(tensorised)
     a = next(aa).shape[:-1]
     try:

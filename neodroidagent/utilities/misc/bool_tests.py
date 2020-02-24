@@ -44,17 +44,17 @@ else return alt
 def is_zero_or_mod_below(mod, below, counter, *, ret=True, alt=False) -> bool:
     """
 
-  test if mod is zero or if counter % mod is 0
-  if any of the tests are true return ret
-  else return alt
+test if mod is zero or if counter % mod is 0
+if any of the tests are true return ret
+else return alt
 
 
-  @param mod:
-  @param counter:
-  @param ret:
-  @param alt:
-  @return:
-  """
+@param mod:
+@param counter:
+@param ret:
+@param alt:
+@return:
+"""
     return ret if (mod == 0 or (counter % mod < below)) else alt
 
 
@@ -62,26 +62,26 @@ def is_zero_or_mod_below(mod, below, counter, *, ret=True, alt=False) -> bool:
 def is_zero_or_mod_zero(mod, counter, *, ret=True, alt=False) -> bool:
     """
 
-  test if mod is zero or if counter % mod is 0
-  if any of the tests are true return ret
-  else return alt
+test if mod is zero or if counter % mod is 0
+if any of the tests are true return ret
+else return alt
 
 
-  @param mod:
-  @param counter:
-  @param ret:
-  @param alt:
-  @return:
-  """
+@param mod:
+@param counter:
+@param ret:
+@param alt:
+@return:
+"""
     return ret if (mod == 0 or (counter % mod == 0)) else alt
 
 
 def is_none_or_zero_or_negative(obj) -> bool:
     """
 
-  @param obj:
-  @return:
-  """
+@param obj:
+@return:
+"""
     is_none = obj is None
     is_negative = False
     if isinstance(obj, (int, float)):
@@ -94,11 +94,11 @@ def is_none_or_zero_or_negative(obj) -> bool:
 def is_none_or_zero_or_negative_or_mod_zero(mod, counter, **kwargs) -> bool:
     """
 
-  @param mod:
-  @param counter:
-  @param kwargs:
-  @return:
-  """
+@param mod:
+@param counter:
+@param kwargs:
+@return:
+"""
     return is_none_or_zero_or_negative(mod) or is_zero_or_mod_zero(
         mod, counter, **kwargs
     )
@@ -107,3 +107,7 @@ def is_none_or_zero_or_negative_or_mod_zero(mod, counter, **kwargs) -> bool:
 if __name__ == "__main__":
     assert is_zero_or_mod_below(5, 3, 7) == True
     assert is_zero_or_mod_below(5, 2, 4) == False
+    for i in range(9):
+        print(is_zero_or_mod_zero(1, i))
+    for i in range(9):
+        print(is_zero_or_mod_zero(2, i))

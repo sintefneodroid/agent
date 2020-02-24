@@ -23,14 +23,6 @@ SCHEDULER_SPEC = None
 
 RENDER_FREQUENCY = 1
 
-# Architecture
-POLICY_ARCH_SPEC = GDKC(
-    CategoricalMLP,
-    hidden_layers=(64,),
-    hidden_layer_activation=torch.relu,
-    use_bias=True,
-)
-
 pg_config = globals()
 
 
