@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 import time
-from typing import Iterable, List, Union, Tuple
+from typing import List, Sequence
 
 import torch
 from torch import nn
@@ -9,7 +9,6 @@ from torch.distributions import MultivariateNormal, Normal
 
 from draugr import fan_in_init
 from neodroidagent.common.architectures.mlp import MLP
-from typing import Sequence
 
 __author__ = "Christian Heider Nielsen"
 __doc__ = ""

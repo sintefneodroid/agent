@@ -9,9 +9,9 @@ import numpy
 from draugr import MockWriter, Writer, sprint
 from neodroid.utilities import (
     ActionSpace,
+    EnvironmentSnapshot,
     ObservationSpace,
     SignalSpace,
-    EnvironmentSnapshot,
 )
 
 __author__ = "Christian Heider Nielsen"
@@ -231,27 +231,27 @@ Tries to infer input and output size from env if either _input_shape or _output_
 
     def extract_features(self, snapshot: EnvironmentSnapshot) -> numpy.ndarray:
         """
-    Feature extraction
-    """
+Feature extraction
+"""
 
         return numpy.array(snapshot.observables)
 
     def extract_action(self, sample: Any) -> numpy.ndarray:
         """
 
-    @param sample:
-    @return:
-    """
+@param sample:
+@return:
+"""
         return numpy.array(sample)
 
     def extract_signal(self, snapshot: EnvironmentSnapshot, **kwargs) -> numpy.ndarray:
         """
-    Allows for modulation of signal based on for example an Instrinsic Curiosity signal
+Allows for modulation of signal based on for example an Instrinsic Curiosity signal
 
-    @param signal:
-    @param kwargs:
-    @return:
-    """
+@param signal:
+@param kwargs:
+@return:
+"""
 
         signal_out = numpy.array(snapshot.signal)
 
@@ -262,18 +262,18 @@ Tries to infer input and output size from env if either _input_shape or _output_
 
     def eval(self) -> None:
         """
-    @return:
-    """
+@return:
+"""
         pass
 
     def update(self, *args, metric_writer: Writer = MockWriter(), **kwargs) -> float:
         """
 
-    @param args:
-    @param metric_writer:
-    @param kwargs:
-    @return:
-    """
+@param args:
+@param metric_writer:
+@param kwargs:
+@return:
+"""
         self._update_i += 1
         self._sample_i_since_last_update = 0
         return self._update(*args, metric_writer=metric_writer, **kwargs)
@@ -281,11 +281,11 @@ Tries to infer input and output size from env if either _input_shape or _output_
     def remember(self, *, signal: Any, terminated: Any, **kwargs):
         """
 
-    @param terminated:
-    @param signal:
-    @param kwargs:
-    @return:
-    """
+@param terminated:
+@param signal:
+@param kwargs:
+@return:
+"""
 
         if self._signal_clipping.enabled:
             signal = numpy.clip(

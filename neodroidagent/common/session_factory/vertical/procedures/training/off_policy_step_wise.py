@@ -1,14 +1,12 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-import math
 from pathlib import Path
 from typing import Union
 
-import numpy
 import torch
 from tqdm import tqdm
 
-from draugr.metrics.accumulation import lambda_accumulator, mean_accumulator
+from draugr.metrics.accumulation import mean_accumulator
 from draugr.writers import TensorBoardPytorchWriter
 
 __author__ = "Christian Heider Nielsen"
@@ -63,7 +61,7 @@ class OffPolicyStepWise(Procedure):
                 range(num_environment_steps), desc="Step #", leave=False
             ):
 
-                sample = self.agent.sample_transition_points(state)
+                sample = self.agent.sample(state)
                 action = self.agent.extract_action(sample)
 
                 snapshot = self.environment.react(action)

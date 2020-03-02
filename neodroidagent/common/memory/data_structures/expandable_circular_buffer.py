@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 import logging
+from typing import Any, Iterable
 
 import numpy
 
@@ -10,10 +11,11 @@ import random
 
 __all__ = ["ExpandableCircularBuffer"]
 
+from neodroidagent.common.memory.memory import Memory
 from neodroidagent.utilities import is_none_or_zero_or_negative
 
 
-class ExpandableCircularBuffer(object):
+class ExpandableCircularBuffer(Memory):
     """
 For storing element in an expandable buffer.
 """
@@ -27,7 +29,7 @@ For storing element in an expandable buffer.
         self._memory = []
         self._position = 0
 
-    def _add(self, value):
+    def _add(self, value: Any) -> None:
         """Adds value to memory"""
         if value is list:
             for val in value:
@@ -40,7 +42,7 @@ For storing element in an expandable buffer.
             if self._capacity != 0:
                 self._position = self._position % self._capacity
 
-    def _sample(self, num: int = None):
+    def _sample(self, num: int = None) -> Iterable:
         """Samples random values from memory"""
         if self._capacity > 0:
             if is_none_or_zero_or_negative(num):

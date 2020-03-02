@@ -126,8 +126,8 @@ __slots__=['state'
 'terminal',
 'action_log_prob',
 "discounted_return",
-    'advantage'
-  ]
+  'advantage'
+]
 """
 
     __slots__ = Transition.__slots__ + [

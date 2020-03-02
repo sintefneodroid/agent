@@ -3,7 +3,7 @@
 
 __author__ = "Christian Heider Nielsen"
 
-from .on_policy_episodic import *
-from .off_policy_episodic import *
-from .off_policy_batched import *
 from .experimental import *
+from .off_policy_batched import *
+from .off_policy_episodic import *
+from .on_policy_episodic import *

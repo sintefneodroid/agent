@@ -12,7 +12,7 @@ from apppath import AppPath
 
 __project__ = "NeodroidAgent"
 __author__ = "Christian Heider Nielsen"
-__version__ = "0.4.4"
+__version__ = "0.4.5"
 __doc__ = r"""
 Created on 27/04/2019
 

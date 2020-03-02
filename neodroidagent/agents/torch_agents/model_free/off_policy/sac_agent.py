@@ -4,7 +4,7 @@
 
 import copy
 import itertools
-from typing import Any, Dict, Sequence, Tuple, Iterable
+from typing import Any, Dict, Sequence, Tuple
 
 import numpy
 import torch
@@ -22,14 +22,13 @@ from neodroidagent.common import (
     ShallowStdNormalMLP,
     TransitionPoint,
     TransitionPointBuffer,
-    MultiDimensionalNormalMLP,
+    Memory,
 )
 from neodroidagent.utilities import (
+    ActionSpaceNotSupported,
     is_zero_or_mod_zero,
     update_target,
-    ActionSpaceNotSupported,
 )
-
 from neodroidagent.utilities.misc.sampling import normal_tanh_reparameterised_sample
 from warg import GDKC, drop_unused_kws, super_init_pass_on_kws
 
@@ -59,7 +58,7 @@ https://arxiv.org/pdf/1812.05905.pdf
         target_update_interval: int = 1,
         num_inner_updates: int = 20,
         sac_alpha: float = 1e-2,
-        memory_buffer=TransitionPointBuffer(1000000),
+        memory_buffer: Memory = TransitionPointBuffer(1000000),
         auto_tune_sac_alpha: bool = False,
         auto_tune_sac_alpha_optimiser_spec: GDKC = GDKC(
             constructor=torch.optim.Adam, lr=1e-2
@@ -160,10 +159,7 @@ https://arxiv.org/pdf/1812.05905.pdf
         distribution = self.actor(to_tensor(state, device=self._device))
 
         with torch.no_grad():
-            return (
-                torch.tanh(distribution.sample_transition_points().detach()),
-                distribution,
-            )
+            return (torch.tanh(distribution.sample().detach()), distribution)
 
     def extract_action(self, sample: SamplePoint) -> numpy.ndarray:
         """
@@ -388,7 +384,7 @@ https://arxiv.org/pdf/1812.05905.pdf
             range(self._num_inner_updates), desc="#Inner update", leave=False
         ):
             self.inner_update_i += 1
-            batch = self._memory_buffer.sample_transition_points(self._batch_size)
+            batch = self._memory_buffer.sample(self._batch_size)
             tensorised = TransitionPoint(
                 *[to_tensor(a, device=self._device) for a in batch]
             )

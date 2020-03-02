@@ -1,17 +1,11 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from typing import Any, Iterable, Union
-
 import numpy
-import torch
 from numba import jit
-from scipy.signal import lfilter
 
 __author__ = "Christian Heider Nielsen"
 __doc__ = ""
-
-from draugr import to_tensor
 
 
 @jit(nopython=True, nogil=True)

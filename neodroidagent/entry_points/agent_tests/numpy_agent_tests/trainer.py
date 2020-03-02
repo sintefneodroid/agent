@@ -1,4 +1,5 @@
 from time import time
+
 import numpy as np
 
 
@@ -9,7 +10,7 @@ An object to facilitate agent training and evaluation.
 
 Parameters
 ----------
-agent : :class:`AgentBase` instance
+agent : :class:`NumpyAgent` instance
 The agent to train.
 env : ``gym.wrappers`` or ``gym.envs`` instance
 The environment to run the agent on.

@@ -5,7 +5,7 @@ from itertools import count
 from neodroidagent.common.memory.data_structures.expandable_circular_buffer import (
     ExpandableCircularBuffer,
 )
-from neodroidagent.common.memory.transitions import Transition, TransitionPoint
+from neodroidagent.common.memory.transitions import TransitionPoint
 from neodroidagent.utilities import NoData
 from warg.arguments import wrap_args
 
@@ -27,7 +27,7 @@ args will be wrapped in a TransitionPoint type tuple and collected as transition
 """
         self._add(transition_point)
 
-    def sample_transition_points(self, num) -> TransitionPoint:
+    def sample(self, num) -> TransitionPoint:
         """Randomly sample transitions from memory."""
         if len(self):
             return TransitionPoint(*zip(*self._sample(num)))
@@ -43,4 +43,4 @@ if __name__ == "__main__":
         tp = TransitionPoint(*([b] * len(TransitionPoint.get_fields())))
         tb.add_transition_point(tp)
 
-    print(tb.sample_transition_points(9))
+    print(tb.sample(9))

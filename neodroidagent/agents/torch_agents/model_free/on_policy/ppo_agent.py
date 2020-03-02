@@ -1,40 +1,36 @@
 #!/usr/local/bin/python
 # coding: utf-8
 import copy
-from typing import Tuple, Any, Sequence
+from typing import Any, Tuple
 
 import numpy
 import torch
 from torch.nn.functional import mse_loss
 from tqdm import tqdm
 
-from draugr import (
-    MockWriter,
-    Writer,
-    freeze_model,
-    to_tensor,
-    random_batches,
-    shuffled_batches,
-)
+from draugr import MockWriter, Writer, freeze_model, shuffled_batches, to_tensor
+from draugr.metrics.accumulation import mean_accumulator
 from neodroid.utilities import ActionSpace, ObservationSpace, SignalSpace
+from neodroidagent.agents.agent import ClipFeature
 from neodroidagent.agents.torch_agents.torch_agent import TorchAgent
-from neodroidagent.common import ValuedTransitionPoint
-from neodroidagent.common.architectures.mlp_variants.actor_critic import (
+from neodroidagent.common import (
     ActorCriticMLP,
     CategoricalActorCriticMLP,
-)
-from neodroidagent.common.memory.trajectories.transition_point_trajectory_buffer import (
     TransitionPointTrajectoryBuffer,
+    ValuedTransitionPoint,
 )
-from neodroidagent.utilities import ActionSpaceNotSupported, update_target, Distribution
-from neodroidagent.utilities.misc.bool_tests import (
+from neodroidagent.utilities import (
+    ActionSpaceNotSupported,
+    Distribution,
     is_none_or_zero_or_negative_or_mod_zero,
+    torch_compute_gae,
+    update_target,
 )
-from neodroidagent.utilities.signal.advantage_estimation import torch_compute_gae
 from warg import GDKC, drop_unused_kws, super_init_pass_on_kws
 
 __author__ = "Christian Heider Nielsen"
-
+__doc__ = r"""
+"""
 __all__ = ["PPOAgent"]
 
 
@@ -43,6 +39,10 @@ class PPOAgent(TorchAgent):
     r"""
 PPO, Proximal Policy Optimization method
 
+https://arxiv.org/abs/1707.06347 - PPO
+https://arxiv.org/abs/1506.02438 - Advantage
+
+https://spinningup.openai.com/en/latest/algorithms/ppo.html
 
 """
 
@@ -50,7 +50,7 @@ PPO, Proximal Policy Optimization method
         self,
         discount_factor: float = 0.95,
         gae_lambda: float = 0.95,
-        entropy_reg_coef: float = 1e-3,
+        entropy_reg_coef: float = 0,
         value_reg_coef: float = 5e-1,
         num_inner_updates: int = 10,
         mini_batch_size: int = 64,
@@ -60,9 +60,10 @@ PPO, Proximal Policy Optimization method
         target_kl: float = 1e-2,
         memory_buffer: Any = TransitionPointTrajectoryBuffer(),
         critic_criterion: callable = mse_loss,
-        optimiser_spec: GDKC = GDKC(constructor=torch.optim.Adam, lr=1e-3),
+        optimiser_spec: GDKC = GDKC(constructor=torch.optim.Adam, lr=3e-4),
         continuous_arch_spec: GDKC = GDKC(ActorCriticMLP),
         discrete_arch_spec: GDKC = GDKC(CategoricalActorCriticMLP),
+        gradient_norm_clipping: ClipFeature = ClipFeature(True, -0.5, 0.5),
         **kwargs,
     ) -> None:
         """
@@ -90,7 +91,7 @@ PPO, Proximal Policy Optimization method
 :param exploration_epsilon_decay:
 :param kwargs:
 """
-        super().__init__(**kwargs)
+        super().__init__(gradient_norm_clipping=gradient_norm_clipping, **kwargs)
 
         assert 0 <= discount_factor <= 1.0
         assert 0 <= gae_lambda <= 1.0
@@ -176,7 +177,7 @@ PPO, Proximal Policy Optimization method
                 else:
                     action = dist.mean
             else:
-                action = dist.sample_transition_points()
+                action = dist.sample()
 
             if self.action_space.is_discrete:
                 action = action.unsqueeze(-1)
@@ -239,7 +240,7 @@ PPO, Proximal Policy Optimization method
             return dist.log_prob(action).sum(axis=-1, keepdims=True)
 
     def _prepare_transitions(self):
-        transitions = self._memory_buffer.sample_transition_points()
+        transitions = self._memory_buffer.sample()
         self._memory_buffer.clear()
 
         signal = to_tensor(transitions.signal, device=self._device)
@@ -294,7 +295,7 @@ PPO, Proximal Policy Optimization method
 """
         transitions = self._prepare_transitions()
 
-        accum_loss = 0
+        accum_loss = mean_accumulator()
         for i in tqdm(
             range(self._num_inner_updates), desc="#Inner updates", leave=False
         ):
@@ -302,7 +303,7 @@ PPO, Proximal Policy Optimization method
             loss, early_stop_inner = self.inner_update(
                 *transitions, metric_writer=metric_writer
             )
-            accum_loss += loss
+            accum_loss.send(loss)
 
             if is_none_or_zero_or_negative_or_mod_zero(
                 self._update_target_interval, self.inner_update_i
@@ -312,73 +313,89 @@ PPO, Proximal Policy Optimization method
             if early_stop_inner:
                 break
 
+        mean_loss = accum_loss.send()
+
         if metric_writer:
             metric_writer.scalar("Inner Updates", i)
-            metric_writer.scalar("Accum Loss", accum_loss)
+            metric_writer.scalar("Mean Loss", mean_loss)
 
-        return accum_loss
+        return mean_loss
 
-    # endregion
+    def _policy_loss(
+        self,
+        new_distribution,
+        action_batch,
+        log_prob_batch_old,
+        adv_batch,
+        *,
+        metric_writer: Writer = None,
+    ):
+        action_log_probs_new = self.get_log_prob(new_distribution, action_batch)
+        ratio = torch.exp(action_log_probs_new - log_prob_batch_old)
+        # if ratio explodes to (inf or Nan) due to the residual being to large check initialisation!
+        # Generated action probs from (new policy) and (old policy).
+        # Values of [0..1] means that actions less likely with the new policy,
+        # while values [>1] mean action a more likely now
+        clamped_ratio = torch.clamp(
+            ratio,
+            min=1.0 - self._surrogate_clipping_value,
+            max=1.0 + self._surrogate_clipping_value,
+        )
 
-    def inner_update(self, *transitions, metric_writer: Writer = None) -> Tuple:
-        for (
-            state_batch,
-            action_batch,
-            log_prob_batch_old,
-            discounted_signal_batch,
-            adv_batch,
-        ) in shuffled_batches(
-            *transitions, size=transitions[0].size(0), batch_size=self._mini_batch_size
-        ):
-            new_distribution, value_estimate = self.actor_critic(state_batch)
+        policy_loss = -torch.min(ratio * adv_batch, clamped_ratio * adv_batch).mean()
+        entropy_loss = new_distribution.entropy().mean() * self._entropy_reg_coef
 
-            action_log_probs_new = self.get_log_prob(new_distribution, action_batch)
-            ratio = torch.exp(action_log_probs_new - log_prob_batch_old)
-            # if ratio explodes to (inf or Nan) due to the residual being to large check initialisation!
-            # Generated action probs from (new policy) and (old policy).
-            # Values of [0..1] means that actions less likely with the new policy,
-            # while values [>1] mean action a more likely now
-            clamped_ratio = torch.clamp(
-                ratio,
-                min=1.0 - self._surrogate_clipping_value,
-                max=1.0 + self._surrogate_clipping_value,
+        with torch.no_grad():
+            approx_kl = (
+                (log_prob_batch_old - action_log_probs_new).mean().detach().cpu().item()
             )
 
-            policy_loss = -torch.min(
-                ratio * adv_batch, clamped_ratio * adv_batch
-            ).mean()
-            entropy_loss = -new_distribution.entropy().mean() * self._entropy_reg_coef
+        if metric_writer:
+            metric_writer.scalar("ratio", ratio.mean().detach().cpu().item())
+            metric_writer.scalar("entropy_loss", entropy_loss.detach().cpu().item())
+            metric_writer.scalar(
+                "clamped_ratio", clamped_ratio.mean().detach().cpu().item()
+            )
+
+        return policy_loss - entropy_loss, approx_kl
+
+    def inner_update(self, *transitions, metric_writer: Writer = None) -> Tuple:
+        batch_generator = shuffled_batches(
+            *transitions, size=transitions[0].size(0), batch_size=self._mini_batch_size
+        )
+        for (
+            state,
+            action,
+            log_prob_old,
+            discounted_signal,
+            advantage,
+        ) in batch_generator:
+            new_distribution, value_estimate = self.actor_critic(state)
+
+            policy_loss, approx_kl = self._policy_loss(
+                new_distribution,
+                action,
+                log_prob_old,
+                advantage,
+                metric_writer=metric_writer,
+            )
             critic_loss = (
-                self._critic_criterion(value_estimate, discounted_signal_batch)
+                self._critic_criterion(value_estimate, discounted_signal)
                 * self._value_reg_coef
             )
 
-            loss = critic_loss + policy_loss + entropy_loss
+            loss = policy_loss + critic_loss
 
             self._optimiser.zero_grad()
             loss.backward()
             self.post_process_gradients(self.actor_critic.parameters())
             self._optimiser.step()
 
-            with torch.no_grad():
-                approx_kl = (
-                    (log_prob_batch_old - action_log_probs_new)
-                    .mean()
-                    .detach()
-                    .cpu()
-                    .item()
-                )
-
             if metric_writer:
-                metric_writer.scalar("ratio", ratio.mean().detach().cpu().item())
                 metric_writer.scalar(
                     "stddev", new_distribution.stddev.cpu().mean().item()
                 )
-                metric_writer.scalar(
-                    "clamped_ratio", clamped_ratio.mean().detach().cpu().item()
-                )
                 metric_writer.scalar("policy_loss", policy_loss.detach().cpu().item())
-                metric_writer.scalar("entropy_loss", entropy_loss.detach().cpu().item())
                 metric_writer.scalar("critic_loss", critic_loss.detach().cpu().item())
                 metric_writer.scalar("approx_kl", approx_kl)
                 metric_writer.scalar("loss", loss.detach().cpu().item())

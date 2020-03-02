@@ -2,15 +2,15 @@
 # -*- coding: utf-8 -*-
 import inspect
 import time
-from typing import TypeVar, Type, Any
+from typing import Any, Type, TypeVar
 
 from draugr import add_early_stopping_key_combination, torch_seed
 from neodroidagent import PROJECT_APP_PATH
 from neodroidagent.agents import Agent
-from .procedures.procedure_specification import Procedure
-from .environment_session import EnvironmentSession
 from neodroidagent.utilities import NoAgent
 from warg import passes_kws_to
+from .environment_session import EnvironmentSession
+from .procedures.procedure_specification import Procedure
 
 __author__ = "Christian Heider Nielsen"
 __doc__ = r"""
@@ -34,7 +34,7 @@ class SingleAgentEnvironmentSession(EnvironmentSession):
         *,
         load_time: Any,
         seed: int,
-        save_model: bool = True,
+        save_ending_model: bool = False,
         continue_training: bool = True,
         train_agent: bool = True,
         **kwargs,
@@ -139,7 +139,7 @@ Start a session, builds Agent and starts/connect environment(s), and runs Proced
         line_width = 9
         print(f'\n{"-" * line_width} {end_message} {"-" * line_width}\n')
 
-        if save_model:
+        if save_ending_model:
             agent.save(**kwargs)
 
         try:

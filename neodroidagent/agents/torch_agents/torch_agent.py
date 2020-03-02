@@ -1,29 +1,27 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 import copy
+import hashlib
 from abc import ABC, abstractmethod
 from pathlib import Path
-
-from torch.nn import Parameter
-
-from neodroid.utilities import ObservationSpace, SignalSpace, ActionSpace
 from typing import Dict, Iterable
 
-from neodroidagent.agents.agent import Agent, ClipFeature
-from neodroidagent.common.architectures.architecture import Architecture
 import torch
-import hashlib
+from torch.nn import Parameter
+
 from draugr import (
-    save_model,
-    load_latest_model,
-    sprint,
+    MockWriter,
     TensorBoardPytorchWriter,
     Writer,
-    MockWriter,
     global_torch_device,
+    load_latest_model,
+    save_model,
+    sprint,
 )
-
-from warg import passes_kws_to, super_init_pass_on_kws, drop_unused_kws
+from neodroid.utilities import ActionSpace, ObservationSpace, SignalSpace
+from neodroidagent.agents.agent import Agent, ClipFeature
+from neodroidagent.common.architectures.architecture import Architecture
+from warg import drop_unused_kws, passes_kws_to, super_init_pass_on_kws
 
 __author__ = "Christian Heider Nielsen"
 __doc__ = r"""

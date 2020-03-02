@@ -7,11 +7,7 @@ from typing import Union
 
 import numpy
 
-from draugr.metrics.accumulation import (
-    lambda_accumulator,
-    mean_accumulator,
-    total_accumulator,
-)
+from draugr.metrics.accumulation import mean_accumulator, total_accumulator
 from draugr.writers import MockWriter, TensorBoardPytorchWriter, Writer
 from neodroid.environments.environment import Environment
 from neodroid.utilities import EnvironmentSnapshot

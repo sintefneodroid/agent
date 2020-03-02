@@ -15,8 +15,7 @@ from cloudpickle import cloudpickle
 from garage.experiment import to_local_command
 
 from neodroid.environments.unity_environment import UnityEnvironment
-from neodroidagent.agents import SACAgent, Agent
-from neodroidagent.agents.numpy_agents.baseline_agent import LinearFeatureBaselineAgent
+from neodroidagent.agents import SACAgent
 from neodroidagent.common import CategoricalMLP
 
 
@@ -28,7 +27,7 @@ class Experiment:
         """Set self.sess as the default session.
 
 Returns:
-    This local runner.
+This local runner.
 
 """
 
@@ -57,20 +56,20 @@ Returns:
 specified mode.
 
 Args:
-    method_call (callable): A method call.
-    batch_tasks (list[dict]): A batch of method calls.
-    exp_prefix (str): Name prefix for the experiment.
-    exp_name (str): Name of the experiment.
-    log_dir (str): Log directory for the experiment.
-    script (str): The name of the entrance point python script.
-    python_command (str): Python command to run the experiment.
-    dry (bool): Whether to do a dry-run, which only prints the
-        commands without executing them.
-    env (dict): Extra environment variables.
-    variant (dict): If provided, should be a dictionary of parameters.
-    force_cpu (bool): Whether to set all GPU devices invisible
-        to force use CPU.
-    pre_commands (str): Pre commands to run the experiment.
+method_call (callable): A method call.
+batch_tasks (list[dict]): A batch of method calls.
+exp_prefix (str): Name prefix for the experiment.
+exp_name (str): Name of the experiment.
+log_dir (str): Log directory for the experiment.
+script (str): The name of the entrance point python script.
+python_command (str): Python command to run the experiment.
+dry (bool): Whether to do a dry-run, which only prints the
+    commands without executing them.
+env (dict): Extra environment variables.
+variant (dict): If provided, should be a dictionary of parameters.
+force_cpu (bool): Whether to set all GPU devices invisible
+    to force use CPU.
+pre_commands (str): Pre commands to run the experiment.
 
 """
         if method_call is None and batch_tasks is None:

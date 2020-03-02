@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 import abc
 from pathlib import Path
-from typing import Union, List
+from typing import List, Union
 
 from neodroid import Environment
 from neodroidagent.agents import Agent

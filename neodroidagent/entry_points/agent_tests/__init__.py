@@ -7,12 +7,12 @@ __doc__ = r"""
            Created on 20/01/2020
            """
 
-from .ddpg_test import *
-from .dqn_test import *
-from .pg_test import *
-from .ppo_test import *
+from neodroidagent.entry_points.agent_tests.torch_agent_tests.ddpg_test import *
+from neodroidagent.entry_points.agent_tests.torch_agent_tests.dqn_test import *
+from neodroidagent.entry_points.agent_tests.torch_agent_tests.pg_test import *
+from neodroidagent.entry_points.agent_tests.torch_agent_tests.ppo_test import *
 from .random_test import *
-from .sac_test import *
+from neodroidagent.entry_points.agent_tests.torch_agent_tests.sac_test import *
 
 AGENT_OPTIONS = {
     "ddpg-gym": ddpg_test,

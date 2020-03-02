@@ -13,7 +13,7 @@ def test_replay_buffer():
     rb = ReplayBuffer()
     a = tuple(range(3))
     rb.push(a)
-    b = rb.sample_transition_points(1)
+    b = rb.sample(1)
     assert [a] == b, f"Expected {a} and {b} to be equal"
 
 
@@ -21,10 +21,10 @@ def test_replay_buffer_more():
     rb = ReplayBuffer()
     a = tuple(range(3))
     rb.push(a)
-    b = rb.sample_transition_points(1)
+    b = rb.sample(1)
     c = tuple(range(6))
     rb.push(c)
-    d = rb.sample_transition_points(2)
+    d = rb.sample(2)
     assert d.__contains__(c)
     assert len(d) == 2
     assert [a] == b, f"Expected {a} and {b} to be equal"
@@ -44,7 +44,7 @@ def test_transition_buffer_list():
     a = numpy.random.random((9, 9))
     for e in a:
         rb.add_transition_point(e, None, None, None, None)
-    b, *_ = rb.sample_transition_points(9)
+    b, *_ = rb.sample(9)
     assert numpy.array(
         [a.__contains__(i) for i in b]
     ).all(), f"Expected {a} to cover {b}"

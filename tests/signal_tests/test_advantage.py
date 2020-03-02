@@ -1,21 +1,15 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-import pytest
-
-from neodroidagent.utilities.signal.experimental.generalised_advantage import (
-    discounted_gae,
-    discounted_ge,
-)
-from neodroidagent.utilities.signal.experimental.nstep import (
-    discounted_nstep,
-    discounted_nstep_adv,
-)
-from warg import NOD
 
 __author__ = "Christian Heider Nielsen"
-__doc__ = ""
+__doc__ = r"""
 
-import numpy
+           Created on 27/02/2020
+           """
+import pytest
+
+
+from warg import NOD
 
 
 def sample_transitions():
@@ -31,6 +25,18 @@ def sample_transitions():
 @pytest.fixture
 def transitions():
     return sample_transitions()
+
+
+import numpy
+
+from neodroidagent.utilities.signal.experimental.generalised_advantage import (
+    discounted_gae,
+    discounted_ge,
+)
+from neodroidagent.utilities.signal.experimental.nstep import (
+    discounted_nstep,
+    discounted_nstep_adv,
+)
 
 
 def test_discounted_gae_returns(transitions):

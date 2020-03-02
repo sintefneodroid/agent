@@ -4,10 +4,10 @@
 __author__ = "Christian Heider Nielsen"
 __doc__ = ""
 
-from .sampling import *
 from .curiosity_module import *
 from .epsilon import *
 from .exploration_specification import *
 from .icm import *
-from .ucb1 import *
 from .regularisation import *
+from .sampling import *
+from .ucb1 import *

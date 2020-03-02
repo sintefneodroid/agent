@@ -3,7 +3,6 @@
 from typing import Union
 
 import numpy
-from numba import jit
 
 from draugr.torch_utilities import to_tensor
 
@@ -11,7 +10,7 @@ __author__ = "Christian Heider Nielsen"
 
 import torch
 
-__all__ = ["torch_advantage_estimate"]
+__all__ = ["torch_advantage_estimate", "torch_compute_gae"]
 
 
 def torch_advantage_estimate(
@@ -80,17 +79,17 @@ def torch_compute_gae(
 ) -> torch.tensor:
     """
 
-  Computes discounted return and advantage
+Computes discounted return and advantage
 
-  @param signal:
-  @param non_terminal:
-  @param values:
-  @param discount_factor:
-  @param gae_lambda:
-  @param device:
-  @param normalise:
-  @return:
-  """
+@param signal:
+@param non_terminal:
+@param values:
+@param discount_factor:
+@param gae_lambda:
+@param device:
+@param normalise:
+@return:
+"""
     len_signal = len(signal)
     assert len_signal == len(non_terminal) == len(values) - 1, (
         f"{signal.shape}, {non_terminal.shape}, " f"{values.shape}"

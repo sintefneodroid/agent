@@ -2,13 +2,14 @@
 # -*- coding: utf-8 -*-
 import logging
 from typing import Sequence, Sized
-import torch
-from torch import nn, seed
+
 import numpy
+import torch
 from numpy import prod
+from torch import nn
 from torch.nn import Module
 
-from draugr import to_tensor, fan_in_init, torch_seed, constant_init
+from draugr import constant_init, fan_in_init, to_tensor, torch_seed
 from neodroidagent.common.architectures.architecture import Architecture
 from warg.named_ordered_dictionary import NOD
 
@@ -141,9 +142,9 @@ OOOO hidden_layer_size * (Weights,Biases)
     def infer_input_shape(self, input_shape):
         """
 
-    @param input_shape:
-    @return:
-    """
+@param input_shape:
+@return:
+"""
         if isinstance(input_shape, Sequence):
             assert len(input_shape) > 0, f"Got length {len(input_shape)}"
             self._input_shape = input_shape
@@ -158,9 +159,9 @@ OOOO hidden_layer_size * (Weights,Biases)
     def infer_output_shape(self, output_shape):
         """
 
-    @param output_shape:
-    @return:
-    """
+@param output_shape:
+@return:
+"""
         if isinstance(output_shape, Sequence):
             assert len(output_shape) > 0, f"Got length {len(output_shape)}"
             self._output_shape = output_shape

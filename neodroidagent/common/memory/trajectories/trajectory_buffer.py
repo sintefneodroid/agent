@@ -7,7 +7,7 @@ from neodroidagent.common.memory.data_structures.expandable_circular_buffer impo
     ExpandableCircularBuffer,
 )
 from neodroidagent.utilities import NoData
-from warg import IterDictValuesMixin, IndexDictTuplesMixin
+from warg import IndexDictTuplesMixin, IterDictValuesMixin
 from warg.arguments import wrap_args
 
 __author__ = "Christian Heider Nielsen"
@@ -61,7 +61,7 @@ __slots__=["signal", "terminated", "action", "distribution"]
 
 class SampleTrajectoryBuffer(ExpandableCircularBuffer):
     """
-  Expandable buffer for storing rollout trajectories
+Expandable buffer for storing rollout trajectories
 """
 
     def __init__(self):

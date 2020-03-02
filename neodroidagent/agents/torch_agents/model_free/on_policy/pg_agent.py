@@ -9,8 +9,10 @@ from torch.optim import Optimizer
 from tqdm import tqdm
 
 from draugr import MockWriter, Writer, to_tensor
-from neodroid.utilities import ActionSpace, ObservationSpace, SignalSpace
-from neodroid.utilities.transformations.terminal_masking import (
+from neodroid.utilities import (
+    ActionSpace,
+    ObservationSpace,
+    SignalSpace,
     non_terminal_numerical_mask,
 )
 from neodroidagent.agents.torch_agents.torch_agent import TorchAgent
@@ -147,7 +149,7 @@ REINFORCE, Vanilla Policy Gradient method
         distribution = self.distributional_regressor(model_input)
 
         with torch.no_grad():
-            action = distribution.sample_transition_points().detach()
+            action = distribution.sample().detach()
 
         if self.action_space.is_discrete:
             action = action.unsqueeze(-1)

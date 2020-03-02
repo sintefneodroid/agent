@@ -7,10 +7,11 @@ __doc__ = r"""
            Created on 08/12/2019
            """
 
+import math
+
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-import math
 
 __all__ = ["MultiHeadAttention"]
 

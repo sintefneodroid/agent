@@ -1,12 +1,12 @@
 import gym
 
-from .trainer import Trainer
-from .agents import (
+from neodroidagent.agents import (
     CrossEntropyAgent,
     MonteCarloAgent,
     TemporalDifferenceAgent,
     DynaAgent,
 )
+from .trainer import Trainer
 
 
 def test_cross_entropy_agent():

@@ -1,15 +1,12 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-import math
 from pathlib import Path
 from typing import Union
 
-import numpy
 import torch
 from tqdm import tqdm
 
-from draugr.metrics.accumulation import lambda_accumulator, mean_accumulator
-from draugr.torch_utilities.to_tensor import to_tensor
+from draugr.metrics.accumulation import mean_accumulator
 from draugr.writers import TensorBoardPytorchWriter
 
 __author__ = "Christian Heider Nielsen"
@@ -20,7 +17,6 @@ __doc__ = "Collects agent experience in a batched fashion for off policy agents"
 from neodroidagent.common.session_factory.vertical.procedures.procedure_specification import (
     Procedure,
 )
-from neodroidagent.common.memory import Transition
 from neodroidagent.utilities import is_positive_and_mod_zero
 
 
@@ -81,7 +77,7 @@ class OffPolicyBatched(Procedure):
                     desc="Step #",
                 ):
 
-                    sample = self.agent.sample_transition_points(state)
+                    sample = self.agent.sample(state)
                     action = self.agent.extract_action(sample)
                     snapshot = self.environment.react(action)
                     successor_state = self.agent.extract_features(snapshot)

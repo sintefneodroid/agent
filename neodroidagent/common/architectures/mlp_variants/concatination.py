@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-from typing import Iterable, Sequence, List
+from typing import Iterable, List, Sequence
 
 import numpy
 import torch
@@ -11,7 +11,7 @@ from neodroidagent.common.architectures.mlp import MLP
 __author__ = "Christian Heider Nielsen"
 __doc__ = ""
 
-__all__ = ["ConcatInputMLP"]
+__all__ = ["ConcatInputMLP", "PostConcatInputMLP"]
 
 
 class ConcatInputMLP(MLP):

@@ -4,6 +4,7 @@ import argparse
 
 from neodroid.environments.unity_environment import SingleUnityEnvironment
 from neodroid.utilities import Displayable
+from neodroidagent.agents.numpy_agents.numpy_agent import NumpyAgent
 from neodroidagent.utilities.exploration.ucb1 import UCB1
 
 __author__ = "Christian Heider Nielsen"
@@ -55,6 +56,10 @@ def main(connect_to_running=True):
 
         if terminated:
             _environment.reset()
+
+
+class UCB1Agent(NumpyAgent):
+    pass
 
 
 if __name__ == "__main__":

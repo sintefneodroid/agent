@@ -7,5 +7,5 @@ __doc__ = r"""
            Created on 19/01/2020
            """
 
-from .vertical import *
 from .horizontal import *
+from .vertical import *

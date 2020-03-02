@@ -3,6 +3,18 @@
 
 __author__ = "Christian Heider Nielsen"
 
+from draugr.python_utilities.exceptions import NoData
+
+__all__ = [
+    "NoData",
+    "NoAgent",
+    "NoEnvironment",
+    "NoProcedure",
+    "NoTrajectoryException",
+    "ActionSpaceNotSupported",
+    "HasNoEnvError",
+]
+
 
 class HasNoEnvError(Exception):
     """
@@ -46,15 +58,6 @@ class NoTrajectoryException(Exception):
 """
 
     def __init__(self, msg="No Trajectory Available"):
-        Exception.__init__(self, msg)
-
-
-class NoData(Exception):
-    """
-
-"""
-
-    def __init__(self, msg="No Data Available"):
         Exception.__init__(self, msg)
 
 

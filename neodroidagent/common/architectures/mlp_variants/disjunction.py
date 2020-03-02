@@ -10,10 +10,11 @@ __doc__ = r"""
 from typing import Sequence, Tuple
 
 import torch
-from neodroidagent.common.architectures.mlp import MLP
 from torch import nn
 
-__all__ = ["DisjunctionMLP"]
+from neodroidagent.common.architectures.mlp import MLP
+
+__all__ = ["DisjunctionMLP", "DuelingQMLP"]
 
 
 class DisjunctionMLP(MLP):

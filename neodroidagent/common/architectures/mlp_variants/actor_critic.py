@@ -7,13 +7,12 @@ __doc__ = r"""
            Created on 17/01/2020
            """
 
-from typing import Iterable, Sequence
+from typing import Sequence
 
 import numpy
 import torch
 from torch import nn
-from torch.distributions import Normal, Categorical
-from torch.nn.functional import softplus
+from torch.distributions import Categorical, Normal
 
 from draugr import to_tensor
 from neodroidagent.common.architectures.mlp import MLP
@@ -31,7 +30,6 @@ class ActorCriticMLP(MLP):
         default_log_std: float = 0,
         **kwargs
     ):
-
         super().__init__(
             output_shape=(disjunction_size,),
             default_log_std=default_log_std,
@@ -91,7 +89,7 @@ if __name__ == "__main__":
                             to_tensor(
                                 numpy.random.rand(batch_size, pos_size[0]), device="cpu"
                             )
-                        )[0].sample_transition_points()
+                        )[0].sample()
                         for _ in range(1000)
                     ]
                 )
@@ -112,7 +110,7 @@ if __name__ == "__main__":
                             to_tensor(
                                 numpy.random.rand(batch_size, pos_size[0]), device="cpu"
                             )
-                        )[0].sample_transition_points()
+                        )[0].sample()
                         for _ in range(1000)
                     ]
                 )

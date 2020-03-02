@@ -14,5 +14,4 @@ import pathlib
 
 CONFIG_FILE_PATH = pathlib.Path(__file__)
 
-
 UPDATE_DIFFICULTY_INTERVAL = 1000

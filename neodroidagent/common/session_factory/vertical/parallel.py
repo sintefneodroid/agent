@@ -3,18 +3,12 @@
 from os import cpu_count
 from typing import Type, Union
 
-from neodroid.environments.gym_environment import (
-    NeodroidGymEnvironment,
-    NeodroidVectorGymEnvironment,
-)
-from neodroid.environments.unity_environment import VectorUnityEnvironment
-
 from neodroid.environments import Environment
+from neodroid.environments.gym_environment import NeodroidVectorGymEnvironment
+from neodroid.environments.unity_environment import VectorUnityEnvironment
+from warg import super_init_pass_on_kws
 from .procedures import OnPolicyEpisodic, Procedure
 from .single_agent_environment_session import SingleAgentEnvironmentSession
-
-from trolls import SubProcessEnvironments, make_gym_env
-from warg import super_init_pass_on_kws
 
 __author__ = "Christian Heider Nielsen"
 __doc__ = r"""

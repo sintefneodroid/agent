@@ -2,16 +2,10 @@
 # -*- coding: utf-8 -*-
 from itertools import count
 
-from torch.utils.data import BatchSampler, SubsetRandomSampler
-
 from neodroidagent.common.memory.data_structures.expandable_circular_buffer import (
     ExpandableCircularBuffer,
 )
-from neodroidagent.common.memory.transitions import (
-    Transition,
-    TransitionPoint,
-    ValuedTransitionPoint,
-)
+from neodroidagent.common.memory.transitions import ValuedTransitionPoint
 from neodroidagent.utilities import NoData
 from warg.arguments import wrap_args
 
@@ -36,7 +30,7 @@ args will be wrapped in a TransitionPoint type tuple and collected as transition
 """
         self._add(transition_point)
 
-    def sample_transition_points(self) -> ValuedTransitionPoint:
+    def sample(self) -> ValuedTransitionPoint:
         """Randomly sample transitions from memory."""
         if len(self):
             return ValuedTransitionPoint(*zip(*self._sample()))
@@ -51,4 +45,4 @@ if __name__ == "__main__":
         b = next(a)
         tp = ValuedTransitionPoint(*([b] * len(ValuedTransitionPoint.get_fields())))
         tb.add_transition_point(tp)
-    print(tb.sample_transition_points(10))
+    print(tb.sample(10))

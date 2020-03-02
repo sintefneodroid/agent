@@ -1,24 +1,25 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-from numpy import prod
+from typing import List, Tuple
+
+import numpy
+import torch
 from torch.distributions import Categorical
 from torch.nn import functional as F
 
 from draugr import to_tensor
-from neodroidagent.common.architectures import MLP
-import numpy
-import torch
+from neodroidagent.common.architectures.mlp import MLP
 
 __author__ = "Christian Heider Nielsen"
-__doc__ = ""
-
+__doc__ = r"""
+"""
 __all__ = ["MultipleCategoricalMLP", "CategoricalMLP"]
 
 
 class MultipleCategoricalMLP(MLP):
     @staticmethod
-    def sample(distributions):
-        actions = [d.sample_transition_points() for d in distributions][0]
+    def sample(distributions) -> Tuple:
+        actions = [d.sample() for d in distributions][0]
 
         log_prob = [d.log_prob(action) for d, action in zip(distributions, actions)][0]
 
@@ -26,10 +27,10 @@ class MultipleCategoricalMLP(MLP):
         return actions, log_prob
 
     @staticmethod
-    def entropy(distributions):
+    def entropy(distributions) -> torch.tensor:
         return torch.mean(to_tensor([d.entropy() for d in distributions]))
 
-    def forward(self, *x, **kwargs):
+    def forward(self, *x, **kwargs) -> List:
         out = super().forward(*x, **kwargs)
         outs = []
         for o in out:
@@ -39,7 +40,7 @@ class MultipleCategoricalMLP(MLP):
 
 
 class CategoricalMLP(MLP):
-    def forward(self, *x, **kwargs):
+    def forward(self, *x, **kwargs) -> Categorical:
         return Categorical(F.softmax(super().forward(*x, **kwargs), dim=-1))
 
 

@@ -7,9 +7,9 @@ from typing import Union
 import torch
 from tqdm import tqdm
 
-from .procedure_specification import Procedure
-from warg import drop_unused_kws
 from draugr import TensorBoardPytorchWriter
+from warg import drop_unused_kws
+from .procedure_specification import Procedure
 
 __author__ = "Christian Heider Nielsen"
 __doc__ = r"""

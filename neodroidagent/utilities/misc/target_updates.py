@@ -45,13 +45,13 @@ def soft_copy_params(target_model, source_model, copy_percentage) -> None:
 
 def inplace_polyak_update_params(target_model, source_model, copy_percentage) -> None:
     """
-  update target networks by polyak averaging
+update target networks by polyak averaging
 
-  @param target_model:
-  @param source_model:
-  @param copy_percentage:
-  @return:
-  """
+@param target_model:
+@param source_model:
+@param copy_percentage:
+@return:
+"""
     with torch.no_grad():
         for p, p_targ in zip(source_model.parameters(), target_model.parameters()):
             p_targ.data.mul_(copy_percentage)

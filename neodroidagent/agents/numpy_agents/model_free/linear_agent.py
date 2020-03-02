@@ -11,11 +11,11 @@ from typing import Any, Tuple
 
 import numpy as np
 
-from draugr import Writer, MockWriter
+from draugr import MockWriter, Writer
 from neodroid.utilities import (
+    ActionSpace,
     EnvironmentSnapshot,
     ObservationSpace,
-    ActionSpace,
     SignalSpace,
 )
 from neodroidagent.agents import Agent
@@ -46,7 +46,7 @@ class LinearFeatureBaselineAgent(Agent):
     def save(self, *, save_directory, **kwargs) -> None:
         return self._coeffs
 
-    def _remember(self, **kwargs):
+    def _remember(self, **kwargs) -> None:
         pass
 
     def _sample(

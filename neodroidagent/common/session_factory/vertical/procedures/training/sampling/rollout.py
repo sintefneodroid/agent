@@ -13,7 +13,7 @@ def run(self, environment: VectorUnityEnvironment, render: bool = True) -> None:
     for frame_i in F:
         F.set_description(f"Frame {frame_i}")
 
-        action, *_ = self.sample_transition_points(state, deterministic=True)
+        action, *_ = self.sample(state, deterministic=True)
         state, signal, terminated, info = environment.react(action, render=render)
 
         if terminated.all():
@@ -27,7 +27,7 @@ def infer(self, env, render=True):
 
         for frame_i in count(1):
 
-            action, *_ = self.sample_transition_points(state)
+            action, *_ = self.sample(state)
             state, signal, terminated, info = env.act(action)
             if render:
                 env.render()

@@ -1,5 +1,5 @@
 import copy
-from typing import Any, Sequence
+from typing import Any, Sequence, Dict
 
 import numpy
 import torch
@@ -7,34 +7,28 @@ import torch.nn.functional as F
 from numpy import mean
 from tqdm import tqdm
 
-from draugr import (
-    MockWriter,
-    Writer,
-    to_tensor,
-    frozen_parameters,
-    freeze_model,
-    frozen_model,
-)
+from draugr import MockWriter, Writer, freeze_model, frozen_model, to_tensor
 from neodroid.utilities import ActionSpace, ObservationSpace, SignalSpace
 from neodroidagent.agents.torch_agents.torch_agent import TorchAgent
 from neodroidagent.common import (
-    TransitionPointBuffer,
-    TransitionPoint,
-    ConcatInputMLP,
     MLP,
-)
-from neodroidagent.common.architectures.mlp_variants.concatination import (
     PostConcatInputMLP,
+    TransitionPoint,
+    TransitionPointBuffer,
+    Memory,
+    Architecture,
 )
 from neodroidagent.utilities import (
     ActionSpaceNotSupported,
     OrnsteinUhlenbeckProcess,
-    update_target,
     is_zero_or_mod_zero,
+    update_target,
 )
 from warg import GDKC, drop_unused_kws, super_init_pass_on_kws
 
 __author__ = "Christian Heider Nielsen"
+__doc__ = r"""
+"""
 __all__ = ["DDPGAgent"]
 
 tqdm.monitor_interval = 0
@@ -48,35 +42,33 @@ The Deep Deterministic Policy Gradient (DDPG) Agent
 Parameters
 ----------
 actor_optimizer_spec: OptimiserSpec
-  Specifying the constructor and kwargs, as well as learning rate and other
-  parameters for the optimiser
+Specifying the constructor and kwargs, as well as learning rate and other
+parameters for the optimiser
 critic_optimizer_spec: OptimiserSpec
 num_feature: int
-  The number of features of the environmental state
+The number of features of the environmental state
 num_action: int
-  The number of available actions that agent can choose from
+The number of available actions that agent can choose from
 replay_memory_size: int
-  How many memories to store in the replay memory.
+How many memories to store in the replay memory.
 batch_size: int
-  How many transitions to sample each time experience is replayed.
+How many transitions to sample each time experience is replayed.
 tau: float
-  The update rate that target networks slowly track the learned networks.
+The update rate that target networks slowly track the learned networks.
 """
-
-    # region Private
 
     def __init__(
         self,
-        random_process_spec=GDKC(constructor=OrnsteinUhlenbeckProcess),
-        memory_buffer=TransitionPointBuffer(),
-        evaluation_function=F.mse_loss,
-        actor_arch_spec=GDKC(MLP, output_activation=torch.nn.Tanh()),
-        critic_arch_spec=GDKC(PostConcatInputMLP),
+        random_process_spec: GDKC = GDKC(constructor=OrnsteinUhlenbeckProcess),
+        memory_buffer: Memory = TransitionPointBuffer(),
+        evaluation_function: callable = F.mse_loss,
+        actor_arch_spec: GDKC = GDKC(MLP, output_activation=torch.nn.Tanh()),
+        critic_arch_spec: GDKC = GDKC(PostConcatInputMLP),
         discount_factor: float = 0.95,
-        update_target_interval=1,
-        batch_size=128,
-        noise_factor=1e-1,
-        copy_percentage=0.005,
+        update_target_interval: int = 1,
+        batch_size: int = 128,
+        noise_factor: float = 1e-1,
+        copy_percentage: float = 0.005,
         actor_optimiser_spec: GDKC = GDKC(constructor=torch.optim.Adam, lr=1e-4),
         critic_optimiser_spec: GDKC = GDKC(constructor=torch.optim.Adam, lr=1e-2),
         **kwargs,
@@ -103,8 +95,8 @@ tau: float
         assert 0 <= copy_percentage <= 1.0
 
         self._copy_percentage = copy_percentage
-        self._actor_optimiser_spec: GDKC = actor_optimiser_spec
-        self._critic_optimiser_spec: GDKC = critic_optimiser_spec
+        self._actor_optimiser_spec = actor_optimiser_spec
+        self._critic_optimiser_spec = critic_optimiser_spec
         self._actor_arch_spec = actor_arch_spec
         self._critic_arch_spec = critic_arch_spec
         self._random_process_spec = random_process_spec
@@ -119,8 +111,6 @@ tau: float
         self._batch_size = batch_size
         self._noise_factor = noise_factor
 
-    # endregion
-
     @drop_unused_kws
     def __build__(
         self,
@@ -128,7 +118,7 @@ tau: float
         action_space: ActionSpace,
         signal_space: SignalSpace,
         metric_writer: Writer = MockWriter(),
-        print_model_repr=True,
+        print_model_repr: bool = True,
     ) -> None:
         """
 
@@ -168,17 +158,17 @@ tau: float
             sigma=mean([r.span for r in action_space.ranges])
         )
 
-    # region Public
-
     @property
-    def models(self):
+    def models(self) -> Dict[str, Architecture]:
         """
 
 @return:
 """
         return {"_actor": self._actor, "_critic": self._critic}
 
-    def update_targets(self, update_percentage, *, metric_writer: Writer = None):
+    def update_targets(
+        self, update_percentage, *, metric_writer: Writer = None
+    ) -> None:
         """
 
 @param update_percentage:
@@ -199,17 +189,14 @@ tau: float
                 copy_percentage=update_percentage,
             )
 
-    # endregion
-
-    # region Protected
     @drop_unused_kws
-    def _remember(self, *, signal, terminated, state, successor_state, sample):
+    def _remember(self, *, signal, terminated, state, successor_state, sample) -> None:
         self._memory_buffer.add_transition_point(
             TransitionPoint(state, sample, successor_state, signal, terminated)
         )
 
     @drop_unused_kws
-    def _update(self, *, metric_writer: Writer = MockWriter()):
+    def _update(self, *, metric_writer: Writer = MockWriter()) -> None:
         """
 Update
 
@@ -217,10 +204,7 @@ Update
 :rtype:
 """
         tensorised = TransitionPoint(
-            *[
-                to_tensor(a, device=self._device)
-                for a in self._memory_buffer.sample_transition_points()
-            ]
+            *[to_tensor(a, device=self._device) for a in self._memory_buffer.sample()]
         )
 
         self._memory_buffer.clear()
@@ -287,8 +271,7 @@ Update
         deterministic = False
         if not deterministic:
             # Add action space noise for exploration, alternative is parameter space noise
-            noise = self._random_process.sample_transition_points(action_out.shape)
+            noise = self._random_process.sample(action_out.shape)
             action_out += to_tensor(noise * self._noise_factor, device=self.device)
 
         return action_out
-        # endregion

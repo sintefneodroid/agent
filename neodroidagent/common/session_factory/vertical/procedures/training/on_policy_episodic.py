@@ -7,22 +7,16 @@ from typing import Union
 
 import numpy
 
-from draugr.metrics.accumulation import (
-    lambda_accumulator,
-    mean_accumulator,
-    total_accumulator,
-)
-from neodroidagent.common import SampleTrajectoryPoint
+from draugr.drawers.drawer import Drawer, MockDrawer
+from draugr.metrics.accumulation import mean_accumulator, total_accumulator
+from draugr.writers import MockWriter, TensorBoardPytorchWriter, Writer
+from neodroid.environments.environment import Environment
+from neodroid.utilities import EnvironmentSnapshot
+from neodroidagent.agents.agent import Agent
 from neodroidagent.common.session_factory.vertical.procedures.procedure_specification import (
     Procedure,
 )
-from draugr.drawers.drawer import Drawer, MockDrawer
-from draugr.writers import TensorBoardPytorchWriter, MockWriter, Writer
-from neodroid.environments.environment import Environment
-from neodroid.utilities import EnvironmentSnapshot, to_one_hot
-from neodroidagent.agents.agent import Agent
 from neodroidagent.utilities.misc import is_positive_and_mod_zero
-
 from warg.kw_passing import drop_unused_kws, passes_kws_to
 
 __author__ = "Christian Heider Nielsen"
@@ -60,9 +54,9 @@ def rollout_on_policy(
 :param render: Whether to render environment interaction
 :param train_agent: Whether the agent should use the rollout to update its model
 :return:
-  -episode_signal (:py:class:`float`) - first output
-  -episode_length-
-  -average_episode_entropy-
+-episode_signal (:py:class:`float`) - first output
+-episode_length-
+-average_episode_entropy-
 """
 
     state = agent.extract_features(initial_snapshot)

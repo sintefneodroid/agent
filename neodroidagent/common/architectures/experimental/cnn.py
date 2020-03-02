@@ -2,8 +2,9 @@
 # -*- coding: utf-8 -*-
 from collections.abc import Collection
 
-from draugr.torch_utilities import atari_initializer, ortho_weights
 from neodroidagent.architectures.architecture import Architecture
+
+from draugr.torch_utilities import atari_initializer, ortho_weights
 
 __author__ = "Christian Heider Nielsen"
 

@@ -65,7 +65,7 @@ args will be wrapped in a TransitionPoint type tuple and collected as transition
 """
         self._add(transition_point)
 
-    def sample_transition_points(self, num) -> SampleTransitionPoint:
+    def sample(self, num) -> SampleTransitionPoint:
         """Randomly sample transitions from memory."""
         if len(self):
             samples = self._sample(num)
@@ -77,6 +77,6 @@ args will be wrapped in a TransitionPoint type tuple and collected as transition
 if __name__ == "__main__":
     tb = SampleTransitionBuffer()
     print(Transition.get_fields().__len__())
-    print(tb.sample_transition_points(5))
+    print(tb.sample(5))
     tb.add_transition_point(None, None, None, None, None)
-    print(tb.sample_transition_points(1))
+    print(tb.sample(1))
