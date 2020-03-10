@@ -8,30 +8,10 @@ from draugr.python_utilities.exceptions import NoData
 __all__ = [
     "NoData",
     "NoAgent",
-    "NoEnvironment",
     "NoProcedure",
     "NoTrajectoryException",
     "ActionSpaceNotSupported",
-    "HasNoEnvError",
 ]
-
-
-class HasNoEnvError(Exception):
-    """
-Raised when an agent has no environment assigned and some implicit next or step called.
-"""
-
-    def __init__(self, msg="Agent has no env assigned"):
-        Exception.__init__(self, msg)
-
-
-class NoEnvironment(Exception):
-    """
-
-"""
-
-    def __init__(self, msg="No Environment"):
-        Exception.__init__(self, msg)
 
 
 class NoProcedure(Exception):

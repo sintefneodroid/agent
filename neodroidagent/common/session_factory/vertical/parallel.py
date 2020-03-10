@@ -5,7 +5,7 @@ from typing import Type, Union
 
 from neodroid.environments import Environment
 from neodroid.environments.gym_environment import NeodroidVectorGymEnvironment
-from neodroid.environments.unity_environment import VectorUnityEnvironment
+from neodroid.environments.droid_environment import VectorUnityEnvironment
 from warg import super_init_pass_on_kws
 from .procedures import OnPolicyEpisodic, Procedure
 from .single_agent_environment_session import SingleAgentEnvironmentSession

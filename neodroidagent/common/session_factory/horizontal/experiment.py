@@ -14,7 +14,7 @@ import pickle
 from cloudpickle import cloudpickle
 from garage.experiment import to_local_command
 
-from neodroid.environments.unity_environment import UnityEnvironment
+from neodroid.environments.droid_environment import UnityEnvironment
 from neodroidagent.agents import SACAgent
 from neodroidagent.common import CategoricalMLP
 

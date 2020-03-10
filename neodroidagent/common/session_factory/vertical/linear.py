@@ -6,7 +6,7 @@ import gym
 
 from neodroid.environments import Environment
 from neodroid.environments.gym_environment import NeodroidGymEnvironment
-from neodroid.environments.unity_environment import VectorUnityEnvironment
+from neodroid.environments.droid_environment import VectorUnityEnvironment
 from trolls import NormalisedActions, VectorWrap
 from warg import super_init_pass_on_kws
 from .procedures import OnPolicyEpisodic, Procedure

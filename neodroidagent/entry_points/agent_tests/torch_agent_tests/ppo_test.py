@@ -2,22 +2,13 @@
 # -*- coding: utf-8 -*-
 from typing import Union
 
-from torch import nn
-from torch.nn.functional import mse_loss
-
 from neodroidagent.agents import PPOAgent
-from neodroidagent.common import OffPolicyBatched, ParallelSession
-from neodroidagent.common.architectures.mlp_variants.actor_critic import (
-    ActorCriticMLP,
-    CategoricalActorCriticMLP,
-)
+from neodroidagent.common import ParallelSession
 from neodroidagent.configs.test_reference.base_continous_test_config import *
 
 __author__ = "Christian Heider Nielsen"
 
 from neodroidagent.entry_points.session_factory import session_factory
-
-from warg import NOD
 
 """
 Description: Config for training

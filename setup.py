@@ -207,5 +207,5 @@ if __name__ == "__main__":
         tests_require=pkg.dependencies_testing,
         setup_requires=pkg.setup_dependencies,
         include_package_data=True,
-        python_requires=">=3",
+        python_requires=">=3.6",
     )

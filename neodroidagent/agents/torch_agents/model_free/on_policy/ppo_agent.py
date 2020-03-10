@@ -63,7 +63,7 @@ https://spinningup.openai.com/en/latest/algorithms/ppo.html
         optimiser_spec: GDKC = GDKC(constructor=torch.optim.Adam, lr=3e-4),
         continuous_arch_spec: GDKC = GDKC(ActorCriticMLP),
         discrete_arch_spec: GDKC = GDKC(CategoricalActorCriticMLP),
-        gradient_norm_clipping: ClipFeature = ClipFeature(True, -0.5, 0.5),
+        gradient_norm_clipping: ClipFeature = ClipFeature(True, 0, 0.5),
         **kwargs,
     ) -> None:
         """
@@ -313,7 +313,7 @@ https://spinningup.openai.com/en/latest/algorithms/ppo.html
             if early_stop_inner:
                 break
 
-        mean_loss = accum_loss.send()
+        mean_loss = next(accum_loss)
 
         if metric_writer:
             metric_writer.scalar("Inner Updates", i)

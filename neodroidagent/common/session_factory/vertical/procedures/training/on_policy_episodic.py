@@ -17,7 +17,7 @@ from neodroidagent.common.session_factory.vertical.procedures.procedure_specific
     Procedure,
 )
 from neodroidagent.utilities.misc import is_positive_and_mod_zero
-from warg.kw_passing import drop_unused_kws, passes_kws_to
+from warg.decorators.kw_passing import drop_unused_kws, passes_kws_to
 
 __author__ = "Christian Heider Nielsen"
 __all__ = ["rollout_on_policy", "OnPolicyEpisodic"]
