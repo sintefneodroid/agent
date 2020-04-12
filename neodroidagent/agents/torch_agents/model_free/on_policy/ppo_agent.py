@@ -8,8 +8,10 @@ import torch
 from torch.nn.functional import mse_loss
 from tqdm import tqdm
 
-from draugr import MockWriter, Writer, freeze_model, shuffled_batches, to_tensor
-from draugr.metrics.accumulation import mean_accumulator
+from draugr.writers import MockWriter, Writer
+from draugr.torch_utilities import freeze_model, to_tensor
+
+from draugr import mean_accumulator, shuffled_batches
 from neodroid.utilities import ActionSpace, ObservationSpace, SignalSpace
 from neodroidagent.agents.agent import ClipFeature
 from neodroidagent.agents.torch_agents.torch_agent import TorchAgent

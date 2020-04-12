@@ -7,7 +7,7 @@ import torch
 from tqdm import tqdm
 
 from draugr.metrics.accumulation import mean_accumulator
-from draugr.writers import TensorBoardPytorchWriter
+from draugr.torch_utilities import TensorBoardPytorchWriter
 
 __author__ = "Christian Heider Nielsen"
 

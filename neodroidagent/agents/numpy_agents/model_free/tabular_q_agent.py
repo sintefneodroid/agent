@@ -32,24 +32,68 @@ class TabularQAgent(NumpyAgent):
     # region Public
 
     def update(self, *args, **kwargs) -> None:
+        """
+
+        @param args:
+        @type args:
+        @param kwargs:
+        @type kwargs:
+        """
         pass
 
     def evaluate(self, batch, *args, **kwargs) -> Any:
+        """
+
+        @param batch:
+        @type batch:
+        @param args:
+        @type args:
+        @param kwargs:
+        @type kwargs:
+        """
         pass
 
     def load(self, *args, **kwargs) -> None:
+        """
+
+        @param args:
+        @type args:
+        @param kwargs:
+        @type kwargs:
+        """
         pass
 
     def save(self, *args, **kwargs) -> None:
+        """
+
+        @param args:
+        @type args:
+        @param kwargs:
+        @type kwargs:
+        """
         pass
 
     def sample(self, state, **kwargs):
+        """
+
+        @param state:
+        @type state:
+        @param kwargs:
+        @type kwargs:
+        @return:
+        @rtype:
+        """
         if not isinstance(state, str):
             state = str(state)
 
         return super().sample(state)
 
     def sample_random_process(self):
+        """
+
+        @return:
+        @rtype:
+        """
         if hasattr(
             self._last_connected_environment.action_space, "signed_one_hot_sample"
         ):
@@ -60,6 +104,21 @@ class TabularQAgent(NumpyAgent):
     def rollout(
         self, initial_state, environment, *, train=True, render=False, **kwargs
     ) -> Any:
+        """
+
+        @param initial_state:
+        @type initial_state:
+        @param environment:
+        @type environment:
+        @param train:
+        @type train:
+        @param render:
+        @type render:
+        @param kwargs:
+        @type kwargs:
+        @return:
+        @rtype:
+        """
         obs = initial_state
         ep_r = 0
         steps = 0
@@ -97,6 +156,23 @@ class TabularQAgent(NumpyAgent):
         stat_frequency=10,
         **kwargs
     ):
+        """
+
+        @param env:
+        @type env:
+        @param rollouts:
+        @type rollouts:
+        @param render:
+        @type render:
+        @param render_frequency:
+        @type render_frequency:
+        @param stat_frequency:
+        @type stat_frequency:
+        @param kwargs:
+        @type kwargs:
+        @return:
+        @rtype:
+        """
         obs = env.reset()
         obs = str(obs)
 
@@ -146,6 +222,9 @@ class TabularQAgent(NumpyAgent):
 
 # region Test
 def tabular_test():
+    """
+
+    """
     env = NeodroidGymEnvironment(environment_name="mab")
     agent = TabularQAgent(
         observation_space=env.observation_space,
@@ -159,7 +238,9 @@ def tabular_test():
 if __name__ == "__main__":
 
     def taxi():
+        """
 
+        """
         import gym
         import numpy
         import random
@@ -168,6 +249,9 @@ if __name__ == "__main__":
         q_table = numpy.zeros([env.space.n, env.action_space.n])
 
         def training():
+            """
+
+            """
             # Hyparameters
             discount = 0.9  # Discount
             lr = 0.1  # learning rate
@@ -217,6 +301,9 @@ if __name__ == "__main__":
         training()
 
     def main():
+        """
+
+        """
         # env = PuddleWorld(
         #   world_file_path='/home/heider/Neodroid/agent/draugr_utilities/exclude/saved_maps/PuddleWorldA.dat')
         env = gym.make("FrozenLake-v0")

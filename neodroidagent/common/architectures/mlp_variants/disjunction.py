@@ -14,10 +14,14 @@ from torch import nn
 
 from neodroidagent.common.architectures.mlp import MLP
 
-__all__ = ["DisjunctionMLP", "DuelingQMLP"]
+__all__ = ["DisjunctMLP", "DuelingQMLP"]
 
 
-class DisjunctionMLP(MLP):
+class DisjunctMLP(MLP):
+    """
+
+    """
+
     def __init__(
         self,
         output_shape: Sequence = (2,),
@@ -46,11 +50,29 @@ class DisjunctionMLP(MLP):
         )
 
     def forward(self, *act, **kwargs) -> Tuple[torch.tensor, torch.tensor]:
+        """
+
+        @param act:
+        @type act:
+        @param kwargs:
+        @type kwargs:
+        @return:
+        @rtype:
+        """
         x = super().forward(*act, **kwargs)
         return self.subnet_1(x), self.subnet_2(x)
 
 
-class DuelingQMLP(DisjunctionMLP):
+class DuelingQMLP(DisjunctMLP):
     def forward(self, *act, **kwargs) -> torch.tensor:
+        """
+
+        @param act:
+        @type act:
+        @param kwargs:
+        @type kwargs:
+        @return:
+        @rtype:
+        """
         advantages, value = super().forward(*act, **kwargs)
         return value + (advantages - advantages.mean())

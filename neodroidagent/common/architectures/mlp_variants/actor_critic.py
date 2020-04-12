@@ -14,7 +14,7 @@ import torch
 from torch import nn
 from torch.distributions import Categorical, Normal
 
-from draugr import to_tensor
+from draugr.torch_utilities import to_tensor
 from neodroidagent.common.architectures.mlp import MLP
 
 __all__ = ["ActorCriticMLP", "CategoricalActorCriticMLP"]

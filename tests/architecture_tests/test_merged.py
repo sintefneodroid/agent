@@ -7,9 +7,9 @@ __doc__ = r"""
            Created on 04/12/2019
            """
 
-from neodroidagent.architectures.experimental.merged import ConcatInputMLP
+from neodroidagent.common.architectures.mlp_variants import ConcatInputMLP
 
-from draugr import to_tensor
+from draugr.torch_utilities import to_tensor
 
 
 def test_normal():

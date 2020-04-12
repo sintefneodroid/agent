@@ -18,6 +18,7 @@ from neodroidagent.agents import Agent
 from neodroidagent.common.session_factory.vertical.environment_session import (
     EnvironmentSession,
 )
+
 from neodroidagent.utilities import NoProcedure
 from warg import NOD, config_to_mapping
 

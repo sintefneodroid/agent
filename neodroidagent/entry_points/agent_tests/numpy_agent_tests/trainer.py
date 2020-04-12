@@ -1,6 +1,6 @@
 from time import time
 
-import numpy as np
+import numpy
 
 
 class Trainer(object):
@@ -64,11 +64,11 @@ The amount to smooth the cumulative reward across episodes. Larger
 values correspond to less smoothing.
 """
         if seed:
-            np.random.seed(seed)
+            numpy.random.seed(seed)
             self.env.seed(seed=seed)
 
         t0 = time()
-        render_every = np.inf if render_every is None else render_every
+        render_every = numpy.inf if render_every is None else render_every
         sf = smooth_factor
 
         for ep in range(n_episodes):
@@ -76,14 +76,16 @@ values correspond to less smoothing.
             smooth_tot = tot_rwd if ep == 0 else (1 - sf) * smooth_tot + sf * tot_rwd
 
             if verbose:
-                fstr = "[Ep. {:2}] {:<6.2f} Steps | Total Reward: {:<7.2f}"
-                fstr += " | Smoothed Total: {:<7.2f} | Duration: {:<6.2f}s"
-                print(fstr.format(ep + 1, n_steps, tot_rwd, smooth_tot, duration))
+                print(
+                    f"[Ep. {ep + 1:2}] {n_steps:<6.2f} Steps | Total Reward: {tot_rwd:<7.2f} | Smoothed "
+                    f"Total: {smooth_tot:<7.2f} | Duration: {duration:<6.2f}s"
+                )
 
             if (ep + 1) % render_every == 0:
-                fstr = "\tGreedy policy total reward: {:.2f}, n_steps: {:.2f}"
                 total, n_steps = self.agent.greedy_policy(max_steps)
-                print(fstr.format(total, n_steps))
+                print(
+                    f"\tGreedy policy total reward: {total:.2f}, n_steps: {n_steps:.2f}"
+                )
 
             self.rewards["total"].append(tot_rwd)
             self.rewards["n_steps"].append(n_steps)
@@ -91,12 +93,12 @@ values correspond to less smoothing.
             self.rewards["smooth_total"].append(smooth_tot)
 
         train_time = (time() - t0) / 60
-        fstr = "Training took {:.2f} mins [{:.2f}s/episode]"
-        print(fstr.format(train_time, np.mean(self.rewards["duration"])))
+        print(
+            f"Training took {train_time:.2f} mins [{numpy.mean(self.rewards['duration']):.2f}s/episode]"
+        )
 
         rwd_greedy, n_steps = self.agent.greedy_policy(max_steps, render=False)
-        fstr = "Final greedy reward: {:.2f} | n_steps: {:.2f}"
-        print(fstr.format(rwd_greedy, n_steps))
+        print(f"Final greedy reward: {rwd_greedy:.2f} | n_steps: {n_steps:.2f}")
 
         if plot:
             self.plot_rewards(rwd_greedy)
@@ -129,7 +131,7 @@ target policy.
 
         R = self.rewards
         fig, ax = pyplot.subplots()
-        x = np.arange(len(R["total"]))
+        x = numpy.arange(len(R["total"]))
         y = R["smooth_total"]
         y_raw = R["total"]
 
@@ -144,6 +146,6 @@ target policy.
 
         ax.set_xlabel("Episode")
         ax.set_ylabel("Cumulative reward")
-        ax.set_title("{} on '{}'".format(agent, env))
-        pyplot.savefig("img/{}-{}.png".format(agent, env))
+        ax.set_title(f"{agent} on '{env}'")
+        pyplot.savefig(f"img/{agent}-{env}.png")
         pyplot.close("all")

@@ -8,7 +8,7 @@ from neodroid.utilities.transformations.terminal_masking import (
     non_terminal_mask,
     non_terminal_numerical_mask,
 )
-from warg.mixins.dict_mixins import IndexDictTuplesMixin, IterDictValuesMixin
+from warg.mixins.dict_mixins import OrdinalIndexingDictMixin, IterDictValuesMixin
 
 __author__ = "Christian Heider Nielsen"
 
@@ -21,7 +21,7 @@ __all__ = [
 
 
 @dataclass
-class Transition(IterDictValuesMixin, IndexDictTuplesMixin):
+class Transition(IterDictValuesMixin, OrdinalIndexingDictMixin):
     """
 __slots__=['state','action','successor_state']
 """

@@ -2,23 +2,11 @@
 # -*- coding: utf-8 -*-
 from typing import Union
 
-from torch.nn.functional import smooth_l1_loss
-
 from neodroidagent.agents import DDPGAgent
-from neodroidagent.common import (
-    OffPolicyBatched,
-    ParallelSession,
-    TransitionPointBuffer,
-    ConcatInputMLP,
-    MLP,
-)
-from neodroidagent.configs.test_reference.base_continous_test_config import *
+from neodroidagent.common import ParallelSession
 from neodroidagent.entry_points.session_factory import session_factory
-from neodroidagent.utilities.exploration import OrnsteinUhlenbeckProcess
 
 __author__ = "Christian Heider Nielsen"
-
-from warg import GDKC
 
 """
 Description: Config for training

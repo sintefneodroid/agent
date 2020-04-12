@@ -17,6 +17,10 @@ __all__ = ["TransitionPointTrajectoryBuffer"]
 
 
 class TransitionPointTrajectoryBuffer(ExpandableCircularBuffer):
+    """
+
+    """
+
     def __init__(self):
         super().__init__()
 

@@ -7,7 +7,7 @@ from neodroidagent.common.memory.data_structures.expandable_circular_buffer impo
     ExpandableCircularBuffer,
 )
 from neodroidagent.utilities import NoData
-from warg import IndexDictTuplesMixin, IterDictValuesMixin
+from warg import OrdinalIndexingDictMixin, IterDictValuesMixin
 from warg.arguments import wrap_args
 
 __author__ = "Christian Heider Nielsen"
@@ -16,7 +16,7 @@ __all__ = ["SampleTrajectoryBuffer", "SampleTrajectoryPoint", "SamplePoint"]
 
 
 @dataclass
-class SamplePoint(IterDictValuesMixin, IndexDictTuplesMixin):
+class SamplePoint(IterDictValuesMixin, OrdinalIndexingDictMixin):
     """
 __slots__=["action", "distribution"]
 """
@@ -41,7 +41,7 @@ __slots__=["action", "distribution"]
 
 
 @dataclass
-class SampleTrajectoryPoint(IterDictValuesMixin, IndexDictTuplesMixin):
+class SampleTrajectoryPoint(IterDictValuesMixin, OrdinalIndexingDictMixin):
     """
 __slots__=["signal", "terminated", "action", "distribution"]
 """

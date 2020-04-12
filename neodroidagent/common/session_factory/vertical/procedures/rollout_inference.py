@@ -7,7 +7,7 @@ from typing import Union
 import torch
 from tqdm import tqdm
 
-from draugr import TensorBoardPytorchWriter
+from draugr.torch_utilities import TensorBoardPytorchWriter
 from warg import drop_unused_kws
 from .procedure_specification import Procedure
 

@@ -22,7 +22,7 @@ margin = int(margin_percentage * terminal_width)
 width = terminal_width - 2 * margin
 underline = "_" * width
 indent = " " * margin
-sponsors = "SINTEF Ocean, Alexandra Institute, Norges Forskningsråd"
+sponsors = ("SINTEF Ocean", "Alexandra Institute", "Norges Forskningsråd")
 
 
 class RunAgent:

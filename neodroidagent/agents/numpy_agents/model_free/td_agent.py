@@ -9,13 +9,17 @@ __doc__ = r"""
 
 from collections import defaultdict
 
-import numpy as np
+import numpy
 
 from neodroidagent.agents.numpy_agents.numpy_agent import NumpyAgent
 from neodroidagent.utilities.misc.environment_model import tile_state_space
 
 
 class TemporalDifferenceAgent(NumpyAgent):
+    """
+
+    """
+
     def __init__(
         self,
         env,
@@ -111,7 +115,7 @@ values result in greater discounting of future rewards. Default is
             self.target_policy = self._greedy
 
         # initialize Q function
-        self.parameters["Q"] = defaultdict(np.random.rand)
+        self.parameters["Q"] = defaultdict(numpy.random.rand)
 
         # initialize returns object for each state-action pair
         self.derived_variables = {"episode_num": 0}
@@ -287,21 +291,21 @@ epsilon-soft policy.
         E, P = self.env_info, self.parameters
 
         # TODO: this assumes all actions are available in every state
-        n_actions = np.prod(E["n_actions_per_dim"])
+        n_actions = numpy.prod(E["n_actions_per_dim"])
 
-        a_star = np.argmax([P["Q"][(s, aa)] for aa in range(n_actions)])
+        a_star = numpy.argmax([P["Q"][(s, aa)] for aa in range(n_actions)])
         p_a_star = 1.0 - self.epsilon + (self.epsilon / n_actions)
         p_a = self.epsilon / n_actions
 
-        action_probs = np.ones(n_actions) * p_a
+        action_probs = numpy.ones(n_actions) * p_a
         action_probs[a_star] = p_a_star
-        np.testing.assert_allclose(np.sum(action_probs), 1)
+        numpy.testing.assert_allclose(numpy.sum(action_probs), 1)
 
         if a is not None:
             return action_probs[a]
 
         # sample action
-        a = np.random.multinomial(1, action_probs).argmax()
+        a = numpy.random.multinomial(1, action_probs).argmax()
         return self._num2action[a]
 
     def _greedy(self, s, a=None):
@@ -332,8 +336,8 @@ If `a` is not None, returns the probability of `a` under the
 greedy policy.
 """
         P, E = self.parameters, self.env_info
-        n_actions = np.prod(E["n_actions_per_dim"])
-        a_star = np.argmax([P["Q"][(s, aa)] for aa in range(n_actions)])
+        n_actions = numpy.prod(E["n_actions_per_dim"])
+        a_star = numpy.argmax([P["Q"][(s, aa)] for aa in range(n_actions)])
         if a is None:
             out = self._num2action[a_star]
         else:
@@ -372,10 +376,14 @@ The id for the action taken at timestep t
         Q, E, pi = self.parameters["Q"], self.env_info, self.behavior_policy
 
         # TODO: this assumes that all actions are available in each state
-        n_actions = np.prod(E["n_actions_per_dim"])
+        n_actions = numpy.prod(E["n_actions_per_dim"])
 
         # compute the expected value of Q(s', a') given that we are in state s'
-        E_Q = np.sum([pi(s_, aa) * Q[(s_, aa)] for aa in range(n_actions)]) if s_ else 0
+        E_Q = (
+            numpy.sum([pi(s_, aa) * Q[(s_, aa)] for aa in range(n_actions)])
+            if s_
+            else 0
+        )
 
         # perform the expected SARSA TD(0) update
         qsa = Q[(s, a)]
@@ -399,11 +407,11 @@ s_ : int as returned by `self._obs2num`
 The id for the state/observation at timestep `t`
 """
         Q, E = self.parameters["Q"], self.env_info
-        n_actions = np.prod(E["n_actions_per_dim"])
+        n_actions = numpy.prod(E["n_actions_per_dim"])
 
         qsa = Q[(s, a)]
         Qs_ = [Q[(s_, aa)] for aa in range(n_actions)] if s_ else [0]
-        Q[(s, a)] = qsa + self.lr * (r + self.temporal_discount * np.max(Qs_) - qsa)
+        Q[(s, a)] = qsa + self.lr * (r + self.temporal_discount * numpy.max(Qs_) - qsa)
 
     def update(self):
         """

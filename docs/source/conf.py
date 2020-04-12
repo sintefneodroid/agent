@@ -71,7 +71,7 @@ master_doc = "index"
 # General information about the project.
 project = "Agent"
 author = "Christian Heider Nielsen"
-copyright = "2017, {author}".format(author=author)
+copyright = f"2017, {author}"
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -227,7 +227,7 @@ def patched_make_field(self, types, domain, items, **kw):
             # inconsistencies later when references are resolved
             fieldtype = types.pop(fieldarg)
             if len(fieldtype) == 1 and isinstance(fieldtype[0], nodes.Text):
-                typename = u"".join(n.astext() for n in fieldtype)
+                typename = "".join(n.astext() for n in fieldtype)
                 typename = typename.replace("int", "python:int")
                 typename = typename.replace("long", "python:long")
                 typename = typename.replace("float", "python:float")
@@ -238,7 +238,7 @@ def patched_make_field(self, types, domain, items, **kw):
                         domain,
                         typename,
                         addnodes.literal_emphasis,
-                        **kw
+                        **kw,
                     )
                 )
             else:

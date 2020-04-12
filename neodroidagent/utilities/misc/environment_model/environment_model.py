@@ -9,7 +9,7 @@ __doc__ = r"""
 
 from collections import defaultdict
 
-import numpy as np
+import numpy
 
 
 class EnvModel(object):
@@ -78,7 +78,7 @@ A list of each possible outcome and its associated probability
 under the model.
 """
         items = list(self._model[(s, a)].items())
-        total_count = np.sum([c for (_, c) in items])
+        total_count = numpy.sum([c for (_, c) in items])
         outcome_probs = [c / total_count for (_, c) in items]
         outcomes = [p for (p, _) in items]
         return list(zip(outcomes, outcome_probs))

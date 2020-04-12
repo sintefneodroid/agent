@@ -28,7 +28,7 @@ coordinates are to be returned without being converted to indices).
 
 from itertools import zip_longest
 from math import floor
-import numpy as np
+import numpy
 
 basehash = hash
 
@@ -54,11 +54,11 @@ An openAI environment.
 n_tilings : int
 The number of overlapping tilings to use. Should be a power of 2. This
 determines the dimension of the discretized tile-encoded state vector.
-obs_max : float or np.ndarray
+obs_max : float or numpy.ndarray
 The value to treat as the max value of the observation space when
 calculating the grid widths. If None, use
 ``env.observation_space.high``. Default is None.
-obs_min : float or np.ndarray
+obs_min : float or numpy.ndarray
 The value to treat as the min value of the observation space when
 calculating the grid widths. If None, use
 ``env.observation_space.low``. Default is None.
@@ -80,8 +80,12 @@ n_states : int
 An integer reflecting the total number of unique states possible under
 this tile coding regimen.
 """
-    obs_max = np.nan_to_num(env.observation_space.high) if obs_max is None else obs_max
-    obs_min = np.nan_to_num(env.observation_space.low) if obs_min is None else obs_min
+    obs_max = (
+        numpy.nan_to_num(env.observation_space.high) if obs_max is None else obs_max
+    )
+    obs_min = (
+        numpy.nan_to_num(env.observation_space.low) if obs_min is None else obs_min
+    )
 
     if state_action:
         if env_stats["tuple_action"]:
@@ -89,8 +93,8 @@ this tile coding regimen.
         else:
             n = [env.action_space.n]
 
-        obs_max = np.concatenate([obs_max, n])
-        obs_min = np.concatenate([obs_min, np.zeros_like(n)])
+        obs_max = numpy.concatenate([obs_max, n])
+        obs_min = numpy.concatenate([obs_min, numpy.zeros_like(n)])
 
     obs_range = obs_max - obs_min
     scale = 1.0 / obs_range
@@ -98,8 +102,8 @@ this tile coding regimen.
     # scale (state-)observation vector
     scale_obs = lambda obs: obs * scale
 
-    n_tiles = np.prod(grid_size) * n_tilings
-    n_states = np.prod([n_tiles - i for i in range(n_tilings)])
+    n_tiles = numpy.prod(grid_size) * n_tilings
+    n_states = numpy.prod([n_tiles - i for i in range(n_tilings)])
     iht = IHT(16384)
 
     def encode_obs_as_tile(obs):

@@ -9,15 +9,14 @@ from typing import Dict, Iterable
 import torch
 from torch.nn import Parameter
 
-from draugr import (
-    MockWriter,
+from draugr.writers import MockWriter, Writer
+from draugr.torch_utilities import (
     TensorBoardPytorchWriter,
-    Writer,
     global_torch_device,
     load_latest_model,
     save_model,
-    sprint,
 )
+from draugr import sprint
 from neodroid.utilities import ActionSpace, ObservationSpace, SignalSpace
 from neodroidagent.agents.agent import Agent, ClipFeature
 from neodroidagent.common.architectures.architecture import Architecture
@@ -184,7 +183,7 @@ class TorchAgent(Agent, ABC):
 
                     if evaluation:
                         model = model.eval()
-                        model.train(False)
+                        model.train(False)  # Redundant
 
                     model = model.to(self._device)
 

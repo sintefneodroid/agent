@@ -15,7 +15,7 @@ from tqdm import tqdm
 
 import neodroidagent.configs.curriculum.curriculum_config as C
 from draugr.visualisation import sprint
-from draugr.writers import TensorBoardPytorchWriter, Union
+from draugr.torch_utilities import TensorBoardPytorchWriter
 from neodroid.wrappers import NeodroidCurriculumWrapper
 from neodroidagent.agents.torch_agents.model_free import PGAgent
 from neodroidagent.agents.torch_agents.torch_agent import TorchAgent

@@ -8,7 +8,8 @@ from torch.nn import Module
 from torch.optim import Optimizer
 from tqdm import tqdm
 
-from draugr import MockWriter, Writer, to_tensor
+from draugr.writers import MockWriter, Writer
+from draugr.torch_utilities import to_tensor
 from neodroid.utilities import (
     ActionSpace,
     ObservationSpace,

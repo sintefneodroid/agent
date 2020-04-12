@@ -1,6 +1,6 @@
 from typing import Any
 
-from draugr import MockWriter, Writer
+from draugr.writers import MockWriter, Writer
 from neodroid.utilities import ActionSpace, ObservationSpace, SignalSpace
 from neodroid.utilities.unity_specifications import EnvironmentSnapshot
 from neodroidagent.agents.agent import Agent

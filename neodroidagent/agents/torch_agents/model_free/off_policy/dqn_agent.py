@@ -10,7 +10,8 @@ import numpy
 import torch
 from torch.nn.functional import smooth_l1_loss
 
-from draugr import MockWriter, Writer, to_tensor
+from draugr.writers import MockWriter, Writer
+from draugr.torch_utilities import to_tensor
 from neodroid.utilities import ActionSpace, ObservationSpace, SignalSpace
 from neodroidagent.agents.torch_agents.torch_agent import TorchAgent
 from neodroidagent.common import (

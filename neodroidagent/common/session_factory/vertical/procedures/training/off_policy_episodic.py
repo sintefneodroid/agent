@@ -8,7 +8,8 @@ from typing import Union
 import numpy
 
 from draugr.metrics.accumulation import mean_accumulator, total_accumulator
-from draugr.writers import MockWriter, TensorBoardPytorchWriter, Writer
+from draugr.writers import MockWriter, Writer
+from draugr.torch_utilities import TensorBoardPytorchWriter
 from neodroid.environments.environment import Environment
 from neodroid.utilities import EnvironmentSnapshot
 from neodroidagent.agents import Agent

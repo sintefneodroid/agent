@@ -7,7 +7,7 @@ from torch import nn
 from torch.distributions import Categorical
 from torch.nn import CrossEntropyLoss, MSELoss
 
-from draugr.torch_utilities.to_tensor import to_tensor
+from draugr.torch_utilities.tensors.to_tensor import to_tensor
 from neodroid.utilities import ActionSpace, ObservationSpace
 from neodroidagent.utilities.exploration.curiosity_module import CuriosityModule
 

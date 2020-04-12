@@ -171,8 +171,8 @@ WARNING HEAVY with big trees!
     def __iter__(self) -> Iterator:
         return iter(self._data)
 
-    def __call__(self, sum: float = 1.0, *, normalised_sum: bool = True) -> Any:
-        return self.get(sum, normalised_sum=normalised_sum)
+    def __call__(self, sum_: float = 1.0, *, normalised_sum: bool = True) -> Any:
+        return self.get(sum_, normalised_sum=normalised_sum)
 
 
 if __name__ == "__main__":

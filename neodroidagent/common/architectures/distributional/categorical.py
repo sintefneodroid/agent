@@ -7,7 +7,7 @@ import torch
 from torch.distributions import Categorical
 from torch.nn import functional as F
 
-from draugr import to_tensor
+from draugr.torch_utilities import to_tensor
 from neodroidagent.common.architectures.mlp import MLP
 
 __author__ = "Christian Heider Nielsen"

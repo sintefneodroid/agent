@@ -17,6 +17,10 @@ __all__ = ["MultiHeadAttention"]
 
 
 class MultiHeadAttention(nn.Module):
+    """
+
+    """
+
     def __init__(self, n_heads, dim, dropout=0):
         super(MultiHeadAttention, self).__init__()
         self.n_heads = n_heads
@@ -33,6 +37,19 @@ class MultiHeadAttention(nn.Module):
         nn.init.xavier_normal_(self.out_lin.weight)
 
     def forward(self, query, key=None, value=None, mask=None):
+        """
+
+        @param query:
+        @type query:
+        @param key:
+        @type key:
+        @param value:
+        @type value:
+        @param mask:
+        @type mask:
+        @return:
+        @rtype:
+        """
         # (I)
         query = query.refine_names(..., "T", "D")
         self_attn = key is None and value is None
@@ -52,6 +69,13 @@ class MultiHeadAttention(nn.Module):
 
         # (II)
         def prepare_head(tensor):
+            """
+
+            @param tensor:
+            @type tensor:
+            @return:
+            @rtype:
+            """
             tensor = tensor.refine_names(..., "T", "D")
             return tensor.unflatten(
                 "D", [("H", n_heads), ("D_head", dim_per_head)]
@@ -92,15 +116,20 @@ class MultiHeadAttention(nn.Module):
 
 
 if __name__ == "__main__":
-    n, t, d, h = 7, 5, 2 * 3, 3
-    query = torch.randn(n, t, d, names=("N", "T", "D"))
-    mask = torch.ones(n, t, names=("N", "T"))
-    attn = MultiHeadAttention(h, d)
-    output = attn(query, mask=mask)
-    # works as expected!
-    print(output.names)
 
-    query = torch.randn(t, d, names=("T", "D"))
-    mask = torch.ones(t, names=("T",))
-    output = attn(query, mask=mask)
-    print(output.names)
+    def main():
+        """
+
+    """
+        n, t, d, h = 7, 5, 2 * 3, 3
+        query = torch.randn(n, t, d, names=("N", "T", "D"))
+        mask = torch.ones(n, t, names=("N", "T"))
+        attn = MultiHeadAttention(h, d)
+        output = attn(query, mask=mask)
+        # works as expected!
+        print(output.names)
+
+        query = torch.randn(t, d, names=("T", "D"))
+        mask = torch.ones(t, names=("T",))
+        output = attn(query, mask=mask)
+        print(output.names)

@@ -6,7 +6,8 @@ from typing import Any, Sequence, Tuple
 
 import numpy
 
-from draugr import MockWriter, Writer, sprint
+from draugr import sprint
+from draugr.writers import MockWriter, Writer
 from neodroid.utilities import (
     ActionSpace,
     EnvironmentSnapshot,

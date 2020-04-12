@@ -7,7 +7,7 @@ import torch
 from torch import nn
 from torch.distributions import MultivariateNormal, Normal
 
-from draugr import fan_in_init
+from draugr.torch_utilities import fan_in_init
 from neodroidagent.common.architectures.mlp import MLP
 
 __author__ = "Christian Heider Nielsen"

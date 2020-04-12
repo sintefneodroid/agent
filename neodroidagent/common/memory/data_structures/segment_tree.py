@@ -156,7 +156,7 @@ Parameters
         idx = 1
         while idx < self._capacity:  # while non-leaf
             if self._value[2 * idx] > prefix_sum:
-                idx = 2 * idx
+                idx *= 2
             else:
                 prefix_sum -= self._value[2 * idx]
                 idx = 2 * idx + 1

@@ -11,7 +11,7 @@ import torch
 
 __all__ = ["update_target", "hard_copy_params", "soft_copy_params"]
 
-from draugr import fan_in_init
+from draugr.torch_utilities import fan_in_init
 
 
 def update_target(

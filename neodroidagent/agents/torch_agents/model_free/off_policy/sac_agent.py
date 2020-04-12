@@ -12,7 +12,8 @@ import torch.nn as nn
 from torch.nn.functional import mse_loss
 from tqdm import tqdm
 
-from draugr import MockWriter, Writer, freeze_model, frozen_parameters, to_tensor
+from draugr.writers import MockWriter, Writer
+from draugr.torch_utilities import freeze_model, frozen_parameters, to_tensor
 from neodroid.utilities import ActionSpace, ObservationSpace, SignalSpace
 from neodroidagent.agents.torch_agents.torch_agent import TorchAgent
 from neodroidagent.common import (

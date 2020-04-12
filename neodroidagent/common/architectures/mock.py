@@ -9,4 +9,8 @@ __all__ = ["MockArchitecture"]
 
 
 class MockArchitecture(Architecture):
+    """
+
+    """
+
     pass

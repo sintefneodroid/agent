@@ -7,7 +7,8 @@ import torch.nn.functional as F
 from numpy import mean
 from tqdm import tqdm
 
-from draugr import MockWriter, Writer, freeze_model, frozen_model, to_tensor
+from draugr.writers import MockWriter, Writer
+from draugr.torch_utilities import freeze_model, frozen_model, to_tensor
 from neodroid.utilities import ActionSpace, ObservationSpace, SignalSpace
 from neodroidagent.agents.torch_agents.torch_agent import TorchAgent
 from neodroidagent.common import (

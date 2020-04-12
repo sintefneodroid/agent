@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-from models import MLP
+from neodroidagent.common.architectures.mlp import MLP
 
 __author__ = "Christian Heider Nielsen"
 __doc__ = ""

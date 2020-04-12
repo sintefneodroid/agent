@@ -20,6 +20,9 @@ class ExpandableCircularBuffer(Memory):
 For storing element in an expandable buffer.
 """
 
+    def capacity(self) -> int:
+        return self._capacity
+
     def __init__(self, capacity: int = 0):
         """
 

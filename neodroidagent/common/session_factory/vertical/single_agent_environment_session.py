@@ -4,7 +4,8 @@ import inspect
 import time
 from typing import Any, Type, TypeVar
 
-from draugr import add_early_stopping_key_combination, torch_seed
+from draugr import add_early_stopping_key_combination
+from draugr.torch_utilities import torch_seed
 from neodroidagent import PROJECT_APP_PATH
 from neodroidagent.agents import Agent
 from neodroidagent.utilities import NoAgent

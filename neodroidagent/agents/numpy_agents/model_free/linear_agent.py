@@ -9,9 +9,9 @@ __doc__ = r"""
 
 from typing import Any, Tuple
 
-import numpy as np
+import numpy
 
-from draugr import MockWriter, Writer
+from draugr.writers import MockWriter, Writer
 from neodroid.utilities import (
     ActionSpace,
     EnvironmentSnapshot,
@@ -22,6 +22,10 @@ from neodroidagent.agents import Agent
 
 
 class LinearFeatureBaselineAgent(Agent):
+    """
+
+    """
+
     def __init__(self, reg_coeff=1e-5, **kwargs):
         super().__init__(**kwargs)
         self._coeffs = None
@@ -38,12 +42,31 @@ class LinearFeatureBaselineAgent(Agent):
         pass
 
     def eval(self) -> None:
+        """
+
+        """
         pass
 
     def load(self, *, save_directory, **kwargs) -> None:
+        """
+
+        @param save_directory:
+        @type save_directory:
+        @param kwargs:
+        @type kwargs:
+        """
         pass
 
     def save(self, *, save_directory, **kwargs) -> None:
+        """
+
+        @param save_directory:
+        @type save_directory:
+        @param kwargs:
+        @type kwargs:
+        @return:
+        @rtype:
+        """
         return self._coeffs
 
     def _remember(self, **kwargs) -> None:
@@ -58,33 +81,33 @@ class LinearFeatureBaselineAgent(Agent):
         **kwargs
     ) -> Tuple[Any, ...]:
         if self._coeffs is None:
-            return np.zeros(len(state.signal))
+            return numpy.zeros(len(state.signal))
 
         return self.extract_features(state).dot(self._coeffs)
 
     def extract_features(self, state: EnvironmentSnapshot) -> Any:
         """Feature extraction"""
-        obs = np.clip(state.observables, -10, 10)
+        obs = numpy.clip(state.observables, -10, 10)
         length = len(state.signal)
-        al = np.arange(length).reshape(-1, 1) / 100.0
-        sad = np.concatenate(
-            [obs, obs ** 2, al, al ** 2, al ** 3, np.ones((length, 1))], axis=1
+        al = numpy.arange(length).reshape(-1, 1) / 100.0
+        sad = numpy.concatenate(
+            [obs, obs ** 2, al, al ** 2, al ** 3, numpy.ones((length, 1))], axis=1
         )
         return sad
 
     def _update(
         self, states, *args, metric_writer: Writer = MockWriter(), **kwargs
     ) -> Any:
-        featmat = np.concatenate([self.extract_features(path) for path in states])
-        returns = np.concatenate([path.signal for path in states])
+        featmat = numpy.concatenate([self.extract_features(path) for path in states])
+        returns = numpy.concatenate([path.signal for path in states])
         reg_coeff = self._reg_coeff
         for _ in range(5):
-            self._coeffs = np.linalg.lstsq(
-                featmat.T.dot(featmat) + reg_coeff * np.identity(featmat.shape[1]),
+            self._coeffs = numpy.linalg.lstsq(
+                featmat.T.dot(featmat) + reg_coeff * numpy.identity(featmat.shape[1]),
                 featmat.T.dot(returns),
                 rcond=-1,
             )[0]
-            if not np.any(np.isnan(self._coeffs)):
+            if not numpy.any(numpy.isnan(self._coeffs)):
                 break
             reg_coeff *= 10
 

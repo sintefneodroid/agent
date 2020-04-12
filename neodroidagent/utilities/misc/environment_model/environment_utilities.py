@@ -1,7 +1,7 @@
 from itertools import product
 
 import gym
-import numpy as np
+import numpy
 
 
 def get_gym_environs():
@@ -96,12 +96,12 @@ Whether the `env`'s observation space is a ``Tuple`` instance.
     tuple_action, tuple_obs = is_tuple(env)
     if not tuple_action:
         act = env.action_space.sample()
-        md_action = isinstance(act, (list, tuple, np.ndarray)) and len(act) > 1
+        md_action = isinstance(act, (list, tuple, numpy.ndarray)) and len(act) > 1
 
     if not tuple_obs:
         OS = env.observation_space
         obs = OS.low if "low" in dir(OS) else OS.sample()  # sample causes problems
-        md_obs = isinstance(obs, (list, tuple, np.ndarray)) and len(obs) > 1
+        md_obs = isinstance(obs, (list, tuple, numpy.ndarray)) and len(obs) > 1
     return md_action, md_obs, tuple_action, tuple_obs
 
 
@@ -166,20 +166,20 @@ The number of dimensions in a single action.
     if cont_action:
         action_dim = 1
         action_ids = None
-        n_actions_per_dim = [np.inf]
+        n_actions_per_dim = [numpy.inf]
 
         if md_action:
             action_dim = env.action_space.shape[0]
-            n_actions_per_dim = [np.inf for _ in range(action_dim)]
+            n_actions_per_dim = [numpy.inf for _ in range(action_dim)]
     else:
         if md_action:
             n_actions_per_dim = [
-                space.n if hasattr(space, "n") else np.inf
+                space.n if hasattr(space, "n") else numpy.inf
                 for space in env.action_space.spaces
             ]
             action_ids = (
                 None
-                if np.inf in n_actions_per_dim
+                if numpy.inf in n_actions_per_dim
                 else list(product(*[range(i) for i in n_actions_per_dim]))
             )
             action_dim = len(n_actions_per_dim)
@@ -217,16 +217,16 @@ The number of dimensions in a single observation.
     if cont_obs:
         obs_ids = None
         obs_dim = env.observation_space.shape[0]
-        n_obs_per_dim = [np.inf for _ in range(obs_dim)]
+        n_obs_per_dim = [numpy.inf for _ in range(obs_dim)]
     else:
         if md_obs:
             n_obs_per_dim = [
-                space.n if hasattr(space, "n") else np.inf
+                space.n if hasattr(space, "n") else numpy.inf
                 for space in env.observation_space.spaces
             ]
             obs_ids = (
                 None
-                if np.inf in n_obs_per_dim
+                if numpy.inf in n_obs_per_dim
                 else list(product(*[range(i) for i in n_obs_per_dim]))
             )
             obs_dim = len(n_obs_per_dim)

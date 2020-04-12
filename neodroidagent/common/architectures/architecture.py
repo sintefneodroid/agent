@@ -14,16 +14,30 @@ from draugr import add_indent
 
 
 class Architecture(nn.Module, ABC):
+    """
+
+    """
+
     @drop_unused_kws
     def __init__(self):
         super().__init__()
 
     @property
     def input_shape(self):
+        """
+
+        @return:
+        @rtype:
+        """
         return self._input_shape
 
     @property
     def output_shape(self):
+        """
+
+        @return:
+        @rtype:
+        """
         return self._output_shape
 
     def __repr__(self):

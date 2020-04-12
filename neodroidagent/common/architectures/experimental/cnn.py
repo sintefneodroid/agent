@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 from collections.abc import Collection
 
-from neodroidagent.architectures.architecture import Architecture
+from neodroidagent.common.architectures.architecture import Architecture
 
 from draugr.torch_utilities import atari_initializer, ortho_weights
 

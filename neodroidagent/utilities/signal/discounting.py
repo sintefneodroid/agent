@@ -16,7 +16,7 @@ from scipy.signal import lfilter
 
 __all__ = ["discount_signal", "discount_signal_numpy", "discount_rollout_signal_torch"]
 
-from draugr import to_tensor, global_torch_device
+from draugr.torch_utilities import to_tensor, global_torch_device
 
 
 # @jit(nopython=True, nogil=True)

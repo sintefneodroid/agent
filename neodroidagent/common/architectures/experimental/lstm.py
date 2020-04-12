@@ -6,7 +6,7 @@ __author__ = "Christian Heider Nielsen"
 import torch
 
 # LSTM Memory
-from neodroidagent.architectures.architecture import Architecture
+from neodroidagent.common.architectures.architecture import Architecture
 from torch import nn
 from torch.autograd import Variable
 from torch.nn import functional as F

@@ -7,12 +7,16 @@ __doc__ = r"""
            Created on 27/02/2020
            """
 
-import numpy as np
+import numpy
 
 from neodroidagent.agents.numpy_agents.numpy_agent import NumpyAgent
 
 
 class MonteCarloAgent(NumpyAgent):
+    """
+
+    """
+
     def __init__(self, env, off_policy=False, temporal_discount=0.9, epsilon=0.1):
         """
 A Monte-Carlo learning agent trained using either first-visit Monte
@@ -48,21 +52,21 @@ encourage greater exploration during training. Default is 0.1.
         assert not E["continuous_actions"], "Action space must be discrete"
         assert not E["continuous_observations"], "Observation space must be discrete"
 
-        n_states = np.prod(E["n_obs_per_dim"])
-        n_actions = np.prod(E["n_actions_per_dim"])
+        n_states = numpy.prod(E["n_obs_per_dim"])
+        n_actions = numpy.prod(E["n_actions_per_dim"])
 
         self._create_2num_dicts()
 
         # behavior policy is stochastic, epsilon-soft policy
         self.behavior_policy = self.target_policy = self._epsilon_soft_policy
         if self.off_policy:
-            self.parameters["C"] = np.zeros((n_states, n_actions))
+            self.parameters["C"] = numpy.zeros((n_states, n_actions))
 
             # target policy is deterministic, greedy policy
             self.target_policy = self._greedy
 
         # initialize Q function
-        self.parameters["Q"] = np.random.rand(n_states, n_actions)
+        self.parameters["Q"] = numpy.random.rand(n_states, n_actions)
 
         # initialize returns object for each state-action pair
         self.derived_variables = {
@@ -131,21 +135,21 @@ None, this is the probability of `a` under the epsilon-soft policy.
         E, P = self.env_info, self.parameters
 
         # TODO: this assumes all actions are available in every state
-        n_actions = np.prod(E["n_actions_per_dim"])
+        n_actions = numpy.prod(E["n_actions_per_dim"])
 
         a_star = P["Q"][s, :].argmax()
         p_a_star = 1.0 - self.epsilon + (self.epsilon / n_actions)
         p_a = self.epsilon / n_actions
 
-        action_probs = np.ones(n_actions) * p_a
+        action_probs = numpy.ones(n_actions) * p_a
         action_probs[a_star] = p_a_star
-        np.testing.assert_allclose(np.sum(action_probs), 1)
+        numpy.testing.assert_allclose(numpy.sum(action_probs), 1)
 
         if a is not None:
             return action_probs[a]
 
         # sample action
-        a = np.random.multinomial(1, action_probs).argmax()
+        a = numpy.random.multinomial(1, action_probs).argmax()
         return self._num2action[a]
 
     def _greedy(self, s, a=None):
@@ -210,13 +214,13 @@ explores (the epsilon-soft policy).
         sa_tuples = set(HS["state_actions"])
 
         locs = [HS["state_actions"].index(sa) for sa in sa_tuples]
-        cumulative_returns = [np.sum(ep_rewards[i:]) for i in locs]
+        cumulative_returns = [numpy.sum(ep_rewards[i:]) for i in locs]
 
         # update Q value with the average of the first-visit return across
         # episodes
         for (s, a), cr in zip(sa_tuples, cumulative_returns):
             D["returns"][(s, a)].append(cr)
-            P["Q"][s, a] = np.mean(D["returns"][(s, a)])
+            P["Q"][s, a] = numpy.mean(D["returns"][(s, a)])
 
     def _off_policy_update(self):
         """

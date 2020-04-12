@@ -7,12 +7,16 @@ __doc__ = r"""
            Created on 27/02/2020
            """
 
-import numpy as np
+import numpy
 
 from neodroidagent.agents.numpy_agents.numpy_agent import NumpyAgent
 
 
 class CrossEntropyAgent(NumpyAgent):
+    """
+
+    """
+
     def __init__(self, env, n_samples_per_episode=500, retain_percentage=0.2):
         """
 A cross-entropy method agent.
@@ -71,13 +75,13 @@ the parameter update at the end of the episode. Default is 0.2.
         assert not E["continuous_actions"], "Action space must be discrete"
 
         self._create_2num_dicts()
-        b_len = np.prod(E["n_actions_per_dim"])
-        W_len = b_len * np.prod(E["obs_dim"])
+        b_len = numpy.prod(E["n_actions_per_dim"])
+        W_len = b_len * numpy.prod(E["obs_dim"])
         theta_dim = b_len + W_len
 
         # init mean and variance for mv gaussian with dimensions theta_dim
-        theta_mean = np.random.rand(theta_dim)
-        theta_var = np.ones(theta_dim)
+        theta_mean = numpy.random.rand(theta_dim)
+        theta_var = numpy.ones(theta_dim)
 
         self.parameters = {"theta_mean": theta_mean, "theta_var": theta_var}
         self.derived_variables = {
@@ -129,15 +133,15 @@ softmax policy.
         W, b = P["W"], P["b"]
 
         s = self._obs2num[obs]
-        s = np.array([s]) if E["obs_dim"] == 1 else s
+        s = numpy.array([s]) if E["obs_dim"] == 1 else s
 
         # compute softmax
         Z = s.T @ W + b
-        e_Z = np.exp(Z - np.max(Z, axis=-1, keepdims=True))
+        e_Z = numpy.exp(Z - numpy.max(Z, axis=-1, keepdims=True))
         action_probs = e_Z / e_Z.sum(axis=-1, keepdims=True)
 
         # sample action
-        a = np.random.multinomial(1, action_probs).argmax()
+        a = numpy.random.multinomial(1, action_probs).argmax()
         return self._num2action[a]
 
     def run_episode(self, max_steps, render=False):
@@ -162,7 +166,7 @@ theta samples.
         self._sample_thetas()
 
         E, D = self.env_info, self.derived_variables
-        n_actions = np.prod(E["n_actions_per_dim"])
+        n_actions = numpy.prod(E["n_actions_per_dim"])
         W_len, obs_dim = D["W_len"], E["obs_dim"]
         steps, rewards = [], []
 
@@ -178,7 +182,7 @@ theta samples.
         # samples on the current episode
         D["episode_num"] += 1
         D["cumulative_rewards"] = rewards
-        return np.mean(D["cumulative_rewards"]), np.mean(steps)
+        return numpy.mean(D["cumulative_rewards"]), numpy.mean(steps)
 
     def _episode(self, W, b, max_steps, render):
         """
@@ -245,12 +249,12 @@ on the current episode.
         n_retain = int(self.retain_prcnt * self.n_samples_per_episode)
 
         # sort the cumulative rewards for each theta sample from greatest to least
-        sorted_y_val_idxs = np.argsort(D["cumulative_rewards"])[::-1]
+        sorted_y_val_idxs = numpy.argsort(D["cumulative_rewards"])[::-1]
         top_idxs = sorted_y_val_idxs[:n_retain]
 
         # update theta_mean and theta_var with the best theta value
-        P["theta_mean"] = np.mean(D["theta_samples"][top_idxs], axis=0)
-        P["theta_var"] = np.var(D["theta_samples"][top_idxs], axis=0)
+        P["theta_mean"] = numpy.mean(D["theta_samples"][top_idxs], axis=0)
+        P["theta_var"] = numpy.var(D["theta_samples"][top_idxs], axis=0)
 
     def _sample_thetas(self):
         """
@@ -258,8 +262,8 @@ Sample `n_samples_per_episode` thetas from a multivariate Gaussian with
 mean `theta_mean` and covariance `diag(theta_var)`
 """
         P, N = self.parameters, self.n_samples_per_episode
-        Mu, Sigma = P["theta_mean"], np.diag(P["theta_var"])
-        samples = np.random.multivariate_normal(Mu, Sigma, N)
+        Mu, Sigma = P["theta_mean"], numpy.diag(P["theta_var"])
+        samples = numpy.random.multivariate_normal(Mu, Sigma, N)
         self.derived_variables["theta_samples"] = samples
 
     def greedy_policy(self, max_steps, render=True):
@@ -281,11 +285,11 @@ n_steps : float
 The total number of steps taken on the episode.
 """
         E, D, P = self.env_info, self.derived_variables, self.parameters
-        Mu, Sigma = P["theta_mean"], np.diag(P["theta_var"])
-        sample = np.random.multivariate_normal(Mu, Sigma, 1)
+        Mu, Sigma = P["theta_mean"], numpy.diag(P["theta_var"])
+        sample = numpy.random.multivariate_normal(Mu, Sigma, 1)
 
         W_len, obs_dim = D["W_len"], E["obs_dim"]
-        n_actions = np.prod(E["n_actions_per_dim"])
+        n_actions = numpy.prod(E["n_actions_per_dim"])
 
         W = sample[0, :W_len].reshape(obs_dim, n_actions)
         b = sample[0, W_len:]

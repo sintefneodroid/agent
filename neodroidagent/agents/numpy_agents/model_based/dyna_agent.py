@@ -1,13 +1,17 @@
 from collections import defaultdict
 from typing import Iterable
 
-import numpy as np
+import numpy
 
 from neodroidagent.agents.numpy_agents.numpy_agent import NumpyAgent
 from neodroidagent.utilities.misc import tile_state_space, EnvModel
 
 
 class DynaAgent(NumpyAgent):
+    """
+
+    """
+
     def __init__(
         self,
         env,
@@ -102,7 +106,7 @@ Default is 50.
         self.behavior_policy = self.target_policy = self._epsilon_soft_policy
 
         # initialize Q function and model
-        self.parameters["Q"] = defaultdict(np.random.rand)
+        self.parameters["Q"] = defaultdict(numpy.random.rand)
         self.parameters["model"] = EnvModel()
 
         # initialize returns object for each state-action pair
@@ -115,7 +119,7 @@ Default is 50.
 
         if self.q_plus:
             self.derived_variables["steps_since_last_visit"] = defaultdict(
-                np.random.rand
+                numpy.random.rand
             )
 
         self.hyperparameters = {
@@ -201,21 +205,21 @@ epsilon-soft policy.
         E, P = self.env_info, self.parameters
 
         # TODO: this assumes all actions are available in every state
-        n_actions = np.prod(E["n_actions_per_dim"])
+        n_actions = numpy.prod(E["n_actions_per_dim"])
 
-        a_star = np.argmax([P["Q"][(s, aa)] for aa in range(n_actions)])
+        a_star = numpy.argmax([P["Q"][(s, aa)] for aa in range(n_actions)])
         p_a_star = 1.0 - self.epsilon + (self.epsilon / n_actions)
         p_a = self.epsilon / n_actions
 
-        action_probs = np.ones(n_actions) * p_a
+        action_probs = numpy.ones(n_actions) * p_a
         action_probs[a_star] = p_a_star
-        np.testing.assert_allclose(np.sum(action_probs), 1)
+        numpy.testing.assert_allclose(numpy.sum(action_probs), 1)
 
         if a is not None:
             return action_probs[a]
 
         # sample action
-        a = np.random.multinomial(1, action_probs).argmax()
+        a = numpy.random.multinomial(1, action_probs).argmax()
         return self._num2action[a]
 
     def _greedy(self, s, a=None):
@@ -246,8 +250,8 @@ If `a` is not None, returns the probability of `a` under the
 greedy policy.
 """
         E, Q = self.env_info, self.parameters["Q"]
-        n_actions = np.prod(E["n_actions_per_dim"])
-        a_star = np.argmax([Q[(s, aa)] for aa in range(n_actions)])
+        n_actions = numpy.prod(E["n_actions_per_dim"])
+        a_star = numpy.argmax([Q[(s, aa)] for aa in range(n_actions)])
         if a is None:
             out = self._num2action[a_star]
         else:
@@ -323,13 +327,13 @@ for (s, a)
         E = self.env_info
         Q = self.parameters["Q"]
         env_model = self.parameters["model"]
-        n_actions = np.prod(E["n_actions_per_dim"])
+        n_actions = numpy.prod(E["n_actions_per_dim"])
 
         outcome_probs = env_model.outcome_probs(s, a)
         for (r, s_), p_rs_ in outcome_probs:
-            max_q = np.max([Q[(s_, aa)] for aa in range(n_actions)])
+            max_q = numpy.max([Q[(s_, aa)] for aa in range(n_actions)])
             P = p_rs_ * (r + self.temporal_discount * max_q - Q[(s, a)])
-            priority += np.abs(P)
+            priority += numpy.abs(P)
         return priority
 
     def _simulate_behavior(self):
@@ -390,7 +394,7 @@ The id for the action taken from state `s`
         update = 0.0
         env_model = self.parameters["model"]
         E, D, Q = self.env_info, self.derived_variables, self.parameters["Q"]
-        n_actions = np.prod(E["n_actions_per_dim"])
+        n_actions = numpy.prod(E["n_actions_per_dim"])
 
         # sample rewards from the model
         outcome_probs = env_model.outcome_probs(s, a)
@@ -398,9 +402,11 @@ The id for the action taken from state `s`
             # encourage visiting long-untried actions by adding a "bonus"
             # reward proportional to the sqrt of the time since last visit
             if self.q_plus:
-                r += self.explore_weight * np.sqrt(D["steps_since_last_visit"][(s, a)])
+                r += self.explore_weight * numpy.sqrt(
+                    D["steps_since_last_visit"][(s, a)]
+                )
 
-            max_q = np.max([Q[(s_, a_)] for a_ in range(n_actions)])
+            max_q = numpy.max([Q[(s_, a_)] for a_ in range(n_actions)])
             update += p_rs_ * (r + self.temporal_discount * max_q - Q[(s, a)])
 
         # update Q value for (s, a) pair

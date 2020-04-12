@@ -10,9 +10,10 @@ __doc__ = r"""
 import base64
 import os
 import pickle
+import time
+from pathlib import Path
 
 from cloudpickle import cloudpickle
-from garage.experiment import to_local_command
 
 from neodroid.environments.droid_environment import UnityEnvironment
 from neodroidagent.agents import SACAgent
@@ -64,11 +65,11 @@ log_dir (str): Log directory for the experiment.
 script (str): The name of the entrance point python script.
 python_command (str): Python command to run the experiment.
 dry (bool): Whether to do a dry-run, which only prints the
-    commands without executing them.
+commands without executing them.
 env (dict): Extra environment variables.
 variant (dict): If provided, should be a dictionary of parameters.
 force_cpu (bool): Whether to set all GPU devices invisible
-    to force use CPU.
+to force use CPU.
 pre_commands (str): Pre commands to run the experiment.
 
 """
@@ -107,13 +108,12 @@ pre_commands (str): Pre commands to run the experiment.
             exp_count += 1
 
             if task.get("exp_name", None) is None:
-                task["exp_name"] = f"{exp_prefix}_{timestamp}_{exp_count:04n}"
+                task["exp_name"] = f"{exp_prefix}_{time.time()}_{exp_count:04n}"
 
             if task.get("log_dir", None) is None:
-                task["log_dir"] = "{log_dir}/local/{exp_prefix}/{exp_name}".format(
-                    log_dir=osp.join(os.getcwd(), "data"),
-                    exp_prefix=exp_prefix.replace("_", "-"),
-                    exp_name=task["exp_name"],
+                task["log_dir"] = (
+                    f"{Path.cwd() / 'data'}/local/{exp_prefix.replace('_', '-')}/"
+                    f"{task['exp_name']}"
                 )
 
             if task.get("variant", None) is not None:
@@ -130,7 +130,7 @@ pre_commands (str): Pre commands to run the experiment.
 
         for task in batch_tasks:
             env = task.pop("env", None)
-            command = to_local_command(
+            command = garage.to_local_command(
                 task, python_command=python_command, script=script
             )
             print(command)
