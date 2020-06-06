@@ -14,6 +14,7 @@ from neodroid.utilities import (
     ObservationSpace,
     SignalSpace,
 )
+from neodroidagent.utilities import IntrinsicSignalProvider
 
 __author__ = "Christian Heider Nielsen"
 __doc__ = r"""
@@ -22,7 +23,7 @@ __doc__ = r"""
 
 __all__ = ["Agent"]
 
-ClipFeature = namedtuple("ClipFeature", ("enabled", "low", "high"))
+TogglableLowHigh = namedtuple("ClipFeature", ("enabled", "low", "high"))
 
 
 class Agent(ABC):
@@ -37,8 +38,9 @@ All agents should inherit from this class
         input_shape: Sequence = None,
         output_shape: Sequence = None,
         divide_by_zero_safety: float = 1e-6,
-        action_clipping: ClipFeature = ClipFeature(False, -1.0, 1.0),
-        signal_clipping: ClipFeature = ClipFeature(False, -1.0, 1.0),
+        action_clipping: TogglableLowHigh = TogglableLowHigh(False, -1.0, 1.0),
+        signal_clipping: TogglableLowHigh = TogglableLowHigh(False, -1.0, 1.0),
+        intrinsic_signal_provider_arch: IntrinsicSignalProvider = None,
         **kwargs,
     ):
         self._sample_i = 0
@@ -54,8 +56,9 @@ All agents should inherit from this class
         self._action_clipping = action_clipping
         self._signal_clipping = signal_clipping
 
+        self._intrinsic_signal_provider_arch = intrinsic_signal_provider_arch
+
         self._divide_by_zero_safety = divide_by_zero_safety
-        self._intrinsic_signal = lambda *a: 0  # TODO: ICM
 
         self.__set_protected_attr(**kwargs)
 
@@ -131,6 +134,34 @@ Tries to infer input and output size from env if either _input_shape or _output_
                 highlight=True,
             )
 
+    def __build_intrinsic_module(
+        self,
+        observation_space: ObservationSpace,
+        action_space: ActionSpace,
+        signal_space: SignalSpace,
+        **kwargs,
+    ):
+        """
+
+    @param observation_space:
+    @type observation_space:
+    @param action_space:
+    @type action_space:
+    @param signal_space:
+    @type signal_space:
+    @param kwargs:
+    @type kwargs:
+    """
+        if self._intrinsic_signal_provider_arch is None:
+            self._intrinsic_signal_provider = lambda *a: 0
+        else:
+            self._intrinsic_signal_provider = self._intrinsic_signal_provider_arch(
+                observation_space=observation_space,
+                action_space=action_space,
+                signal_space=signal_space,
+                **kwargs,
+            )
+
     # endregion
 
     # region Public
@@ -155,6 +186,12 @@ Tries to infer input and output size from env if either _input_shape or _output_
         self.action_space = action_space
         self.signal_space = signal_space
         self.__infer_io_shapes(observation_space, action_space, signal_space)
+        self.__build_intrinsic_module(
+            observation_space=observation_space,
+            action_space=action_space,
+            signal_space=signal_space,
+            **kwargs,
+        )
         self.__build__(
             observation_space=observation_space,
             action_space=action_space,
@@ -245,19 +282,19 @@ Feature extraction
 """
         return numpy.array(sample)
 
-    def extract_signal(self, snapshot: EnvironmentSnapshot, **kwargs) -> numpy.ndarray:
+    def extract_signal(self, snapshot: EnvironmentSnapshot) -> numpy.ndarray:
         """
 Allows for modulation of signal based on for example an Instrinsic Curiosity signal
 
-@param signal:
+  @param snapshot:
+  @type snapshot:
 @param kwargs:
 @return:
 """
 
         signal_out = numpy.array(snapshot.signal)
 
-        if self._intrinsic_signal:
-            signal_out += self._intrinsic_signal()
+        signal_out += self._intrinsic_signal_provider(snapshot)
 
         return signal_out
 

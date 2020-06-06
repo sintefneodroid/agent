@@ -8,7 +8,7 @@ __all__ = ["UCB1"]
 
 class UCB1:
     """
-
+  upper confidence bound
 """
 
     @staticmethod
@@ -108,25 +108,29 @@ class UCB1:
 
 
 if __name__ == "__main__":
-    import random
 
-    class NormalDistributionArm:
-        def __init__(self, mu, sigma):
-            self.mu = mu
-            self.sigma = sigma
+    def main():
+        import random
 
-        def draw(self):
-            return random.gauss(self.mu, self.sigma)
+        class NormalDistributionArm:
+            def __init__(self, mu, sigma):
+                self.mu = mu
+                self.sigma = sigma
 
-    arms = [
-        NormalDistributionArm(4.01, 2.0),
-        NormalDistributionArm(4, 2.0),
-        NormalDistributionArm(3.99, 2.0),
-    ]
+            def draw(self):
+                return random.gauss(self.mu, self.sigma)
 
-    ucb1 = UCB1(len(arms))
+        arms = [
+            NormalDistributionArm(4.01, 2.0),
+            NormalDistributionArm(4, 2.0),
+            NormalDistributionArm(3.99, 2.0),
+        ]
 
-    ucb1.train(arms)
+        ucb1 = UCB1(len(arms))
 
-    print(ucb1.counts)
-    print(ucb1.values)
+        ucb1.train(arms)
+
+        print(ucb1.counts)
+        print(ucb1.values)
+
+    main()

@@ -46,7 +46,7 @@ https://www.cs.toronto.edu/~vmnih/docs/dqn.pdf
     def __init__(
         self,
         value_arch_spec: Architecture = GDKC(DuelingQMLP),
-        exploration_spec: GDKC = ExplorationSpecification(
+        exploration_spec: ExplorationSpecification = ExplorationSpecification(
             start=0.95, end=0.05, decay=3000
         ),
         memory_buffer: Memory = TransitionPointPrioritisedBuffer(int(1e5)),

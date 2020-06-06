@@ -7,6 +7,8 @@ from numba import jit
 __author__ = "Christian Heider Nielsen"
 __doc__ = ""
 
+__all__ = ["valued_discount"]
+
 
 @jit(nopython=True, nogil=True)
 def valued_discount(

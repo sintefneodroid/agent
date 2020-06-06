@@ -19,6 +19,7 @@ from neodroid.utilities import (
 from neodroidagent.agents.torch_agents.torch_agent import TorchAgent
 from neodroidagent.common import (
     CategoricalMLP,
+    Memory,
     MultiDimensionalNormalMLP,
     SamplePoint,
     SampleTrajectoryBuffer,
@@ -46,12 +47,14 @@ REINFORCE, Vanilla Policy Gradient method
 
     def __init__(
         self,
-        evaluation_function=torch.nn.CrossEntropyLoss(),
-        policy_arch_spec=GDKC(CategoricalMLP),
-        discount_factor=0.95,
-        optimiser_spec=GDKC(torch.optim.Adam, lr=1e-4),
-        scheduler_spec=GDKC(torch.optim.lr_scheduler.StepLR, step_size=100, gamma=0.65),
-        memory_buffer=SampleTrajectoryBuffer(),
+        evaluation_function: callable = torch.nn.CrossEntropyLoss(),
+        policy_arch_spec: GDKC = GDKC(CategoricalMLP),
+        discount_factor: float = 0.95,
+        optimiser_spec: GDKC = GDKC(torch.optim.Adam, lr=1e-4),
+        scheduler_spec: GDKC = GDKC(
+            torch.optim.lr_scheduler.StepLR, step_size=100, gamma=0.65
+        ),
+        memory_buffer: Memory = SampleTrajectoryBuffer(),
         **kwargs,
     ) -> None:
         r"""

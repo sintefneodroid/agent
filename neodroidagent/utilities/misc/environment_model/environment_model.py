@@ -11,6 +11,8 @@ from collections import defaultdict
 
 import numpy
 
+__all__ = ["EnvModel"]
+
 
 class EnvModel(object):
     """

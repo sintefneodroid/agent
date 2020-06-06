@@ -7,6 +7,8 @@ __author__ = "Christian Heider Nielsen"
 # Based on http://math.stackexchange.com/questions/1287634/implementing-ornstein-uhlenbeck-in-matlab
 import numpy
 
+__all__ = ["OrnsteinUhlenbeckProcess"]
+
 
 class OrnsteinUhlenbeckProcess(AnnealedGaussianProcess):
     def __init__(

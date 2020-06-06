@@ -12,6 +12,8 @@ __doc__ = r"""
 import torch
 from torch.distributions import Distribution, Normal
 
+__all__ = ["TanhNormal"]
+
 
 class TanhNormal(Distribution):
     """

@@ -9,7 +9,7 @@ import torch
 
 from draugr.torch_utilities import global_torch_device
 from neodroidagent import PROJECT_NAME
-from neodroidagent.agents.agent import ClipFeature
+from neodroidagent.agents.agent import TogglableLowHigh
 from warg.gdkc import GDKC
 
 __author__ = "Christian Heider Nielsen"
@@ -38,10 +38,10 @@ NUM_ENVS = cpu_count()
 LOAD_PREVIOUS_MODEL_IF_AVAILABLE = False
 
 # Clipping
-SIGNAL_CLIPPING = ClipFeature(False, -1.0, 1.0)
-ACTION_CLIPPING = ClipFeature(False, -1.0, 1.0)
-GRADIENT_CLIPPING = ClipFeature(False, -1.0, 1.0)
-GRADIENT_NORM_CLIPPING = ClipFeature(False, 0, 1.0)
+SIGNAL_CLIPPING = TogglableLowHigh(False, -1.0, 1.0)
+ACTION_CLIPPING = TogglableLowHigh(False, -1.0, 1.0)
+GRADIENT_CLIPPING = TogglableLowHigh(False, -1.0, 1.0)
+GRADIENT_NORM_CLIPPING = TogglableLowHigh(False, 0, 1.0)
 
 DISCOUNT_FACTOR = 0.99
 RENDER_FREQUENCY = 50

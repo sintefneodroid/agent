@@ -18,8 +18,12 @@ from draugr.torch_utilities import (
 )
 from draugr import sprint
 from neodroid.utilities import ActionSpace, ObservationSpace, SignalSpace
-from neodroidagent.agents.agent import Agent, ClipFeature
+from neodroidagent.agents.agent import Agent, TogglableLowHigh
 from neodroidagent.common.architectures.architecture import Architecture
+from neodroidagent.utilities import IntrinsicSignalProvider, MLPICM
+from neodroidagent.utilities.exploration.intrinsic_signals.braindead import (
+    BraindeadIntrinsicSignalProvider,
+)
 from warg import drop_unused_kws, passes_kws_to, super_init_pass_on_kws
 
 __author__ = "Christian Heider Nielsen"
@@ -40,8 +44,9 @@ class TorchAgent(Agent, ABC):
         self,
         *,
         device: str = global_torch_device(True),
-        gradient_clipping: ClipFeature = ClipFeature(False, -1.0, 1.0),
-        gradient_norm_clipping: ClipFeature = ClipFeature(False, -1.0, 1.0),
+        gradient_clipping: TogglableLowHigh = TogglableLowHigh(False, -1.0, 1.0),
+        gradient_norm_clipping: TogglableLowHigh = TogglableLowHigh(False, -1.0, 1.0),
+        intrinsic_signal_provider_arch: IntrinsicSignalProvider = BraindeadIntrinsicSignalProvider,
         **kwargs,
     ):
         """
@@ -52,7 +57,9 @@ class TorchAgent(Agent, ABC):
 @param grad_clip_high:
 @param kwargs:
 """
-        super().__init__(**kwargs)
+        super().__init__(
+            intrinsic_signal_provider_arch=intrinsic_signal_provider_arch, **kwargs
+        )
         self._gradient_clipping = gradient_clipping
         self._gradient_norm_clipping = gradient_norm_clipping
         self._device = torch.device(

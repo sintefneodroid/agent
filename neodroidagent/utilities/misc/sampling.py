@@ -12,6 +12,8 @@ from typing import Tuple
 import torch
 from torch.distributions import Distribution, Normal
 
+__all__ = ["normal_tanh_reparameterised_sample"]
+
 
 def normal_tanh_reparameterised_sample(
     dis: Normal, epsilon=1e-6

@@ -3,27 +3,27 @@
 
 
 import copy
-import itertools
-from typing import Any, Dict, Sequence, Tuple
 
+import itertools
 import numpy
 import torch
 import torch.nn as nn
 from torch.nn.functional import mse_loss
 from tqdm import tqdm
+from typing import Any, Dict, Sequence, Tuple
 
-from draugr.writers import MockWriter, Writer
 from draugr.torch_utilities import freeze_model, frozen_parameters, to_tensor
+from draugr.writers import MockWriter, Writer
 from neodroid.utilities import ActionSpace, ObservationSpace, SignalSpace
 from neodroidagent.agents.torch_agents.torch_agent import TorchAgent
 from neodroidagent.common import (
     Architecture,
     ConcatInputMLP,
+    Memory,
     SamplePoint,
     ShallowStdNormalMLP,
     TransitionPoint,
     TransitionPointBuffer,
-    Memory,
 )
 from neodroidagent.utilities import (
     ActionSpaceNotSupported,
@@ -71,7 +71,7 @@ https://arxiv.org/pdf/1812.05905.pdf
         ),
         critic_arch_spec: GDKC = GDKC(ConcatInputMLP),
         critic_criterion: callable = mse_loss,
-        **kwargs,
+        **kwargs
     ):
         """
 
@@ -110,7 +110,15 @@ https://arxiv.org/pdf/1812.05905.pdf
         self.inner_update_i = 0
 
     @drop_unused_kws
-    def _remember(self, *, signal, terminated, state, successor_state, sample):
+    def _remember(
+        self,
+        *,
+        signal: Any,
+        terminated: Any,
+        state: Any,
+        successor_state: Any,
+        sample: Any
+    ) -> None:
         """
 
 @param signal:
@@ -146,8 +154,8 @@ https://arxiv.org/pdf/1812.05905.pdf
         state: Any,
         *args,
         deterministic: bool = False,
-        metric_writer: Writer = MockWriter(),
-    ) -> Tuple[Sequence, Any]:
+        metric_writer: Writer = MockWriter()
+    ) -> Tuple[torch.Tensor, Any]:
         """
 
 @param state:
@@ -177,7 +185,7 @@ https://arxiv.org/pdf/1812.05905.pdf
         action_space: ActionSpace,
         signal_space: SignalSpace,
         metric_writer: Writer = MockWriter(),
-        print_model_repr=True,
+        print_model_repr: bool = True,
     ) -> None:
         """
 
@@ -186,12 +194,6 @@ https://arxiv.org/pdf/1812.05905.pdf
 @param signal_space:
 @param metric_writer:
 @param print_model_repr:
-@param critic_1:
-@param critic_1_optimizer:
-@param critic_2:
-@param critic_2_optimizer:
-@param actor:
-@param actor_optimiser:
 @return:
 """
         if action_space.is_discrete:
@@ -301,7 +303,9 @@ https://arxiv.org/pdf/1812.05905.pdf
 
         return out_loss
 
-    def update_actor(self, tensorised, metric_writer: Writer = None) -> float:
+    def update_actor(
+        self, tensorised: torch.Tensor, metric_writer: Writer = None
+    ) -> float:
         """
 
 @param tensorised:
@@ -344,9 +348,13 @@ https://arxiv.org/pdf/1812.05905.pdf
 
         return out_loss
 
-    def update_alpha(self, log_prob, metric_writer: Writer = None) -> float:
+    def update_alpha(
+        self, log_prob: torch.Tensor, metric_writer: Writer = None
+    ) -> float:
         """
 
+    @param log_prob:
+    @type log_prob:
 @param tensorised:
 @param metric_writer:
 @return:
@@ -405,7 +413,7 @@ https://arxiv.org/pdf/1812.05905.pdf
 
         if metric_writer:
             metric_writer.scalar("Accum_loss", accum_loss)
-            metric_writer.scalar("_num_inner_updates", i)
+            metric_writer.scalar("num_inner_updates_i", i)
 
         return accum_loss
 
@@ -422,6 +430,8 @@ networks according to:
 
 where \rho is polyak. (Always between 0 and 1, usually close to 1.)
 
+    @param metric_writer:
+    @type metric_writer:
 @param copy_percentage:
 @return:
 """

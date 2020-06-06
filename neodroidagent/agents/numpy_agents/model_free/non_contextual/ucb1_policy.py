@@ -5,7 +5,7 @@ import argparse
 from neodroid.environments.droid_environment import SingleUnityEnvironment
 from neodroid.utilities import Displayable
 from neodroidagent.agents.numpy_agents.numpy_agent import NumpyAgent
-from neodroidagent.utilities.exploration.ucb1 import UCB1
+from neodroidagent.utilities.exploration.sampling.ucb1 import UCB1
 
 __author__ = "Christian Heider Nielsen"
 

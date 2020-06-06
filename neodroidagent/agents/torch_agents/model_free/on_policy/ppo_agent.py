@@ -5,6 +5,7 @@ from typing import Any, Tuple
 
 import numpy
 import torch
+from torch.distributions import Distribution
 from torch.nn.functional import mse_loss
 from tqdm import tqdm
 
@@ -13,7 +14,7 @@ from draugr.torch_utilities import freeze_model, to_tensor
 
 from draugr import mean_accumulator, shuffled_batches
 from neodroid.utilities import ActionSpace, ObservationSpace, SignalSpace
-from neodroidagent.agents.agent import ClipFeature
+from neodroidagent.agents.agent import TogglableLowHigh
 from neodroidagent.agents.torch_agents.torch_agent import TorchAgent
 from neodroidagent.common import (
     ActorCriticMLP,
@@ -23,7 +24,6 @@ from neodroidagent.common import (
 )
 from neodroidagent.utilities import (
     ActionSpaceNotSupported,
-    Distribution,
     is_none_or_zero_or_negative_or_mod_zero,
     torch_compute_gae,
     update_target,
@@ -65,8 +65,8 @@ https://spinningup.openai.com/en/latest/algorithms/ppo.html
         optimiser_spec: GDKC = GDKC(constructor=torch.optim.Adam, lr=3e-4),
         continuous_arch_spec: GDKC = GDKC(ActorCriticMLP),
         discrete_arch_spec: GDKC = GDKC(CategoricalActorCriticMLP),
-        gradient_norm_clipping: ClipFeature = ClipFeature(True, 0, 0.5),
-        **kwargs,
+        gradient_norm_clipping: TogglableLowHigh = TogglableLowHigh(True, 0, 0.5),
+        **kwargs
     ) -> None:
         """
 
@@ -204,7 +204,7 @@ https://spinningup.openai.com/en/latest/algorithms/ppo.html
         terminated: Any,
         state: Any,
         successor_state: Any,
-        sample: Any,
+        sample: Any
     ) -> None:
         self._memory_buffer.add_transition_point(
             ValuedTransitionPoint(
@@ -330,7 +330,7 @@ https://spinningup.openai.com/en/latest/algorithms/ppo.html
         log_prob_batch_old,
         adv_batch,
         *,
-        metric_writer: Writer = None,
+        metric_writer: Writer = None
     ):
         action_log_probs_new = self.get_log_prob(new_distribution, action_batch)
         ratio = torch.exp(action_log_probs_new - log_prob_batch_old)

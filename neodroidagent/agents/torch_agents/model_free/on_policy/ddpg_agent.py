@@ -72,7 +72,7 @@ The update rate that target networks slowly track the learned networks.
         copy_percentage: float = 0.005,
         actor_optimiser_spec: GDKC = GDKC(constructor=torch.optim.Adam, lr=1e-4),
         critic_optimiser_spec: GDKC = GDKC(constructor=torch.optim.Adam, lr=1e-2),
-        **kwargs,
+        **kwargs
     ):
         """
 
@@ -168,7 +168,7 @@ The update rate that target networks slowly track the learned networks.
         return {"_actor": self._actor, "_critic": self._critic}
 
     def update_targets(
-        self, update_percentage, *, metric_writer: Writer = None
+        self, update_percentage: float, *, metric_writer: Writer = None
     ) -> None:
         """
 

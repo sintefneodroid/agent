@@ -56,6 +56,7 @@ class Memory:
     def __len__(self) -> int:
         raise NotImplementedError
 
+    @property
     @abstractmethod
     def capacity(self) -> int:
         raise NotImplementedError

@@ -3,6 +3,17 @@ from itertools import product
 import gym
 import numpy
 
+__all__ = [
+    "get_gym_environs",
+    "get_gym_stats",
+    "is_tuple",
+    "is_continuous",
+    "is_multidimensional",
+    "obs_stats",
+    "action_stats",
+    "env_stats",
+]
+
 
 def get_gym_environs():
     """ List all valid OpenAI ``gym`` environment ids.  """

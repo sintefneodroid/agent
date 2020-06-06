@@ -21,7 +21,7 @@ class RandomAgent(Agent):
         *args,
         deterministic: bool = False,
         metric_writer: Writer = MockWriter(),
-        **kwargs,
+        **kwargs
     ) -> Any:
         """
 
@@ -46,7 +46,7 @@ class RandomAgent(Agent):
         observation_space: ObservationSpace = None,
         action_space: ActionSpace = None,
         signal_space: SignalSpace = None,
-        **kwargs,
+        **kwargs
     ) -> None:
         """
 

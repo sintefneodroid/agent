@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+from typing import Tuple
 
 import numpy
 import torch
@@ -8,13 +9,17 @@ from torch.distributions import Categorical
 from torch.nn import CrossEntropyLoss, MSELoss
 
 from draugr.torch_utilities.tensors.to_tensor import to_tensor
-from neodroid.utilities import ActionSpace, ObservationSpace
-from neodroidagent.utilities.exploration.curiosity_module import CuriosityModule
+from draugr.writers import Writer
+from neodroid.utilities import ActionSpace, ObservationSpace, SignalSpace
 
 __author__ = "Christian Heider Nielsen"
 __doc__ = r"""
            """
 __all__ = ["ForwardModel", "InverseModel", "MLPICM"]
+
+from neodroidagent.utilities.exploration.intrinsic_signals.torch_isp.torch_isp_module import (
+    TorchISPModule,
+)
 
 
 class ForwardModel(nn.Module):
@@ -47,7 +52,7 @@ class ForwardModel(nn.Module):
             nn.Linear(128, state_latent_features),
         )
 
-    def forward(self, state_latent: torch.Tensor, action: torch.Tensor):
+    def forward(self, state_latent: torch.Tensor, action: torch.Tensor) -> torch.Tensor:
         """
 
 @param state_latent:
@@ -68,6 +73,13 @@ class InverseModel(nn.Module):
 """
 
     def __init__(self, action_space: ActionSpace, state_latent_features: int):
+        """
+
+    @param action_space:
+    @type action_space:
+    @param state_latent_features:
+    @type state_latent_features:
+    """
         super().__init__()
         self.input = nn.Sequential(
             nn.Linear(state_latent_features * 2, 128),
@@ -77,11 +89,22 @@ class InverseModel(nn.Module):
             nn.Linear(128, action_space.n),
         )
 
-    def forward(self, state_latent: torch.Tensor, next_state_latent: torch.Tensor):
+    def forward(
+        self, state_latent: torch.Tensor, next_state_latent: torch.Tensor
+    ) -> torch.Tensor:
+        """
+
+    @param state_latent:
+    @type state_latent:
+    @param next_state_latent:
+    @type next_state_latent:
+    @return:
+    @rtype:
+    """
         return self.input(torch.cat((state_latent, next_state_latent), dim=-1))
 
 
-class MLPICM(CuriosityModule):
+class MLPICM(TorchISPModule):
     """
 Implements the Intrinsic Curiosity Module described in paper: https://arxiv.org/pdf/1705.05363.pdf
 
@@ -98,22 +121,20 @@ to make sure agent focuses on the states that he actually can control.
         self,
         observation_space: ObservationSpace,
         action_space: ActionSpace,
+        signal_space: SignalSpace,
         policy_weight: float,
-        reward_scale: float,
         weight: float,
         intrinsic_reward_integration: float,
+        hidden_dim: int = 128,
     ):
         """
 :param policy_weight: weight to be applied to the ``policy_loss`` in the ``loss`` method. Allows to
 control how
 important optimizing policy to optimizing the curiosity module
-:param reward_scale: scales the intrinsic reward returned by this module. Can be used to control how
-big the
-intrinsic reward is
+:param signal_space: used for scaling the intrinsic reward returned by this module. Can be used to control how
+the fluctuation scale of the intrinsic signal
 :param weight: balances the importance between forward and inverse model
-:param intrinsic_reward_integration: balances the importance between extrinsic and intrinsic reward.
-Used when
-incorporating intrinsic into extrinsic in the ``reward`` method
+:param intrinsic_reward_integration: balances the importance between extrinsic and intrinsic signal.
 """
 
         assert (
@@ -122,41 +143,68 @@ incorporating intrinsic into extrinsic in the ``reward`` method
         assert (
             len(action_space.shape) == 1
         ), "Only flat action spaces supported by MLP model"
-        super().__init__()
+        super().__init__(observation_space, action_space, signal_space)
 
-        self.input_state_shape = observation_space
-        self.input_action_shape = action_space
         self.policy_weight = policy_weight
-        self.reward_scale = reward_scale
+        self.reward_scale = signal_space.span
         self.weight = weight
-        self.intrinsic_reward_integration = intrinsic_reward_integration
+        self.intrinsic_signal_integration = intrinsic_reward_integration
 
         self.encoder = nn.Sequential(
-            nn.Linear(observation_space.shape[0], 128),
+            nn.Linear(observation_space.shape[0], hidden_dim),
             nn.ReLU(inplace=True),
-            nn.Linear(128, 128),
+            nn.Linear(hidden_dim, hidden_dim),
             nn.ReLU(inplace=True),
-            nn.Linear(128, 128),
+            nn.Linear(hidden_dim, hidden_dim),
         )
 
-        self.forward_model = ForwardModel(action_space, 128)
-        self.inverse_model = InverseModel(action_space, 128)
+        self.forward_model = ForwardModel(action_space, hidden_dim)
+        self.inverse_model = InverseModel(action_space, hidden_dim)
 
         self.a_loss = CrossEntropyLoss()
         self.a_loss = MSELoss()
 
     def forward(
         self, state: torch.Tensor, next_state: torch.Tensor, action: torch.Tensor
-    ):
+    ) -> Tuple:
+        """
+
+    @param state:
+    @type state:
+    @param next_state:
+    @type next_state:
+    @param action:
+    @type action:
+    @return:
+    @rtype:
+    """
         state = self.encoder(state)
         next_state = self.encoder(next_state)
         next_state_hat = self.forward_model(state, action)
         action_hat = self.inverse_model(state, next_state)
         return next_state, next_state_hat, action_hat
 
-    def reward(
-        self, rewards: numpy.ndarray, states: numpy.ndarray, actions: numpy.ndarray
+    def sample(
+        self,
+        signals: numpy.ndarray,
+        states: numpy.ndarray,
+        actions: numpy.ndarray,
+        *,
+        writer: Writer = None
     ) -> numpy.ndarray:
+        """
+
+    @param signals:
+    @type signals:
+    @param states:
+    @type states:
+    @param actions:
+    @type actions:
+    @param writer:
+    @type writer:
+    @return:
+    @rtype:
+    """
         n, t = actions.shape[0], actions.shape[1]
         states, next_states = states[:, :-1], states[:, 1:]
         states = to_tensor(
@@ -169,21 +217,24 @@ incorporating intrinsic into extrinsic in the ``reward`` method
         next_states_latent, next_states_hat, _ = self.forward(
             states, next_states, actions
         )
-        intrinsic_reward = (
-            self.reward_scale
-            / 2
-            * (next_states_hat - next_states_latent).norm(2, dim=-1).pow(2)
+        intrinsic_signal = (
+            (
+                self.reward_scale
+                / 2
+                * (next_states_hat - next_states_latent).norm(2, dim=-1).pow(2)
+            )
+            .cpu()
+            .detach()
+            .numpy()
+            .reshape(n, t)
         )
-        intrinsic_reward = intrinsic_reward.cpu().detach().numpy().reshape(n, t)
+
+        if writer is not None:
+            writer.scalar("icm/signal", intrinsic_signal.mean().item())
 
         return (
-            1.0 - self.intrinsic_reward_integration
-        ) * rewards + self.intrinsic_reward_integration * intrinsic_reward
-
-    #     self.reporter.scalar('icm/reward',
-    #                          intrinsic_reward.mean().item()
-    #                          if self.reporter.will_report('icm/reward')
-    #                          else 0)
+            1.0 - self.intrinsic_signal_integration
+        ) * signals + self.intrinsic_signal_integration * intrinsic_signal
 
     def loss(
         self,
@@ -191,7 +242,24 @@ incorporating intrinsic into extrinsic in the ``reward`` method
         states: torch.Tensor,
         next_states: torch.Tensor,
         actions: torch.Tensor,
+        *,
+        writer: Writer = None
     ) -> torch.Tensor:
+        """
+
+    @param policy_loss:
+    @type policy_loss:
+    @param states:
+    @type states:
+    @param next_states:
+    @type next_states:
+    @param actions:
+    @type actions:
+    @param writer:
+    @type writer:
+    @return:
+    @rtype:
+    """
         next_states_latent, next_states_hat, actions_hat = self.forward(
             states, next_states, actions
         )
@@ -206,6 +274,7 @@ incorporating intrinsic into extrinsic in the ``reward`` method
         inverse_loss = self.a_loss(ca, actions)
         curiosity_loss = self.weight * forward_loss + (1 - self.weight) * inverse_loss
 
-        return self.policy_weight * policy_loss + curiosity_loss
+        if writer is not None:
+            writer.scalar("icm/loss", curiosity_loss.item())
 
-        #    self.reporter.scalar('icm/loss', curiosity_loss.item())
+        return self.policy_weight * policy_loss + curiosity_loss

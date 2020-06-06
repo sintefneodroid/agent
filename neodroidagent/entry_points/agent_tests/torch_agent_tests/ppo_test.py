@@ -30,12 +30,17 @@ INITIAL_OBSERVATION_PERIOD = 0
 
 BATCH_SIZE = 256
 
-GRADIENT_NORM_CLIPPING = ClipFeature(True, 0, 0.1)
+GRADIENT_NORM_CLIPPING = TogglableLowHigh(True, 0, 0.1)
 
 ppo_config = globals()
 
 
 def ppo_test(config=ppo_config):
+    """
+
+    @param config:
+    @type config:
+    """
     ppo_run(environment_type="gym", config=config)
 
 
@@ -44,6 +49,15 @@ def ppo_run(
     environment_type: Union[bool, str] = True,
     config=ppo_config,
 ):
+    """
+
+    @param skip_confirmation:
+    @type skip_confirmation:
+    @param environment_type:
+    @type environment_type:
+    @param config:
+    @type config:
+    """
     session_factory(
         PPOAgent,
         config,

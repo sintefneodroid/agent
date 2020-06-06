@@ -8,6 +8,8 @@ import numpy
 
 from neodroidagent.utilities.signal.experimental.discounting import valued_discount
 
+__all__ = ["discounted_nstep", "discounted_nstep_adv"]
+
 
 def discounted_nstep(
     signals: numpy.ndarray,
