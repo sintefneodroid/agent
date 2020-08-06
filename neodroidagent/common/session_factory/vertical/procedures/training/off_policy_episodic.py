@@ -91,13 +91,14 @@ def rollout_off_policy(
 
         state = successor_state
 
-    if use_episodic_buffer:
-        t = TransitionPoint(*zip(*episode_buffer))
-        agent.remember(
-            signal=t.signal,
-            terminated=t.terminal,
-            transition=Transition(t.state, t.action, t.successor_state),
-        )
+    if train_agent:
+        if use_episodic_buffer:
+            t = TransitionPoint(*zip(*episode_buffer))
+            agent.remember(
+                signal=t.signal,
+                terminated=t.terminal,
+                transition=Transition(t.state, t.action, t.successor_state),
+            )
 
     if step_i > 0:
         if train_agent:

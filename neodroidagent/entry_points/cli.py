@@ -49,7 +49,7 @@ class RunAgent:
         self.agent_callable(config=default_config)
 
     def run(self):
-        pass
+        self.train(train_agent=False,render_frequency=1,save=False)
 
 
 class NeodroidAgentCLI:

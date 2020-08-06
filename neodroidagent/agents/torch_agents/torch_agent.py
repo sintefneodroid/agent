@@ -71,6 +71,7 @@ class TorchAgent(Agent, ABC):
 
 @param model:
 @return:
+        :param parameters:
 """
         if self._gradient_clipping.enabled:
             for params in parameters:
@@ -113,6 +114,7 @@ class TorchAgent(Agent, ABC):
 @param print_model_repr:
 @param kwargs:
 @return:
+        :param verbose:
 """
         super().build(
             observation_space,
@@ -204,9 +206,9 @@ class TorchAgent(Agent, ABC):
 """
         loaded = True
         if save_directory.exists():
-            print("Loading models froms: " + str(save_directory))
+            print(f"Loading models from: {str(save_directory)}")
             for (model_key, model), (optimiser_key, optimiser) in zip(
-                self.models.items(), self.optimisers.values()
+                self.models.items(), self.optimisers.items()
             ):
                 model_identifier = self.model_name(model_key, model)
                 (model, optimiser), loaded = load_latest_model_parameters(
@@ -217,7 +219,7 @@ class TorchAgent(Agent, ABC):
                 )
                 if loaded:
                     model = model.to(self._device)
-                    optimiser = optimiser.to(self._device)
+                    #optimiser = optimiser.to(self._device)
                     if evaluation:
                         model = model.eval()
                         model.train(False)  # Redundant

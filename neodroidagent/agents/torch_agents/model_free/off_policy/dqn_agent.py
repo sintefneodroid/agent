@@ -222,16 +222,18 @@ https://www.cs.toronto.edu/~vmnih/docs/dqn.pdf
 @param terminated:
 @return:
 """
-
-        a = [TransitionPoint(*s) for s in zip(*transition, signal, terminated)]
-        if self._use_per:
-            with torch.no_grad():
-                td_error, *_ = self._td_error(zip(*a))
-                for a_, e_ in zip(a, td_error.detach().squeeze(-1).cpu().numpy()):
-                    self._memory_buffer.add_transition_point(a_, e_)
+        if transition:
+            a = [TransitionPoint(*s) for s in zip(*transition, signal, terminated)]
+            if self._use_per:
+                with torch.no_grad():
+                    td_error, *_ = self._td_error(zip(*a))
+                    for a_, e_ in zip(a, td_error.detach().squeeze(-1).cpu().numpy()):
+                        self._memory_buffer.add_transition_point(a_, e_)
+            else:
+                for a_ in a:
+                    self._memory_buffer.add_transition_point(a_)
         else:
-            for a_ in a:
-                self._memory_buffer.add_transition_point(a_)
+            raise ValueError('Missing transition')
 
     @drop_unused_kws
     def _sample_model(self, state: Any) -> numpy.ndarray:
