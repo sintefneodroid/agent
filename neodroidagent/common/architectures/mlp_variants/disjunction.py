@@ -3,6 +3,7 @@
 
 __author__ = "Christian Heider Nielsen"
 __doc__ = r"""
+          Fission variants of MLPs
 
            Created on 24/02/2020
            """

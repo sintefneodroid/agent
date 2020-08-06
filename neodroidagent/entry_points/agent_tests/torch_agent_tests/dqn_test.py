@@ -2,13 +2,8 @@
 # -*- coding: utf-8 -*-
 from typing import Union
 
-from neodroidagent.agents import DQNAgent
-from neodroidagent.common import (
-    OffPolicyEpisodic,
-    ParallelSession,
-    TransitionPointBuffer,
-)
-from neodroidagent.common.architectures import MLP
+from neodroidagent.agents import DeepQNetworkAgent
+from neodroidagent.common import OffPolicyEpisodic, ParallelSession
 from neodroidagent.configs.test_reference.base_dicrete_test_config import *
 
 __author__ = "Christian Heider Nielsen"
@@ -30,8 +25,10 @@ import pathlib
 CONFIG_FILE_PATH = pathlib.Path(__file__)
 
 EXPLORATION_SPEC = ExplorationSpecification(0.95, 0.05, ITERATIONS)
+OPTIMISER_SPEC = GDKC(torch.optim.Adam, lr=3e-4)
 
 INITIAL_OBSERVATION_PERIOD = 1
+# RENDER_FREQUENCY = 0
 LEARNING_FREQUENCY = 1
 
 dqn_config = globals()
@@ -41,9 +38,9 @@ def dqn_run(
     skip_confirmation: bool = True,
     environment_type: Union[bool, str] = True,
     config=dqn_config,
-):
+) -> None:
     session_factory(
-        DQNAgent,
+        DeepQNetworkAgent,
         config,
         session=ParallelSession(
             environment_name=ENVIRONMENT_NAME,

@@ -39,12 +39,13 @@ class Procedure(abc.ABC):
             on_improvement_callbacks.append(self.agent.save)
         self.on_improvement_callbacks = on_improvement_callbacks
 
-    def stop_procedure(self) -> None:
+    @staticmethod
+    def stop_procedure() -> None:
         """
 
 @return:
 """
-        self.early_stop = True
+        Procedure.early_stop = True
 
     def call_on_improvement_callbacks(self, *, verbose: bool = True, **kwargs):
         """

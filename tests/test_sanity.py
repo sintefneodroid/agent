@@ -21,7 +21,7 @@ def test_print(capsys):
     print(text)
     sys.stderr.write("world")
     captured = capsys.readouterr()
-    assert text in captured.out
+    assert text in captured.head
     assert err in captured.err
 
 

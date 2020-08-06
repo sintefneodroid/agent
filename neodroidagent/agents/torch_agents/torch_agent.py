@@ -4,23 +4,23 @@ import copy
 import hashlib
 from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import Dict, Iterable
+from typing import Dict, Iterable, Tuple
 
 import torch
 from torch.nn import Parameter
+from torch.optim import Optimizer
 
-from draugr.writers import MockWriter, Writer
-from draugr.torch_utilities import (
-    TensorBoardPytorchWriter,
-    global_torch_device,
-    load_latest_model,
-    save_model,
-)
 from draugr import sprint
+from draugr.torch_utilities import (
+    global_torch_device,
+    load_latest_model_parameters,
+    save_model_parameters,
+)
+from draugr.writers import GraphWriterMixin, MockWriter, Writer
 from neodroid.utilities import ActionSpace, ObservationSpace, SignalSpace
 from neodroidagent.agents.agent import Agent, TogglableLowHigh
 from neodroidagent.common.architectures.architecture import Architecture
-from neodroidagent.utilities import IntrinsicSignalProvider, MLPICM
+from neodroidagent.utilities import IntrinsicSignalProvider
 from neodroidagent.utilities.exploration.intrinsic_signals.braindead import (
     BraindeadIntrinsicSignalProvider,
 )
@@ -101,6 +101,7 @@ class TorchAgent(Agent, ABC):
         *,
         metric_writer: Writer = MockWriter(),
         print_model_repr: bool = True,
+        verbose: bool = False,
         **kwargs,
     ) -> None:
         """
@@ -127,12 +128,24 @@ class TorchAgent(Agent, ABC):
                 sprint(f"{k}: {w}", highlight=True, color="cyan")
 
                 if metric_writer:
-                    dummy_in = torch.rand(1, *self.input_shape)
+                    try:
+                        import contextlib
 
-                    model = copy.deepcopy(w)
-                    model.to("cpu")
-                    if isinstance(metric_writer, TensorBoardPytorchWriter):
-                        metric_writer.graph(model, dummy_in)
+                        with contextlib.redirect_stdout(
+                            None
+                        ):  # So much use frame info printed... Suppress it
+                            model = copy.deepcopy(w)
+                            model.to("cpu")
+
+                            dummy_in = torch.empty(1, *model.input_shape, device="cpu")
+                            if isinstance(metric_writer, GraphWriterMixin):
+                                metric_writer.graph(model, dummy_in, verbose=verbose)
+                    except RuntimeError as ex:
+                        sprint(
+                            f"Tensorboard(Pytorch) does not support you model! No graph added: {str(ex).splitlines()[0]}",
+                            color="red",
+                            highlight=True,
+                        )
 
     # region Public
     @property
@@ -144,15 +157,26 @@ class TorchAgent(Agent, ABC):
 """
         raise NotImplementedError
 
-    @passes_kws_to(save_model)
+    @property
+    @abstractmethod
+    def optimisers(self) -> Dict[str, Optimizer]:
+        """
+
+@return:
+"""
+        raise NotImplementedError
+
+    @passes_kws_to(save_model_parameters)
     def save(self, **kwargs) -> None:
         """
 
 @param kwargs:
 @return:
 """
-        for k, v in self.models.items():
-            save_model(v, model_name=self.model_name(k, v), **kwargs)
+        for (k, v), o in zip(self.models.items(), self.optimisers.values()):
+            save_model_parameters(
+                v, optimiser=o, model_name=self.model_name(k, v), **kwargs
+            )
 
     @staticmethod
     def model_name(k, v) -> str:
@@ -171,7 +195,7 @@ class TorchAgent(Agent, ABC):
         pass
 
     @drop_unused_kws
-    def load(self, *, save_directory: Path, evaluation: bool = False) -> None:
+    def load(self, *, save_directory: Path, evaluation: bool = False) -> bool:
         """
 
 @param save_directory:
@@ -181,26 +205,30 @@ class TorchAgent(Agent, ABC):
         loaded = True
         if save_directory.exists():
             print("Loading models froms: " + str(save_directory))
-            for k, v in self.models.items():
-                model_identifier = self.model_name(k, v)
-                latest = load_latest_model(save_directory, model_identifier)
-                if latest:
-                    model = getattr(self, k)
-                    model.load_state_dict(latest)
-
+            for (model_key, model), (optimiser_key, optimiser) in zip(
+                self.models.items(), self.optimisers.values()
+            ):
+                model_identifier = self.model_name(model_key, model)
+                (model, optimiser), loaded = load_latest_model_parameters(
+                    model,
+                    model_name=model_identifier,
+                    optimiser=optimiser,
+                    model_directory=save_directory,
+                )
+                if loaded:
+                    model = model.to(self._device)
+                    optimiser = optimiser.to(self._device)
                     if evaluation:
                         model = model.eval()
                         model.train(False)  # Redundant
-
-                    model = model.to(self._device)
-
-                    setattr(self, k, model)
+                    setattr(self, model_key, model)
+                    setattr(self, optimiser_key, optimiser)
                 else:
                     loaded = False
                     print(f"Missing a model for {model_identifier}")
 
         if not loaded:
-            print("Some models where not found in: " + str(save_directory))
+            print(f"Some models where not found in: {str(save_directory)}")
 
         self.on_load()
 
@@ -208,5 +236,8 @@ class TorchAgent(Agent, ABC):
 
     def eval(self) -> None:
         [m.eval() for m in self.models.values()]
+
+    def train(self) -> None:
+        [m.train() for m in self.models.values()]
 
     # endregion

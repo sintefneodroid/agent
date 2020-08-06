@@ -7,15 +7,16 @@ __doc__ = r"""
            Created on 27/02/2020
            """
 
-import numpy
+from typing import Tuple
 
+import numpy
 from neodroidagent.agents.numpy_agents.numpy_agent import NumpyAgent
 
 
 class CrossEntropyAgent(NumpyAgent):
     """
 
-    """
+  """
 
     def __init__(self, env, n_samples_per_episode=500, retain_percentage=0.2):
         """
@@ -75,9 +76,9 @@ the parameter update at the end of the episode. Default is 0.2.
         assert not E["continuous_actions"], "Action space must be discrete"
 
         self._create_2num_dicts()
-        b_len = numpy.prod(E["n_actions_per_dim"])
-        W_len = b_len * numpy.prod(E["obs_dim"])
-        theta_dim = b_len + W_len
+        bias_len = numpy.prod(E["n_actions_per_dim"])
+        weights_len = bias_len * numpy.prod(E["obs_dim"])
+        theta_dim = bias_len + weights_len
 
         # init mean and variance for mv gaussian with dimensions theta_dim
         theta_mean = numpy.random.rand(theta_dim)
@@ -85,8 +86,8 @@ the parameter update at the end of the episode. Default is 0.2.
 
         self.parameters = {"theta_mean": theta_mean, "theta_var": theta_var}
         self.derived_variables = {
-            "b_len": b_len,
-            "W_len": W_len,
+            "b_len": bias_len,
+            "W_len": weights_len,
             "W_samples": [],
             "b_samples": [],
             "episode_num": 0,
@@ -256,7 +257,7 @@ on the current episode.
         P["theta_mean"] = numpy.mean(D["theta_samples"][top_idxs], axis=0)
         P["theta_var"] = numpy.var(D["theta_samples"][top_idxs], axis=0)
 
-    def _sample_thetas(self):
+    def _sample_thetas(self) -> None:
         """
 Sample `n_samples_per_episode` thetas from a multivariate Gaussian with
 mean `theta_mean` and covariance `diag(theta_var)`
@@ -266,7 +267,7 @@ mean `theta_mean` and covariance `diag(theta_var)`
         samples = numpy.random.multivariate_normal(Mu, Sigma, N)
         self.derived_variables["theta_samples"] = samples
 
-    def greedy_policy(self, max_steps, render=True):
+    def greedy_policy(self, max_steps, render=True) -> Tuple:
         """
 Execute a greedy policy using the current agent parameters.
 

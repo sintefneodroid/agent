@@ -2,14 +2,20 @@
 # -*- coding: utf-8 -*-
 import inspect
 import time
-from typing import Any, Type, TypeVar
+from contextlib import suppress
+from typing import Any, Type
 
-from draugr import add_early_stopping_key_combination
-from draugr.torch_utilities import torch_seed
+import torch
+import torchsnooper
+
+from draugr import CaptureEarlyStop, add_early_stopping_key_combination, sprint
+from draugr.torch_utilities import TensorBoardPytorchWriter, torch_seed
 from neodroidagent import PROJECT_APP_PATH
 from neodroidagent.agents import Agent
 from neodroidagent.utilities import NoAgent
-from warg import passes_kws_to
+from warg import GDKC, passes_kws_to
+from warg.context_wrapper import ContextWrapper
+from warg.decorators.timing import StopWatch
 from .environment_session import EnvironmentSession
 from .procedures.procedure_specification import Procedure
 
@@ -18,8 +24,6 @@ __doc__ = r"""
 """
 
 __all__ = ["SingleAgentEnvironmentSession"]
-
-ProcedureType = TypeVar("ProcedureType", bound=Procedure)
 
 
 class SingleAgentEnvironmentSession(EnvironmentSession):
@@ -38,6 +42,7 @@ class SingleAgentEnvironmentSession(EnvironmentSession):
         save_ending_model: bool = False,
         continue_training: bool = True,
         train_agent: bool = True,
+        debug: bool = False,
         **kwargs,
     ):
         """
@@ -48,107 +53,128 @@ Start a session, builds Agent and starts/connect environment(s), and runs Proced
 :param kwargs:
 :return:
 """
+        with ContextWrapper(torchsnooper.snoop, debug):
+            with ContextWrapper(torch.autograd.detect_anomaly, debug):
 
-        if agent is None:
-            raise NoAgent
+                if agent is None:
+                    raise NoAgent
 
-        if inspect.isclass(agent):
-            torch_seed(seed)
-            self._environment.seed(seed)
+                if inspect.isclass(agent):
+                    sprint(
+                        "Instantiating Agent", color="crimson", bold=True, italic=True
+                    )
+                    torch_seed(seed)
+                    self._environment.seed(seed)
 
-            agent = agent(load_time=load_time, seed=seed, **kwargs)
-            agent.build(
-                self._environment.observation_space,
-                self._environment.action_space,
-                self._environment.signal_space,
-            )
+                    agent = agent(load_time=load_time, seed=seed, **kwargs)
 
-        if not train_agent:
-            agent.eval()
+                agent_class_name = agent.__class__.__name__
 
-        agent_class_name = agent.__class__.__name__
-
-        total_shape = "_".join(
-            [
-                str(i)
-                for i in (
-                    self._environment.observation_space.shape
-                    + self._environment.action_space.shape
-                    + self._environment.signal_space.shape
-                )
-            ]
-        )
-
-        environment_name = f"{self._environment.environment_name}_{total_shape}"
-
-        save_directory = (
-            PROJECT_APP_PATH.user_data / environment_name / agent_class_name
-        )
-        log_directory = (
-            PROJECT_APP_PATH.user_log / environment_name / agent_class_name / load_time
-        )
-
-        kwargs.update(
-            environment_name=(self._environment.environment_name,),
-            save_directory=save_directory,
-            log_directory=log_directory,
-            load_time=load_time,
-            seed=seed,
-            train_agent=train_agent,
-        )
-
-        found = False
-        if continue_training:
-            print(
-                "Searching for previously trained models for initialisation for this configuration "
-                "(Architecture, Action Space, Observation Space, ...)"
-            )
-            found = agent.load(
-                save_directory=save_directory, evaluation=not train_agent
-            )
-            if not found:
-                print(
-                    "Did not find any previously trained models for this configuration"
+                total_shape = "_".join(
+                    [
+                        str(i)
+                        for i in (
+                            self._environment.observation_space.shape
+                            + self._environment.action_space.shape
+                            + self._environment.signal_space.shape
+                        )
+                    ]
                 )
 
-        if not found:
-            print("Training from new initialisation")
+                environment_name = f"{self._environment.environment_name}_{total_shape}"
 
-        listener = add_early_stopping_key_combination(
-            self._procedure.stop_procedure, **kwargs
-        )
+                save_directory = (
+                    PROJECT_APP_PATH.user_data / environment_name / agent_class_name
+                )
+                log_directory = (
+                    PROJECT_APP_PATH.user_log
+                    / environment_name
+                    / agent_class_name
+                    / load_time
+                )
 
-        proc = self._procedure(agent, environment=self._environment)
+                with TensorBoardPytorchWriter(log_directory) as metric_writer:
 
-        training_start_timestamp = time.time()
-        if listener:
-            listener.start()
+                    agent.build(
+                        self._environment.observation_space,
+                        self._environment.action_space,
+                        self._environment.signal_space,
+                        metric_writer=metric_writer,
+                    )
 
-        try:
-            training_resume = proc(**kwargs)
-            if training_resume and "stats" in training_resume:
-                training_resume.stats.save(**kwargs)
+                    kwargs.update(
+                        environment_name=(self._environment.environment_name,),
+                        save_directory=save_directory,
+                        log_directory=log_directory,
+                        load_time=load_time,
+                        seed=seed,
+                        train_agent=train_agent,
+                    )
 
-        except KeyboardInterrupt:
-            pass
-        time_elapsed = time.time() - training_start_timestamp
+                    found = False
+                    if continue_training:
+                        sprint(
+                            "Searching for previously trained models for initialisation for this configuration "
+                            "(Architecture, Action Space, Observation Space, ...)",
+                            color="crimson",
+                            bold=True,
+                            italic=True,
+                        )
+                        found = agent.load(
+                            save_directory=save_directory, evaluation=not train_agent
+                        )
+                        if not found:
+                            sprint(
+                                "Did not find any previously trained models for this configuration",
+                                color="crimson",
+                                bold=True,
+                                italic=True,
+                            )
 
-        if listener:
-            listener.stop()
+                    if not train_agent:
+                        agent.eval()
+                    else:
+                        agent.train()
 
-        end_message = f"Training ended, time elapsed: {time_elapsed // 60:.0f}m {time_elapsed % 60:.0f}s"
-        line_width = 9
-        print(f'\n{"-" * line_width} {end_message} {"-" * line_width}\n')
+                    if not found:
+                        sprint(
+                            "Training from new initialisation",
+                            color="crimson",
+                            bold=True,
+                            italic=True,
+                        )
 
-        if save_ending_model:
-            agent.save(**kwargs)
+                    session_proc = self._procedure(agent, environment=self._environment)
 
-        try:
-            self._environment.close()
-        except BrokenPipeError:
-            pass
+                    with CaptureEarlyStop(
+                        callbacks=self._procedure.stop_procedure, **kwargs
+                    ):
+                        with StopWatch() as timer:
+                            with suppress(KeyboardInterrupt):
+                                training_resume = session_proc(
+                                    metric_writer=metric_writer, **kwargs
+                                )
+                                if training_resume and "stats" in training_resume:
+                                    training_resume.stats.save(**kwargs)
 
-        exit(0)
+                    end_message = f"Training ended, time elapsed: {timer // 60:.0f}m {timer % 60:.0f}s"
+                    line_width = 9
+                    sprint(
+                        f'\n{"-" * line_width} {end_message} {"-" * line_width}\n',
+                        color="crimson",
+                        bold=True,
+                        italic=True,
+                    )
+
+                    if save_ending_model:
+                        agent.save(**kwargs)
+
+                    try:
+                        self._environment.close()
+                    except BrokenPipeError:
+                        pass
+
+                    exit(0)
 
 
 if __name__ == "__main__":

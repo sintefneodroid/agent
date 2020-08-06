@@ -1,16 +1,15 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 import logging
-from typing import Sequence, Sized
+from typing import Sequence
 
 import numpy
 import torch
+from draugr.torch_utilities import constant_init, fan_in_init, to_tensor, torch_seed
+from neodroidagent.common.architectures.architecture import Architecture
 from numpy import prod
 from torch import nn
 from torch.nn import Module
-
-from draugr.torch_utilities import constant_init, fan_in_init, to_tensor, torch_seed
-from neodroidagent.common.architectures.architecture import Architecture
 from warg.named_ordered_dictionary import NOD
 
 __author__ = "Christian Heider Nielsen"
@@ -37,10 +36,10 @@ OOOO hidden_layer_size * (Weights,Biases)
     def __init__(
         self,
         *,
-        input_shape: Sized = None,
-        hidden_layers: Sized = None,
+        input_shape: Sequence[int] = None,
+        hidden_layers: Sequence[int] = None,
         hidden_layer_activation: Module = torch.nn.ReLU(),
-        output_shape: Sized = None,
+        output_shape: Sequence[int] = None,
         output_activation: Module = torch.nn.Identity(),
         use_bias: bool = True,
         use_dropout: bool = False,
@@ -53,16 +52,13 @@ OOOO hidden_layer_size * (Weights,Biases)
         # prefix:str=None, #TODO name sub networks
         **kwargs,
     ):
-        super().__init__(**kwargs)
-
         assert input_shape is not None
         assert output_shape is not None
 
-        self._input_shape = None
-        self._output_shape = None
+        input_shape = self.infer_input_shape(input_shape)
+        output_shape = self.infer_output_shape(output_shape)
 
-        self.infer_input_shape(input_shape)
-        self.infer_output_shape(output_shape)
+        super().__init__(input_shape=input_shape, output_shape=output_shape, **kwargs)
 
         self._use_bias = use_bias
 
@@ -129,22 +125,22 @@ OOOO hidden_layer_size * (Weights,Biases)
         input_multiplier: float = 32,
         output_multiplier: float = 16,
         max_layer_width: int = 1000,
-    ):
+    ) -> Sequence[nn.Module]:
         """
 
-        @param _input_shape:
-        @type _input_shape:
-        @param _output_shape:
-        @type _output_shape:
-        @param input_multiplier:
-        @type input_multiplier:
-        @param output_multiplier:
-        @type output_multiplier:
-        @param max_layer_width:
-        @type max_layer_width:
-        @return:
-        @rtype:
-        """
+    @param _input_shape:
+    @type _input_shape:
+    @param _output_shape:
+    @type _output_shape:
+    @param input_multiplier:
+    @type input_multiplier:
+    @param output_multiplier:
+    @type output_multiplier:
+    @param max_layer_width:
+    @type max_layer_width:
+    @return:
+    @rtype:
+    """
         h_first_size = min(int(sum(_input_shape) * input_multiplier), max_layer_width)
         h_last_size = min(int(sum(_output_shape) * output_multiplier), max_layer_width)
 
@@ -154,39 +150,48 @@ OOOO hidden_layer_size * (Weights,Biases)
 
         return hidden_layers
 
-    def infer_input_shape(self, input_shape):
+    @staticmethod
+    def infer_input_shape(input_shape: Sequence[int]) -> Sequence[int]:
         """
 
+    @return:
+    @rtype:
 @param input_shape:
 @return:
 """
         if isinstance(input_shape, Sequence):
             assert len(input_shape) > 0, f"Got length {len(input_shape)}"
-            self._input_shape = input_shape
+            new_input_shape = input_shape
         elif isinstance(input_shape, int):
-            self._input_shape = (input_shape,)
+            new_input_shape = (input_shape,)
             logging.info(
-                f"Inflating input shape {input_shape} to vectorised input shape {self._input_shape}"
+                f"Inflating input shape {input_shape} to vectorised input shape {new_input_shape}"
             )
         else:
             raise ValueError(f"Can not use {input_shape} as input shape")
+        return new_input_shape
 
-    def infer_output_shape(self, output_shape):
+    @staticmethod
+    def infer_output_shape(output_shape: Sequence[int]) -> Sequence[int]:
         """
 
+    @return:
+    @rtype:
 @param output_shape:
 @return:
 """
         if isinstance(output_shape, Sequence):
             assert len(output_shape) > 0, f"Got length {len(output_shape)}"
-            self._output_shape = output_shape
+            new_output_shape = output_shape
         elif isinstance(output_shape, int):
-            self._output_shape = (output_shape,)
+            new_output_shape = (output_shape,)
             logging.info(
-                f"Inflating output shape {output_shape} to vectorised output shape {self._output_shape}"
+                f"Inflating output shape {output_shape} to vectorised output shape {new_output_shape}"
             )
         else:
             raise ValueError(f"Can not use {output_shape} as output shape")
+
+        return new_output_shape
 
     def forward(self, *x, **kwargs):
         """
@@ -223,7 +228,7 @@ if __name__ == "__main__":
     def stest_single_dim():
         """
 
-        """
+    """
         pos_size = (4,)
         a_size = (1,)
         model = MLP(input_shape=pos_size, output_shape=a_size)
@@ -234,7 +239,7 @@ if __name__ == "__main__":
     def stest_hidden_dim():
         """
 
-        """
+    """
         pos_size = (3,)
         hidden_size = list(range(6, 10))
         a_size = (4,)
@@ -242,7 +247,7 @@ if __name__ == "__main__":
             input_shape=pos_size,
             hidden_layers=hidden_size,
             output_shape=a_size,
-            hidden_layer_activation=torch.tanh,
+            hidden_layer_activation=torch.nn.Tanh(),
             default_init=None,
         )
 
@@ -285,7 +290,7 @@ if __name__ == "__main__":
     def stest_multi_dim_in():
         """
 
-        """
+    """
         pos_size = (2, 3, 2)
         a_size = (2, 4, 5)
         model = MLP(input_shape=pos_size, output_shape=a_size)
@@ -297,19 +302,20 @@ if __name__ == "__main__":
     def stest_multi_dim_out():
         """
 
-        """
+    """
         pos_size = (10,)
         a_size = (2, 1)
         model = MLP(input_shape=pos_size, hidden_layers=(100,), output_shape=a_size)
 
         pos_1 = to_tensor(numpy.random.rand(64, *pos_size), device="cpu")
         res = model(pos_1)
+        print(model)
         print(len(res), res[0].shape, res[1].shape)
 
     def stest_multi_dim_both():
         """
 
-        """
+    """
         pos_size = (2, 3)
         a_size = (2, 4, 5)
         model = MLP(input_shape=pos_size, output_shape=a_size)
@@ -317,9 +323,24 @@ if __name__ == "__main__":
         pos_1 = to_tensor(numpy.random.rand(64, pos_size[0]), device="cpu")
         pos_2 = to_tensor(numpy.random.rand(64, pos_size[1]), device="cpu")
         res = model(pos_1, pos_2)
+        print(model)
         print(len(res), res[0].shape, res[1].shape, res[2].shape)
 
-    stest_single_dim()
-    stest_hidden_dim()
-    stest_multi_dim_both()
-    stest_multi_dim_out()
+    def stest_auto():
+        """
+
+      """
+        pos_size = (4,)
+        a_size = (2,)
+        model = MLP(input_shape=pos_size, output_shape=a_size)
+
+        pos_1 = to_tensor(numpy.random.rand(64, pos_size[0]), device="cpu")
+        res = model(pos_1)
+        print(model)
+        print(len(res), res[0].shape)
+
+    # stest_single_dim()
+    # stest_hidden_dim()
+    # stest_multi_dim_both()
+    # stest_multi_dim_out()
+    stest_auto()

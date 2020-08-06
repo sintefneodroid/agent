@@ -1,10 +1,13 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-from neodroidagent.agents.torch_agents.model_free import PGAgent
-from neodroidagent.architectures import MLP
+from neodroidagent.agents.torch_agents.model_free import PolicyGradientAgent
 from neodroidagent.memory import ReplayBuffer
 
 __author__ = "Christian Heider Nielsen"
+
+from neodroidagent.common import MLP
+from neodroidagent.utilities import ExplorationSpecification
+
 """
 Description: Config for training
 Author: Christian Heider Nielsen
@@ -24,10 +27,10 @@ MEMORY = ReplayBuffer(REPLAY_MEMORY_SIZE)
 
 EXPLORATION_SPEC = ExplorationSpecification(0, 0, 0)
 
-AGENT_SPEC = GDKC(PGAgent, {})
+AGENT_SPEC = GDKC(PolicyGradientAgent, {})
 
 BATCH_SIZE = 128
-DISCOUNT_FACTOR = 0.95
+DISCOUNT_FACTOR = 0.999
 RENDER_ENVIRONMENT = False
 DOUBLE_DQN = False
 SYNC_TARGET_MODEL_FREQUENCY = 1000

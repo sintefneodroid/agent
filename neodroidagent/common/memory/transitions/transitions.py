@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-from typing import Any, Sized
+from typing import Any, Sequence, Sized
 
 from attr import dataclass
 
@@ -32,7 +32,7 @@ __slots__=['state','action','successor_state']
     successor_state: Any
 
     @staticmethod
-    def get_fields() -> Sized:
+    def get_fields() -> Sequence:
         """
 
 @return:
@@ -69,7 +69,7 @@ __slots__=['state','action','successor_state','signal,'terminal']
             self.successor_state = None
 
     @staticmethod
-    def get_fields() -> Sized:
+    def get_fields() -> Sequence:
         """
 
 @return:
@@ -109,7 +109,7 @@ __slots__=['state','action','successor_state','signal','terminal',"distribution"
     value_estimate: Any
 
     @staticmethod
-    def get_fields() -> Sized:
+    def get_fields() -> Sequence:
         """
 
 @return:
@@ -145,7 +145,7 @@ __slots__=['state'
     advantage: Any
 
     @staticmethod
-    def get_fields() -> Sized:
+    def get_fields() -> Sequence:
         """
 
 @return:

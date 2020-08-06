@@ -8,7 +8,6 @@ __doc__ = r"""
            """
 
 from .cem_agent import *
-from .linear_agent import *
 from .monte_carlo_agent import *
 from .non_contextual import *
 from .tabular_q_agent import *

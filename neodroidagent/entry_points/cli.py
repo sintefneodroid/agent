@@ -26,14 +26,14 @@ sponsors = ("SINTEF Ocean", "Alexandra Institute", "Norges Forskningsråd")
 
 
 class RunAgent:
-    def __init__(self, agent_key, agent_callable):
+    def __init__(self, agent_key: str, agent_callable: callable):
         self.agent_key = agent_key
         self.agent_callable = agent_callable
 
-    def train(self, **overrides):
+    def train(self, **overrides) -> None:
         """
 
-@param overrides:
+@param overrides: Accepts kwarg overrides to config
 @return:
 """
         default_config = NOD(AGENT_CONFIG[self.agent_key])
@@ -70,14 +70,14 @@ Prints the version of this Neodroid installation.
         print(sponsors)
 
 
-def draw_cli_header(*, title="Neodroid Agent", font="big"):
+def draw_cli_header(*, title: str = "Neodroid Agent", font: str = "big"):
     figlet = Figlet(font=font, justify="center", width=terminal_width)
     description = figlet.renderText(title)
 
     print(f"{description}{underline}\n")
 
 
-def main(*, always_draw_header=False):
+def main(*, always_draw_header: bool = False):
     if always_draw_header:
         draw_cli_header()
     fire.Fire(NeodroidAgentCLI, name="neodroid-agent")

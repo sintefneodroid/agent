@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 from abc import ABC
+from typing import Sequence
 
 from torch import nn
 
@@ -9,46 +10,47 @@ __doc__ = r"""
 """
 __all__ = ["Architecture"]
 
+from draugr.torch_utilities import get_num_parameters
 from warg import drop_unused_kws
-from draugr import add_indent
+from draugr import indent_lines
 
 
 class Architecture(nn.Module, ABC):
     """
 
-    """
+  """
 
     @drop_unused_kws
-    def __init__(self):
+    def __init__(self, input_shape: Sequence[int], output_shape: Sequence[int]):
         super().__init__()
+        self._input_shape = input_shape
+        self._output_shape = output_shape
 
     @property
     def input_shape(self):
         """
 
-        @return:
-        @rtype:
-        """
+    @return:
+    @rtype:
+    """
         return self._input_shape
 
     @property
     def output_shape(self):
         """
 
-        @return:
-        @rtype:
-        """
+    @return:
+    @rtype:
+    """
         return self._output_shape
 
     def __repr__(self):
-        num_trainable_params = sum(
-            p.numel() for p in self.parameters() if p.requires_grad
-        )
-        num_params = sum(param.numel() for param in self.parameters())
+        num_trainable_params = get_num_parameters(self, only_trainable=True)
+        num_params = get_num_parameters(self, only_trainable=False)
 
-        dict_repr = add_indent(f"{self.__dict__}")
+        dict_repr = indent_lines(f"{self.__dict__}")
 
-        trainable_params_str = add_indent(
+        trainable_params_str = indent_lines(
             f"trainable/num_params: {num_trainable_params}/{num_params}\n"
         )
 

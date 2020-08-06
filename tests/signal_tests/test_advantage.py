@@ -6,8 +6,8 @@ __doc__ = r"""
 
            Created on 27/02/2020
            """
-import pytest
 
+import pytest
 
 from warg import NOD
 

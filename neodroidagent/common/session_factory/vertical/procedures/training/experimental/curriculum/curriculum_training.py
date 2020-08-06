@@ -17,7 +17,7 @@ import neodroidagent.configs.curriculum.curriculum_config as C
 from draugr.visualisation import sprint
 from draugr.torch_utilities import TensorBoardPytorchWriter
 from neodroid.wrappers import NeodroidCurriculumWrapper
-from neodroidagent.agents.torch_agents.model_free import PGAgent
+from neodroidagent.agents.torch_agents.model_free import PolicyGradientAgent
 from neodroidagent.agents.torch_agents.torch_agent import TorchAgent
 from neodroidagent.utilities.exploration import sample
 from warg.arguments import get_upper_case_vars_or_protected_of
@@ -177,18 +177,18 @@ if __name__ == "__main__":
 
     from neodroidagent.configs import parse_arguments
 
-    args = parse_arguments("PG Agent", C)
+    config = parse_arguments("PG Agent", C)
 
-    for key, arg in args.__dict__.items():
+    for key, arg in config.__dict__.items():
         setattr(C, key, arg)
 
     sprint(f"\nUsing config: {C}\n", highlight=True, color="yellow")
-    if not args.skip_confirmation:
+    if not config.skip_confirmation:
         for key, arg in get_upper_case_vars_or_protected_of(C).items():
             print(f"{key} = {arg}")
         input("\nPress Enter to begin... ")
 
-    _agent = PGAgent(C)
+    _agent = PolicyGradientAgent(C)
     # _agent = DDPGAgent(C)
     # _agent = DQNAgent(C)
 

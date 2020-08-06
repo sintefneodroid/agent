@@ -2,7 +2,8 @@
 # -*- coding: utf-8 -*-
 
 import numpy
-from numba import jit
+
+# from numba import jit
 
 __author__ = "Christian Heider Nielsen"
 __doc__ = ""
@@ -10,7 +11,7 @@ __doc__ = ""
 __all__ = ["valued_discount"]
 
 
-@jit(nopython=True, nogil=True)
+# @jit(nopython=True, nogil=True)
 def valued_discount(
     signal: numpy.ndarray,
     next_estimate: numpy.ndarray,

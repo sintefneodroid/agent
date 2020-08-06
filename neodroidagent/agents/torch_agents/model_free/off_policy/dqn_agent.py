@@ -9,17 +9,18 @@ from typing import Any, Dict, Iterable, Sequence, Tuple
 import numpy
 import torch
 from torch.nn.functional import smooth_l1_loss
+from torch.optim import Optimizer
 
-from draugr.writers import MockWriter, Writer
 from draugr.torch_utilities import to_tensor
+from draugr.writers import MockWriter, Writer
 from neodroid.utilities import ActionSpace, ObservationSpace, SignalSpace
 from neodroidagent.agents.torch_agents.torch_agent import TorchAgent
 from neodroidagent.common import (
     Architecture,
     DuelingQMLP,
+    Memory,
     TransitionPoint,
     TransitionPointPrioritisedBuffer,
-    Memory,
 )
 from neodroidagent.utilities import (
     ActionSpaceNotSupported,
@@ -32,11 +33,11 @@ from warg import GDKC, drop_unused_kws, super_init_pass_on_kws
 __author__ = "Christian Heider Nielsen"
 __doc__ = r"""
 """
-__all__ = ["DQNAgent"]
+__all__ = ["DeepQNetworkAgent"]
 
 
 @super_init_pass_on_kws(super_base=TorchAgent)
-class DQNAgent(TorchAgent):
+class DeepQNetworkAgent(TorchAgent):
     """
 Deep Q Network Agent
 
@@ -55,7 +56,7 @@ https://www.cs.toronto.edu/~vmnih/docs/dqn.pdf
         double_dqn: bool = True,
         use_per: bool = True,
         loss_function: callable = smooth_l1_loss,
-        optimiser_spec: GDKC = GDKC(torch.optim.Adam, lr=1e-4),
+        optimiser_spec: GDKC = GDKC(torch.optim.Adam, lr=3e-4),
         scheduler_spec: GDKC = None,
         sync_target_model_frequency: int = 1,
         initial_observation_period: int = 1000,
@@ -160,6 +161,10 @@ https://www.cs.toronto.edu/~vmnih/docs/dqn.pdf
 """
         return {"value_model": self.value_model}
 
+    @property
+    def optimisers(self) -> Dict[str, Optimizer]:
+        return {"_optimiser": self._optimiser}
+
     def _exploration_sample(self, steps_taken, metric_writer=None):
         """
 :param steps_taken:
@@ -178,7 +183,7 @@ https://www.cs.toronto.edu/~vmnih/docs/dqn.pdf
         _current_eps_threshold = self._exploration_spec.end + a * b
 
         if metric_writer:
-            metric_writer.scalar("Current Eps Threshold", _current_eps_threshold)
+            metric_writer.scalar("current_eps_threshold", _current_eps_threshold)
 
         return not random.random() > _current_eps_threshold
 
@@ -204,9 +209,7 @@ https://www.cs.toronto.edu/~vmnih/docs/dqn.pdf
         return self._sample_model(state)
 
     def _sample_random_process(self, state) -> numpy.ndarray:
-        r = numpy.arange(self._output_shape[0])
-        sample = numpy.random.choice(r, (len(state), 1))
-        return sample
+        return numpy.random.choice(numpy.arange(self._output_shape[0]), (len(state), 1))
 
     @drop_unused_kws
     def _remember(self, *, signal, terminated, transition):

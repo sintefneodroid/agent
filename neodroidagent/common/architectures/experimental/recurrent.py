@@ -30,7 +30,7 @@ class RecurrentCategoricalMLP(MLP):
         hidden_x = self.hidden(combined)
         self._prev_hidden_x = hidden_x
 
-        return F.softmax(out_x, dim=-1)
+        return F.log_softmax(out_x, dim=-1)
 
 
 class ExposedRecurrentCategoricalMLP(RecurrentCategoricalMLP):
@@ -38,7 +38,7 @@ class ExposedRecurrentCategoricalMLP(RecurrentCategoricalMLP):
         self._prev_hidden_x = hidden_x
         out_x = super().forward(x, **kwargs)
 
-        return F.softmax(out_x, dim=-1), self._prev_hidden_x
+        return F.log_softmax(out_x, dim=-1), self._prev_hidden_x
 
 
 class RecurrentBase(nn.Module):

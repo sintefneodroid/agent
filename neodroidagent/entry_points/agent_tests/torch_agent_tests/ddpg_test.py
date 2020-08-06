@@ -2,9 +2,10 @@
 # -*- coding: utf-8 -*-
 from typing import Union
 
-from neodroidagent.agents import DDPGAgent
+from neodroidagent.agents import DeepDeterministicPolicyGradientAgent
 from neodroidagent.common import ParallelSession
 from neodroidagent.entry_points.session_factory import session_factory
+from neodroidagent.configs.test_reference.base_continous_test_config import *
 
 __author__ = "Christian Heider Nielsen"
 
@@ -22,8 +23,7 @@ CONFIG_FILE_PATH = pathlib.Path(__file__)
 
 CONNECT_TO_RUNNING = False
 
-# Optimiser
-RENDER_ENVIRONMENT = True
+# RENDER_FREQUENCY = 1
 BATCH_SIZE = 256
 
 ddpg_config = globals()
@@ -35,7 +35,7 @@ def ddpg_run(
     config=ddpg_config,
 ):
     session_factory(
-        DDPGAgent,
+        DeepDeterministicPolicyGradientAgent,
         config,
         session=ParallelSession,
         skip_confirmation=skip_confirmation,
@@ -44,7 +44,7 @@ def ddpg_run(
 
 
 def ddpg_test(config=ddpg_config):
-    ddpg_run(environment_type="gym", config=ddpg_config)
+    ddpg_run(environment_type="gym", config=config)
 
 
 if __name__ == "__main__":

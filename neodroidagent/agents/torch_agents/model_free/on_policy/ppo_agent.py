@@ -1,12 +1,13 @@
 #!/usr/local/bin/python
 # coding: utf-8
 import copy
-from typing import Any, Tuple
+from typing import Any, Dict, Tuple
 
 import numpy
 import torch
 from torch.distributions import Distribution
 from torch.nn.functional import mse_loss
+from torch.optim import Optimizer
 from tqdm import tqdm
 
 from draugr.writers import MockWriter, Writer
@@ -33,11 +34,11 @@ from warg import GDKC, drop_unused_kws, super_init_pass_on_kws
 __author__ = "Christian Heider Nielsen"
 __doc__ = r"""
 """
-__all__ = ["PPOAgent"]
+__all__ = ["ProximalPolicyOptimizationAgent"]
 
 
 @super_init_pass_on_kws
-class PPOAgent(TorchAgent):
+class ProximalPolicyOptimizationAgent(TorchAgent):
     r"""
 PPO, Proximal Policy Optimization method
 
@@ -57,14 +58,14 @@ https://spinningup.openai.com/en/latest/algorithms/ppo.html
         num_inner_updates: int = 10,
         mini_batch_size: int = 64,
         update_target_interval: int = 1,
-        clip_ratio: float = 2e-1,
+        surrogate_clipping_value: float = 2e-1,
         copy_percentage: float = 1.0,
         target_kl: float = 1e-2,
         memory_buffer: Any = TransitionPointTrajectoryBuffer(),
         critic_criterion: callable = mse_loss,
         optimiser_spec: GDKC = GDKC(constructor=torch.optim.Adam, lr=3e-4),
-        continuous_arch_spec: GDKC = GDKC(ActorCriticMLP),
-        discrete_arch_spec: GDKC = GDKC(CategoricalActorCriticMLP),
+        continuous_arch_spec: GDKC = GDKC(constructor=ActorCriticMLP),
+        discrete_arch_spec: GDKC = GDKC(constructor=CategoricalActorCriticMLP),
         gradient_norm_clipping: TogglableLowHigh = TogglableLowHigh(True, 0, 0.5),
         **kwargs
     ) -> None:
@@ -84,7 +85,7 @@ https://spinningup.openai.com/en/latest/algorithms/ppo.html
 :param test_interval:
 :param early_stop:
 :param rollouts:
-:param clip_ratio:
+:param surrogate_clipping_value:
 :param state_type:
 :param value_type:
 :param action_type:
@@ -114,7 +115,7 @@ https://spinningup.openai.com/en/latest/algorithms/ppo.html
         self._num_inner_updates = num_inner_updates
         self._update_target_interval = update_target_interval
         self._critic_criterion = critic_criterion
-        self._surrogate_clipping_value = clip_ratio
+        self._surrogate_clipping_value = surrogate_clipping_value
         self.inner_update_i = 0
 
     @drop_unused_kws
@@ -159,6 +160,10 @@ https://spinningup.openai.com/en/latest/algorithms/ppo.html
 """
         return {"actor_critic": self.actor_critic}
 
+    @property
+    def optimisers(self) -> Dict[str, Optimizer]:
+        return {"_optimiser": self._optimiser}
+
     # region Protected
 
     @drop_unused_kws
@@ -184,7 +189,8 @@ https://spinningup.openai.com/en/latest/algorithms/ppo.html
             if self.action_space.is_discrete:
                 action = action.unsqueeze(-1)
             else:
-                action = torch.clamp(action, -1, 1)
+                pass  # TODO: Figure out
+                # action = torch.clamp(action, -1, 1)
 
         return action.detach(), dist, val_est.detach()
 
@@ -395,12 +401,12 @@ https://spinningup.openai.com/en/latest/algorithms/ppo.html
 
             if metric_writer:
                 metric_writer.scalar(
-                    "stddev", new_distribution.stddev.cpu().mean().item()
+                    "policy_stddev", new_distribution.stddev.cpu().mean().item()
                 )
                 metric_writer.scalar("policy_loss", policy_loss.detach().cpu().item())
                 metric_writer.scalar("critic_loss", critic_loss.detach().cpu().item())
-                metric_writer.scalar("approx_kl", approx_kl)
-                metric_writer.scalar("loss", loss.detach().cpu().item())
+                metric_writer.scalar("policy_approx_kl", approx_kl)
+                metric_writer.scalar("merged_loss", loss.detach().cpu().item())
 
             if approx_kl > 1.5 * self._target_kl:
                 return loss.detach().cpu().item(), True

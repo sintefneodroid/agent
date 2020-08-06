@@ -293,15 +293,23 @@ Allows for modulation of signal based on for example an Instrinsic Curiosity sig
 """
 
         signal_out = numpy.array(snapshot.signal)
-
         signal_out += self._intrinsic_signal_provider(snapshot)
-
         return signal_out
 
     def eval(self) -> None:
         """
+
+        For inference optimisations
 @return:
 """
+        pass
+
+    def train(self) -> None:
+        """
+        Reverse inference optimisations
+
+  @return:
+  """
         pass
 
     def update(self, *args, metric_writer: Writer = MockWriter(), **kwargs) -> float:

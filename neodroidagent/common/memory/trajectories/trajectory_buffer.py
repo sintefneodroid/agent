@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 from dataclasses import dataclass
-from typing import Any, Sized
+from typing import Any, Sequence
 
 from neodroidagent.common.memory.data_structures.expandable_circular_buffer import (
     ExpandableCircularBuffer,
@@ -25,7 +25,7 @@ __slots__=["action", "distribution"]
     distribution: Any
 
     @staticmethod
-    def get_fields() -> Sized:
+    def get_fields() -> Sequence:
         """
 
 @return:

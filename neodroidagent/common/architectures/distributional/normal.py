@@ -27,6 +27,7 @@ class ShallowStdNormalMLP(MLP):
         self,
         output_shape: Sequence = (2,),
         mean_head_activation: callable = None,
+        fixed_log_std: torch.Tensor = None,
         **kwargs
     ):
         super().__init__(
@@ -36,7 +37,13 @@ class ShallowStdNormalMLP(MLP):
         )
 
         self.mean_head_activation = mean_head_activation
-        self.log_std = nn.Parameter(torch.zeros(output_shape[-1]), requires_grad=True)
+        if fixed_log_std is None:
+            self.log_std = nn.Parameter(
+                torch.zeros(output_shape[-1]), requires_grad=True
+            )
+        else:
+            assert fixed_log_std == output_shape[-1]
+            self.log_std = fixed_log_std
 
     def forward(
         self, *x, min_std=-20, max_std=2, **kwargs
@@ -55,6 +62,7 @@ class ShallowStdMultiVariateNormalMLP(MLP):
         self,
         output_shape: Sequence = (2,),
         mean_head_activation: callable = None,
+        fixed_log_std: torch.Tensor = None,
         **kwargs
     ):
         super().__init__(
@@ -64,7 +72,11 @@ class ShallowStdMultiVariateNormalMLP(MLP):
         )
 
         self.mean_head_activation = mean_head_activation
-        self.log_std = nn.Parameter(torch.zeros(*output_shape), requires_grad=True)
+        if fixed_log_std is None:
+            self.log_std = nn.Parameter(torch.zeros(*output_shape), requires_grad=True)
+        else:
+            assert fixed_log_std.shape == output_shape
+            self.log_std = fixed_log_std
 
     def forward(self, *x, min_std=-20, max_std=2, **kwargs):
         mean = super().forward(*x, min_std=min_std, **kwargs)
@@ -141,8 +153,7 @@ class MultipleNormalMLP(MLP):
     def forward(self, *x, min_std=-20, max_std=2, **kwargs) -> List[Normal]:
         out = super().forward(*x, min_std=min_std, **kwargs)
         outs = []
-        for a in out:
-            mean, log_std = a
+        for mean, log_std in out:
             if self.mean_head_activation:
                 mean = self.mean_head_activation(mean)
             outs.append(Normal(mean, torch.clamp(log_std, min_std, max_std).exp()))

@@ -1,5 +1,5 @@
 name: On Push Any Documentation Check
-on: push
+on:   push
 jobs:
   build:
     runs-on: ubuntu-latest

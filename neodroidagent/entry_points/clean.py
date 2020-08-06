@@ -10,7 +10,7 @@ __doc__ = r"""This script clean all Neodroid Agent related data from the environ
 __all__ = ["clean_all", "clean_cache", "clean_config", "clean_data", "clean_log"]
 
 
-def clean_data():
+def clean_data() -> None:
     print(f"Wiping {PROJECT_APP_PATH.user_data}")
     if PROJECT_APP_PATH.user_data.exists():
         data_dir = str(PROJECT_APP_PATH.user_data)
@@ -19,7 +19,7 @@ def clean_data():
         PROJECT_APP_PATH.user_data.mkdir()
 
 
-def clean_log():
+def clean_log() -> None:
     print(f"Wiping {PROJECT_APP_PATH.user_log}")
     if PROJECT_APP_PATH.user_log.exists():
         log_dir = str(PROJECT_APP_PATH.user_log)
@@ -28,7 +28,7 @@ def clean_log():
         PROJECT_APP_PATH.user_log.mkdir()
 
 
-def clean_cache():
+def clean_cache() -> None:
     print(f"Wiping {PROJECT_APP_PATH.user_cache}")
     if PROJECT_APP_PATH.user_cache.exists():
         cache_dir = str(PROJECT_APP_PATH.user_cache)
@@ -37,7 +37,7 @@ def clean_cache():
         PROJECT_APP_PATH.user_cache.mkdir()
 
 
-def clean_config():
+def clean_config() -> None:
     print(f"Wiping {PROJECT_APP_PATH.user_config}")
     if PROJECT_APP_PATH.user_config.exists():
         config_dir = str(PROJECT_APP_PATH.user_config)
@@ -46,7 +46,7 @@ def clean_config():
         PROJECT_APP_PATH.user_config.mkdir()
 
 
-def clean_all():
+def clean_all() -> None:
     clean_config()
     clean_data()
     clean_cache()

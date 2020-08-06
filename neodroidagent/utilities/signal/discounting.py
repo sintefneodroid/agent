@@ -14,56 +14,9 @@ import torch
 
 from scipy.signal import lfilter
 
-__all__ = ["discount_signal", "discount_signal_numpy", "discount_rollout_signal_torch"]
+__all__ = ["discount_rollout_signal_torch"]
 
 from draugr.torch_utilities import to_tensor, global_torch_device
-
-
-# @jit(nopython=True, nogil=True)
-def discount_signal(signal: list, discounting_factor: float) -> list:
-    """
-
-@param signal:
-@param discounting_factor:
-@return:
-"""
-    signals = []
-    r_ = numpy.zeros_like(signal[0])
-    for r in signal[::-1]:
-        r_ = r + discounting_factor * r_
-        signals.insert(0, r_)
-    return signals
-
-
-# @jit(nopython=True, nogil=True)
-def discount_signal_numpy(
-    signal: Union[numpy.ndarray, Iterable, int, float], discounting_factor: float
-) -> numpy.ndarray:
-    """
-signal = [s_1, s_2, s_3 ..., s_N]
-returns [s_1 + s_2*discounting_factor + s_3*discounting_factor^2 + ...,
-       s_2 + s_3*discounting_factor + s_4*discounting_factor^2 + ...,
-         s_3 + s_4*discounting_factor + s_5*discounting_factor^2 + ...,
-            ..., ..., s_N]
-
-
-# See https://docs.scipy.org/doc/scipy/reference/tutorial/signal.html#difference-equation-filtering
-# Here, we have y[t] - discount*y[t+1] = x[t]
-# or rev(y)[t] - discount*rev(y)[t-1] = rev(x)[t]
-
-C[i] = R[i] + discount * C[i+1]
-signal.lfilter(b, a, x, axis=-1, zi=None)
-a[0]*y[n] = b[0]*x[n] + b[1]*x[n-1] + ... + b[M]*x[n-M]
-              - a[1]*y[n-1] - ... - a[N]*y[n-N]
-"""
-
-    # return numpy.sum(signal * (discounting_factor ** numpy.arange(len(signal))))
-
-    a: Union[numpy.ndarray, Iterable, int, float] = lfilter(
-        [1], [1, -discounting_factor], numpy.flip(signal, -1), axis=-1
-    )
-
-    return numpy.flip(a, -1)
 
 
 # @jit(nopython=True, nogil=True)
@@ -73,15 +26,16 @@ def discount_rollout_signal_torch(
     *,
     device=global_torch_device(),
     non_terminal=None,
-    normalised=True
+    batch_normalised=False,
+    epsilon=1e-3
 ) -> Any:
     """
 
 x = [r1, r2, r3, ..., rN]
 returns [r1 + r2*gamma + r3*gamma^2 + ...,
-       r2 + r3*gamma + r4*gamma^2 + ...,
-         r3 + r4*gamma + r5*gamma^2 + ...,
-            ..., ..., rN]
+     r2 + r3*gamma + r4*gamma^2 + ...,
+       r3 + r4*gamma + r5*gamma^2 + ...,
+          ..., ..., rN]
 
 
 # See https://docs.scipy.org/doc/scipy/reference/tutorial/signal.html#difference-equation-filtering
@@ -92,7 +46,7 @@ returns [r1 + r2*gamma + r3*gamma^2 + ...,
 C[i] = R[i] + discount * C[i+1]
 signal.lfilter(b, a, x, axis=-1, zi=None)
 a[0]*y[n] = b[0]*x[n] + b[1]*x[n-1] + ... + b[M]*x[n-M]
-                - a[1]*y[n-1] - ... - a[N]*y[n-N]
+              - a[1]*y[n-1] - ... - a[N]*y[n-N]
 
 non_terminal if supplied lets you define a mask for masking terminal state signals.
 
@@ -114,8 +68,9 @@ non_terminal if supplied lets you define a mask for masking terminal state signa
         R = signal[i] + discounting_factor * R * NT[i]
         discounted[i] = R
 
-    if normalised:
-        discounted = (discounted - discounted.mean()) / (discounted.std() + 1e-6)
+    if batch_normalised:
+        # WARNING! Sometimes causes NANs!
+        discounted = (discounted - discounted.mean()) / (discounted.std() + epsilon)
 
     return discounted
 
@@ -147,4 +102,134 @@ if __name__ == "__main__":
             )
         )
 
-    s()
+    def ssadasf():
+        shapes = (100, 2, 1)
+        signal = numpy.ones(shapes)
+        rollout_nt = numpy.ones(shapes)
+        # rollout_nt[3, 0] = 0
+        # rollout_nt[8, 1] = 0
+        # signal[-1] = 0
+
+        print("\n")
+        print(
+            discount_rollout_signal_torch(
+                to_tensor(signal, device="cuda"), 0.5, device="cuda"
+            )
+        )
+
+        print("\n")
+        print(
+            discount_rollout_signal_torch(
+                to_tensor(signal, device="cpu"),
+                0.5,
+                device="cpu",
+                non_terminal=rollout_nt,
+            )
+        )
+
+    def zeroes_ssadasf():
+        shapes = (100, 2, 1)
+        signal = numpy.zeros(shapes)
+        rollout_nt = numpy.ones(shapes)
+        # rollout_nt[3, 0] = 0
+        # rollout_nt[8, 1] = 0
+        # signal[-1] = 0
+
+        print("\n")
+        print(
+            discount_rollout_signal_torch(
+                to_tensor(signal, device="cuda"), 0.5, device="cuda"
+            )
+        )
+
+        print("\n")
+        print(
+            discount_rollout_signal_torch(
+                to_tensor(signal, device="cpu"),
+                0.5,
+                device="cpu",
+                non_terminal=rollout_nt,
+            )
+        )
+
+    def small_ssadasf():
+        shapes = (100, 2, 1)
+        signal = numpy.ones(shapes) * 52e-16
+        rollout_nt = numpy.ones(shapes)
+        # rollout_nt[3, 0] = 0
+        # rollout_nt[8, 1] = 0
+        # signal[-1] = 0
+
+        print("\n")
+        print(
+            discount_rollout_signal_torch(
+                to_tensor(signal, device="cuda"), 0.5, device="cuda"
+            )
+        )
+
+        print("\n")
+        print(
+            discount_rollout_signal_torch(
+                to_tensor(signal, device="cpu"),
+                0.5,
+                device="cpu",
+                non_terminal=rollout_nt,
+            )
+        )
+
+    def small_ssadasf_negative():
+        shapes = (100, 2, 1)
+        signal = -numpy.ones(shapes) * 52e-16
+        rollout_nt = numpy.ones(shapes)
+        # rollout_nt[3, 0] = 0
+        # rollout_nt[8, 1] = 0
+        # signal[-1] = 0
+
+        print("\n")
+        print(
+            discount_rollout_signal_torch(
+                to_tensor(signal, device="cuda"), 0.5, device="cuda"
+            )
+        )
+
+        print("\n")
+        print(
+            discount_rollout_signal_torch(
+                to_tensor(signal, device="cpu"),
+                0.5,
+                device="cpu",
+                non_terminal=rollout_nt,
+            )
+        )
+
+    def ssadasf_negative():
+        shapes = (100, 2, 1)
+        signal = -numpy.ones(shapes)
+        rollout_nt = numpy.ones(shapes)
+        # rollout_nt[3, 0] = 0
+        # rollout_nt[8, 1] = 0
+        # signal[-1] = 0
+
+        print("\n")
+        print(
+            discount_rollout_signal_torch(
+                to_tensor(signal, device="cuda"), 0.99, device="cuda"
+            )
+        )
+
+        print("\n")
+        print(
+            discount_rollout_signal_torch(
+                to_tensor(signal, device="cpu"),
+                0.99,
+                device="cpu",
+                non_terminal=rollout_nt,
+            )
+        )
+
+    # s()
+    # ssadasf()
+    # zeroes_ssadasf()
+    # small_ssadasf()
+    # small_ssadasf_negative()
+    ssadasf_negative()

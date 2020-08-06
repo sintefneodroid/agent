@@ -31,6 +31,7 @@ USE_LOGGING = False
 ENVIRONMENT_NAME = "ConnectToRunning"
 CONNECT_TO_RUNNING = False
 RENDER_ENVIRONMENT = False
+RENDER_FREQUENCY = 0
 # CONTINUE_TRAINING = False
 NUM_ENVS = cpu_count()
 
@@ -43,13 +44,15 @@ ACTION_CLIPPING = TogglableLowHigh(False, -1.0, 1.0)
 GRADIENT_CLIPPING = TogglableLowHigh(False, -1.0, 1.0)
 GRADIENT_NORM_CLIPPING = TogglableLowHigh(False, 0, 1.0)
 
-DISCOUNT_FACTOR = 0.99
-RENDER_FREQUENCY = 50
+DISCOUNT_FACTOR = (
+    0.999
+)  # For sparse signal settings is it very important to keep the long term signals relevant by making them stretch far back in the rollout trace
+
 ITERATIONS = 4000
 
 # CUDA
 USE_CUDA = True
-DEVICE = global_torch_device(USE_CUDA)
+GLOBAL_DEVICE = global_torch_device(USE_CUDA)
 
 # CONSTANTS
 MOVING_AVERAGE_WINDOW = 100

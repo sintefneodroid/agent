@@ -4,20 +4,19 @@ from typing import Iterable, List, Sequence
 
 import numpy
 import torch
-
 from draugr.torch_utilities import to_tensor
 from neodroidagent.common.architectures.mlp import MLP
 
 __author__ = "Christian Heider Nielsen"
-__doc__ = ""
+__doc__ = "Fusion variant of MLPs"
 
-__all__ = ["ConcatInputMLP", "PostConcatInputMLP"]
+__all__ = ["PreConcatInputMLP", "LateConcatInputMLP"]
 
 
-class ConcatInputMLP(MLP):
+class PreConcatInputMLP(MLP):
     """
-
-    """
+  Early fusion
+  """
 
     def __init__(self, input_shape: Sequence = (2,), **kwargs):
         if isinstance(input_shape, Iterable):
@@ -28,20 +27,21 @@ class ConcatInputMLP(MLP):
     def forward(self, *x, **kwargs) -> List:
         """
 
-        @param x:
-        @type x:
-        @param kwargs:
-        @type kwargs:
-        @return:
-        @rtype:
-        """
+    @param x:
+    @type x:
+    @param kwargs:
+    @type kwargs:
+    @return:
+    @rtype:
+    """
         return super().forward(torch.cat(x, dim=-1), **kwargs)
 
 
-class PostConcatInputMLP(MLP):
+class LateConcatInputMLP(MLP):
     """
-
-    """
+  Late fusion, quite a botch job, only a single addition block fusion supported for now
+  You have been warned! ;)
+  """
 
     def __init__(
         self, input_shape: Sequence = (2, 2), output_shape: Sequence = (2,), **kwargs
@@ -54,14 +54,15 @@ class PostConcatInputMLP(MLP):
             self._residual_shape = (self._residual_shape,)
 
         if not isinstance(output_shape, Iterable):
-            output_shape = (output_shape,)
+            output_shape = (*self._residual_shape, output_shape)
+        assert len(output_shape) == 2
 
         super().__init__(
             input_shape=(forward_shape,), output_shape=output_shape, **kwargs
         )
 
         s = sum((*output_shape, *self._residual_shape))
-        t = s * 10
+        t = s * 10  # Hidden
         self.post_concat_layer = torch.nn.Sequential(
             torch.nn.Linear(s, t), torch.nn.ReLU(), torch.nn.Linear(t, output_shape[-1])
         )
@@ -69,17 +70,17 @@ class PostConcatInputMLP(MLP):
     def forward(self, *x, **kwargs) -> torch.tensor:
         """
 
-        @param x:
-        @type x:
-        @param kwargs:
-        @type kwargs:
-        @return:
-        @rtype:
-        """
+    @param x:
+    @type x:
+    @param kwargs:
+    @type kwargs:
+    @return:
+    @rtype:
+    """
         forward_x, *residual_x = x
-        ax = super().forward(forward_x, **kwargs)
-
-        return self.post_concat_layer(torch.cat((ax, *residual_x), dim=-1))
+        return self.post_concat_layer(
+            torch.cat((*super().forward(forward_x, **kwargs), *residual_x), dim=-1)
+        )
 
 
 if __name__ == "__main__":
@@ -87,10 +88,10 @@ if __name__ == "__main__":
     def stest_normal():
         """
 
-        """
+    """
         s = (10,)
         a = (10,)
-        model = ConcatInputMLP(input_shape=s, output_shape=a)
+        model = PreConcatInputMLP(input_shape=s, output_shape=a)
 
         inp = to_tensor(range(s[0]), device="cpu")
         print(model.forward(inp))
@@ -98,31 +99,61 @@ if __name__ == "__main__":
     def stest_multi_dim_normal():
         """
 
-        """
+    """
         s = (19,)
         s1 = (4,)
         batch_size = (100,)
         a = (2, 10)
-        model = ConcatInputMLP(input_shape=s + s1, output_shape=a)
+        model = PreConcatInputMLP(input_shape=s + s1, output_shape=a)
 
-        inp = to_tensor(numpy.random.random(batch_size + s), device="cpu")
-        inp1 = to_tensor(numpy.random.random(batch_size + s1), device="cpu")
-        print(model.forward(inp, inp1))
+        inp = to_tensor(numpy.random.random((*batch_size, *s)), device="cpu")
+        late_input = to_tensor(numpy.random.random((*batch_size, *s1)), device="cpu")
+        print(model.forward(inp, late_input))
 
     def stest_multi_dim_normal21():
         """
 
-        """
+    """
         s = (19,)
         s1 = (4,)
         batch_size = (100,)
         a = (2, 10)
-        model = PostConcatInputMLP(input_shape=s + s1, output_shape=a)
+        model = LateConcatInputMLP(input_shape=s + s1, output_shape=a)
 
-        inp = to_tensor(numpy.random.random(batch_size + s), device="cpu")
-        inp1 = to_tensor(numpy.random.random(batch_size + s1), device="cpu")
-        print(model.forward(inp, inp1))
+        inp = to_tensor(numpy.random.random((*batch_size, *s)), device="cpu")
+        late_input = to_tensor(numpy.random.random((*batch_size, *s1)), device="cpu")
+        print(model.forward(inp, late_input))
+
+    def stest_multi_dim_normal23121():
+        """
+
+      """
+        s = (19,)
+        s1 = (4,)
+        batch_size = (100,)
+        output_shape = (1, 2)
+        model = LateConcatInputMLP(input_shape=s + s1, output_shape=output_shape)
+
+        inp = to_tensor(numpy.random.random((*batch_size, *s)), device="cpu")
+        late_input = to_tensor(numpy.random.random((*batch_size, *s1)), device="cpu")
+        print(model.forward(inp, late_input))
+
+    def stest_multi_dim_normal2321412121():
+        """
+
+      """
+        s = (19,)
+        s1 = (4,)
+        batch_size = (100,)
+        output_shape = 2
+        model = LateConcatInputMLP(input_shape=s + s1, output_shape=output_shape)
+
+        inp = to_tensor(numpy.random.random((*batch_size, *s)), device="cpu")
+        late_input = to_tensor(numpy.random.random((*batch_size, *s1)), device="cpu")
+        print(model.forward(inp, late_input))
 
     stest_normal()
     stest_multi_dim_normal()
     stest_multi_dim_normal21()
+    stest_multi_dim_normal23121()
+    stest_multi_dim_normal2321412121()

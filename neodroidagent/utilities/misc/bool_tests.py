@@ -21,7 +21,9 @@ from warg import drop_unused_kws, passes_kws_to
 
 
 @drop_unused_kws
-def is_positive_and_mod_zero(mod, counter, *, ret=True, alt=False) -> Any:
+def is_positive_and_mod_zero(
+    mod: int, counter: int, *, ret: Any = True, alt: Any = False
+) -> Any:
     """
 
 test if mod is positive
@@ -41,7 +43,9 @@ else return alt
 
 
 @drop_unused_kws
-def is_zero_or_mod_below(mod, below, counter, *, ret=True, alt=False) -> bool:
+def is_zero_or_mod_below(
+    mod: int, below: int, counter: int, *, ret: Any = True, alt: Any = False
+) -> Any:
     """
 
 test if mod is zero or if counter % mod is 0
@@ -49,6 +53,8 @@ if any of the tests are true return ret
 else return alt
 
 
+  @param below:
+  @type below:
 @param mod:
 @param counter:
 @param ret:
@@ -59,7 +65,9 @@ else return alt
 
 
 @drop_unused_kws
-def is_zero_or_mod_zero(mod, counter, *, ret=True, alt=False) -> bool:
+def is_zero_or_mod_zero(
+    mod: int, counter: int, *, ret: Any = True, alt: Any = False
+) -> Any:
     """
 
 test if mod is zero or if counter % mod is 0
@@ -76,7 +84,7 @@ else return alt
     return ret if (mod == 0 or (counter % mod == 0)) else alt
 
 
-def is_none_or_zero_or_negative(obj) -> bool:
+def is_none_or_zero_or_negative(obj: Any) -> bool:
     """
 
 @param obj:
@@ -91,7 +99,7 @@ def is_none_or_zero_or_negative(obj) -> bool:
 
 
 @passes_kws_to(is_zero_or_mod_zero)
-def is_none_or_zero_or_negative_or_mod_zero(mod, counter, **kwargs) -> bool:
+def is_none_or_zero_or_negative_or_mod_zero(mod: int, counter: int, **kwargs) -> bool:
     """
 
 @param mod:

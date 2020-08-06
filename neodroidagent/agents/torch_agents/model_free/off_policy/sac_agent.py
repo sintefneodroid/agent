@@ -9,6 +9,7 @@ import numpy
 import torch
 import torch.nn as nn
 from torch.nn.functional import mse_loss
+from torch.optim import Optimizer
 from tqdm import tqdm
 from typing import Any, Dict, Sequence, Tuple
 
@@ -18,7 +19,7 @@ from neodroid.utilities import ActionSpace, ObservationSpace, SignalSpace
 from neodroidagent.agents.torch_agents.torch_agent import TorchAgent
 from neodroidagent.common import (
     Architecture,
-    ConcatInputMLP,
+    PreConcatInputMLP,
     Memory,
     SamplePoint,
     ShallowStdNormalMLP,
@@ -38,11 +39,11 @@ __doc__ = r"""
 
            Created on 9/5/19
            """
-__all__ = ["SACAgent"]
+__all__ = ["SoftActorCriticAgent"]
 
 
 @super_init_pass_on_kws
-class SACAgent(TorchAgent):
+class SoftActorCriticAgent(TorchAgent):
     """
 Soft Actor Critic Agent
 
@@ -62,14 +63,14 @@ https://arxiv.org/pdf/1812.05905.pdf
         memory_buffer: Memory = TransitionPointBuffer(1000000),
         auto_tune_sac_alpha: bool = False,
         auto_tune_sac_alpha_optimiser_spec: GDKC = GDKC(
-            constructor=torch.optim.Adam, lr=1e-2
+            constructor=torch.optim.Adam, lr=3e-4
         ),
-        actor_optimiser_spec: GDKC = GDKC(constructor=torch.optim.Adam, lr=1e-3),
-        critic_optimiser_spec: GDKC = GDKC(constructor=torch.optim.Adam, lr=1e-3),
+        actor_optimiser_spec: GDKC = GDKC(constructor=torch.optim.Adam, lr=3e-4),
+        critic_optimiser_spec: GDKC = GDKC(constructor=torch.optim.Adam, lr=3e-4),
         actor_arch_spec: GDKC = GDKC(
             ShallowStdNormalMLP, mean_head_activation=torch.tanh
         ),
-        critic_arch_spec: GDKC = GDKC(ConcatInputMLP),
+        critic_arch_spec: GDKC = GDKC(PreConcatInputMLP),
         critic_criterion: callable = mse_loss,
         **kwargs
     ):
@@ -146,6 +147,13 @@ https://arxiv.org/pdf/1812.05905.pdf
             "critic_1": self.critic_1,
             "critic_2": self.critic_2,
             "actor": self.actor,
+        }
+
+    @property
+    def optimisers(self) -> Dict[str, Optimizer]:
+        return {
+            "actor_optimiser": self.actor_optimiser,
+            "critic_optimiser": self.critic_optimiser,
         }
 
     @drop_unused_kws
@@ -338,8 +346,8 @@ https://arxiv.org/pdf/1812.05905.pdf
             metric_writer.scalar("Policy_loss", out_loss)
             metric_writer.scalar("q_value_1", q_values[0].cpu().mean().item())
             metric_writer.scalar("q_value_2", q_values[1].cpu().mean().item())
-            metric_writer.scalar("stddev", dist.stddev.cpu().mean().item())
-            metric_writer.scalar("log_prob", log_prob.cpu().mean().item())
+            metric_writer.scalar("policy_stddev", dist.stddev.cpu().mean().item())
+            metric_writer.scalar("policy_log_prob", log_prob.cpu().mean().item())
 
         if self._auto_tune_sac_alpha:
             out_loss += self.update_alpha(

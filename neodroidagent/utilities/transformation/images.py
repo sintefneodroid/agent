@@ -57,5 +57,5 @@ if __name__ == "__main__":
     a = a.reshape(s)
     r = tile_images(a)
     print(r)
-    cv2.imshow("a", r[:, :, ::-1])
+    cv2.imshow("a", r[..., ::-1])
     cv2.waitKey()

@@ -2,8 +2,8 @@
 # -*- coding: utf-8 -*-
 from typing import Union
 
-from neodroidagent.agents import SACAgent
-from neodroidagent.common import ParallelSession
+from neodroidagent.agents import SoftActorCriticAgent
+from neodroidagent.common import ParallelSession, PreConcatInputMLP, ShallowStdNormalMLP
 from neodroidagent.common.session_factory.vertical.procedures.training.off_policy_step_wise import (
     OffPolicyStepWise,
 )
@@ -24,12 +24,16 @@ import pathlib
 CONFIG_FILE_PATH = pathlib.Path(__file__)
 
 CONNECT_TO_RUNNING = False
-RENDER_ENVIRONMENT = True
+RENDER_ENVIRONMENT = False
 RUN_TRAINING = True
 
 INITIAL_OBSERVATION_PERIOD = 1000
-RENDER_FREQUENCY = 10000
+# RENDER_FREQUENCY = 0
 
+ACTOR_OPTIMISER_SPEC: GDKC = GDKC(constructor=torch.optim.Adam, lr=3e-4)
+CRITIC_OPTIMISER_SPEC: GDKC = GDKC(constructor=torch.optim.Adam, lr=3e-4)
+ACTOR_ARCH_SPEC: GDKC = GDKC(ShallowStdNormalMLP, mean_head_activation=torch.nn.Tanh())
+CRITIC_ARCH_SPEC: GDKC = GDKC(PreConcatInputMLP)
 sac_config = globals()
 
 
@@ -43,7 +47,7 @@ def sac_run(
     config=sac_config,
 ):
     session_factory(
-        SACAgent,
+        SoftActorCriticAgent,
         config,
         session=ParallelSession(
             procedure=OffPolicyStepWise,

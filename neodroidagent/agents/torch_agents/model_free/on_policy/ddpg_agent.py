@@ -1,23 +1,22 @@
 import copy
-from typing import Any, Sequence, Dict
+from typing import Any, Dict, Sequence
 
 import numpy
 import torch
 import torch.nn.functional as F
-from numpy import mean
-from tqdm import tqdm
+from torch.optim import Optimizer
 
-from draugr.writers import MockWriter, Writer
 from draugr.torch_utilities import freeze_model, frozen_model, to_tensor
+from draugr.writers import MockWriter, Writer
 from neodroid.utilities import ActionSpace, ObservationSpace, SignalSpace
 from neodroidagent.agents.torch_agents.torch_agent import TorchAgent
 from neodroidagent.common import (
+    Architecture,
+    LateConcatInputMLP,
     MLP,
-    PostConcatInputMLP,
+    Memory,
     TransitionPoint,
     TransitionPointBuffer,
-    Memory,
-    Architecture,
 )
 from neodroidagent.utilities import (
     ActionSpaceNotSupported,
@@ -25,18 +24,20 @@ from neodroidagent.utilities import (
     is_zero_or_mod_zero,
     update_target,
 )
+from numpy import mean
+from tqdm import tqdm
 from warg import GDKC, drop_unused_kws, super_init_pass_on_kws
 
 __author__ = "Christian Heider Nielsen"
 __doc__ = r"""
 """
-__all__ = ["DDPGAgent"]
+__all__ = ["DeepDeterministicPolicyGradientAgent"]
 
 tqdm.monitor_interval = 0
 
 
 @super_init_pass_on_kws
-class DDPGAgent(TorchAgent):
+class DeepDeterministicPolicyGradientAgent(TorchAgent):
     """
 The Deep Deterministic Policy Gradient (DDPG) Agent
 
@@ -64,14 +65,14 @@ The update rate that target networks slowly track the learned networks.
         memory_buffer: Memory = TransitionPointBuffer(),
         evaluation_function: callable = F.mse_loss,
         actor_arch_spec: GDKC = GDKC(MLP, output_activation=torch.nn.Tanh()),
-        critic_arch_spec: GDKC = GDKC(PostConcatInputMLP),
+        critic_arch_spec: GDKC = GDKC(LateConcatInputMLP),
         discount_factor: float = 0.95,
         update_target_interval: int = 1,
         batch_size: int = 128,
         noise_factor: float = 1e-1,
         copy_percentage: float = 0.005,
-        actor_optimiser_spec: GDKC = GDKC(constructor=torch.optim.Adam, lr=1e-4),
-        critic_optimiser_spec: GDKC = GDKC(constructor=torch.optim.Adam, lr=1e-2),
+        actor_optimiser_spec: GDKC = GDKC(constructor=torch.optim.Adam, lr=3e-4),
+        critic_optimiser_spec: GDKC = GDKC(constructor=torch.optim.Adam, lr=3e-4),
         **kwargs
     ):
         """
@@ -104,8 +105,6 @@ The update rate that target networks slowly track the learned networks.
 
         self._memory_buffer = memory_buffer
         self._critic_criteria = evaluation_function
-        self._actor_arch_spec = actor_arch_spec
-        self._critic_arch_spec = critic_arch_spec
         self._discount_factor = discount_factor
         self._update_target_interval = update_target_interval
 
@@ -166,6 +165,13 @@ The update rate that target networks slowly track the learned networks.
 @return:
 """
         return {"_actor": self._actor, "_critic": self._critic}
+
+    @property
+    def optimisers(self) -> Dict[str, Optimizer]:
+        return {
+            "_actor_optimiser": self._actor_optimiser,
+            "_critic_optimiser": self._critic_optimiser,
+        }
 
     def update_targets(
         self, update_percentage: float, *, metric_writer: Writer = None

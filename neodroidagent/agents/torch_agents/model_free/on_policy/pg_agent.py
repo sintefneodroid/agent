@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-from typing import Any, Sequence, Tuple
+from typing import Any, Dict, Sequence, Tuple
 
 import numpy
 import torch
+from draugr.writers.mixins.graph_writer_mixin import GraphWriterMixin
 from torch.nn import Module
 from torch.optim import Optimizer
 from tqdm import tqdm
@@ -35,11 +36,11 @@ __doc__ = r"""
            Created on 23/09/2019
            """
 
-__all__ = ["PGAgent"]
+__all__ = ["PolicyGradientAgent"]
 
 
 @super_init_pass_on_kws
-class PGAgent(TorchAgent):
+class PolicyGradientAgent(TorchAgent):
     r"""
 REINFORCE, Vanilla Policy Gradient method
 
@@ -48,11 +49,11 @@ REINFORCE, Vanilla Policy Gradient method
     def __init__(
         self,
         evaluation_function: callable = torch.nn.CrossEntropyLoss(),
-        policy_arch_spec: GDKC = GDKC(CategoricalMLP),
+        policy_arch_spec: GDKC = GDKC(constructor=CategoricalMLP),
         discount_factor: float = 0.95,
-        optimiser_spec: GDKC = GDKC(torch.optim.Adam, lr=1e-4),
+        optimiser_spec: GDKC = GDKC(constructor=torch.optim.Adam, lr=3e-4),
         scheduler_spec: GDKC = GDKC(
-            torch.optim.lr_scheduler.StepLR, step_size=100, gamma=0.65
+            constructor=torch.optim.lr_scheduler.StepLR, step_size=100, gamma=0.65
         ),
         memory_buffer: Memory = SampleTrajectoryBuffer(),
         **kwargs,
@@ -111,16 +112,19 @@ REINFORCE, Vanilla Policy Gradient method
             self._policy_arch_spec.kwargs["input_shape"] = self._input_shape
             if action_space.is_discrete:
                 self._policy_arch_spec = GDKC(
-                    CategoricalMLP, self._policy_arch_spec.kwargs
+                    constructor=CategoricalMLP, kwargs=self._policy_arch_spec.kwargs
                 )
             else:
                 self._policy_arch_spec = GDKC(
-                    MultiDimensionalNormalMLP, self._policy_arch_spec.kwargs
+                    constructor=MultiDimensionalNormalMLP,
+                    kwargs=self._policy_arch_spec.kwargs,
                 )
 
             self._policy_arch_spec.kwargs["output_shape"] = self._output_shape
 
-            self.distributional_regressor = self._policy_arch_spec().to(self._device)
+            self.distributional_regressor: Module = self._policy_arch_spec().to(
+                self._device
+            )
 
         if optimiser:
             self._optimiser = optimiser
@@ -142,6 +146,10 @@ REINFORCE, Vanilla Policy Gradient method
 """
         return {"distributional_regressor": self.distributional_regressor}
 
+    @property
+    def optimisers(self) -> Dict[str, Optimizer]:
+        return {"_optimiser": self._optimiser}
+
     @drop_unused_kws
     def _sample(self, state: Sequence) -> Tuple:
         """
@@ -158,7 +166,8 @@ REINFORCE, Vanilla Policy Gradient method
         if self.action_space.is_discrete:
             action = action.unsqueeze(-1)
         else:
-            action = torch.clamp(action, -1, 1)
+            pass
+            # action = torch.clamp(action, -1, 1)
 
         return action, distribution
 
@@ -227,15 +236,16 @@ REINFORCE, Vanilla Policy Gradient method
         self.post_process_gradients(self.distributional_regressor.parameters())
         self._optimiser.step()
 
-        if metric_writer:
-            metric_writer.scalar("Loss", loss.detach().to("cpu").numpy())
-
         if self._scheduler:
             self._scheduler.step()
             if metric_writer:
                 for i, param_group in enumerate(self._optimiser.param_groups):
                     metric_writer.scalar(f"lr{i}", param_group["lr"])
 
-        return loss.cpu().item()
+        loss_cpu = loss.detach().to("cpu").numpy()
+        if metric_writer:
+            metric_writer.scalar("Loss", loss_cpu)
+
+        return loss_cpu.item()
 
     # endregion

@@ -2,8 +2,12 @@
 # -*- coding: utf-8 -*-
 from typing import Union
 
-from neodroidagent.agents import PPOAgent
-from neodroidagent.common import ParallelSession
+from neodroidagent.agents import ProximalPolicyOptimizationAgent
+from neodroidagent.common import (
+    ActorCriticMLP,
+    CategoricalActorCriticMLP,
+    ParallelSession,
+)
 from neodroidagent.configs.test_reference.base_continous_test_config import *
 
 __author__ = "Christian Heider Nielsen"
@@ -24,13 +28,17 @@ CONFIG_FILE_PATH = pathlib.Path(__file__)
 
 CONNECT_TO_RUNNING = False
 RENDER_ENVIRONMENT = True
-RENDER_FREQUENCY = 10
+# RENDER_FREQUENCY = 10
 
 INITIAL_OBSERVATION_PERIOD = 0
 
 BATCH_SIZE = 256
-
-GRADIENT_NORM_CLIPPING = TogglableLowHigh(True, 0, 0.1)
+OPTIMISER_SPEC = GDKC(torch.optim.Adam, lr=3e-4)
+CONTINUOUS_ARCH_SPEC: GDKC = GDKC(constructor=ActorCriticMLP, hidden_layers=128)
+DISCRETE_ARCH_SPEC: GDKC = GDKC(
+    constructor=CategoricalActorCriticMLP, hidden_layers=128
+)
+# GRADIENT_NORM_CLIPPING = TogglableLowHigh(True, 0, 0.1)
 
 ppo_config = globals()
 
@@ -38,9 +46,9 @@ ppo_config = globals()
 def ppo_test(config=ppo_config):
     """
 
-    @param config:
-    @type config:
-    """
+  @param config:
+  @type config:
+  """
     ppo_run(environment_type="gym", config=config)
 
 
@@ -51,15 +59,15 @@ def ppo_run(
 ):
     """
 
-    @param skip_confirmation:
-    @type skip_confirmation:
-    @param environment_type:
-    @type environment_type:
-    @param config:
-    @type config:
-    """
+  @param skip_confirmation:
+  @type skip_confirmation:
+  @param environment_type:
+  @type environment_type:
+  @param config:
+  @type config:
+  """
     session_factory(
-        PPOAgent,
+        ProximalPolicyOptimizationAgent,
         config,
         session=ParallelSession,
         environment=environment_type,

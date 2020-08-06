@@ -6,6 +6,8 @@ from pathlib import Path
 from typing import Union
 
 import numpy
+import torch
+import torchsnooper
 
 from draugr.drawers.drawer import Drawer, MockDrawer
 from draugr.metrics.accumulation import mean_accumulator, total_accumulator
@@ -18,6 +20,7 @@ from neodroidagent.common.session_factory.vertical.procedures.procedure_specific
     Procedure,
 )
 from neodroidagent.utilities.misc import is_positive_and_mod_zero
+from warg.context_wrapper import ContextWrapper
 from warg.decorators.kw_passing import drop_unused_kws, passes_kws_to
 
 __author__ = "Christian Heider Nielsen"
@@ -33,7 +36,7 @@ def rollout_on_policy(
     initial_snapshot: EnvironmentSnapshot,
     env: Environment,
     *,
-    render: bool = False,
+    render_environment: bool = False,
     metric_writer: Writer = MockWriter(),
     rollout_drawer: Drawer = MockDrawer(),
     train_agent: bool = True,
@@ -49,10 +52,10 @@ def rollout_on_policy(
 :type max_length: int
 :param max_length:
 :type train_agent: bool
-:type render: bool
+:type render_environment: bool
 :param initial_snapshot: The initial state observation in the environment
 :param env: The environment the agent interacts with
-:param render: Whether to render environment interaction
+:param render_environment: Whether to render environment interaction
 :param train_agent: Whether the agent should use the rollout to update its model
 :return:
 -episode_signal (:py:class:`float`) - first output
@@ -90,7 +93,7 @@ def rollout_on_policy(
         running_mean_action.send(action.mean())
         episode_signal.send(signal.mean())
 
-        if render:
+        if render_environment:
             env.render()
             # if env.action_space.is_discrete and rollout_drawer:
             #  rollout_drawer.draw(to_one_hot(agent.output_shape, action)[0])
@@ -119,11 +122,11 @@ class OnPolicyEpisodic(Procedure):
     def __call__(
         self,
         *,
-        log_directory: Union[str, Path],
         iterations: int = 1000,
         render_frequency: int = 100,
         stat_frequency: int = 10,
         disable_stdout: bool = False,
+        metric_writer: Writer = MockWriter(),
         **kwargs,
     ):
         r"""
@@ -140,31 +143,30 @@ class OnPolicyEpisodic(Procedure):
 :rtype: TR
 """
 
-        # with torchsnooper.snoop():
-        # with torch.autograd.detect_anomaly():
-        with TensorBoardPytorchWriter(log_directory) as metric_writer:
-            E = range(1, iterations)
-            E = tqdm(E, desc="Rollout #", leave=False)
+        E = range(1, iterations)
+        E = tqdm(E, desc="Rollout #", leave=False)
 
-            best_episode_return = -math.inf
-            for episode_i in E:
-                initial_state = self.environment.reset()
+        best_episode_return = -math.inf
+        for episode_i in E:
+            initial_state = self.environment.reset()
 
-                ret, *_ = rollout_on_policy(
-                    self.agent,
-                    initial_state,
-                    self.environment,
-                    render=is_positive_and_mod_zero(render_frequency, episode_i),
-                    metric_writer=is_positive_and_mod_zero(
-                        stat_frequency, episode_i, ret=metric_writer
-                    ),
-                    disable_stdout=disable_stdout,
-                    **kwargs,
-                )
+            kwargs.update(
+                render_environment=is_positive_and_mod_zero(render_frequency, episode_i)
+            )
+            ret, *_ = rollout_on_policy(
+                self.agent,
+                initial_state,
+                self.environment,
+                metric_writer=is_positive_and_mod_zero(
+                    stat_frequency, episode_i, ret=metric_writer
+                ),
+                disable_stdout=disable_stdout,
+                **kwargs,
+            )
 
-                if best_episode_return < ret:
-                    best_episode_return = ret
-                    self.call_on_improvement_callbacks(**kwargs)
+            if best_episode_return < ret:
+                best_episode_return = ret
+                self.call_on_improvement_callbacks(**kwargs)
 
-                if self.early_stop:
-                    break
+            if self.early_stop:
+                break

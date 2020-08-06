@@ -34,14 +34,14 @@ class MultipleCategoricalMLP(MLP):
         out = super().forward(*x, **kwargs)
         outs = []
         for o in out:
-            outs.append(Categorical(F.softmax(o, dim=-1)))
+            outs.append(Categorical(logits=F.log_softmax(o, dim=-1)))
 
         return outs
 
 
 class CategoricalMLP(MLP):
     def forward(self, *x, **kwargs) -> Categorical:
-        return Categorical(F.softmax(super().forward(*x, **kwargs), dim=-1))
+        return Categorical(logits=F.log_softmax(super().forward(*x, **kwargs), dim=-1))
 
 
 if __name__ == "__main__":

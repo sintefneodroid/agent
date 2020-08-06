@@ -16,12 +16,12 @@ from pathlib import Path
 from cloudpickle import cloudpickle
 
 from neodroid.environments.droid_environment import UnityEnvironment
-from neodroidagent.agents import SACAgent
+from neodroidagent.agents import SoftActorCriticAgent
 from neodroidagent.common import CategoricalMLP
 
 
 class Experiment:
-    def __init__(self, log_dir="", save_dir="", render=False):
+    def __init__(self, log_dir="", save_dir="", render_environment=False):
         pass
 
     def __enter__(self):
@@ -159,10 +159,10 @@ if __name__ == "__main__":
         hidden_sizes=(32, 32),
     )
 
-    agent = SACAgent(
+    agent = SoftActorCriticAgent(
         policy=policy, max_path_length=100, discount=0.99, max_kl_step=0.01
     )
 
-    with Experiment(log_dir="", save_dir="", render=False) as experiment:
+    with Experiment(log_dir="", save_dir="", render_environment=False) as experiment:
         experiment.setup(agent, env)
         experiment.train(n_epochs=100, batch_size=4000)

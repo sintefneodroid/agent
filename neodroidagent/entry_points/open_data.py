@@ -9,7 +9,7 @@ __author__ = "Christian Heider Nielsen"
 __doc__ = r"""This script will open data the directory of Neodroid Agent platform"""
 
 
-def main():
+def main() -> None:
     print(
         f"Opening default data directory ({PROJECT_APP_PATH.user_data}) of the Neodroid Agent platform using "
         f"the default filemanager"

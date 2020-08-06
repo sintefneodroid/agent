@@ -8,7 +8,7 @@ __all__ = ["SumTree"]
 
 from typing import Any, Iterator
 
-from draugr import add_indent
+from draugr import indent_lines
 
 
 class SumTree:
@@ -156,7 +156,7 @@ WARNING HEAVY with big trees!
             start = 2 ** k - 1
             end = 2 ** (k + 1) - 1
             print(
-                add_indent(
+                indent_lines(
                     "\t".join([f"{self._tree[j]:.2f}" for j in range(start, end)]),
                     self.num_tree_levels - k,
                 )

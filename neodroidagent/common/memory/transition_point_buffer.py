@@ -27,7 +27,7 @@ args will be wrapped in a TransitionPoint type tuple and collected as transition
 """
         self._add(transition_point)
 
-    def sample(self, num) -> TransitionPoint:
+    def sample(self, num=None) -> TransitionPoint:
         """Randomly sample transitions from memory."""
         if len(self):
             return TransitionPoint(*zip(*self._sample(num)))
