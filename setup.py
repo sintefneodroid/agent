@@ -29,8 +29,9 @@ with open(
 
 __author__ = author
 
+__all__ = ['NeodroidAgentPackage']
 
-class NeodroidAgentPackage:
+class NeodroidAgentPackageMeta(type):
     @property
     def dependencies_testing(self) -> list:
         return ["pytest", "mock"]
@@ -81,12 +82,13 @@ class NeodroidAgentPackage:
 
     @property
     def package_data(self) -> dict:
-        # data = glob.glob('data/', recursive=True)
+        emds = [str(p) for p in pathlib.Path(__file__).parent.rglob('.md')]
         return {
-            # 'PackageName':[
-            # *data
-            #  ]
+        'neodroidagent':[
+            *emds
+            ]
         }
+
 
     @property
     def entry_points(self) -> dict:
@@ -181,10 +183,13 @@ class NeodroidAgentPackage:
     def version(self) -> str:
         return version
 
+class NeodroidAgentPackage(metaclass=NeodroidAgentPackageMeta):
+    pass
+
 
 if __name__ == "__main__":
 
-    pkg = NeodroidAgentPackage()
+    pkg = NeodroidAgentPackage
 
     setup(
         name=pkg.package_name,

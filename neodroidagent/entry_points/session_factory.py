@@ -16,11 +16,11 @@ import torch
 from draugr import sprint
 from neodroidagent.agents import Agent
 from neodroidagent.common.session_factory.vertical.environment_session import (
-    EnvironmentSession,
-)
+  EnvironmentSession,
+  )
 
 from neodroidagent.utilities import NoProcedure
-from warg import NOD, config_to_mapping
+from warg import GDKC, NOD, config_to_mapping
 
 AgentType = TypeVar("AgentType", bound=Agent)
 EnvironmentSessionType = TypeVar("EnvironmentSessionType", bound=EnvironmentSession)
@@ -28,51 +28,57 @@ EnvironmentSessionType = TypeVar("EnvironmentSessionType", bound=EnvironmentSess
 
 def session_factory(
     agent: Type[AgentType] = None,
-    config: Union[object, dict] = {},
+    config=None,
     *,
     session: Union[Type[EnvironmentSessionType], EnvironmentSession],
     save: bool = True,
     has_x_server: bool = True,
     skip_confirmation: bool = True,
     **kwargs,
-):
-    r"""
+    ):
+  r"""
 Entry point start a starting a training session with the functionality of parsing cmdline arguments and
 confirming configuration to use before training and overwriting of default training configurations
 """
 
-    if isinstance(config, dict):
-        config = NOD(**config)
-    else:
-        config = NOD(config.__dict__)
+  if config is None:
+    config = {}
 
-    if has_x_server:
-        display_env = getenv("DISPLAY", None)
-        if display_env is None:
-            config.RENDER_ENVIRONMENT = False
-            has_x_server = False
+  if isinstance(config, dict):
+    config = NOD(**config)
+  else:
+    config = NOD(config.__dict__)
 
-    config_mapping = config_to_mapping(config)
-    config_mapping.update(**kwargs)
+  if has_x_server:
+    display_env = getenv("DISPLAY", None)
+    if display_env is None:
+      config.RENDER_ENVIRONMENT = False
+      has_x_server = False
 
-    if not skip_confirmation:
-        sprint(f"\nUsing config: {config}\n", highlight=True, color="yellow")
-        for key, arg in config_mapping:
-            print(f"{key} = {arg}")
+  config_mapping = config_to_mapping(config)
+  config_mapping.update(**kwargs)
 
-        sprint(f"\n.. Also save:{save}," f" has_x_server:{has_x_server}")
-        input("\nPress Enter to begin... ")
+  config_mapping.update(save=save, has_x_server=has_x_server)
 
-    if session is None:
-        raise NoProcedure
-    elif inspect.isclass(session):
-        session = session(**config_mapping)
+  if not skip_confirmation:
+    sprint(f"\nUsing config: {config}\n", highlight=True, color="yellow")
+    for key, arg in config_mapping:
+      print(f"{key} = {arg}")
 
-    try:
-        session(agent, save=save, has_x_server=has_x_server, **config_mapping)
-    except KeyboardInterrupt:
-        print("Stopping")
+    input("\nPress Enter to begin... ")
 
-    torch.cuda.empty_cache()
+  if session is None:
+    raise NoProcedure
+  elif inspect.isclass(session):
+    session = session(**config_mapping) # Use passed config arguments
+  elif isinstance(session,GDKC):
+    session = session(**kwargs) # Assume some kw parameters is set prior to passing session, only override with explicit overrides
 
-    exit(0)
+  try:
+    session(agent, **config_mapping)
+  except KeyboardInterrupt:
+    print("Stopping")
+
+  torch.cuda.empty_cache()
+
+  exit(0)

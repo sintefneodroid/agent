@@ -42,7 +42,7 @@ class ParallelSession(SingleAgentEnvironmentSession):
             assert environment_name != ""
             environments = NeodroidVectorGymEnvironment(
                 environment_name=environment_name,
-                num__envs=num_envs,
+                num_envs=num_envs,
                 auto_reset_on_terminal_state=auto_reset_on_terminal_state,
             )
         elif isinstance(environment, bool):

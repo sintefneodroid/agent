@@ -8,7 +8,7 @@ from torch import nn
 from torch.distributions import Categorical
 from torch.nn import CrossEntropyLoss, MSELoss
 
-from draugr.torch_utilities.tensors.to_tensor import to_tensor
+from draugr.torch_utilities import to_tensor
 from draugr.writers import Writer
 from neodroid.utilities import ActionSpace, ObservationSpace, SignalSpace
 

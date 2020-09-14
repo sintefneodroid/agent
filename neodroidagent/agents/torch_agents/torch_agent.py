@@ -131,17 +131,17 @@ class TorchAgent(Agent, ABC):
 
                 if metric_writer:
                     try:
+                        model = copy.deepcopy(w).to("cpu")
+                        dummy_input = model.sample_input()
+                        sprint(f'{k} input: {dummy_input.shape}')
+
                         import contextlib
 
                         with contextlib.redirect_stdout(
                             None
-                        ):  # So much use frame info printed... Suppress it
-                            model = copy.deepcopy(w)
-                            model.to("cpu")
-
-                            dummy_in = torch.empty(1, *model.input_shape, device="cpu")
+                        ):  # So much useless frame info printed... Suppress it
                             if isinstance(metric_writer, GraphWriterMixin):
-                                metric_writer.graph(model, dummy_in, verbose=verbose)
+                                metric_writer.graph(model, dummy_input, verbose=verbose) # No naming available at moment...
                     except RuntimeError as ex:
                         sprint(
                             f"Tensorboard(Pytorch) does not support you model! No graph added: {str(ex).splitlines()[0]}",

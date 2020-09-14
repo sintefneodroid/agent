@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-from abc import ABC
-from typing import Sequence
+from abc import ABC, abstractmethod
+from typing import Any, Sequence
 
+import torch
 from torch import nn
 
 __author__ = "Christian Heider Nielsen"
@@ -16,48 +17,51 @@ from draugr import indent_lines
 
 
 class Architecture(nn.Module, ABC):
-    """
-
   """
 
-    @drop_unused_kws
-    def __init__(self, input_shape: Sequence[int], output_shape: Sequence[int]):
-        super().__init__()
-        self._input_shape = input_shape
-        self._output_shape = output_shape
+"""
 
-    @property
-    def input_shape(self):
-        """
+  @drop_unused_kws
+  def __init__(self, input_shape: Sequence[int], output_shape: Sequence[int]):
+    super().__init__()
+    self._input_shape = input_shape
+    self._output_shape = output_shape
 
-    @return:
-    @rtype:
+  @property
+  def input_shape(self) -> Sequence[int]:
     """
-        return self._input_shape
 
-    @property
-    def output_shape(self):
-        """
+@return:
+@rtype:
+"""
+    return self._input_shape
 
-    @return:
-    @rtype:
+  @property
+  def output_shape(self) -> Sequence[int]:
     """
-        return self._output_shape
 
-    def __repr__(self):
-        num_trainable_params = get_num_parameters(self, only_trainable=True)
-        num_params = get_num_parameters(self, only_trainable=False)
+@return:
+@rtype:
+"""
+    return self._output_shape
 
-        dict_repr = indent_lines(f"{self.__dict__}")
+  def sample_input(self)-> Any:
+    return torch.empty(1, *self.input_shape, device="cpu")
 
-        trainable_params_str = indent_lines(
-            f"trainable/num_params: {num_trainable_params}/{num_params}\n"
+  def __repr__(self):
+    num_trainable_params = get_num_parameters(self, only_trainable=True)
+    num_params = get_num_parameters(self, only_trainable=False)
+
+    dict_repr = indent_lines(f"{self.__dict__}")
+
+    trainable_params_str = indent_lines(
+        f"trainable/num_params: {num_trainable_params}/{num_params}\n"
         )
 
-        return f"{super().__repr__()}\n{dict_repr}\n{trainable_params_str}"
+    return f"{super().__repr__()}\n{dict_repr}\n{trainable_params_str}"
 
 
 if __name__ == "__main__":
-    a = Architecture()
+  a = Architecture()
 
-    print(a)
+  print(a)

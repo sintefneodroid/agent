@@ -64,10 +64,10 @@ class RecurrentBase(nn.Module):
             T = int(x.size(0) / N)
 
             # unflatten
-            x = x.view(T, N, x.size(1))
+            x = x.reshape(T, N, x.size(1))
 
             # Same deal with masks
-            masks = masks.view(T, N, 1)
+            masks = masks.reshape(T, N, 1)
 
             outputs = []
             for i in range(T):
@@ -78,6 +78,6 @@ class RecurrentBase(nn.Module):
             # x is a (T, N, -1) tensor
             x = torch.stack(outputs, dim=0)
             # flatten
-            x = x.view(T * N, -1)
+            x = x.reshape(T * N, -1)
 
         return x, hxs

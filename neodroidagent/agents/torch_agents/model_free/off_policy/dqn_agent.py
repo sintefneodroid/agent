@@ -11,7 +11,7 @@ import torch
 from torch.nn.functional import smooth_l1_loss
 from torch.optim import Optimizer
 
-from draugr.torch_utilities import to_tensor
+from draugr.torch_utilities import to_scalar, to_tensor
 from draugr.writers import MockWriter, Writer
 from neodroid.utilities import ActionSpace, ObservationSpace, SignalSpace
 from neodroidagent.agents.torch_agents.torch_agent import TorchAgent
@@ -25,10 +25,9 @@ from neodroidagent.common import (
 from neodroidagent.utilities import (
     ActionSpaceNotSupported,
     ExplorationSpecification,
-    is_zero_or_mod_zero,
     update_target,
 )
-from warg import GDKC, drop_unused_kws, super_init_pass_on_kws
+from warg import GDKC, drop_unused_kws, super_init_pass_on_kws,is_zero_or_mod_zero
 
 __author__ = "Christian Heider Nielsen"
 __doc__ = r"""
@@ -323,7 +322,7 @@ https://www.cs.toronto.edu/~vmnih/docs/dqn.pdf
                     self.post_process_gradients(self.value_model.parameters())
                     self._optimiser.step()
 
-                    loss_ = loss.detach().cpu().item()
+                    loss_ = to_scalar(loss)
                     if metric_writer:
                         metric_writer.scalar("td_error", td_error.mean(), self.update_i)
                         metric_writer.scalar("loss", loss_, self.update_i)

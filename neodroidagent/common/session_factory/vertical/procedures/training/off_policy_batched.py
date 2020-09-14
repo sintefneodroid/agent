@@ -1,15 +1,11 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-from pathlib import Path
-from typing import Union
+import logging
 
-import torch
-import torchsnooper
 from draugr.writers import MockWriter, Writer
 from tqdm import tqdm
 
 from draugr.metrics.accumulation import mean_accumulator
-from draugr.torch_utilities import TensorBoardPytorchWriter
 
 __author__ = "Christian Heider Nielsen"
 
@@ -19,8 +15,7 @@ __doc__ = "Collects agent experience in a batched fashion for off policy agents"
 from neodroidagent.common.session_factory.vertical.procedures.procedure_specification import (
     Procedure,
 )
-from neodroidagent.utilities import is_positive_and_mod_zero
-from warg.context_wrapper import ContextWrapper
+from warg import is_positive_and_mod_zero
 
 
 class OffPolicyBatched(Procedure):
@@ -28,7 +23,7 @@ class OffPolicyBatched(Procedure):
         self,
         *,
         batch_size=1000,
-        device: Union[str, torch.device],
+
         iterations=10000,
         stat_frequency=10,
         render_frequency=10,
@@ -39,7 +34,7 @@ class OffPolicyBatched(Procedure):
     ) -> None:
         """
 
-:param device:
+
 :param log_directory:
 :param num_steps:
 :param iterations:
@@ -56,7 +51,6 @@ class OffPolicyBatched(Procedure):
 @param disable_stdout:
 @param train_agent:
 @param kwargs:
-@type device: object
 """
 
         state = self.agent.extract_features(self.environment.reset())
@@ -66,10 +60,10 @@ class OffPolicyBatched(Procedure):
         running_mean_action = mean_accumulator()
 
         for batch_i in tqdm(
-            range(1, iterations), leave=False, disable=disable_stdout, desc="Batch #"
+            range(1, iterations), leave=False, disable=disable_stdout, desc="Batch #",postfix=f"Agent update #{self.agent.update_i}"
         ):
             for _ in tqdm(
-                range(batch_size), leave=False, disable=disable_stdout, desc="Step #"
+                range(batch_size), leave=False, disable=disable_stdout, desc="Step #",
             ):
 
                 sample = self.agent.sample(state)
@@ -109,7 +103,7 @@ class OffPolicyBatched(Procedure):
                     best_running_signal = sig
                     self.call_on_improvement_callbacks(loss=loss, **kwargs)
             else:
-                print("no update")
+                logging.info("no update")
 
             if self.early_stop:
                 break

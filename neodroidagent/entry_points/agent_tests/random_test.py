@@ -20,8 +20,11 @@ def random_run(
     rollouts=None,
     skip_confirmation: bool = True,
     environment_type: Union[bool, str] = True,
-    config=random_config,
+    config=None,
 ) -> None:
+    if config is None:
+        config = random_config
+
     if rollouts:
         config.ROLLOUTS = rollouts
 

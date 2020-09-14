@@ -32,20 +32,24 @@ ddpg_config = globals()
 def ddpg_run(
     skip_confirmation: bool = True,
     environment_type: Union[bool, str] = True,
-    config=ddpg_config,
-):
-    session_factory(
-        DeepDeterministicPolicyGradientAgent,
-        config,
-        session=ParallelSession,
-        skip_confirmation=skip_confirmation,
-        environment=environment_type,
-    )
+    config=None, **kwargs
+    ):
+  if config is None:
+    config = ddpg_config
+  session_factory(
+      DeepDeterministicPolicyGradientAgent,
+      config,
+      session=ParallelSession,
+      skip_confirmation=skip_confirmation,
+      environment=environment_type, **kwargs
+      )
 
 
-def ddpg_test(config=ddpg_config):
-    ddpg_run(environment_type="gym", config=config)
+def ddpg_test(config=None, **kwargs):
+  if config is None:
+    config = ddpg_config
+  ddpg_run(environment_type="gym", config=config, **kwargs)
 
 
 if __name__ == "__main__":
-    ddpg_test()
+  ddpg_test()

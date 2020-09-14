@@ -37,25 +37,31 @@ CRITIC_ARCH_SPEC: GDKC = GDKC(PreConcatInputMLP)
 sac_config = globals()
 
 
-def sac_test(config=sac_config):
-    sac_run(environment_type="gym", config=config)
+def sac_test(config=None,**kwargs):
+    if config is None:
+        config = sac_config
+    sac_run(environment_type="gym", config=config,**kwargs)
 
 
 def sac_run(
     skip_confirmation: bool = True,
     environment_type: Union[bool, str] = True,
-    config=sac_config,
+    config=None,**kwargs
 ):
+    if config is None:
+        config = sac_config
     session_factory(
         SoftActorCriticAgent,
         config,
-        session=ParallelSession(
+        session=GDKC(ParallelSession,
             procedure=OffPolicyStepWise,
             environment_name=ENVIRONMENT_NAME,
             auto_reset_on_terminal_state=True,
             environment=environment_type,
+                     **kwargs
         ),
         skip_confirmation=skip_confirmation,
+        **kwargs
     )
 
 

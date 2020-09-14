@@ -21,12 +21,11 @@ from neodroidagent.common import (
 from neodroidagent.utilities import (
     ActionSpaceNotSupported,
     OrnsteinUhlenbeckProcess,
-    is_zero_or_mod_zero,
     update_target,
 )
 from numpy import mean
 from tqdm import tqdm
-from warg import GDKC, drop_unused_kws, super_init_pass_on_kws
+from warg import GDKC, drop_unused_kws, is_zero_or_mod_zero, super_init_pass_on_kws
 
 __author__ = "Christian Heider Nielsen"
 __doc__ = r"""

@@ -5,6 +5,7 @@ from typing import Union
 
 import torch
 import torchsnooper
+from draugr.drawers import MplDrawer, MockDrawer
 from draugr.writers import MockWriter, Writer
 from tqdm import tqdm
 
@@ -18,8 +19,7 @@ __doc__ = "Collects agent experience in a step wise fashion"
 from neodroidagent.common.session_factory.vertical.procedures.procedure_specification import (
     Procedure,
 )
-from neodroidagent.utilities import is_positive_and_mod_zero, is_zero_or_mod_below
-from warg.context_wrapper import ContextWrapper
+from warg import is_positive_and_mod_zero, is_zero_or_mod_below
 
 
 class OffPolicyStepWise(Procedure):
@@ -28,7 +28,6 @@ class OffPolicyStepWise(Procedure):
         *,
         num_environment_steps=500000,
         batch_size=128,
-        device: Union[str, torch.device],
         stat_frequency=10,
         render_frequency=10000,
         initial_observation_period=1000,
@@ -37,11 +36,11 @@ class OffPolicyStepWise(Procedure):
         disable_stdout: bool = False,
         train_agent: bool = True,
         metric_writer: Writer = MockWriter(),
+        rollout_drawer: MplDrawer = MockDrawer(),
         **kwargs
     ) -> None:
         """
 
-:param device:
 :param log_directory:
 :param num_environment_steps:
 :param stat_frequency:
@@ -63,6 +62,8 @@ class OffPolicyStepWise(Procedure):
 
             sample = self.agent.sample(state)
             action = self.agent.extract_action(sample)
+
+
 
             snapshot = self.environment.react(action)
             successor_state = self.agent.extract_features(snapshot)
@@ -124,6 +125,8 @@ class OffPolicyStepWise(Procedure):
                 and render_frequency != 0
             ):
                 self.environment.render()
+                if rollout_drawer:
+                    rollout_drawer.draw(action)
 
             if self.early_stop:
                 break

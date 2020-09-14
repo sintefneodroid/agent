@@ -23,20 +23,25 @@ class Procedure(abc.ABC):
         agent: Agent,
         *,
         environment: Environment,
-        on_improvement_callbacks: List = [],
-        save_best_throughtout_training: bool = True
+        on_improvement_callbacks=None,
+        save_best_throughout_training: bool = True,
+        train_agent: bool = True
     ):
         """
 
 @param agent:
 @param environment:
 @param on_improvement_callbacks:
-@param save_best_throughtout_training:
+@param save_best_throughout_training:
 """
+        if on_improvement_callbacks is None:
+            on_improvement_callbacks = []
+
         self.agent = agent
         self.environment = environment
-        if save_best_throughtout_training:
+        if save_best_throughout_training and train_agent:
             on_improvement_callbacks.append(self.agent.save)
+            print('Saving best model throughout training')
         self.on_improvement_callbacks = on_improvement_callbacks
 
     @staticmethod

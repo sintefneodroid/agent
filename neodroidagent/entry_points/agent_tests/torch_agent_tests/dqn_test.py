@@ -37,23 +37,27 @@ dqn_config = globals()
 def dqn_run(
     skip_confirmation: bool = True,
     environment_type: Union[bool, str] = True,
-    config=dqn_config,
+    config=None,**kwargs
 ) -> None:
+    if config is None:
+        config = dqn_config
     session_factory(
         DeepQNetworkAgent,
         config,
-        session=ParallelSession(
+        session=GDKC(ParallelSession,
             environment_name=ENVIRONMENT_NAME,
             procedure=OffPolicyEpisodic,
-            environment=environment_type,
+            environment=environment_type,**kwargs
         ),
         skip_confirmation=skip_confirmation,
-        environment=environment_type,
+        environment=environment_type,**kwargs
     )
 
 
-def dqn_test(config=dqn_config):
-    dqn_run(environment_type="gym", config=config)
+def dqn_test(config=None,**kwargs):
+    if config is None:
+        config = dqn_config
+    dqn_run(environment_type="gym", config=config,**kwargs)
 
 
 if __name__ == "__main__":

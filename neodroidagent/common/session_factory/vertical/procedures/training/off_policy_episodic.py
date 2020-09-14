@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+import logging
 import math
 from itertools import count
 from pathlib import Path
@@ -19,8 +20,7 @@ from neodroidagent.common.memory.transitions import Transition, TransitionPoint
 from neodroidagent.common.session_factory.vertical.procedures.procedure_specification import (
     Procedure,
 )
-from neodroidagent.utilities import is_positive_and_mod_zero
-from warg import drop_unused_kws, passes_kws_to
+from warg import drop_unused_kws, passes_kws_to,is_positive_and_mod_zero
 
 __author__ = "Christian Heider Nielsen"
 __all__ = ["rollout_off_policy", "OffPolicyEpisodic"]
@@ -53,7 +53,7 @@ def rollout_off_policy(
         episode_buffer = []
 
     for step_i in tqdm(
-        count(), desc="Step #", leave=False, disable=not render_environment
+        count(), desc="Step #", leave=False, disable=not render_environment, postfix=f"Agent update #{agent.update_i}"
     ):
         sample = agent.sample(
             state, deterministic=disallow_random_sample, metric_writer=metric_writer
@@ -104,7 +104,7 @@ def rollout_off_policy(
         if train_agent:
             agent.update(metric_writer=metric_writer)
         else:
-            print("no update")
+            logging.info("no update")
 
         esig = next(episode_signal)
 

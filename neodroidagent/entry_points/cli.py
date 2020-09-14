@@ -26,62 +26,67 @@ sponsors = ("SINTEF Ocean", "Alexandra Institute", "Norges Forskningsråd")
 
 
 class RunAgent:
-    def __init__(self, agent_key: str, agent_callable: callable):
-        self.agent_key = agent_key
-        self.agent_callable = agent_callable
+  def __init__(self, agent_key: str, agent_callable: callable):
+    self.agent_key = agent_key
+    self.agent_callable = agent_callable
 
-    def train(self, **overrides) -> None:
-        """
+  def train(self, **explicit_overrides) -> None:
+    """
 
-@param overrides: Accepts kwarg overrides to config
+@param explicit_overrides: Accepts kwarg overrides to config
 @return:
 """
-        default_config = NOD(AGENT_CONFIG[self.agent_key])
+    default_config = NOD(AGENT_CONFIG[self.agent_key])
 
-        overrides = upper_dict(overrides)
-        for key, arg in overrides.items():
-            setattr(default_config, key, arg)
+    config_overrides = upper_dict(explicit_overrides)
+    for key, arg in config_overrides.items():
+      setattr(default_config, key, arg)
 
-        print("Overrides:")
-        print(overrides)
-        print(default_config)
+    print("Explicit Overrides:")
+    print(explicit_overrides)
+    #print(default_config)
 
-        self.agent_callable(config=default_config)
+    self.agent_callable(config=default_config, **explicit_overrides)
 
-    def run(self):
-        self.train(train_agent=False,render_frequency=1,save=False)
+  def run(self):
+    self.train(train_agent=False,
+               render_frequency=1,
+               save=False,
+               save_ending=False,
+               num_envs=1,
+               save_best_throughout_training=False)
 
 
 class NeodroidAgentCLI:
-    def __init__(self):
-        for k, v in AGENT_OPTIONS.items():
-            setattr(self, k, RunAgent(k, v))
+  def __init__(self):
+    for k, v in AGENT_OPTIONS.items():
+      setattr(self, k, RunAgent(k, v))
 
-    @staticmethod
-    def version() -> None:
-        """
+  @staticmethod
+  def version() -> None:
+    """
 Prints the version of this Neodroid installation.
 """
-        draw_cli_header()
-        print(f"Version: {get_version()}")
+    draw_cli_header()
+    print(f"Version: {get_version()}")
 
-    @staticmethod
-    def sponsors() -> None:
-        print(sponsors)
-
-
-def draw_cli_header(*, title: str = "Neodroid Agent", font: str = "big"):
-    figlet = Figlet(font=font, justify="center", width=terminal_width)
-    description = figlet.renderText(title)
-
-    print(f"{description}{underline}\n")
+  @staticmethod
+  def sponsors() -> None:
+    print(sponsors)
 
 
-def main(*, always_draw_header: bool = False):
-    if always_draw_header:
-        draw_cli_header()
-    fire.Fire(NeodroidAgentCLI, name="neodroid-agent")
+def draw_cli_header(*, title: str = "Neodroid Agent", font: str = "big") -> None:
+  figlet = Figlet(font=font, justify="center", width=terminal_width)
+  description = figlet.renderText(title)
+
+  print(f"{description}{underline}\n")
+
+
+def main(*, always_draw_header: bool = False) -> None:
+  if always_draw_header:
+    draw_cli_header()
+  fire.Fire(NeodroidAgentCLI, name="neodroid-agent")
 
 
 if __name__ == "__main__":
-    main()
+  main()

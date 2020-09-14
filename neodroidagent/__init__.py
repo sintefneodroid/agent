@@ -43,12 +43,12 @@ PROJECT_APP_PATH = AppPath(app_name=PROJECT_NAME, app_author=PROJECT_AUTHOR)
 distributions = {v.key: v for v in pkg_resources.working_set}
 if PROJECT_NAME in distributions:
     distribution = distributions[PROJECT_NAME]
-    DEVELOP = dist_is_editable(distribution)
+    IS_DEVELOP = dist_is_editable(distribution)
 else:
-    DEVELOP = True
+    IS_DEVELOP = True
 
 
-def get_version(append_time: Any = DEVELOP) -> str:
+def get_version(append_time: Any = IS_DEVELOP) -> str:
     version = __version__
     if not version:
         version = os.getenv("VERSION", "0.0.0")

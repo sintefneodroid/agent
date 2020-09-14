@@ -32,19 +32,25 @@ def pg_run(
     skip_confirmation: bool = True,
     environment_type: Union[bool, str] = True,
     *,
-    config=pg_config
+    config=None,**kwargs
+
 ) -> None:
+    if config is None:
+        config = pg_config
+
     session_factory(
         PolicyGradientAgent,
         config,
         session=ParallelSession,
         skip_confirmation=skip_confirmation,
-        environment=environment_type,
+        environment=environment_type,**kwargs
     )
 
 
-def pg_test(config=pg_config) -> None:
-    pg_run(environment_type="gym", config=config)
+def pg_test(config=None,**kwargs) -> None:
+    if config is None:
+        config = pg_config
+    pg_run(environment_type="gym", config=config,**kwargs)
 
 
 if __name__ == "__main__":

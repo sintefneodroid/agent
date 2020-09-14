@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-from typing import Iterable, List, Sequence
+from typing import Any, Iterable, List, Sequence
 
 import numpy
 import torch
@@ -11,6 +11,8 @@ __author__ = "Christian Heider Nielsen"
 __doc__ = "Fusion variant of MLPs"
 
 __all__ = ["PreConcatInputMLP", "LateConcatInputMLP"]
+
+from warg import passes_kws_to
 
 
 class PreConcatInputMLP(MLP):
@@ -24,6 +26,7 @@ class PreConcatInputMLP(MLP):
 
         super().__init__(input_shape=input_shape, **kwargs)
 
+    @passes_kws_to(MLP.forward)
     def forward(self, *x, **kwargs) -> List:
         """
 
@@ -35,7 +38,6 @@ class PreConcatInputMLP(MLP):
     @rtype:
     """
         return super().forward(torch.cat(x, dim=-1), **kwargs)
-
 
 class LateConcatInputMLP(MLP):
     """
@@ -67,6 +69,7 @@ class LateConcatInputMLP(MLP):
             torch.nn.Linear(s, t), torch.nn.ReLU(), torch.nn.Linear(t, output_shape[-1])
         )
 
+    @passes_kws_to(MLP.forward)
     def forward(self, *x, **kwargs) -> torch.tensor:
         """
 

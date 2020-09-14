@@ -43,19 +43,21 @@ DISCRETE_ARCH_SPEC: GDKC = GDKC(
 ppo_config = globals()
 
 
-def ppo_test(config=ppo_config):
+def ppo_test(config=None,**kwargs):
     """
 
   @param config:
   @type config:
   """
-    ppo_run(environment_type="gym", config=config)
+    if config is None:
+        config = ppo_config
+    ppo_run(environment_type="gym", config=config,**kwargs)
 
 
 def ppo_run(
     skip_confirmation: bool = True,
     environment_type: Union[bool, str] = True,
-    config=ppo_config,
+    config=None,**kwargs
 ):
     """
 
@@ -66,12 +68,14 @@ def ppo_run(
   @param config:
   @type config:
   """
+    if config is None:
+        config = ppo_config
     session_factory(
         ProximalPolicyOptimizationAgent,
         config,
         session=ParallelSession,
         environment=environment_type,
-        skip_confirmation=skip_confirmation,
+        skip_confirmation=skip_confirmation,**kwargs
     )
 
 

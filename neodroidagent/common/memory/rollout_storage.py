@@ -152,12 +152,12 @@ estimate and backtracking.
             drop_last=False,
         )
         for i in sampler:
-            observations_batch = self.observations[:-1].view(
+            observations_batch = self.observations[:-1].reshape(
                 -1, *self.observations.size()[2:]
             )[i]
-            actions_batch = self.actions.view(-1, self.actions.size(-1))[i]
-            return_batch = self.returns[:-1].view(-1, 1)[i]
-            old_action_log_probs_batch = self.action_log_probs.view(-1, 1)[i]
-            adv_targ = advantages.view(-1, 1)[i]
+            actions_batch = self.actions.reshape(-1, self.actions.size(-1))[i]
+            return_batch = self.returns[:-1].reshape(-1, 1)[i]
+            old_action_log_probs_batch = self.action_log_probs.reshape(-1, 1)[i]
+            adv_targ = advantages.reshape(-1, 1)[i]
 
             yield observations_batch, actions_batch, return_batch, old_action_log_probs_batch, adv_targ

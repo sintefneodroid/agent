@@ -12,7 +12,7 @@ import random
 __all__ = ["ExpandableCircularBuffer"]
 
 from neodroidagent.common.memory.memory import Memory
-from neodroidagent.utilities import is_none_or_zero_or_negative
+from warg import is_none_or_zero_or_negative
 
 
 class ExpandableCircularBuffer(Memory):

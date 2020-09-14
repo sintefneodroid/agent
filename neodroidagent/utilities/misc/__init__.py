@@ -5,7 +5,6 @@ __author__ = "Christian Heider Nielsen"
 __doc__ = r"""
            """
 
-from .bool_tests import *
 from .checks import *
 from .sampling import *
 from .target_updates import *
