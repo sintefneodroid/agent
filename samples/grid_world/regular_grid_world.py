@@ -71,13 +71,13 @@ def train_agent(config, agent):
 if __name__ == "__main__":
     import samples.grid_world.grid_world_config as C
 
-    args = parse_arguments("Regular small grid world experiment", C)
+    config = parse_arguments("Regular small grid world experiment", C)
 
-    for key, arg in args.__dict__.items():
+    for key, arg in config.__dict__.items():
         setattr(C, key, arg)
 
     sprint(f"\nUsing config: {C}\n", highlight=True, color="yellow")
-    if not args.skip_confirmation:
+    if not config.skip_confirmation:
         for key, arg in get_upper_case_vars_or_protected_of(C).items():
             print(f"{key} = {arg}")
         input("\nPress Enter to begin... ")

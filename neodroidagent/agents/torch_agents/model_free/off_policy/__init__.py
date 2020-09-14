@@ -6,3 +6,6 @@ __doc__ = r"""
 
            Created on 08/02/2020
            """
+
+from .dqn_agent import *
+from .sac_agent import *

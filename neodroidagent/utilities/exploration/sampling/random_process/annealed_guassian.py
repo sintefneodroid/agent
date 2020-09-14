@@ -4,9 +4,20 @@ __author__ = "Christian Heider Nielsen"
 
 from .random_process import RandomProcess
 
+__all__ = ["AnnealedGaussianProcess"]
+
 
 class AnnealedGaussianProcess(RandomProcess):
+    """
+
+    """
+
     def sample(self, size):
+        """
+
+        @param size:
+        @type size:
+        """
         pass
 
     def __init__(self, mean, sigma, sigma_min, n_steps_annealing, **kwargs):
@@ -26,10 +37,18 @@ class AnnealedGaussianProcess(RandomProcess):
             self.sigma_min = sigma
 
     def reset(self):
+        """
+
+        """
         self.n_steps = 0
 
     @property
     def current_sigma(self):
+        """
+
+        @return:
+        @rtype:
+        """
         sigma = max(self.sigma_min, self.m * float(self.n_steps) + self.c)
         return sigma
 

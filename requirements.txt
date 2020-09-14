@@ -1,8 +1,6 @@
-apppath
+devpack
 gym
 Neodroid
-draugr
-warg
 trolls
 numpy
 matplotlib

@@ -6,11 +6,11 @@ import gym
 
 from neodroid.environments import Environment
 from neodroid.environments.gym_environment import NeodroidGymEnvironment
-from neodroid.environments.unity_environment import VectorUnityEnvironment
-from .procedures import Procedure, OnPolicyEpisodic
-from .single_agent_environment_session import SingleAgentEnvironmentSession
+from neodroid.environments.droid_environment import VectorUnityEnvironment
 from trolls import NormalisedActions, VectorWrap
 from warg import super_init_pass_on_kws
+from .procedures import OnPolicyEpisodic, Procedure
+from .single_agent_environment_session import SingleAgentEnvironmentSession
 
 __author__ = "Christian Heider Nielsen"
 __doc__ = r"""
@@ -31,11 +31,11 @@ class LinearSession(SingleAgentEnvironmentSession):
     ):
         """
 
-    @param environment_name:
-    @param procedure:
-    @param environment_type:
-    @param kwargs:
-    """
+@param environment_name:
+@param procedure:
+@param environment_type:
+@param kwargs:
+"""
 
         if isinstance(environment, str) and environment == "gym":
             assert environment_name != ""
@@ -54,3 +54,4 @@ class LinearSession(SingleAgentEnvironmentSession):
             environments = environment
 
         super().__init__(environments=environments, procedure=procedure, **kwargs)
+

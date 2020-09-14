@@ -1,0 +1,8 @@
+name: On Push Any Documentation Check
+on:   push
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - uses: cnheider/postdoc@master

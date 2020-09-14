@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-from models import MLP
+
 from torch import nn
 
 __author__ = "Christian Heider Nielsen"
 __doc__ = ""
+
+from neodroidagent.common.architectures.mlp import MLP
 
 
 class MultiHeadedMLP(MLP):

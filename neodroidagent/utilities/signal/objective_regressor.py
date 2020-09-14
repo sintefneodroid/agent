@@ -6,5 +6,8 @@ __author__ = "Christian Heider Nielsen"
 __doc__ = r"""Estimation of objective and provider of signals"""
 
 
+__all__ = ["ObjectiveRegressor"]
+
+
 class ObjectiveRegressor(nn.Module):
     pass

@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-from neodroidagent.architectures.distributional.normal import MultiVariateNormalMLP
-from neodroidagent.memory import ReplayBuffer
+
 
 __author__ = "Christian Heider Nielsen"
+
+from neodroidagent.common import MultiVariateNormalMLP
+
 """
 Description: Config for training
 Author: Christian Heider Nielsen
@@ -22,7 +24,7 @@ REPLAY_MEMORY_SIZE = 10000
 MEMORY = ReplayBuffer(REPLAY_MEMORY_SIZE)
 
 BATCH_SIZE = 128
-DISCOUNT_FACTOR = 0.95
+DISCOUNT_FACTOR = 0.99
 RENDER_ENVIRONMENT = False
 DOUBLE_DQN = True
 SYNC_TARGET_MODEL_FREQUENCY = 1000

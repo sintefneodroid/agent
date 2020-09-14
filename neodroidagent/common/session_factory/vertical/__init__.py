@@ -6,5 +6,5 @@ __doc__ = ""
 
 from .linear import *
 from .parallel import *
-from .single_agent_environment_session import *
 from .procedures import *
+from .single_agent_environment_session import *

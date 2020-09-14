@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+from typing import List, Union
+
 from setuptools import find_packages, setup
 
 
@@ -27,8 +29,9 @@ with open(
 
 __author__ = author
 
+__all__ = ['NeodroidAgentPackage']
 
-class NeodroidAgentPackage:
+class NeodroidAgentPackageMeta(type):
     @property
     def dependencies_testing(self) -> list:
         return ["pytest", "mock"]
@@ -54,7 +57,7 @@ class NeodroidAgentPackage:
         return "text/markdown"
 
     @property
-    def packages(self):
+    def packages(self) -> List[Union[bytes, str]]:
         return find_packages(
             exclude=[
                 # 'Path/To/Exclude'
@@ -62,32 +65,33 @@ class NeodroidAgentPackage:
         )
 
     @property
-    def author_name(self):
+    def author_name(self) -> str:
         return author
 
     @property
-    def author_email(self):
+    def author_email(self) -> str:
         return "christian.heider@alexandra.dk"
 
     @property
-    def maintainer_name(self):
+    def maintainer_name(self) -> str:
         return self.author_name
 
     @property
-    def maintainer_email(self):
+    def maintainer_email(self) -> str:
         return self.author_email
 
     @property
-    def package_data(self):
-        # data = glob.glob('data/', recursive=True)
+    def package_data(self) -> dict:
+        emds = [str(p) for p in pathlib.Path(__file__).parent.rglob('.md')]
         return {
-            # 'PackageName':[
-            # *data
-            #  ]
+        'neodroidagent':[
+            *emds
+            ]
         }
 
+
     @property
-    def entry_points(self):
+    def entry_points(self) -> dict:
         return {
             "console_scripts": [
                 # "name_of_executable = module.with:function_to_execute"
@@ -99,7 +103,7 @@ class NeodroidAgentPackage:
         }
 
     @property
-    def extras(self):
+    def extras(self) -> dict:
         these_extras = {
             # 'ExtraName':['package-name; platform_system == "System(Linux,Windows)"'
         }
@@ -140,25 +144,25 @@ class NeodroidAgentPackage:
         return requirements_out
 
     @property
-    def description(self):
+    def description(self) -> str:
         return "Reinforcement learning agent implementations, intended for use with the Neodroid platform"
 
     @property
-    def readme(self):
+    def readme(self) -> str:
         with open("README.md") as f:
             return f.read()
 
     @property
-    def keyword(self):
+    def keyword(self) -> str:
         with open("KEYWORDS.md") as f:
             return f.read()
 
     @property
-    def license(self):
+    def license(self) -> str:
         return "Apache License, Version 2.0"
 
     @property
-    def classifiers(self):
+    def classifiers(self) -> List[str]:
         return [
             "Development Status :: 4 - Beta",
             "Environment :: Console",
@@ -176,13 +180,16 @@ class NeodroidAgentPackage:
         ]
 
     @property
-    def version(self):
+    def version(self) -> str:
         return version
+
+class NeodroidAgentPackage(metaclass=NeodroidAgentPackageMeta):
+    pass
 
 
 if __name__ == "__main__":
 
-    pkg = NeodroidAgentPackage()
+    pkg = NeodroidAgentPackage
 
     setup(
         name=pkg.package_name,
@@ -207,5 +214,5 @@ if __name__ == "__main__":
         tests_require=pkg.dependencies_testing,
         setup_requires=pkg.setup_dependencies,
         include_package_data=True,
-        python_requires=">=3",
+        python_requires=">=3.6",
     )

@@ -7,6 +7,6 @@ __doc__ = r"""
            Created on 15/01/2020
            """
 
-from .merged import *
-from .single_head import *
 from .actor_critic import *
+from .concatination import *
+from .disjunction import *

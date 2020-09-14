@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 import numpy
 
-from draugr import to_tensor
+from draugr.torch_utilities import to_tensor
 from neodroidagent.common.architectures import MLP
 
 __author__ = "Christian Heider Nielsen"

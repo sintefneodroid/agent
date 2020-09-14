@@ -1,28 +1,34 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+import logging
 import math
 from itertools import count
 from pathlib import Path
 from typing import Union
 
 import numpy
+import torch
+import torchsnooper
 
-from draugr.writers import MockWriter, TensorBoardPytorchWriter, Writer
+from draugr.metrics.accumulation import mean_accumulator, total_accumulator
+from draugr.torch_utilities import TensorBoardPytorchWriter
+from draugr.writers import MockWriter, Writer
 from neodroid.environments.environment import Environment
 from neodroid.utilities import EnvironmentSnapshot
 from neodroidagent.agents import Agent
-from neodroidagent.common.memory.experience import Transition
+from neodroidagent.common.memory.transitions import Transition, TransitionPoint
 from neodroidagent.common.session_factory.vertical.procedures.procedure_specification import (
     Procedure,
 )
-from neodroidagent.utilities import is_positive_and_mod_zero
-from warg import drop_unused_kws, passes_kws_to
+from warg import drop_unused_kws, passes_kws_to,is_positive_and_mod_zero
 
 __author__ = "Christian Heider Nielsen"
 __all__ = ["rollout_off_policy", "OffPolicyEpisodic"]
 __doc__ = "Collects agent experience for episodic off policy training"
 
 from tqdm import tqdm
+
+from warg.context_wrapper import ContextWrapper
 
 
 @drop_unused_kws
@@ -31,61 +37,85 @@ def rollout_off_policy(
     initial_state: EnvironmentSnapshot,
     env: Environment,
     *,
-    render=False,
+    render_environment: bool = False,
     metric_writer: Writer = MockWriter(),
     train_agent=True,
     disallow_random_sample=False,
+    use_episodic_buffer=True,
 ):
     state = agent.extract_features(initial_state)
-    episode_signal = []
-    episode_length = []
+    episode_length = 0
 
-    T = count(0)
-    T = tqdm(T, desc="Step #", leave=False, disable=not render)
+    running_mean_action = mean_accumulator()
+    episode_signal = total_accumulator()
 
-    for t in T:
+    if use_episodic_buffer:
+        episode_buffer = []
+
+    for step_i in tqdm(
+        count(), desc="Step #", leave=False, disable=not render_environment, postfix=f"Agent update #{agent.update_i}"
+    ):
         sample = agent.sample(
             state, deterministic=disallow_random_sample, metric_writer=metric_writer
         )
-        act = agent.extract_action(sample)
-        snapshot = env.react(act)
+        action = agent.extract_action(sample)
+
+        snapshot = env.react(action)
 
         successor_state = agent.extract_features(snapshot)
         signal = agent.extract_signal(snapshot)
         terminated = snapshot.terminated
 
-        if render:
+        if render_environment:
             env.render()
 
         if train_agent:
-            agent.remember(
-                signal=signal,
-                terminated=terminated,
-                sample=sample,
-                transition=Transition(state, act, successor_state),
-            )
+            if use_episodic_buffer:
+                a = [
+                    TransitionPoint(*s)
+                    for s in zip(state, action, successor_state, signal, terminated)
+                ]
+                episode_buffer.extend(a)
+            else:
+                agent.remember(
+                    signal=signal,
+                    terminated=terminated,
+                    transition=Transition(state, action, successor_state),
+                )
 
-        episode_signal.append(signal)
+        running_mean_action.send(action.mean())
+        episode_signal.send(signal.mean())
 
         if numpy.array(terminated).all():
-            episode_length = t
             break
 
         state = successor_state
 
     if train_agent:
-        agent.update(metric_writer=metric_writer)
+        if use_episodic_buffer:
+            t = TransitionPoint(*zip(*episode_buffer))
+            agent.remember(
+                signal=t.signal,
+                terminated=t.terminal,
+                transition=Transition(t.state, t.action, t.successor_state),
+            )
+
+    if step_i > 0:
+        if train_agent:
+            agent.update(metric_writer=metric_writer)
+        else:
+            logging.info("no update")
+
+        esig = next(episode_signal)
+
+        if metric_writer:
+            metric_writer.scalar("duration", step_i)
+            metric_writer.scalar("running_mean_action", next(running_mean_action))
+            metric_writer.scalar("signal", esig)
+
+        return esig, step_i
     else:
-        print("no update")
-
-    ep = numpy.array(episode_signal).sum(axis=0).mean()
-    el = episode_length
-
-    if metric_writer:
-        metric_writer.scalar("duration", el)
-        metric_writer.scalar("signal", ep)
-
-    return ep, el
+        return 0, 0
 
 
 class OffPolicyEpisodic(Procedure):
@@ -93,11 +123,11 @@ class OffPolicyEpisodic(Procedure):
     def __call__(
         self,
         *,
-        log_directory: Union[str, Path],
         iterations: int = 1000,
         render_frequency: int = 100,
         stat_frequency: int = 10,
         disable_stdout: bool = False,
+        metric_writer: Writer = MockWriter(),
         **kwargs,
     ):
         """
@@ -114,31 +144,30 @@ class OffPolicyEpisodic(Procedure):
 :rtype: TR
 """
 
-        # with torchsnooper.snoop():
-        # with torch.autograd.detect_anomaly():
-        with TensorBoardPytorchWriter(log_directory) as metric_writer:
-            E = range(1, iterations)
-            E = tqdm(E, desc="Rollout #", leave=False)
+        E = range(1, iterations)
+        E = tqdm(E, desc="Rollout #", leave=False)
 
-            best_episode_return = -math.inf
-            for episode_i in E:
-                initial_state = self.environment.reset()
+        best_episode_return = -math.inf
+        for episode_i in E:
+            initial_state = self.environment.reset()
 
-                ret, *_ = rollout_off_policy(
-                    self.agent,
-                    initial_state,
-                    self.environment,
-                    render=is_positive_and_mod_zero(render_frequency, episode_i),
-                    metric_writer=is_positive_and_mod_zero(
-                        stat_frequency, episode_i, ret=metric_writer
-                    ),
-                    disable_stdout=disable_stdout,
-                    **kwargs,
-                )
+            kwargs.update(
+                render_environment=is_positive_and_mod_zero(render_frequency, episode_i)
+            )
+            ret, *_ = rollout_off_policy(
+                self.agent,
+                initial_state,
+                self.environment,
+                metric_writer=is_positive_and_mod_zero(
+                    stat_frequency, episode_i, ret=metric_writer
+                ),
+                disable_stdout=disable_stdout,
+                **kwargs,
+            )
 
-                if best_episode_return < ret:
-                    best_episode_return = ret
-                    self.call_on_improvement_callbacks(**kwargs)
+            if best_episode_return < ret:
+                best_episode_return = ret
+                self.call_on_improvement_callbacks(**kwargs)
 
-                if self.early_stop:
-                    break
+            if self.early_stop:
+                break

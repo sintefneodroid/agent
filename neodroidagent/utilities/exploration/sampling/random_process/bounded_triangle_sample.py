@@ -5,6 +5,8 @@ __author__ = "Christian Heider Nielsen"
 
 import numpy
 
+__all__ = ["bounded_triangle_sample"]
+
 
 def bounded_triangle_sample(a_set, mean=0.5, number=1):
     l = len(a_set)

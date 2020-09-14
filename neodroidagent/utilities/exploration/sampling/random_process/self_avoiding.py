@@ -9,6 +9,9 @@ import random
 import numpy
 
 
+__all__ = ["SelfAvoiding"]
+
+
 class SelfAvoiding(RandomProcess):
     def __init__(self, num_of_options=4, n=10):
         self.num_of_options = num_of_options
@@ -52,12 +55,12 @@ class SelfAvoiding(RandomProcess):
         self.y = self.n // 2
 
 
-def main(n=5, trials=3):
-    r = SelfAvoiding()
-
-    for t in range(trials):
-        print(r.sample())
-
-
 if __name__ == "__main__":
+
+    def main(n=5, trials=3):
+        r = SelfAvoiding()
+
+        for t in range(trials):
+            print(r.sample())
+
     main()

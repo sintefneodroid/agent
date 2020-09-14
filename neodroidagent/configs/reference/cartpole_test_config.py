@@ -8,7 +8,9 @@ Author: Christian Heider Nielsen
 """
 
 # noinspection PyUnresolvedReferences
+from neodroidagent.common import CategoricalMLP
 from neodroidagent.configs.base_config import *
+from warg import NOD
 
 CONFIG_NAME = __name__
 import pathlib

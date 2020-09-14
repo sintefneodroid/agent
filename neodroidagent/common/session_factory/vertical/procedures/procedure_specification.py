@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 import abc
 from pathlib import Path
-from typing import Union, List
+from typing import List, Union
 
 from neodroid import Environment
 from neodroidagent.agents import Agent
@@ -23,36 +23,42 @@ class Procedure(abc.ABC):
         agent: Agent,
         *,
         environment: Environment,
-        on_improvement_callbacks: List = [],
-        save_best_throughtout_training: bool = True
+        on_improvement_callbacks=None,
+        save_best_throughout_training: bool = True,
+        train_agent: bool = True
     ):
         """
 
-    @param agent:
-    @param environment:
-    @param on_improvement_callbacks:
-    @param save_best_throughtout_training:
-    """
+@param agent:
+@param environment:
+@param on_improvement_callbacks:
+@param save_best_throughout_training:
+"""
+        if on_improvement_callbacks is None:
+            on_improvement_callbacks = []
+
         self.agent = agent
         self.environment = environment
-        if save_best_throughtout_training:
+        if save_best_throughout_training and train_agent:
             on_improvement_callbacks.append(self.agent.save)
+            print('Saving best model throughout training')
         self.on_improvement_callbacks = on_improvement_callbacks
 
-    def stop_procedure(self) -> None:
+    @staticmethod
+    def stop_procedure() -> None:
         """
 
-    @return:
-    """
-        self.early_stop = True
+@return:
+"""
+        Procedure.early_stop = True
 
     def call_on_improvement_callbacks(self, *, verbose: bool = True, **kwargs):
         """
 
-    @param verbose:
-    @param kwargs:
-    @return:
-    """
+@param verbose:
+@param kwargs:
+@return:
+"""
         if verbose:
             print("Model improved")
 
@@ -72,17 +78,17 @@ class Procedure(abc.ABC):
         **kwargs
     ):
         """
-    Collects environment snapshots and forwards it to the agent and vice versa.
+Collects environment snapshots and forwards it to the agent and vice versa.
 
-    :param agent:
-    :param environment:
-    :param num_steps_per_btach:
-    :param num_updates:
-    :param iterations:
-    :param log_directory:
-    :param render_frequency:
-    :param stat_frequency:
-    :param kwargs:
-    :return:
-    """
+:param agent:
+:param environment:
+:param num_steps_per_btach:
+:param num_updates:
+:param iterations:
+:param log_directory:
+:param render_frequency:
+:param stat_frequency:
+:param kwargs:
+:return:
+"""
         raise NotImplementedError

@@ -3,7 +3,7 @@
 
 import draugr
 from draugr.stopping.stopping_key import add_early_stopping_key_combination
-from neodroid.environments.unity_environment import SingleUnityEnvironment
+from neodroid.environments.droid_environment import SingleUnityEnvironment
 
 __author__ = "Christian Heider Nielsen"
 
@@ -68,13 +68,13 @@ if __name__ == "__main__":
         get_upper_case_vars_or_protected_of,
     )
 
-    args = parse_arguments("C2D", C)
+    config = parse_arguments("C2D", C)
 
-    for key, arg in args.__dict__.items():
+    for key, arg in config.__dict__.items():
         setattr(C, key, arg)
 
     draugr.sprint(f"\nUsing config: {C}\n", highlight=True, color="yellow")
-    if not args.skip_confirmation:
+    if not config.skip_confirmation:
         for key, arg in get_upper_case_vars_or_protected_of(C).items():
             print(f"{key} = {arg}")
         input("\nPress Enter to begin... ")

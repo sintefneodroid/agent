@@ -2,7 +2,7 @@ from itertools import count
 
 from tqdm import tqdm
 
-from neodroid.environments.unity_environment import VectorUnityEnvironment
+from neodroid.environments.droid_environment import VectorUnityEnvironment
 
 
 def run(self, environment: VectorUnityEnvironment, render: bool = True) -> None:

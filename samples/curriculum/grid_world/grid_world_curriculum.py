@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-from neodroid.models import Configuration, Displayable, Reaction, ReactionParameters
 
 __author__ = "Christian Heider Nielsen"
 
@@ -9,6 +8,8 @@ from types import coroutine
 
 import numpy
 from tqdm import tqdm
+
+from neodroid.utilities import Configuration, Displayable, Reaction, ReactionParameters
 
 
 @coroutine

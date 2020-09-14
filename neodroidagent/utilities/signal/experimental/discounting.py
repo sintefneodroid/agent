@@ -1,20 +1,17 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from typing import Any, Iterable, Union
-
 import numpy
-import torch
-from numba import jit
-from scipy.signal import lfilter
+
+# from numba import jit
 
 __author__ = "Christian Heider Nielsen"
 __doc__ = ""
 
-from draugr import to_tensor
+__all__ = ["valued_discount"]
 
 
-@jit(nopython=True, nogil=True)
+# @jit(nopython=True, nogil=True)
 def valued_discount(
     signal: numpy.ndarray,
     next_estimate: numpy.ndarray,

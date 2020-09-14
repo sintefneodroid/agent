@@ -10,27 +10,27 @@ __doc__ = r"""
 import base64
 import os
 import pickle
+import time
+from pathlib import Path
 
 from cloudpickle import cloudpickle
-from garage.experiment import to_local_command
 
-from neodroid.environments.unity_environment import UnityEnvironment
-from neodroidagent.agents import SACAgent, Agent
-from neodroidagent.agents.numpy_agents.baseline_agent import LinearFeatureBaselineAgent
+from neodroid.environments.droid_environment import UnityEnvironment
+from neodroidagent.agents import SoftActorCriticAgent
 from neodroidagent.common import CategoricalMLP
 
 
 class Experiment:
-    def __init__(self, log_dir="", save_dir="", render=False):
+    def __init__(self, log_dir="", save_dir="", render_environment=False):
         pass
 
     def __enter__(self):
         """Set self.sess as the default session.
 
-    Returns:
-        This local runner.
+Returns:
+This local runner.
 
-    """
+"""
 
         return self
 
@@ -54,25 +54,25 @@ class Experiment:
         **kwargs,
     ):
         """Serialize the method call and run the experiment using the
-    specified mode.
+specified mode.
 
-    Args:
-        method_call (callable): A method call.
-        batch_tasks (list[dict]): A batch of method calls.
-        exp_prefix (str): Name prefix for the experiment.
-        exp_name (str): Name of the experiment.
-        log_dir (str): Log directory for the experiment.
-        script (str): The name of the entrance point python script.
-        python_command (str): Python command to run the experiment.
-        dry (bool): Whether to do a dry-run, which only prints the
-            commands without executing them.
-        env (dict): Extra environment variables.
-        variant (dict): If provided, should be a dictionary of parameters.
-        force_cpu (bool): Whether to set all GPU devices invisible
-            to force use CPU.
-        pre_commands (str): Pre commands to run the experiment.
+Args:
+method_call (callable): A method call.
+batch_tasks (list[dict]): A batch of method calls.
+exp_prefix (str): Name prefix for the experiment.
+exp_name (str): Name of the experiment.
+log_dir (str): Log directory for the experiment.
+script (str): The name of the entrance point python script.
+python_command (str): Python command to run the experiment.
+dry (bool): Whether to do a dry-run, which only prints the
+commands without executing them.
+env (dict): Extra environment variables.
+variant (dict): If provided, should be a dictionary of parameters.
+force_cpu (bool): Whether to set all GPU devices invisible
+to force use CPU.
+pre_commands (str): Pre commands to run the experiment.
 
-    """
+"""
         if method_call is None and batch_tasks is None:
             raise Exception("Must provide at least either method_call or batch_tasks")
 
@@ -108,13 +108,12 @@ class Experiment:
             exp_count += 1
 
             if task.get("exp_name", None) is None:
-                task["exp_name"] = f"{exp_prefix}_{timestamp}_{exp_count:04n}"
+                task["exp_name"] = f"{exp_prefix}_{time.time()}_{exp_count:04n}"
 
             if task.get("log_dir", None) is None:
-                task["log_dir"] = "{log_dir}/local/{exp_prefix}/{exp_name}".format(
-                    log_dir=osp.join(os.getcwd(), "data"),
-                    exp_prefix=exp_prefix.replace("_", "-"),
-                    exp_name=task["exp_name"],
+                task["log_dir"] = (
+                    f"{Path.cwd() / 'data'}/local/{exp_prefix.replace('_', '-')}/"
+                    f"{task['exp_name']}"
                 )
 
             if task.get("variant", None) is not None:
@@ -131,7 +130,7 @@ class Experiment:
 
         for task in batch_tasks:
             env = task.pop("env", None)
-            command = to_local_command(
+            command = garage.to_local_command(
                 task, python_command=python_command, script=script
             )
             print(command)
@@ -160,10 +159,10 @@ if __name__ == "__main__":
         hidden_sizes=(32, 32),
     )
 
-    agent = SACAgent(
+    agent = SoftActorCriticAgent(
         policy=policy, max_path_length=100, discount=0.99, max_kl_step=0.01
     )
 
-    with Experiment(log_dir="", save_dir="", render=False) as experiment:
+    with Experiment(log_dir="", save_dir="", render_environment=False) as experiment:
         experiment.setup(agent, env)
         experiment.train(n_epochs=100, batch_size=4000)

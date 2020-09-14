@@ -4,110 +4,117 @@ import copy
 import logging
 import math
 import random
-from typing import Any, Dict, Sequence
+from typing import Any, Dict, Iterable, Sequence, Tuple
 
 import numpy
 import torch
 from torch.nn.functional import smooth_l1_loss
+from torch.optim import Optimizer
 
-from draugr import MockWriter, Writer, to_tensor
+from draugr.torch_utilities import to_scalar, to_tensor
+from draugr.writers import MockWriter, Writer
 from neodroid.utilities import ActionSpace, ObservationSpace, SignalSpace
-from neodroidagent.agents.torch_agents import TorchAgent
+from neodroidagent.agents.torch_agents.torch_agent import TorchAgent
 from neodroidagent.common import (
     Architecture,
-    SingleHeadMLP,
-    Transition,
-    TransitionPointBuffer,
+    DuelingQMLP,
+    Memory,
     TransitionPoint,
+    TransitionPointPrioritisedBuffer,
 )
 from neodroidagent.utilities import (
     ActionSpaceNotSupported,
     ExplorationSpecification,
     update_target,
 )
-from neodroidagent.utilities.misc.bool_tests import is_zero_or_mod_zero
-from warg import GDKC, drop_unused_kws, super_init_pass_on_kws
+from warg import GDKC, drop_unused_kws, super_init_pass_on_kws,is_zero_or_mod_zero
 
 __author__ = "Christian Heider Nielsen"
-
-__all__ = ["DQNAgent"]
+__doc__ = r"""
+"""
+__all__ = ["DeepQNetworkAgent"]
 
 
 @super_init_pass_on_kws(super_base=TorchAgent)
-class DQNAgent(TorchAgent):
+class DeepQNetworkAgent(TorchAgent):
     """
 Deep Q Network Agent
-"""
 
-    # region Private
+https://www.cs.toronto.edu/~vmnih/docs/dqn.pdf
+"""
 
     def __init__(
         self,
-        value_arch_spec: Architecture = GDKC(
-            SingleHeadMLP,
-            input_shape=None,  # Obtain from environment
-            hidden_layers=None,
-            output_shape=None,  # Obtain from environment
+        value_arch_spec: Architecture = GDKC(DuelingQMLP),
+        exploration_spec: ExplorationSpecification = ExplorationSpecification(
+            start=0.95, end=0.05, decay=3000
         ),
-        exploration_spec=ExplorationSpecification(start=0.9, end=0.05, decay=200),
-        memory_buffer=TransitionPointBuffer(int(1e5)),
-        # self._memory = U.PrioritisedReplayMemory(config.REPLAY_MEMORY_SIZE)  # Cuda trouble
-        loss_function=smooth_l1_loss,  # huber_loss
-        batch_size=64,
-        discount_factor=0.99,
-        double_dqn=True,
-        optimiser_spec=GDKC(torch.optim.Adam),
-        scheduler_spec=None,
-        sync_target_model_frequency=100,
-        initial_observation_period=100,
-        learning_frequency=4,
-        update_target_percentage=1e-3,
+        memory_buffer: Memory = TransitionPointPrioritisedBuffer(int(1e5)),
+        batch_size: int = 256,
+        discount_factor: float = 0.95,
+        double_dqn: bool = True,
+        use_per: bool = True,
+        loss_function: callable = smooth_l1_loss,
+        optimiser_spec: GDKC = GDKC(torch.optim.Adam, lr=3e-4),
+        scheduler_spec: GDKC = None,
+        sync_target_model_frequency: int = 1,
+        initial_observation_period: int = 1000,
+        learning_frequency: int = 1,
+        copy_percentage: float = 1e-2,
         **kwargs,
     ):
         """
-
-:param exploration_spec:
-:param initial_observation_period:
-:param value_model:
-:param target_value_model:
-:param naive_max_policy:
-:param memory_buffer:
-:param loss_function:
-:param value_arch_spec:
-:param batch_size:
-:param discount_factor:
-:param learning_frequency:
-:param sync_target_model_frequency:
-:param state_type:
-:param value_type:
-:param action_type:
-:param double_dqn:
-:param clamp_gradient:
-:param signal_clipping:
-
-:param optimiser_spec:
-:param kwargs:
+@param value_arch_spec:
+@param exploration_spec:
+@param memory_buffer:
+@param batch_size:
+@param discount_factor:
+@param double_dqn: https://arxiv.org/abs/1509.06461
+@param use_per:  https://arxiv.org/abs/1511.05952
+@param loss_function:  default is huber loss
+@param optimiser_spec:
+@param scheduler_spec:
+@param sync_target_model_frequency:
+@param initial_observation_period:
+@param learning_frequency:
+@param copy_percentage:
+@param kwargs:
 """
         super().__init__(**kwargs)
+
         self._exploration_spec = exploration_spec
+        assert 0 <= self._exploration_spec.end <= self._exploration_spec.start
+        assert 0 < self._exploration_spec.decay
+
         self._memory_buffer = memory_buffer
-        self._loss_function = loss_function
+        assert self._memory_buffer.capacity > batch_size
+
         self._value_arch_spec: Architecture = value_arch_spec
+        self._optimiser_spec = optimiser_spec
+        self._scheduler_spec = scheduler_spec
+
         self._batch_size = batch_size
+        assert batch_size > 0
+
         self._discount_factor = discount_factor
+        assert 0 <= discount_factor <= 1.0
+
+        self._double_dqn = double_dqn
+        self._use_per = use_per and double_dqn
+        self._loss_function = loss_function
+
+        self._learning_frequency = learning_frequency
+        self._sync_target_model_frequency = sync_target_model_frequency
+
+        self._initial_observation_period = initial_observation_period
+        assert initial_observation_period >= 0
+
+        self._copy_percentage = copy_percentage
+        assert 0 <= copy_percentage <= 1.0
 
         self._state_type = torch.float
         self._value_type = torch.float
         self._action_type = torch.long
-
-        self._double_dqn = double_dqn
-
-        self._optimiser_spec = optimiser_spec
-        self._scheduler_spec = scheduler_spec
-        self._learning_frequency = learning_frequency
-        self._initial_observation_period = initial_observation_period
-        self._sync_target_model_frequency = sync_target_model_frequency
-        self._update_target_percentage = update_target_percentage
 
     @drop_unused_kws
     def __build__(
@@ -145,9 +152,6 @@ Deep Q Network Agent
         else:
             self._scheduler = None
 
-    # endregion
-
-    # region Public
     @property
     def models(self) -> Dict[str, Architecture]:
         """
@@ -156,21 +160,20 @@ Deep Q Network Agent
 """
         return {"value_model": self.value_model}
 
+    @property
+    def optimisers(self) -> Dict[str, Optimizer]:
+        return {"_optimiser": self._optimiser}
+
     def _exploration_sample(self, steps_taken, metric_writer=None):
         """
 :param steps_taken:
 :return:
 """
-        assert 0 <= self._exploration_spec.end <= self._exploration_spec.start
-        assert 0 < self._exploration_spec.decay
 
         if steps_taken == 0:
             return True
 
-        sample = random.random()
-
         a = self._exploration_spec.start - self._exploration_spec.end
-
         b = math.exp(
             -1.0
             * steps_taken
@@ -179,13 +182,9 @@ Deep Q Network Agent
         _current_eps_threshold = self._exploration_spec.end + a * b
 
         if metric_writer:
-            metric_writer.scalar("Current Eps Threshold", _current_eps_threshold)
+            metric_writer.scalar("current_eps_threshold", _current_eps_threshold)
 
-        return not sample > _current_eps_threshold
-
-    # endregion
-
-    # region Protected
+        return not random.random() > _current_eps_threshold
 
     @drop_unused_kws
     def _sample(
@@ -209,11 +208,7 @@ Deep Q Network Agent
         return self._sample_model(state)
 
     def _sample_random_process(self, state) -> numpy.ndarray:
-        r = numpy.arange(self._output_shape[0])
-        sample = numpy.random.choice(r, len(state))
-        return sample
-
-    # endregion
+        return numpy.random.choice(numpy.arange(self._output_shape[0]), (len(state), 1))
 
     @drop_unused_kws
     def _remember(self, *, signal, terminated, transition):
@@ -226,91 +221,111 @@ Deep Q Network Agent
 @param terminated:
 @return:
 """
-        self._memory_buffer.add_transition_points(
-            TransitionPoint(*transition, signal, terminated)
-        )
-
-    # region Protected
+        if transition:
+            a = [TransitionPoint(*s) for s in zip(*transition, signal, terminated)]
+            if self._use_per:
+                with torch.no_grad():
+                    td_error, *_ = self._td_error(zip(*a))
+                    for a_, e_ in zip(a, td_error.detach().squeeze(-1).cpu().numpy()):
+                        self._memory_buffer.add_transition_point(a_, e_)
+            else:
+                for a_ in a:
+                    self._memory_buffer.add_transition_point(a_)
+        else:
+            raise ValueError('Missing transition')
 
     @drop_unused_kws
-    def _sample_model(self, state) -> numpy.ndarray:
+    def _sample_model(self, state: Any) -> numpy.ndarray:
         """
 
 @param state:
 @return:
 """
-        model_input = to_tensor(state, device=self._device, dtype=self._state_type)
-
         with torch.no_grad():
-            max_q_action = self.value_model(model_input).max(-1)[-1]
+            max_q_action = self.value_model(
+                to_tensor(state, device=self._device, dtype=self._state_type)
+            )
+            return max_q_action.max(-1)[-1].unsqueeze(-1).detach().to("cpu").numpy()
 
-            return max_q_action.detach().to("cpu").numpy()
+    def _max_q_successor(self, successor_state: torch.Tensor) -> torch.tensor:
+        """
+
+@param successor_state:
+@return:
+"""
+        with torch.no_grad():
+            Q_successors = self.value_model(successor_state).detach()
+
+        successors_max_action = Q_successors.max(-1)[-1].unsqueeze(-1)
+
+        if self._double_dqn:
+            with torch.no_grad():
+                Q_successors = self._target_value_model(successor_state).detach()
+
+        return Q_successors.gather(-1, successors_max_action)
+
+    def _q_expected(
+        self, signal: torch.tensor, mask: torch.tensor, successor_state: torch.tensor
+    ) -> torch.tensor:
+        return (
+            signal
+            + self._discount_factor * self._max_q_successor(successor_state) * mask
+        )
+
+    def _q_state(self, state: torch.tensor, action: torch.tensor) -> torch.tensor:
+        return self.value_model(state).gather(-1, action)
+
+    def _td_error(self, transitions: Iterable) -> Tuple[torch.tensor, ...]:
+        tensorised = TransitionPoint(
+            *[
+                to_tensor(a, device=self._device, dtype=d)
+                for a, d in zip(
+                    transitions, [torch.float, torch.long] + [torch.float] * 3
+                )
+            ]
+        )
+
+        Q_expected = self._q_expected(
+            tensorised.signal,
+            tensorised.non_terminal_numerical,
+            tensorised.successor_state,
+        )
+        Q_state = self._q_state(tensorised.state, tensorised.action)
+
+        return Q_expected - Q_state, Q_expected, Q_state
 
     @drop_unused_kws
-    def _update(self, *, metric_writer=MockWriter()):
+    def _update(self, *, metric_writer: Writer = MockWriter()) -> None:
         """
 
 @param metric_writer:
 @return:
 """
 
-        loss = math.inf
+        loss_ = math.inf
 
-        if self._initial_observation_period < self.update_i:
+        if self.update_i > self._initial_observation_period:
             if is_zero_or_mod_zero(self._learning_frequency, self.update_i):
-                if self._batch_size < len(self._memory_buffer):
-                    transitions = self._memory_buffer.sample_transition_points(
-                        self._batch_size
-                    )
+                if len(self._memory_buffer) > self._batch_size:
+                    transitions = self._memory_buffer.sample(self._batch_size)
 
-                    tensorised = TransitionPoint(
-                        *[
-                            to_tensor(a, device=self._device, dtype=d)
-                            for a, d in zip(
-                                transitions,
-                                [torch.float, torch.long] + [torch.float] * 3,
-                            )
-                        ]
-                    )
+                    td_error, Q_expected, Q_state = self._td_error(transitions)
+                    td_error = td_error.detach().squeeze(-1).cpu().numpy()
 
-                    # Calculate Q of state
-                    Q_state = self.value_model(tensorised.state).gather(
-                        -1, tensorised.action.unsqueeze(-1)
-                    )
+                    if self._use_per:
+                        self._memory_buffer.update_last_batch(td_error)
 
-                    # Calculate Q of successors
-                    with torch.no_grad():
-                        Q_successors = self.value_model(
-                            tensorised.successor_state
-                        ).detach()
-                    successors_max_action = Q_successors.max(-1)[-1]
-                    if self._double_dqn:
-                        with torch.no_grad():
-                            Q_successors = self._target_value_model(
-                                tensorised.successor_state
-                            ).detach()
-
-                    max_next_values = Q_successors.gather(
-                        -1, successors_max_action.unsqueeze(-1)
-                    )
-
-                    # Integrate with the true signal
-                    Q_expected = tensorised.signal + (
-                        self._discount_factor
-                        * max_next_values
-                        * tensorised.non_terminal_numerical
-                    )
-
-                    td_error = self._loss_function(Q_state, Q_expected)
+                    loss = self._loss_function(Q_state, Q_expected)
 
                     self._optimiser.zero_grad()
-                    td_error.backward()
-                    self.post_process_gradients(self.value_model)
+                    loss.backward()
+                    self.post_process_gradients(self.value_model.parameters())
                     self._optimiser.step()
 
-                    loss = td_error.mean().cpu().item()
+                    loss_ = to_scalar(loss)
                     if metric_writer:
-                        metric_writer.scalar("td_error", loss, self.update_i)
+                        metric_writer.scalar("td_error", td_error.mean(), self.update_i)
+                        metric_writer.scalar("loss", loss_, self.update_i)
 
                     if self._scheduler:
                         self._scheduler.step()
@@ -334,11 +349,9 @@ Deep Q Network Agent
                     update_target(
                         target_model=self._target_value_model,
                         source_model=self.value_model,
-                        copy_percentage=self._update_target_percentage,
+                        copy_percentage=self._copy_percentage,
                     )
                 if metric_writer:
                     metric_writer.blip("Target Model Synced", self.update_i)
 
-        return loss
-
-    # endregion
+        return loss_

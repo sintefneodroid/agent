@@ -1,6 +1,6 @@
 from typing import Any
 
-from draugr import MockWriter, Writer
+from draugr.writers import MockWriter, Writer
 from neodroid.utilities import ActionSpace, ObservationSpace, SignalSpace
 from neodroid.utilities.unity_specifications import EnvironmentSnapshot
 from neodroidagent.agents.agent import Agent
@@ -21,17 +21,17 @@ class RandomAgent(Agent):
         *args,
         deterministic: bool = False,
         metric_writer: Writer = MockWriter(),
-        **kwargs,
+        **kwargs
     ) -> Any:
         """
 
-    @param state:
-    @param args:
-    @param deterministic:
-    @param metric_writer:
-    @param kwargs:
-    @return:
-    """
+@param state:
+@param args:
+@param deterministic:
+@param metric_writer:
+@param kwargs:
+@return:
+"""
         self._sample_i_since_last_update += 1
         return self.action_space.sample()
 
@@ -46,16 +46,16 @@ class RandomAgent(Agent):
         observation_space: ObservationSpace = None,
         action_space: ActionSpace = None,
         signal_space: SignalSpace = None,
-        **kwargs,
+        **kwargs
     ) -> None:
         """
 
-    @param observation_space:
-    @param action_space:
-    @param signal_space:
-    @param kwargs:
-    @return:
-    """
+@param observation_space:
+@param action_space:
+@param signal_space:
+@param kwargs:
+@return:
+"""
         self.action_space = action_space
 
     def models(self):

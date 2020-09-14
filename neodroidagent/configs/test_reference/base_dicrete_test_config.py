@@ -28,7 +28,7 @@ from neodroidagent.configs.base_config import *
 ENVIRONMENT_NAME = "CartPole-v1"
 # ENVIRONMENT_NAME = 'Acrobot-v1'
 
-# ENVIRONMENT_NAME = 'LunarLander-v2'
+# ENVIRONMENT_NAME = "LunarLander-v2"
 # (coord_x, coord_y, vel_x, vel_y, angle, angular_vel, l_leg_on_ground, r_leg_on_ground)
 
 # ENVIRONMENT_NAME = 'MountainCar-v0'

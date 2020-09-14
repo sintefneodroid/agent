@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-from models import MLP
+from neodroidagent.common.architectures.mlp import MLP
 
 __author__ = "Christian Heider Nielsen"
 __doc__ = ""
@@ -30,7 +30,7 @@ class RecurrentCategoricalMLP(MLP):
         hidden_x = self.hidden(combined)
         self._prev_hidden_x = hidden_x
 
-        return F.softmax(out_x, dim=-1)
+        return F.log_softmax(out_x, dim=-1)
 
 
 class ExposedRecurrentCategoricalMLP(RecurrentCategoricalMLP):
@@ -38,4 +38,46 @@ class ExposedRecurrentCategoricalMLP(RecurrentCategoricalMLP):
         self._prev_hidden_x = hidden_x
         out_x = super().forward(x, **kwargs)
 
-        return F.softmax(out_x, dim=-1), self._prev_hidden_x
+        return F.log_softmax(out_x, dim=-1), self._prev_hidden_x
+
+
+class RecurrentBase(nn.Module):
+    def __init__(self, recurrent, recurrent_input_size, hidden_size):
+        super().__init__()
+
+        self._hidden_size = hidden_size
+        self._recurrent = recurrent
+
+        if recurrent:
+            self.gru = nn.GRUCell(recurrent_input_size, hidden_size)
+            nn.init.orthogonal_(self.gru.weight_ih.data)
+            nn.init.orthogonal_(self.gru.weight_hh.data)
+            self.gru.bias_ih.data.fill_(0)
+            self.gru.bias_hh.data.fill_(0)
+
+    def _forward_gru(self, x, hxs, masks):
+        if x.size(0) == hxs.size(0):
+            x = hxs = self.gru(x, hxs * masks)
+        else:
+            # x is a (T, N, -1) tensor that has been flatten to (T * N, -1)
+            N = hxs.size(0)
+            T = int(x.size(0) / N)
+
+            # unflatten
+            x = x.reshape(T, N, x.size(1))
+
+            # Same deal with masks
+            masks = masks.reshape(T, N, 1)
+
+            outputs = []
+            for i in range(T):
+                hx = hxs = self.gru(x[i], hxs * masks[i])
+                outputs.append(hx)
+
+            # assert len(outputs) == T
+            # x is a (T, N, -1) tensor
+            x = torch.stack(outputs, dim=0)
+            # flatten
+            x = x.reshape(T * N, -1)
+
+        return x, hxs

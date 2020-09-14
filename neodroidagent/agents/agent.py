@@ -6,13 +6,15 @@ from typing import Any, Sequence, Tuple
 
 import numpy
 
-from draugr import MockWriter, Writer, sprint
+from draugr import sprint
+from draugr.writers import MockWriter, Writer
 from neodroid.utilities import (
     ActionSpace,
+    EnvironmentSnapshot,
     ObservationSpace,
     SignalSpace,
-    EnvironmentSnapshot,
 )
+from neodroidagent.utilities import IntrinsicSignalProvider
 
 __author__ = "Christian Heider Nielsen"
 __doc__ = r"""
@@ -21,7 +23,7 @@ __doc__ = r"""
 
 __all__ = ["Agent"]
 
-ClipFeature = namedtuple("ClipFeature", ("enabled", "low", "high"))
+TogglableLowHigh = namedtuple("ClipFeature", ("enabled", "low", "high"))
 
 
 class Agent(ABC):
@@ -36,14 +38,16 @@ All agents should inherit from this class
         input_shape: Sequence = None,
         output_shape: Sequence = None,
         divide_by_zero_safety: float = 1e-6,
-        action_clipping: ClipFeature = ClipFeature(False, -1.0, 1.0),
-        signal_clipping: ClipFeature = ClipFeature(False, -1.0, 1.0),
+        action_clipping: TogglableLowHigh = TogglableLowHigh(False, -1.0, 1.0),
+        signal_clipping: TogglableLowHigh = TogglableLowHigh(False, -1.0, 1.0),
+        intrinsic_signal_provider_arch: IntrinsicSignalProvider = None,
         **kwargs,
     ):
         self._sample_i = 0
         self._update_i = 0
         self._sample_i_since_last_update = 0
-        if not hasattr(self, "_memory"):
+
+        if not hasattr(self, "_memory_buffer"):
             self._memory_buffer = None
 
         self._input_shape = input_shape
@@ -51,6 +55,8 @@ All agents should inherit from this class
 
         self._action_clipping = action_clipping
         self._signal_clipping = signal_clipping
+
+        self._intrinsic_signal_provider_arch = intrinsic_signal_provider_arch
 
         self._divide_by_zero_safety = divide_by_zero_safety
 
@@ -72,7 +78,7 @@ All agents should inherit from this class
         return self._sample_i
 
     @property
-    def memory(self) -> Any:
+    def memory_buffer(self) -> Any:
         return self._memory_buffer
 
     def __repr__(self) -> str:
@@ -91,10 +97,10 @@ All agents should inherit from this class
         print_inferred_io_shapes: bool = True,
     ) -> None:
         """
-    Tries to infer input and output size from env if either _input_shape or _output_shape, is None or -1 (int)
+Tries to infer input and output size from env if either _input_shape or _output_shape, is None or -1 (int)
 
-    :rtype: object
-    """
+:rtype: object
+"""
 
         if self._input_shape is None or self._input_shape == -1:
             self._input_shape = observation_space.shape
@@ -128,21 +134,64 @@ All agents should inherit from this class
                 highlight=True,
             )
 
+    def __build_intrinsic_module(
+        self,
+        observation_space: ObservationSpace,
+        action_space: ActionSpace,
+        signal_space: SignalSpace,
+        **kwargs,
+    ):
+        """
+
+    @param observation_space:
+    @type observation_space:
+    @param action_space:
+    @type action_space:
+    @param signal_space:
+    @type signal_space:
+    @param kwargs:
+    @type kwargs:
+    """
+        if self._intrinsic_signal_provider_arch is None:
+            self._intrinsic_signal_provider = lambda *a: 0
+        else:
+            self._intrinsic_signal_provider = self._intrinsic_signal_provider_arch(
+                observation_space=observation_space,
+                action_space=action_space,
+                signal_space=signal_space,
+                **kwargs,
+            )
+
     # endregion
 
     # region Public
 
     # @passes_kws_to(__build__)
-    def build(self, observation_space, action_space, signal_space, **kwargs) -> None:
+    def build(
+        self,
+        observation_space: ObservationSpace,
+        action_space: ActionSpace,
+        signal_space: SignalSpace,
+        **kwargs,
+    ) -> None:
         """
 
-    @param observation_space:
-    @param action_space:
-    @param signal_space:
-    @param kwargs:
-    @return:
-    """
+@param observation_space:
+@param action_space:
+@param signal_space:
+@param kwargs:
+@return:
+"""
+        self.observation_space = observation_space
+        self.action_space = action_space
+        self.signal_space = signal_space
         self.__infer_io_shapes(observation_space, action_space, signal_space)
+        self.__build_intrinsic_module(
+            observation_space=observation_space,
+            action_space=action_space,
+            signal_space=signal_space,
+            **kwargs,
+        )
         self.__build__(
             observation_space=observation_space,
             action_space=action_space,
@@ -154,39 +203,39 @@ All agents should inherit from this class
     def input_shape(self) -> [int, ...]:
         """
 
-    @return:
-    """
+@return:
+"""
         return self._input_shape
 
     @input_shape.setter
     def input_shape(self, input_shape: [int, ...]):
         """
 
-    @param input_shape:
-    @return:
-    """
+@param input_shape:
+@return:
+"""
         self._input_shape = input_shape
 
     @property
     def output_shape(self) -> [int, ...]:
         """
 
-    @return:
-    """
+@return:
+"""
         return self._output_shape
 
     @output_shape.setter
     def output_shape(self, output_shape: Tuple[int, ...]):
         """
 
-    @param output_shape:
-    @return:
-    """
+@param output_shape:
+@return:
+"""
         self._output_shape = output_shape
 
     def sample(
         self,
-        state: EnvironmentSnapshot,
+        state: numpy.ndarray,
         *args,
         deterministic: bool = False,
         metric_writer: Writer = MockWriter(),
@@ -194,13 +243,13 @@ All agents should inherit from this class
     ) -> Tuple[Any, ...]:
         """
 
-    @param state:
-    @param args:
-    @param deterministic:
-    @param metric_writer:
-    @param kwargs:
-    @return:
-    """
+@param state:
+@param args:
+@param deterministic:
+@param metric_writer:
+@param kwargs:
+@return:
+"""
         self._sample_i += 1
         self._sample_i_since_last_update += 1
         action = self._sample(
@@ -220,43 +269,57 @@ All agents should inherit from this class
 
     def extract_features(self, snapshot: EnvironmentSnapshot) -> numpy.ndarray:
         """
-    Feature extraction
-    """
+Feature extraction
+"""
 
         return numpy.array(snapshot.observables)
 
     def extract_action(self, sample: Any) -> numpy.ndarray:
         """
 
-    @param sample:
-    @return:
-    """
+@param sample:
+@return:
+"""
         return numpy.array(sample)
 
-    def extract_signal(self, snapshot: EnvironmentSnapshot, **kwargs) -> numpy.ndarray:
+    def extract_signal(self, snapshot: EnvironmentSnapshot) -> numpy.ndarray:
         """
-    Allows for modulation of signal based on for example an Instrinsic Curiosity signal
+Allows for modulation of signal based on for example an Instrinsic Curiosity signal
 
-    @param signal:
-    @param kwargs:
-    @return:
-    """
-        return numpy.array(snapshot.signal)
+  @param snapshot:
+  @type snapshot:
+@param kwargs:
+@return:
+"""
+
+        signal_out = numpy.array(snapshot.signal)
+        signal_out += self._intrinsic_signal_provider(snapshot)
+        return signal_out
 
     def eval(self) -> None:
         """
-    @return:
-    """
+
+        For inference optimisations
+@return:
+"""
+        pass
+
+    def train(self) -> None:
+        """
+        Reverse inference optimisations
+
+  @return:
+  """
         pass
 
     def update(self, *args, metric_writer: Writer = MockWriter(), **kwargs) -> float:
         """
 
-    @param args:
-    @param metric_writer:
-    @param kwargs:
-    @return:
-    """
+@param args:
+@param metric_writer:
+@param kwargs:
+@return:
+"""
         self._update_i += 1
         self._sample_i_since_last_update = 0
         return self._update(*args, metric_writer=metric_writer, **kwargs)
@@ -264,11 +327,11 @@ All agents should inherit from this class
     def remember(self, *, signal: Any, terminated: Any, **kwargs):
         """
 
-    @param terminated:
-    @param signal:
-    @param kwargs:
-    @return:
-    """
+@param terminated:
+@param signal:
+@param kwargs:
+@return:
+"""
 
         if self._signal_clipping.enabled:
             signal = numpy.clip(
@@ -292,47 +355,47 @@ All agents should inherit from this class
     ) -> None:
         """
 
-    @param observation_space:
-    @param action_space:
-    @param signal_space:
-    @param kwargs:
-    @return:
-    """
+@param observation_space:
+@param action_space:
+@param signal_space:
+@param kwargs:
+@return:
+"""
         raise NotImplementedError
 
     @abstractmethod
     def load(self, *, save_directory, **kwargs) -> None:
         """
 
-    @param save_directory:
-    @param kwargs:
-    @return:
-    """
+@param save_directory:
+@param kwargs:
+@return:
+"""
         raise NotImplementedError
 
     @abstractmethod
     def save(self, *, save_directory, **kwargs) -> None:
         """
 
-    @param save_directory:
-    @param kwargs:
-    @return:
-    """
+@param save_directory:
+@param kwargs:
+@return:
+"""
         raise NotImplementedError
 
     @abstractmethod
     def _remember(self, *, signal, terminated, **kwargs) -> None:
         """
 
-    @param kwargs:
-    @return:
-    """
+@param kwargs:
+@return:
+"""
         raise NotImplementedError
 
     @abstractmethod
     def _sample(
         self,
-        state: EnvironmentSnapshot,
+        state: numpy.ndarray,
         *args,
         deterministic: bool = False,
         metric_writer: Writer = MockWriter(),
@@ -340,24 +403,24 @@ All agents should inherit from this class
     ) -> Tuple[Any, ...]:
         """
 
-    @param state:
-    @param args:
-    @param deterministic:
-    @param metric_writer:
-    @param kwargs:
-    @return:
-    """
+@param state:
+@param args:
+@param deterministic:
+@param metric_writer:
+@param kwargs:
+@return:
+"""
         raise NotImplementedError
 
     @abstractmethod
     def _update(self, *args, metric_writer: Writer = MockWriter(), **kwargs) -> Any:
         """
 
-    @param args:
-    @param metric_writer:
-    @param kwargs:
-    @return:
-    """
+@param args:
+@param metric_writer:
+@param kwargs:
+@return:
+"""
         raise NotImplementedError
 
     # endregion

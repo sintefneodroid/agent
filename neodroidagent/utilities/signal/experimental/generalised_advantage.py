@@ -7,6 +7,8 @@ from neodroidagent.utilities.signal.experimental.discounting import valued_disco
 __author__ = "Christian Heider Nielsen"
 __doc__ = ""
 
+__all__ = ["discounted_ge", "discounted_gae"]
+
 
 def discounted_ge(
     signals: numpy.ndarray,

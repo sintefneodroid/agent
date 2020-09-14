@@ -7,6 +7,6 @@ __doc__ = r"""
            """
 
 from .agent import *
+from .random_agent import *
 from .torch_agents import *
 from .numpy_agents import *
-from .random_agent import *

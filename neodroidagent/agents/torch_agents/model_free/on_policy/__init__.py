@@ -6,3 +6,7 @@ __doc__ = r"""
 
            Created on 2/7/20
            """
+
+from .ppo_agent import *
+from .pg_agent import *
+from .ddpg_agent import *

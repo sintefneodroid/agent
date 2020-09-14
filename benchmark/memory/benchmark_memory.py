@@ -13,7 +13,7 @@ def benchmark_transition_buffer_list():
     a = numpy.random.random((999, 999))
     for e in a:
         rb.add_transition_point(e, None, None, None, None)
-    b, *_ = rb.sample_transition_points(999)
+    b, *_ = rb.sample(999)
 
 
 def benchmark_trajectory_list():

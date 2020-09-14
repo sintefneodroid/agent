@@ -3,6 +3,7 @@
 from abc import ABC
 
 __author__ = "Christian Heider Nielsen"
+__all__ = ["RandomProcess"]
 
 
 class RandomProcess(ABC):
