@@ -124,7 +124,7 @@ to make sure agent focuses on the states that he actually can control.
         signal_space: SignalSpace,
         policy_weight: float,
         weight: float,
-        intrinsic_reward_integration: float,
+        intrinsic_signal_factor: float,
         hidden_dim: int = 128,
     ):
         """
@@ -134,7 +134,7 @@ important optimizing policy to optimizing the curiosity module
 :param signal_space: used for scaling the intrinsic reward returned by this module. Can be used to control how
 the fluctuation scale of the intrinsic signal
 :param weight: balances the importance between forward and inverse model
-:param intrinsic_reward_integration: balances the importance between extrinsic and intrinsic signal.
+:param intrinsic_signal_factor: balances the importance between extrinsic and intrinsic signal.
 """
 
         assert (
@@ -148,7 +148,7 @@ the fluctuation scale of the intrinsic signal
         self.policy_weight = policy_weight
         self.reward_scale = signal_space.span
         self.weight = weight
-        self.intrinsic_signal_integration = intrinsic_reward_integration
+        self.intrinsic_signal_factor = intrinsic_signal_factor
 
         self.encoder = nn.Sequential(
             nn.Linear(observation_space.shape[0], hidden_dim),
@@ -233,8 +233,8 @@ the fluctuation scale of the intrinsic signal
             writer.scalar("icm/signal", intrinsic_signal.mean().item())
 
         return (
-            1.0 - self.intrinsic_signal_integration
-        ) * signals + self.intrinsic_signal_integration * intrinsic_signal
+            1.0 - self.intrinsic_signal_factor
+        ) * signals + self.intrinsic_signal_factor * intrinsic_signal
 
     def loss(
         self,
