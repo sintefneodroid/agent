@@ -1,5 +1,4 @@
 devpack
-gym
 Neodroid
 trolls
 numpy
@@ -18,3 +17,5 @@ pip
 scipy
 numba
 tensorboard
+#pybullet
+#gym

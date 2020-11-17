@@ -95,3 +95,6 @@ def gray_downscale(state, configuration):
     downsized_img = transform.resize(gray_img, (84, 84), mode="constant")
     state = torch.from_numpy(downsized_img).type(StateTensorType)  # 2D image tensor
     return torch.stack([state], 0).unsqueeze(0)
+
+if __name__ == '__main__':
+    gray_downscale()
