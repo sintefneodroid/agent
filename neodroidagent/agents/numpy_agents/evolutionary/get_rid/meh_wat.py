@@ -33,64 +33,64 @@ class TrajectoryBatch(
     # pylint: disable=missing-return-doc, missing-return-type-doc, missing-param-doc, missing-type-doc  # noqa: E501
     r"""A tuple representing a batch of whole trajectories.
 
-  Data type for on-policy algorithms.
+    Data type for on-policy algorithms.
 
-  A :class:`TrajectoryBatch` represents a batch of whole trajectories
-  produced when one or more agents interacts with one or more environments.
+    A :class:`TrajectoryBatch` represents a batch of whole trajectories
+    produced when one or more agents interacts with one or more environments.
 
-  +-----------------------+-------------------------------------------------+
-  | Symbol                | Description                                     |
-  +=======================+=================================================+
-  | :math:`N`             | Trajectory index dimension                      |
-  +-----------------------+-------------------------------------------------+
-  | :math:`[T]`           | Variable-length time dimension of each          |
-  |                       | trajectory                                      |
-  +-----------------------+-------------------------------------------------+
-  | :math:`S^*`           | Single-step shape of a time-series tensor       |
-  +-----------------------+-------------------------------------------------+
-  | :math:`N \bullet [T]` | A dimension computed by flattening a            |
-  |                       | variable-length time dimension :math:`[T]` into |
-  |                       | a single batch dimension with length            |
-  |                       | :math:`sum_{i \in N} [T]_i`                     |
-  +-----------------------+-------------------------------------------------+
+    +-----------------------+-------------------------------------------------+
+    | Symbol                | Description                                     |
+    +=======================+=================================================+
+    | :math:`N`             | Trajectory index dimension                      |
+    +-----------------------+-------------------------------------------------+
+    | :math:`[T]`           | Variable-length time dimension of each          |
+    |                       | trajectory                                      |
+    +-----------------------+-------------------------------------------------+
+    | :math:`S^*`           | Single-step shape of a time-series tensor       |
+    +-----------------------+-------------------------------------------------+
+    | :math:`N \bullet [T]` | A dimension computed by flattening a            |
+    |                       | variable-length time dimension :math:`[T]` into |
+    |                       | a single batch dimension with length            |
+    |                       | :math:`sum_{i \in N} [T]_i`                     |
+    +-----------------------+-------------------------------------------------+
 
-  Attributes:
-      env_spec (garage.envs.EnvSpec): Specification for the environment from
-          which this data was sampled.
-      observations (numpy.ndarray): A numpy array of shape
-          :math:`(N \bullet [T], O^*)` containing the (possibly
-          multi-dimensional) observations for all time steps in this batch.
-          These must conform to :obj:`env_spec.observation_space`.
-      last_observations (numpy.ndarray): A numpy array of shape
-          :math:`(N, O^*)` containing the last observation of each
-          trajectory.  This is necessary since there are one more
-          observations than actions every trajectory.
-      actions (numpy.ndarray): A  numpy array of shape
-          :math:`(N \bullet [T], A^*)` containing the (possibly
-          multi-dimensional) actions for all time steps in this batch. These
-          must conform to :obj:`env_spec.action_space`.
-      rewards (numpy.ndarray): A numpy array of shape
-          :math:`(N \bullet [T])` containing the rewards for all time steps
-          in this batch.
-      terminals (numpy.ndarray): A boolean numpy array of shape
-          :math:`(N \bullet [T])` containing the termination signals for all
-          time steps in this batch.
-      env_infos (dict): A dict of numpy arrays arbitrary environment state
-          information. Each value of this dict should be a numpy array of
-          shape :math:`(N \bullet [T])` or :math:`(N \bullet [T], S^*)`.
-      agent_infos (numpy.ndarray): A dict of numpy arrays arbitrary agent
-          state information. Each value of this dict should be a numpy array
-          of shape :math:`(N \bullet [T])` or :math:`(N \bullet [T], S^*)`.
-          For example, this may contain the hidden states from an RNN policy.
-      lengths (numpy.ndarray): An integer numpy array of shape :math:`(N,)`
-          containing the length of each trajectory in this batch. This may be
-          used to reconstruct the individual trajectories.
+    Attributes:
+        env_spec (garage.envs.EnvSpec): Specification for the environment from
+            which this data was sampled.
+        observations (numpy.ndarray): A numpy array of shape
+            :math:`(N \bullet [T], O^*)` containing the (possibly
+            multi-dimensional) observations for all time steps in this batch.
+            These must conform to :obj:`env_spec.observation_space`.
+        last_observations (numpy.ndarray): A numpy array of shape
+            :math:`(N, O^*)` containing the last observation of each
+            trajectory.  This is necessary since there are one more
+            observations than actions every trajectory.
+        actions (numpy.ndarray): A  numpy array of shape
+            :math:`(N \bullet [T], A^*)` containing the (possibly
+            multi-dimensional) actions for all time steps in this batch. These
+            must conform to :obj:`env_spec.action_space`.
+        rewards (numpy.ndarray): A numpy array of shape
+            :math:`(N \bullet [T])` containing the rewards for all time steps
+            in this batch.
+        terminals (numpy.ndarray): A boolean numpy array of shape
+            :math:`(N \bullet [T])` containing the termination signals for all
+            time steps in this batch.
+        env_infos (dict): A dict of numpy arrays arbitrary environment state
+            information. Each value of this dict should be a numpy array of
+            shape :math:`(N \bullet [T])` or :math:`(N \bullet [T], S^*)`.
+        agent_infos (numpy.ndarray): A dict of numpy arrays arbitrary agent
+            state information. Each value of this dict should be a numpy array
+            of shape :math:`(N \bullet [T])` or :math:`(N \bullet [T], S^*)`.
+            For example, this may contain the hidden states from an RNN policy.
+        lengths (numpy.ndarray): An integer numpy array of shape :math:`(N,)`
+            containing the length of each trajectory in this batch. This may be
+            used to reconstruct the individual trajectories.
 
-  Raises:
-      ValueError: If any of the above attributes do not conform to their
-          prescribed types and shapes.
+    Raises:
+        ValueError: If any of the above attributes do not conform to their
+            prescribed types and shapes.
 
-  """
+    """
     __slots__ = ()
 
     def __new__(
@@ -291,13 +291,13 @@ class TrajectoryBatch(
     def concatenate(cls, *batches):
         """Create a TrajectoryBatch by concatenating TrajectoryBatches.
 
-    Args:
-        batches (list[TrajectoryBatch]): Batches to concatenate.
+        Args:
+            batches (list[TrajectoryBatch]): Batches to concatenate.
 
-    Returns:
-        TrajectoryBatch: The concatenation of the batches.
+        Returns:
+            TrajectoryBatch: The concatenation of the batches.
 
-    """
+        """
         if __debug__:
             for b in batches:
                 assert set(b.env_infos.keys()) == set(batches[0].env_infos.keys())
@@ -325,13 +325,13 @@ class TrajectoryBatch(
     def split(self):
         """Split a TrajectoryBatch into a list of TrajectoryBatches.
 
-    The opposite of concatenate.
+        The opposite of concatenate.
 
-    Returns:
-        list[TrajectoryBatch]: A list of TrajectoryBatches, with one
-            trajectory per batch.
+        Returns:
+            list[TrajectoryBatch]: A list of TrajectoryBatches, with one
+                trajectory per batch.
 
-    """
+        """
         trajectories = []
         start = 0
         for i, length in enumerate(self.lengths):
@@ -356,28 +356,28 @@ class TrajectoryBatch(
     def to_trajectory_list(self):
         """Convert the batch into a list of dictionaries.
 
-    Returns:
-        list[dict[str, np.ndarray or dict[str, np.ndarray]]]: Keys:
-            * observations (np.ndarray): Non-flattened array of
-                observations. Has shape (T, S^*) (the unflattened state
-                space of the current environment).  observations[i] was
-                used by the agent to choose actions[i].
-            * next_observations (np.ndarray): Non-flattened array of
-                observations. Has shape (T, S^*). next_observations[i] was
-                observed by the agent after taking actions[i].
-            * actions (np.ndarray): Non-flattened array of actions. Should
-                have shape (T, S^*) (the unflattened action space of the
-                current environment).
-            * rewards (np.ndarray): Array of rewards of shape (T,) (1D
-                array of length timesteps).
-            * dones (np.ndarray): Array of dones of shape (T,) (1D array
-                of length timesteps).
-            * agent_infos (dict[str, np.ndarray]): Dictionary of stacked,
-                non-flattened `agent_info` arrays.
-            * env_infos (dict[str, np.ndarray]): Dictionary of stacked,
-                non-flattened `env_info` arrays.
+        Returns:
+            list[dict[str, np.ndarray or dict[str, np.ndarray]]]: Keys:
+                * observations (np.ndarray): Non-flattened array of
+                    observations. Has shape (T, S^*) (the unflattened state
+                    space of the current environment).  observations[i] was
+                    used by the agent to choose actions[i].
+                * next_observations (np.ndarray): Non-flattened array of
+                    observations. Has shape (T, S^*). next_observations[i] was
+                    observed by the agent after taking actions[i].
+                * actions (np.ndarray): Non-flattened array of actions. Should
+                    have shape (T, S^*) (the unflattened action space of the
+                    current environment).
+                * rewards (np.ndarray): Array of rewards of shape (T,) (1D
+                    array of length timesteps).
+                * dones (np.ndarray): Array of dones of shape (T,) (1D array
+                    of length timesteps).
+                * agent_infos (dict[str, np.ndarray]): Dictionary of stacked,
+                    non-flattened `agent_info` arrays.
+                * env_infos (dict[str, np.ndarray]): Dictionary of stacked,
+                    non-flattened `env_info` arrays.
 
-    """
+        """
         start = 0
         trajectories = []
         for i, length in enumerate(self.lengths):
@@ -409,36 +409,36 @@ class TrajectoryBatch(
     def from_trajectory_list(cls, env_spec, paths):
         """Create a TrajectoryBatch from a list of trajectories.
 
-    Args:
-        env_spec (garage.envs.EnvSpec): Specification for the environment
-            from which this data was sampled.
-        paths (list[dict[str, np.ndarray or dict[str, np.ndarray]]]): Keys:
-            * observations (np.ndarray): Non-flattened array of
-                observations. Typically has shape (T, S^*) (the unflattened
-                state space of the current environment). observations[i]
-                was used by the agent to choose actions[i]. observations
-                may instead have shape (T + 1, S^*).
-            * next_observations (np.ndarray): Non-flattened array of
-                observations. Has shape (T, S^*). next_observations[i] was
-                observed by the agent after taking actions[i]. Optional.
-                Note that to ensure all information from the environment
-                was preserved, observations[i] should have shape (T + 1,
-                S^*), or this key should be set. However, this method is
-                lenient and will "duplicate" the last observation if the
-                original last observation has been lost.
-            * actions (np.ndarray): Non-flattened array of actions. Should
-                have shape (T, S^*) (the unflattened action space of the
-                current environment).
-            * rewards (np.ndarray): Array of rewards of shape (T,) (1D
-                array of length timesteps).
-            * dones (np.ndarray): Array of rewards of shape (T,) (1D array
-                of length timesteps).
-            * agent_infos (dict[str, np.ndarray]): Dictionary of stacked,
-                non-flattened `agent_info` arrays.
-            * env_infos (dict[str, np.ndarray]): Dictionary of stacked,
-                non-flattened `env_info` arrays.
+        Args:
+            env_spec (garage.envs.EnvSpec): Specification for the environment
+                from which this data was sampled.
+            paths (list[dict[str, np.ndarray or dict[str, np.ndarray]]]): Keys:
+                * observations (np.ndarray): Non-flattened array of
+                    observations. Typically has shape (T, S^*) (the unflattened
+                    state space of the current environment). observations[i]
+                    was used by the agent to choose actions[i]. observations
+                    may instead have shape (T + 1, S^*).
+                * next_observations (np.ndarray): Non-flattened array of
+                    observations. Has shape (T, S^*). next_observations[i] was
+                    observed by the agent after taking actions[i]. Optional.
+                    Note that to ensure all information from the environment
+                    was preserved, observations[i] should have shape (T + 1,
+                    S^*), or this key should be set. However, this method is
+                    lenient and will "duplicate" the last observation if the
+                    original last observation has been lost.
+                * actions (np.ndarray): Non-flattened array of actions. Should
+                    have shape (T, S^*) (the unflattened action space of the
+                    current environment).
+                * rewards (np.ndarray): Array of rewards of shape (T,) (1D
+                    array of length timesteps).
+                * dones (np.ndarray): Array of rewards of shape (T,) (1D array
+                    of length timesteps).
+                * agent_infos (dict[str, np.ndarray]): Dictionary of stacked,
+                    non-flattened `agent_info` arrays.
+                * env_infos (dict[str, np.ndarray]): Dictionary of stacked,
+                    non-flattened `env_info` arrays.
 
-    """
+        """
         lengths = np.asarray([len(p["rewards"]) for p in paths])
         if all(
             len(path["observations"]) == length + 1
@@ -473,28 +473,28 @@ class TrajectoryBatch(
     def traj_list_to_tensors(paths, max_path_length, baseline_predictions, discount):
         """Return processed sample data based on the collected paths.
 
-    Args:
-        paths (list[dict]): A list of collected paths.
-        max_path_length (int): Maximum length of a single rollout.
-        baseline_predictions(numpy.ndarray): : Predicted value of GAE
-            (Generalized Advantage Estimation) Baseline.
-        discount (float): Environment reward discount.
+        Args:
+            paths (list[dict]): A list of collected paths.
+            max_path_length (int): Maximum length of a single rollout.
+            baseline_predictions(numpy.ndarray): : Predicted value of GAE
+                (Generalized Advantage Estimation) Baseline.
+            discount (float): Environment reward discount.
 
-    Returns:
-        dict: Processed sample data, with key
-            * observations (numpy.ndarray): Padded array of the observations of
-                the environment
-            * actions (numpy.ndarray): Padded array of the actions fed to the
-                the environment
-            * rewards (numpy.ndarray): Padded array of the acquired rewards
-            * agent_infos (dict): a dictionary of {stacked tensors or
-                dictionary of stacked tensors}
-            * env_infos (dict): a dictionary of {stacked tensors or
-                dictionary of stacked tensors}
-            * rewards (numpy.ndarray): Padded array of the validity information
+        Returns:
+            dict: Processed sample data, with key
+                * observations (numpy.ndarray): Padded array of the observations of
+                    the environment
+                * actions (numpy.ndarray): Padded array of the actions fed to the
+                    the environment
+                * rewards (numpy.ndarray): Padded array of the acquired rewards
+                * agent_infos (dict): a dictionary of {stacked tensors or
+                    dictionary of stacked tensors}
+                * env_infos (dict): a dictionary of {stacked tensors or
+                    dictionary of stacked tensors}
+                * rewards (numpy.ndarray): Padded array of the validity information
 
 
-    """
+        """
         baselines = []
         returns = []
 
@@ -544,13 +544,13 @@ class TrajectoryBatch(
 def log_performance(itr, batch, discount, prefix="Evaluation"):
     """Evaluate the performance of an algorithm on a batch of trajectories.
 
-  Args:
-      itr (int): Iteration number.
-      batch (TrajectoryBatch): The trajectories to evaluate with.
-      discount (float): Discount value, from algorithm's property.
-      prefix (str): Prefix to add to all logged keys.
+    Args:
+        itr (int): Iteration number.
+        batch (TrajectoryBatch): The trajectories to evaluate with.
+        discount (float): Discount value, from algorithm's property.
+        prefix (str): Prefix to add to all logged keys.
 
-  Returns:
-      numpy.ndarray: Undiscounted returns.
+    Returns:
+        numpy.ndarray: Undiscounted returns.
 
-  """
+    """

@@ -11,9 +11,9 @@ Author: Christian Heider Nielsen
 """
 
 CONFIG_NAME = __name__
-import pathlib
+from pathlib import Path
 
-CONFIG_FILE_PATH = pathlib.Path(__file__)
+CONFIG_FILE_PATH = Path(__file__)
 
 # Exploration
 EXPLORATION_EPSILON_START = 1.0

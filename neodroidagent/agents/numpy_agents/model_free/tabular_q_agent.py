@@ -13,8 +13,8 @@ from neodroidagent.agents.numpy_agents.numpy_agent import NumpyAgent
 
 class TabularQAgent(NumpyAgent):
     """
-  Agent implementing tabular Q-learning.
-  """
+    Agent implementing tabular Q-learning.
+    """
 
     # region Private
 
@@ -222,9 +222,7 @@ class TabularQAgent(NumpyAgent):
 
 # region Test
 def tabular_test():
-    """
-
-    """
+    """"""
     env = NeodroidGymEnvironment(environment_name="mab")
     agent = TabularQAgent(
         observation_space=env.observation_space,
@@ -238,9 +236,7 @@ def tabular_test():
 if __name__ == "__main__":
 
     def taxi():
-        """
-
-        """
+        """"""
         import gym
         import numpy
         import random
@@ -249,9 +245,7 @@ if __name__ == "__main__":
         q_table = numpy.zeros([env.space.n, env.action_space.n])
 
         def training():
-            """
-
-            """
+            """"""
             # Hyparameters
             discount = 0.9  # Discount
             lr = 0.1  # learning rate
@@ -301,9 +295,7 @@ if __name__ == "__main__":
         training()
 
     def main():
-        """
-
-        """
+        """"""
         # env = PuddleWorld(
         #   world_file_path='/home/heider/Neodroid/agent/draugr_utilities/exclude/saved_maps/PuddleWorldA.dat')
         env = gym.make("FrozenLake-v0")

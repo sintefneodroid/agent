@@ -14,42 +14,40 @@ __all__ = ["Memory"]
 
 
 class Memory:
-    r"""
-
-  """
+    r""""""
 
     @abstractmethod
     def _sample(self, num: int = None) -> Iterable:
         r"""
 
-    @param num:
-    @return:
-    """
+        @param num:
+        @return:
+        """
         raise NotImplementedError
 
     @abstractmethod
     def _add(self, value: Any) -> None:
         r"""
 
-    @param num:
-    @return:
-    """
+        @param num:
+        @return:
+        """
         raise NotImplementedError
 
     def sample(self, num: int = None) -> Iterable:
         r"""
 
-    @param num:
-    @return:
-    """
+        @param num:
+        @return:
+        """
         return self._sample(num)
 
     def add(self, value: Any) -> None:
         r"""
 
-    @param value:
-    @return:
-    """
+        @param value:
+        @return:
+        """
         return self._add(value)
 
     @abstractmethod

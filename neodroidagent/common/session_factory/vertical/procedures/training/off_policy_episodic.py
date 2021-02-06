@@ -20,7 +20,7 @@ from neodroidagent.common.memory.transitions import Transition, TransitionPoint
 from neodroidagent.common.session_factory.vertical.procedures.procedure_specification import (
     Procedure,
 )
-from warg import drop_unused_kws, passes_kws_to,is_positive_and_mod_zero
+from warg import drop_unused_kws, passes_kws_to, is_positive_and_mod_zero
 
 __author__ = "Christian Heider Nielsen"
 __all__ = ["rollout_off_policy", "OffPolicyEpisodic"]
@@ -53,7 +53,11 @@ def rollout_off_policy(
         episode_buffer = []
 
     for step_i in tqdm(
-        count(), desc="Step #", leave=False, disable=not render_environment, postfix=f"Agent update #{agent.update_i}"
+        count(),
+        desc="Step #",
+        leave=False,
+        disable=not render_environment,
+        postfix=f"Agent update #{agent.update_i}",
     ):
         sample = agent.sample(
             state, deterministic=disallow_random_sample, metric_writer=metric_writer
@@ -131,18 +135,17 @@ class OffPolicyEpisodic(Procedure):
         **kwargs,
     ):
         """
-:param log_directory:
-:param disable_stdout: Whether to disable stdout statements or not
-:type disable_stdout: bool
-:param iterations: How many iterations to train for
-:type iterations: int
-:param render_frequency: How often to render environment
-:type render_frequency: int
-:param stat_frequency: How often to write statistics
-:type stat_frequency: int
-:return: A training resume containing the trained agents models and some statistics
-:rtype: TR
-"""
+        :param log_directory:
+        :param disable_stdout: Whether to disable stdout statements or not
+        :type disable_stdout: bool
+        :param iterations: How many iterations to train for
+        :type iterations: int
+        :param render_frequency: How often to render environment
+        :type render_frequency: int
+        :param stat_frequency: How often to write statistics
+        :type stat_frequency: int
+        :return: A training resume containing the trained agents models and some statistics
+        :rtype: TR"""
 
         E = range(1, iterations)
         E = tqdm(E, desc="Rollout #", leave=False)

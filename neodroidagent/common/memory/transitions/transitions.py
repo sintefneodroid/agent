@@ -23,8 +23,7 @@ __all__ = [
 @dataclass
 class Transition(IterDictValuesMixin, OrdinalIndexingDictMixin):
     """
-__slots__=['state','action','successor_state']
-"""
+    __slots__=['state','action','successor_state']"""
 
     __slots__ = ["state", "action", "successor_state"]
     state: Any
@@ -35,23 +34,20 @@ __slots__=['state','action','successor_state']
     def get_fields() -> Sequence:
         """
 
-@return:
-"""
+        @return:"""
         return Transition.__slots__
 
     def __len__(self):
         """
 
-@return:
-"""
+        @return:"""
         return len(self.state)
 
 
 @dataclass
 class TransitionPoint(Transition):
     """
-__slots__=['state','action','successor_state','signal,'terminal']
-"""
+    __slots__=['state','action','successor_state','signal,'terminal']"""
 
     __slots__ = Transition.__slots__ + ["signal", "terminal"]
     state: Any
@@ -63,8 +59,7 @@ __slots__=['state','action','successor_state','signal,'terminal']
     def __post_init__(self):
         """
 
-@return:
-"""
+        @return:"""
         if self.terminal:
             self.successor_state = None
 
@@ -72,32 +67,28 @@ __slots__=['state','action','successor_state','signal,'terminal']
     def get_fields() -> Sequence:
         """
 
-@return:
-"""
+        @return:"""
         return TransitionPoint.__slots__
 
     @property
     def non_terminal(self):
         """
 
-@return:
-"""
+        @return:"""
         return non_terminal_mask(self.terminal)
 
     @property
     def non_terminal_numerical(self):
         """
 
-@return:
-"""
+        @return:"""
         return non_terminal_numerical_mask(self.terminal)
 
 
 @dataclass
 class ValuedTransitionPoint(TransitionPoint):
     """
-__slots__=['state','action','successor_state','signal','terminal',"distribution","value_estimate"]
-"""
+    __slots__=['state','action','successor_state','signal','terminal',"distribution","value_estimate"]"""
 
     __slots__ = TransitionPoint.__slots__ + ["distribution", "value_estimate"]
     state: Any
@@ -112,23 +103,21 @@ __slots__=['state','action','successor_state','signal','terminal',"distribution"
     def get_fields() -> Sequence:
         """
 
-@return:
-"""
+        @return:"""
         return ValuedTransitionPoint.__slots__
 
 
 @dataclass
 class AdvantageTransitionPoint(Transition):
     """
-__slots__=['state'
-,'action',
-'successor_state',
-'terminal',
-'action_log_prob',
-"discounted_return",
-  'advantage'
-]
-"""
+    __slots__=['state'
+    ,'action',
+    'successor_state',
+    'terminal',
+    'action_log_prob',
+    "discounted_return",
+      'advantage'
+    ]"""
 
     __slots__ = Transition.__slots__ + [
         "terminal",
@@ -148,8 +137,7 @@ __slots__=['state'
     def get_fields() -> Sequence:
         """
 
-@return:
-"""
+        @return:"""
         return AdvantageTransitionPoint.__slots__
 
 

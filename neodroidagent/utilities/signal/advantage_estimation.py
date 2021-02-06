@@ -25,25 +25,24 @@ def torch_advantage_estimate(
     divide_by_zero_safety: float = 1e-10,
 ):
     """
-Computes advantages and discounted returns.
-If the advantage is positive for an action, then it yielded a more positive signal than expected. And thus
-expectations can be adjust to make actions more likely.
+    Computes advantages and discounted returns.
+    If the advantage is positive for an action, then it yielded a more positive signal than expected. And thus
+    expectations can be adjust to make actions more likely.
 
-:param discount_factor:
-:type discount_factor:
-:param tau:
-:type tau:
-:return:
-:rtype:
-@param device:
-@param tau:
-@param discount_factor:
-@param value_estimate:
-@param non_terminal:
-@param signal:
-@param divide_by_zero_safety:
-@param normalise:
-"""
+    :param discount_factor:
+    :type discount_factor:
+    :param tau:
+    :type tau:
+    :return:
+    :rtype:
+    @param device:
+    @param tau:
+    @param discount_factor:
+    @param value_estimate:
+    @param non_terminal:
+    @param signal:
+    @param divide_by_zero_safety:
+    @param normalise:"""
     horizon_length, num_workers, *_ = signal.size()
 
     advantages_out = torch.zeros_like(signal, device=device)
@@ -79,17 +78,16 @@ def torch_compute_gae(
 ) -> torch.tensor:
     """
 
-Computes discounted return and advantage
+    Computes discounted return and advantage
 
-@param signal:
-@param non_terminal:
-@param values:
-@param discount_factor:
-@param gae_lambda:
-@param device:
-@param normalise:
-@return:
-"""
+    @param signal:
+    @param non_terminal:
+    @param values:
+    @param discount_factor:
+    @param gae_lambda:
+    @param device:
+    @param normalise:
+    @return:"""
     len_signal = len(signal)
     assert len_signal == len(non_terminal) == len(values) - 1, (
         f"{signal.shape}, {non_terminal.shape}, " f"{values.shape}"

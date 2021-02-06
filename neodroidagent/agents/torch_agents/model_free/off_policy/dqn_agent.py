@@ -27,7 +27,7 @@ from neodroidagent.utilities import (
     ExplorationSpecification,
     update_target,
 )
-from warg import GDKC, drop_unused_kws, super_init_pass_on_kws,is_zero_or_mod_zero
+from warg import GDKC, drop_unused_kws, super_init_pass_on_kws, is_zero_or_mod_zero
 
 __author__ = "Christian Heider Nielsen"
 __doc__ = r"""
@@ -38,10 +38,9 @@ __all__ = ["DeepQNetworkAgent"]
 @super_init_pass_on_kws(super_base=TorchAgent)
 class DeepQNetworkAgent(TorchAgent):
     """
-Deep Q Network Agent
+    Deep Q Network Agent
 
-https://www.cs.toronto.edu/~vmnih/docs/dqn.pdf
-"""
+    https://www.cs.toronto.edu/~vmnih/docs/dqn.pdf"""
 
     def __init__(
         self,
@@ -64,22 +63,21 @@ https://www.cs.toronto.edu/~vmnih/docs/dqn.pdf
         **kwargs,
     ):
         """
-@param value_arch_spec:
-@param exploration_spec:
-@param memory_buffer:
-@param batch_size:
-@param discount_factor:
-@param double_dqn: https://arxiv.org/abs/1509.06461
-@param use_per:  https://arxiv.org/abs/1511.05952
-@param loss_function:  default is huber loss
-@param optimiser_spec:
-@param scheduler_spec:
-@param sync_target_model_frequency:
-@param initial_observation_period:
-@param learning_frequency:
-@param copy_percentage:
-@param kwargs:
-"""
+        @param value_arch_spec:
+        @param exploration_spec:
+        @param memory_buffer:
+        @param batch_size:
+        @param discount_factor:
+        @param double_dqn: https://arxiv.org/abs/1509.06461
+        @param use_per:  https://arxiv.org/abs/1511.05952
+        @param loss_function:  default is huber loss
+        @param optimiser_spec:
+        @param scheduler_spec:
+        @param sync_target_model_frequency:
+        @param initial_observation_period:
+        @param learning_frequency:
+        @param copy_percentage:
+        @param kwargs:"""
         super().__init__(**kwargs)
 
         self._exploration_spec = exploration_spec
@@ -127,13 +125,12 @@ https://www.cs.toronto.edu/~vmnih/docs/dqn.pdf
     ):
         """
 
-@param observation_space:
-@param action_space:
-@param signal_space:
-@param writer:
-@param print_model_repr:
-@return:
-"""
+        @param observation_space:
+        @param action_space:
+        @param signal_space:
+        @param writer:
+        @param print_model_repr:
+        @return:"""
 
         if action_space.is_continuous:
             raise ActionSpaceNotSupported
@@ -156,8 +153,7 @@ https://www.cs.toronto.edu/~vmnih/docs/dqn.pdf
     def models(self) -> Dict[str, Architecture]:
         """
 
-@return:
-"""
+        @return:"""
         return {"value_model": self.value_model}
 
     @property
@@ -166,9 +162,8 @@ https://www.cs.toronto.edu/~vmnih/docs/dqn.pdf
 
     def _exploration_sample(self, steps_taken, metric_writer=None):
         """
-:param steps_taken:
-:return:
-"""
+        :param steps_taken:
+        :return:"""
 
         if steps_taken == 0:
             return True
@@ -195,11 +190,10 @@ https://www.cs.toronto.edu/~vmnih/docs/dqn.pdf
     ) -> numpy.ndarray:
         """
 
-@param state:
-@param deterministic:
-@param metric_writer:
-@return:
-"""
+        @param state:
+        @param deterministic:
+        @param metric_writer:
+        @return:"""
         if not deterministic and self._exploration_sample(
             self._sample_i, metric_writer
         ):
@@ -214,13 +208,12 @@ https://www.cs.toronto.edu/~vmnih/docs/dqn.pdf
     def _remember(self, *, signal, terminated, transition):
         """
 
-@param state:
-@param action:
-@param signal:
-@param next_state:
-@param terminated:
-@return:
-"""
+        @param state:
+        @param action:
+        @param signal:
+        @param next_state:
+        @param terminated:
+        @return:"""
         if transition:
             a = [TransitionPoint(*s) for s in zip(*transition, signal, terminated)]
             if self._use_per:
@@ -232,15 +225,14 @@ https://www.cs.toronto.edu/~vmnih/docs/dqn.pdf
                 for a_ in a:
                     self._memory_buffer.add_transition_point(a_)
         else:
-            raise ValueError('Missing transition')
+            raise ValueError("Missing transition")
 
     @drop_unused_kws
     def _sample_model(self, state: Any) -> numpy.ndarray:
         """
 
-@param state:
-@return:
-"""
+        @param state:
+        @return:"""
         with torch.no_grad():
             max_q_action = self.value_model(
                 to_tensor(state, device=self._device, dtype=self._state_type)
@@ -250,9 +242,8 @@ https://www.cs.toronto.edu/~vmnih/docs/dqn.pdf
     def _max_q_successor(self, successor_state: torch.Tensor) -> torch.tensor:
         """
 
-@param successor_state:
-@return:
-"""
+        @param successor_state:
+        @return:"""
         with torch.no_grad():
             Q_successors = self.value_model(successor_state).detach()
 
@@ -298,9 +289,8 @@ https://www.cs.toronto.edu/~vmnih/docs/dqn.pdf
     def _update(self, *, metric_writer: Writer = MockWriter()) -> None:
         """
 
-@param metric_writer:
-@return:
-"""
+        @param metric_writer:
+        @return:"""
 
         loss_ = math.inf
 

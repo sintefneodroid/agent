@@ -25,9 +25,7 @@ class States(Enum):
 
 
 def snake_space_filling_generator():
-    """
-
-    """
+    """"""
     x = 0
     y = 0
     state = States.expand_x

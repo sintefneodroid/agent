@@ -30,13 +30,12 @@ class ParallelSession(SingleAgentEnvironmentSession):
     ):
         """
 
-@param procedure:
-@param environment_name:
-@param num_envs:
-@param auto_reset_on_terminal_state:
-@param environment:
-@param kwargs:
-"""
+        @param procedure:
+        @param environment_name:
+        @param num_envs:
+        @param auto_reset_on_terminal_state:
+        @param environment:
+        @param kwargs:"""
         assert num_envs > 0
         if isinstance(environment, str) and environment == "gym":
             assert environment_name != ""

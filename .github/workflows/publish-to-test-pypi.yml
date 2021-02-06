@@ -31,13 +31,17 @@ jobs:
               --out-dir dist/
               .
       - name: Publish distribution 📦 to Test PyPI
-        if: endsWith(github.ref, 'master')
+        env:
+          test_pypi_password: ${{ secrets.test_pypi_password }}
+        if: env.test_pypi_password != null && endsWith(github.ref, 'master')
         uses: pypa/gh-action-pypi-publish@master
         with:
-          password: ${{ secrets.test_pypi_password }}
+          password: env.test_pypi_password
           repository_url: https://test.pypi.org/legacy/
       - name: Publish distribution 📦 to PyPI
-        if: startsWith(github.ref, 'refs/tags')
+        env:
+          pypi_password: ${{ secrets.pypi_password }}
+        if: env.pypi_password != null && startsWith(github.ref, 'refs/tags')
         uses: pypa/gh-action-pypi-publish@master
         with:
           password: ${{ secrets.pypi_password }}

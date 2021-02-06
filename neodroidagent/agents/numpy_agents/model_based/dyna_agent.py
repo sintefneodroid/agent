@@ -8,9 +8,7 @@ from neodroidagent.utilities.misc import tile_state_space, EnvModel
 
 
 class DynaAgent(NumpyAgent):
-    """
-
-    """
+    """"""
 
     def __init__(
         self,
@@ -21,58 +19,59 @@ class DynaAgent(NumpyAgent):
         obs_max=None,
         obs_min=None,
         q_plus=False,
-        grid_dims: Iterable = [8, 8],
+        grid_dims=None,
         explore_weight: float = 0.05,
         temporal_discount: float = 0.9,
         n_simulated_actions: int = 50,
     ):
         """
-A Dyna-`Q` / Dyna-`Q+` agent with full TD(0) `Q`-learning updates via
-prioritized-sweeping.
+        A Dyna-`Q` / Dyna-`Q+` agent with full TD(0) `Q`-learning updates via
+        prioritized-sweeping.
 
-Parameters
-----------
-env : :class:`gym.wrappers` or :class:`gym.envs` instance
-The environment to run the agent on
-lr : float
-Learning rate for the `Q` function updates. Default is 0.05.
-epsilon : float between [0, 1]
-The epsilon value in the epsilon-soft policy. Larger values
-encourage greater exploration during training. Default is 0.1.
-n_tilings : int
-The number of overlapping tilings to use if the env observation
-space is continuous. Unused if observation space is discrete.
-Default is 8.
-obs_max : float or :py:class:`ndarray <numpy.ndarray>` or None
-The value to treat as the max value of the observation space when
-calculating the grid widths if the observation space is continuous.
-If None, use :meth:`env.observation_space.high`. Unused if observation
-space is discrete. Default is None.
-obs_min : float or :py:class:`ndarray <numpy.ndarray>` or None
-The value to treat as the min value of the observation space when
-calculating grid widths if the observation space is continuous. If
-None, use :meth:`env.observation_space.low`. Unused if observation
-space is discrete. Default is None.
-grid_dims : list
-The number of rows and columns in each tiling grid if the env
-observation space is continuous. Unused if observation space is
-discrete. Default is `[8, 8]`.
-q_plus : bool
-Whether to add incentives for visiting states that the agent hasn't
-encountered recently. Default is False.
-explore_weight : float
-Amount to incentivize exploring states that the agent hasn't
-recently visited. Only used if `q_plus` is True. Default is 0.05.
-temporal_discount : float between [0, 1]
-The discount factor used for downweighting future rewards. Smaller
-values result in greater discounting of future rewards. Default is
-0.9.
-n_simulated_actions : int
-THe number of simulated actions to perform for each "real" action.
-Default is 50.
-"""
+        Parameters
+        ----------
+        env : :class:`gym.wrappers` or :class:`gym.envs` instance
+        The environment to run the agent on
+        lr : float
+        Learning rate for the `Q` function updates. Default is 0.05.
+        epsilon : float between [0, 1]
+        The epsilon value in the epsilon-soft policy. Larger values
+        encourage greater exploration during training. Default is 0.1.
+        n_tilings : int
+        The number of overlapping tilings to use if the env observation
+        space is continuous. Unused if observation space is discrete.
+        Default is 8.
+        obs_max : float or :py:class:`ndarray <numpy.ndarray>` or None
+        The value to treat as the max value of the observation space when
+        calculating the grid widths if the observation space is continuous.
+        If None, use :meth:`env.observation_space.high`. Unused if observation
+        space is discrete. Default is None.
+        obs_min : float or :py:class:`ndarray <numpy.ndarray>` or None
+        The value to treat as the min value of the observation space when
+        calculating grid widths if the observation space is continuous. If
+        None, use :meth:`env.observation_space.low`. Unused if observation
+        space is discrete. Default is None.
+        grid_dims : list
+        The number of rows and columns in each tiling grid if the env
+        observation space is continuous. Unused if observation space is
+        discrete. Default is `[8, 8]`.
+        q_plus : bool
+        Whether to add incentives for visiting states that the agent hasn't
+        encountered recently. Default is False.
+        explore_weight : float
+        Amount to incentivize exploring states that the agent hasn't
+        recently visited. Only used if `q_plus` is True. Default is 0.05.
+        temporal_discount : float between [0, 1]
+        The discount factor used for downweighting future rewards. Smaller
+        values result in greater discounting of future rewards. Default is
+        0.9.
+        n_simulated_actions : int
+        THe number of simulated actions to perform for each "real" action.
+        Default is 50."""
         super().__init__(env)
 
+        if grid_dims is None:
+          grid_dims = [8, 8]
         self.lr = lr
         self.q_plus = q_plus
         self.obs_max = obs_max
@@ -140,68 +139,66 @@ Default is 50.
 
     def sample(self, obs):
         """
-Execute the behavior policy--an :math:`\epsilon`-soft policy used to
-generate actions during training.
+        Execute the behavior policy--an :math:`\epsilon`-soft policy used to
+        generate actions during training.
 
-Parameters
-----------
-obs : int, float, or :py:class:`ndarray <numpy.ndarray>` as returned by ``env.step(action)``
-An observation from the environment.
+        Parameters
+        ----------
+        obs : int, float, or :py:class:`ndarray <numpy.ndarray>` as returned by ``env.step(action)``
+        An observation from the environment.
 
-Returns
--------
-action : int, float, or :py:class:`ndarray <numpy.ndarray>`
-An action sampled from the distribution over actions defined by the
-epsilon-soft policy.
-"""
+        Returns
+        -------
+        action : int, float, or :py:class:`ndarray <numpy.ndarray>`
+        An action sampled from the distribution over actions defined by the
+        epsilon-soft policy."""
         s = self._obs2num[obs]
         return self.behavior_policy(s)
 
     def _epsilon_soft_policy(self, s, a=None):
         """
-Epsilon-soft exploration policy.
+        Epsilon-soft exploration policy.
 
-In epsilon-soft policies, pi(a|s) > 0 for all s ∈ S and all a ∈ A(s) at
-the start of training. As learning progresses, pi gradually shifts
-closer and closer to a deterministic optimal policy.
+        In epsilon-soft policies, pi(a|s) > 0 for all s ∈ S and all a ∈ A(s) at
+        the start of training. As learning progresses, pi gradually shifts
+        closer and closer to a deterministic optimal policy.
 
-In particular, we have:
+        In particular, we have:
 
-pi(a|s) = 1 - epsilon + (epsilon / |A(s)|) IFF a == a*
-pi(a|s) = epsilon / |A(s)|                 IFF a != a*
+        pi(a|s) = 1 - epsilon + (epsilon / |A(s)|) IFF a == a*
+        pi(a|s) = epsilon / |A(s)|                 IFF a != a*
 
-where
+        where
 
-|A(s)| is the number of actions available in state s
-a* ∈ A(s) is the greedy action in state s (i.e., a* = argmax_a Q(s, a))
+        |A(s)| is the number of actions available in state s
+        a* ∈ A(s) is the greedy action in state s (i.e., a* = argmax_a Q(s, a))
 
-Note that epsilon-greedy policies are instances of epsilon-soft
-policies, defined as policies for which pi(a|s) >= epsilon / |A(s)| for
-all states and actions.
+        Note that epsilon-greedy policies are instances of epsilon-soft
+        policies, defined as policies for which pi(a|s) >= epsilon / |A(s)| for
+        all states and actions.
 
-Parameters
-----------
-s : int, float, or tuple
-The state number for the current observation, as returned by
-self._obs2num[obs]
-a : int, float, or tuple
-The action number in the current state, as returned by
-self._action2num[obs]. If None, sample an action from the action
-probabilities in state s, otherwise, return the probability of
-action `a` under the epsilon-soft policy. Default is None.
+        Parameters
+        ----------
+        s : int, float, or tuple
+        The state number for the current observation, as returned by
+        self._obs2num[obs]
+        a : int, float, or tuple
+        The action number in the current state, as returned by
+        self._action2num[obs]. If None, sample an action from the action
+        probabilities in state s, otherwise, return the probability of
+        action `a` under the epsilon-soft policy. Default is None.
 
-Returns
--------
-If `a` is None:
-action : int, float, or :py:class:`ndarray <numpy.ndarray>` as returned by :meth:`_num2action`
-If `a` is None, returns an action sampled from the distribution
-over actions defined by the epsilon-soft policy.
+        Returns
+        -------
+        If `a` is None:
+        action : int, float, or :py:class:`ndarray <numpy.ndarray>` as returned by :meth:`_num2action`
+        If `a` is None, returns an action sampled from the distribution
+        over actions defined by the epsilon-soft policy.
 
-If `a` is not None:
-action_prob : float in range [0, 1]
-If `a` is not None, returns the probability of `a` under the
-epsilon-soft policy.
-"""
+        If `a` is not None:
+        action_prob : float in range [0, 1]
+        If `a` is not None, returns the probability of `a` under the
+        epsilon-soft policy."""
         E, P = self.env_info, self.parameters
 
         # TODO: this assumes all actions are available in every state
@@ -224,31 +221,30 @@ epsilon-soft policy.
 
     def _greedy(self, s, a=None):
         """
-A greedy behavior policy.
+        A greedy behavior policy.
 
-Parameters
-----------
-s : int, float, or tuple
-The state number for the current observation, as returned by
-self._obs2num[obs]
-a : int, float, or tuple
-The action number in the current state, as returned by
-self._action2num[obs]. If None, sample an action from the action
-probabilities in state s, otherwise, return the probability of
-action `a` under the greedy policy. Default is None.
+        Parameters
+        ----------
+        s : int, float, or tuple
+        The state number for the current observation, as returned by
+        self._obs2num[obs]
+        a : int, float, or tuple
+        The action number in the current state, as returned by
+        self._action2num[obs]. If None, sample an action from the action
+        probabilities in state s, otherwise, return the probability of
+        action `a` under the greedy policy. Default is None.
 
-Returns
--------
-If `a` is None:
-action : int, float, or :py:class:`ndarray <numpy.ndarray>` as returned by :meth:`_num2action`
-If `a` is None, returns an action sampled from the distribution
-over actions defined by the greedy policy.
+        Returns
+        -------
+        If `a` is None:
+        action : int, float, or :py:class:`ndarray <numpy.ndarray>` as returned by :meth:`_num2action`
+        If `a` is None, returns an action sampled from the distribution
+        over actions defined by the greedy policy.
 
-If `a` is not None:
-action_prob : float in range [0, 1]
-If `a` is not None, returns the probability of `a` under the
-greedy policy.
-"""
+        If `a` is not None:
+        action_prob : float in range [0, 1]
+        If `a` is not None, returns the probability of `a` under the
+        greedy policy."""
         E, Q = self.env_info, self.parameters["Q"]
         n_actions = numpy.prod(E["n_actions_per_dim"])
         a_star = numpy.argmax([Q[(s, aa)] for aa in range(n_actions)])
@@ -260,36 +256,34 @@ greedy policy.
 
     def update(self):
         """
-Update the priority queue with the most recent (state, action) pair and
-perform random-sample one-step tabular Q-planning.
+        Update the priority queue with the most recent (state, action) pair and
+        perform random-sample one-step tabular Q-planning.
 
-Notes
------
-The planning algorithm uses a priority queue to retrieve the
-state-action pairs from the agent's history which will result in the
-largest change to its `Q`-value if backed up. When the first pair in
-the queue is backed up, the effect on each of its predecessor pairs is
-computed. If the predecessor's priority is greater than a small
-threshold the pair is added to the queue and the process is repeated
-until either the queue is empty or we exceed `n_simulated_actions`
-updates.
-"""
+        Notes
+        -----
+        The planning algorithm uses a priority queue to retrieve the
+        state-action pairs from the agent's history which will result in the
+        largest change to its `Q`-value if backed up. When the first pair in
+        the queue is backed up, the effect on each of its predecessor pairs is
+        computed. If the predecessor's priority is greater than a small
+        threshold the pair is added to the queue and the process is repeated
+        until either the queue is empty or we exceed `n_simulated_actions`
+        updates."""
         s, a = self.episode_history["state_actions"][-1]
         self._update_queue(s, a)
         self._simulate_behavior()
 
     def _update_queue(self, s, a):
         """
-Update the priority queue by calculating the priority for (s, a) and
-inserting it into the queue if it exceeds a fixed (small) threshold.
+        Update the priority queue by calculating the priority for (s, a) and
+        inserting it into the queue if it exceeds a fixed (small) threshold.
 
-Parameters
-----------
-s : int as returned by `self._obs2num`
-The id for the state/observation
-a : int as returned by `self._action2num`
-The id for the action taken from state `s`
-"""
+        Parameters
+        ----------
+        s : int as returned by `self._obs2num`
+        The id for the state/observation
+        a : int as returned by `self._action2num`
+        The id for the action taken from state `s`"""
         sweep_queue = self.derived_variables["sweep_queue"]
 
         # TODO: what's a good threshold here?
@@ -302,27 +296,26 @@ The id for the action taken from state `s`
 
     def _calc_priority(self, s, a):
         """
-Compute the "priority" for state-action pair (s, a). The priority P is
-defined as:
+        Compute the "priority" for state-action pair (s, a). The priority P is
+        defined as:
 
-P = sum_{s_} p(s_) * abs(r + temporal_discount * max_a {Q[s_, a]} - Q[s, a])
+        P = sum_{s_} p(s_) * abs(r + temporal_discount * max_a {Q[s_, a]} - Q[s, a])
 
-which corresponds to the absolute magnitude of the TD(0) Q-learning
-backup for (s, a).
+        which corresponds to the absolute magnitude of the TD(0) Q-learning
+        backup for (s, a).
 
-Parameters
-----------
-s : int as returned by `self._obs2num`
-The id for the state/observation
-a : int as returned by `self._action2num`
-The id for the action taken from state `s`
+        Parameters
+        ----------
+        s : int as returned by `self._obs2num`
+        The id for the state/observation
+        a : int as returned by `self._action2num`
+        The id for the action taken from state `s`
 
-Returns
--------
-priority : float
-The absolute magnitude of the full-backup TD(0) Q-learning update
-for (s, a)
-"""
+        Returns
+        -------
+        priority : float
+        The absolute magnitude of the full-backup TD(0) Q-learning update
+        for (s, a)"""
         priority = 0.0
         E = self.env_info
         Q = self.parameters["Q"]
@@ -338,19 +331,18 @@ for (s, a)
 
     def _simulate_behavior(self):
         """
-Perform random-sample one-step tabular Q-planning with prioritized
-sweeping.
+        Perform random-sample one-step tabular Q-planning with prioritized
+        sweeping.
 
-Notes
------
-This approach uses a priority queue to retrieve the state-action pairs
-from the agent's history with largest change to their Q-values if
-backed up. When the first pair in the queue is backed up, the effect on
-each of its predecessor pairs is computed. If the predecessor's
-priority is greater than a small threshold the pair is added to the
-queue and the process is repeated until either the queue is empty or we
-have exceeded a `n_simulated_actions` updates.
-"""
+        Notes
+        -----
+        This approach uses a priority queue to retrieve the state-action pairs
+        from the agent's history with largest change to their Q-values if
+        backed up. When the first pair in the queue is backed up, the effect on
+        each of its predecessor pairs is computed. If the predecessor's
+        priority is greater than a small threshold the pair is added to the
+        queue and the process is repeated until either the queue is empty or we
+        have exceeded a `n_simulated_actions` updates."""
         env_model = self.parameters["model"]
         sweep_queue = self.derived_variables["sweep_queue"]
         for _ in range(self.n_simulated_actions):
@@ -377,20 +369,19 @@ have exceeded a `n_simulated_actions` updates.
 
     def _update(self, s, a):
         """
-Update Q using a full-backup version of the TD(0) Q-learning update:
+        Update Q using a full-backup version of the TD(0) Q-learning update:
 
-Q(s, a) = Q(s, a) + lr *
-sum_{r, s'} [
-p(r, s' | s, a) * (r + gamma * max_a { Q(s', a) } - Q(s, a))
-]
+        Q(s, a) = Q(s, a) + lr *
+        sum_{r, s'} [
+        p(r, s' | s, a) * (r + gamma * max_a { Q(s', a) } - Q(s, a))
+        ]
 
-Parameters
-----------
-s : int as returned by ``self._obs2num``
-The id for the state/observation
-a : int as returned by ``self._action2num``
-The id for the action taken from state `s`
-"""
+        Parameters
+        ----------
+        s : int as returned by ``self._obs2num``
+        The id for the state/observation
+        a : int as returned by ``self._action2num``
+        The id for the action taken from state `s`"""
         update = 0.0
         env_model = self.parameters["model"]
         E, D, Q = self.env_info, self.derived_variables, self.parameters["Q"]
@@ -414,44 +405,42 @@ The id for the action taken from state `s`
 
     def run_episode(self, max_steps, render=False):
         """
-Run the agent on a single episode without performing `Q`-function
-backups.
+        Run the agent on a single episode without performing `Q`-function
+        backups.
 
-Parameters
-----------
-max_steps : int
-The maximum number of steps to run an episode.
-render : bool
-Whether to render the episode during training.
+        Parameters
+        ----------
+        max_steps : int
+        The maximum number of steps to run an episode.
+        render : bool
+        Whether to render the episode during training.
 
-Returns
--------
-reward : float
-The total reward on the episode.
-steps : float
-The number of steps taken on the episode.
-"""
+        Returns
+        -------
+        reward : float
+        The total reward on the episode.
+        steps : float
+        The number of steps taken on the episode."""
 
         return self._episode(max_steps, render, update=False)
 
     def train_episode(self, max_steps, render=False):
         """
-Train the agent on a single episode.
+        Train the agent on a single episode.
 
-Parameters
-----------
-max_steps : int
-The maximum number of steps to run an episode.
-render : bool
-Whether to render the episode during training.
+        Parameters
+        ----------
+        max_steps : int
+        The maximum number of steps to run an episode.
+        render : bool
+        Whether to render the episode during training.
 
-Returns
--------
-reward : float
-The total reward on the episode.
-steps : float
-The number of steps taken on the episode.
-"""
+        Returns
+        -------
+        reward : float
+        The total reward on the episode.
+        steps : float
+        The number of steps taken on the episode."""
         D = self.derived_variables
         total_rwd, n_steps = self._episode(max_steps, render, update=True)
         D["episode_num"] += 1
@@ -459,25 +448,24 @@ The number of steps taken on the episode.
 
     def _episode(self, max_steps, render, update=True):
         """
-Run or train the agent on an episode.
+        Run or train the agent on an episode.
 
-Parameters
-----------
-max_steps : int
-The maximum number of steps to run the episode.
-render : bool
-Whether to render the episode during training.
-update : bool
-Whether to perform the `Q` function backups after each step.
-Default is True.
+        Parameters
+        ----------
+        max_steps : int
+        The maximum number of steps to run the episode.
+        render : bool
+        Whether to render the episode during training.
+        update : bool
+        Whether to perform the `Q` function backups after each step.
+        Default is True.
 
-Returns
--------
-reward : float
-The total reward on the episode.
-steps : float
-The number of steps taken on the episode.
-"""
+        Returns
+        -------
+        reward : float
+        The total reward on the episode.
+        steps : float
+        The number of steps taken on the episode."""
         self.flush_history()
 
         obs = self.env.reset()
@@ -531,23 +519,22 @@ The number of steps taken on the episode.
 
     def greedy_policy(self, max_steps, render=True):
         """
-Execute a deterministic greedy policy using the current agent
-parameters.
+        Execute a deterministic greedy policy using the current agent
+        parameters.
 
-Parameters
-----------
-max_steps : int
-The maximum number of steps to run the episode.
-render : bool
-Whether to render the episode during execution.
+        Parameters
+        ----------
+        max_steps : int
+        The maximum number of steps to run the episode.
+        render : bool
+        Whether to render the episode during execution.
 
-Returns
--------
-total_reward : float
-The total reward on the episode.
-n_steps : float
-The total number of steps taken on the episode.
-"""
+        Returns
+        -------
+        total_reward : float
+        The total reward on the episode.
+        n_steps : float
+        The total number of steps taken on the episode."""
         self.flush_history()
 
         H = self.episode_history

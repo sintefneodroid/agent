@@ -23,35 +23,33 @@ class OffPolicyBatched(Procedure):
         self,
         *,
         batch_size=1000,
-
         iterations=10000,
         stat_frequency=10,
         render_frequency=10,
         disable_stdout: bool = False,
         train_agent: bool = True,
         metric_writer: Writer = MockWriter(),
-        **kwargs
+        **kwargs,
     ) -> None:
         """
 
 
-:param log_directory:
-:param num_steps:
-:param iterations:
-:param stat_frequency:
-:param render_frequency:
-:param disable_stdout:
-:return:
-@rtype: object
-@param batch_size:
-@param log_directory:
-@param iterations:
-@param stat_frequency:
-@param render_frequency:
-@param disable_stdout:
-@param train_agent:
-@param kwargs:
-"""
+        :param log_directory:
+        :param num_steps:
+        :param iterations:
+        :param stat_frequency:
+        :param render_frequency:
+        :param disable_stdout:
+        :return:
+        @rtype: object
+        @param batch_size:
+        @param log_directory:
+        @param iterations:
+        @param stat_frequency:
+        @param render_frequency:
+        @param disable_stdout:
+        @param train_agent:
+        @param kwargs:"""
 
         state = self.agent.extract_features(self.environment.reset())
 
@@ -60,10 +58,17 @@ class OffPolicyBatched(Procedure):
         running_mean_action = mean_accumulator()
 
         for batch_i in tqdm(
-            range(1, iterations), leave=False, disable=disable_stdout, desc="Batch #",postfix=f"Agent update #{self.agent.update_i}"
+            range(1, iterations),
+            leave=False,
+            disable=disable_stdout,
+            desc="Batch #",
+            postfix=f"Agent update #{self.agent.update_i}",
         ):
             for _ in tqdm(
-                range(batch_size), leave=False, disable=disable_stdout, desc="Step #",
+                range(batch_size),
+                leave=False,
+                disable=disable_stdout,
+                desc="Step #",
             ):
 
                 sample = self.agent.sample(state)

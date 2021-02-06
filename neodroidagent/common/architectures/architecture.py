@@ -17,51 +17,47 @@ from draugr import indent_lines
 
 
 class Architecture(nn.Module, ABC):
-  """
+    """"""
 
-"""
+    @drop_unused_kws
+    def __init__(self, input_shape: Sequence[int], output_shape: Sequence[int]):
+        super().__init__()
+        self._input_shape = input_shape
+        self._output_shape = output_shape
 
-  @drop_unused_kws
-  def __init__(self, input_shape: Sequence[int], output_shape: Sequence[int]):
-    super().__init__()
-    self._input_shape = input_shape
-    self._output_shape = output_shape
+    @property
+    def input_shape(self) -> Sequence[int]:
+        """
 
-  @property
-  def input_shape(self) -> Sequence[int]:
-    """
+        @return:
+        @rtype:"""
+        return self._input_shape
 
-@return:
-@rtype:
-"""
-    return self._input_shape
+    @property
+    def output_shape(self) -> Sequence[int]:
+        """
 
-  @property
-  def output_shape(self) -> Sequence[int]:
-    """
+        @return:
+        @rtype:"""
+        return self._output_shape
 
-@return:
-@rtype:
-"""
-    return self._output_shape
+    def sample_input(self) -> Any:
+        return torch.empty(1, *self.input_shape, device="cpu")
 
-  def sample_input(self)-> Any:
-    return torch.empty(1, *self.input_shape, device="cpu")
+    def __repr__(self):
+        num_trainable_params = get_num_parameters(self, only_trainable=True)
+        num_params = get_num_parameters(self, only_trainable=False)
 
-  def __repr__(self):
-    num_trainable_params = get_num_parameters(self, only_trainable=True)
-    num_params = get_num_parameters(self, only_trainable=False)
+        dict_repr = indent_lines(f"{self.__dict__}")
 
-    dict_repr = indent_lines(f"{self.__dict__}")
-
-    trainable_params_str = indent_lines(
-        f"trainable/num_params: {num_trainable_params}/{num_params}\n"
+        trainable_params_str = indent_lines(
+            f"trainable/num_params: {num_trainable_params}/{num_params}\n"
         )
 
-    return f"{super().__repr__()}\n{dict_repr}\n{trainable_params_str}"
+        return f"{super().__repr__()}\n{dict_repr}\n{trainable_params_str}"
 
 
 if __name__ == "__main__":
-  a = Architecture()
+    a = Architecture()
 
-  print(a)
+    print(a)

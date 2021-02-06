@@ -41,13 +41,12 @@ class OffPolicyStepWise(Procedure):
     ) -> None:
         """
 
-:param log_directory:
-:param num_environment_steps:
-:param stat_frequency:
-:param render_frequency:
-:param disable_stdout:
-:return:
-"""
+        :param log_directory:
+        :param num_environment_steps:
+        :param stat_frequency:
+        :param render_frequency:
+        :param disable_stdout:
+        :return:"""
 
         state = self.agent.extract_features(self.environment.reset())
 
@@ -62,8 +61,6 @@ class OffPolicyStepWise(Procedure):
 
             sample = self.agent.sample(state)
             action = self.agent.extract_action(sample)
-
-
 
             snapshot = self.environment.react(action)
             successor_state = self.agent.extract_features(snapshot)

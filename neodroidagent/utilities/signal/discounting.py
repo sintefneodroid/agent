@@ -31,32 +31,31 @@ def discount_rollout_signal_torch(
 ) -> Any:
     """
 
-x = [r1, r2, r3, ..., rN]
-returns [r1 + r2*gamma + r3*gamma^2 + ...,
-     r2 + r3*gamma + r4*gamma^2 + ...,
-       r3 + r4*gamma + r5*gamma^2 + ...,
-          ..., ..., rN]
+    x = [r1, r2, r3, ..., rN]
+    returns [r1 + r2*gamma + r3*gamma^2 + ...,
+         r2 + r3*gamma + r4*gamma^2 + ...,
+           r3 + r4*gamma + r5*gamma^2 + ...,
+              ..., ..., rN]
 
 
-# See https://docs.scipy.org/doc/scipy/reference/tutorial/signal.html#difference-equation-filtering
-# Here, we have y[t] - discount*y[t+1] = x[t]
-# or rev(y)[t] - discount*rev(y)[t-1] = rev(x)[t]
+    # See https://docs.scipy.org/doc/scipy/reference/tutorial/signal.html#difference-equation-filtering
+    # Here, we have y[t] - discount*y[t+1] = x[t]
+    # or rev(y)[t] - discount*rev(y)[t-1] = rev(x)[t]
 
 
-C[i] = R[i] + discount * C[i+1]
-signal.lfilter(b, a, x, axis=-1, zi=None)
-a[0]*y[n] = b[0]*x[n] + b[1]*x[n-1] + ... + b[M]*x[n-M]
-              - a[1]*y[n-1] - ... - a[N]*y[n-N]
+    C[i] = R[i] + discount * C[i+1]
+    signal.lfilter(b, a, x, axis=-1, zi=None)
+    a[0]*y[n] = b[0]*x[n] + b[1]*x[n-1] + ... + b[M]*x[n-M]
+                  - a[1]*y[n-1] - ... - a[N]*y[n-N]
 
-non_terminal if supplied lets you define a mask for masking terminal state signals.
+    non_terminal if supplied lets you define a mask for masking terminal state signals.
 
 
-@param signal:
-@param discounting_factor:
-@param device:
-@param non_terminal:
-@return:
-"""
+    @param signal:
+    @param discounting_factor:
+    @param device:
+    @param non_terminal:
+    @return:"""
 
     discounted = torch.zeros_like(signal, device=device)
     R = torch.zeros(signal.shape[-1], device=device)

@@ -17,18 +17,16 @@ __all__ = ["TanhNormal"]
 
 class TanhNormal(Distribution):
     """
-Represent distribution of X where
-    X ~ tanh(Z)
-    Z ~ N(mean, std)
-Note: this is not very numerically stable.
-"""
+    Represent distribution of X where
+        X ~ tanh(Z)
+        Z ~ N(mean, std)
+    Note: this is not very numerically stable."""
 
     def __init__(self, normal_mean, normal_std, epsilon: float = 1e-6):
         """
-:param normal_mean: Mean of the normal distribution
-:param normal_std: Std of the normal distribution
-:param epsilon: Numerical stability epsilon when computing log-prob.
-"""
+        :param normal_mean: Mean of the normal distribution
+        :param normal_std: Std of the normal distribution
+        :param epsilon: Numerical stability epsilon when computing log-prob."""
         super().__init__()
         self.normal_mean = normal_mean
         self.normal_std = normal_std
@@ -44,10 +42,9 @@ Note: this is not very numerically stable.
 
     def log_prob(self, value, pre_tanh_value=None):
         """
-:param value: some value, x
-:param pre_tanh_value: arctanh(x)
-:return:
-"""
+        :param value: some value, x
+        :param pre_tanh_value: arctanh(x)
+        :return:"""
         if pre_tanh_value is None:
             pre_tanh_value = torch.log((1 + value) / (1 - value)) / 2
         return self.normal.log_prob(pre_tanh_value) - torch.log(
@@ -56,9 +53,8 @@ Note: this is not very numerically stable.
 
     def sample(self, return_pretanh_value=False):
         """
-Gradients will and should *not* pass through this operation.
-See https://github.com/pytorch/pytorch/issues/4620 for discussion.
-"""
+        Gradients will and should *not* pass through this operation.
+        See https://github.com/pytorch/pytorch/issues/4620 for discussion."""
         z = self.normal.sample().detach()
 
         if return_pretanh_value:
@@ -68,8 +64,7 @@ See https://github.com/pytorch/pytorch/issues/4620 for discussion.
 
     def rsample(self, return_pretanh_value=False):
         """
-Sampling in the reparameterization case.
-"""
+        Sampling in the reparameterization case."""
         z = (
             self.normal_mean
             + self.normal_std

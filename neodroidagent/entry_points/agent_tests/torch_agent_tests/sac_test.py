@@ -19,9 +19,9 @@ Author: Christian Heider Nielsen
 """
 
 CONFIG_NAME = __name__
-import pathlib
+from pathlib import Path
 
-CONFIG_FILE_PATH = pathlib.Path(__file__)
+CONFIG_FILE_PATH = Path(__file__)
 
 CONNECT_TO_RUNNING = False
 RENDER_ENVIRONMENT = False
@@ -37,28 +37,30 @@ CRITIC_ARCH_SPEC: GDKC = GDKC(PreConcatInputMLP)
 sac_config = globals()
 
 
-def sac_test(config=None,**kwargs):
+def sac_test(config=None, **kwargs):
     if config is None:
         config = sac_config
-    sac_run(environment_type="gym", config=config,**kwargs)
+    sac_run(environment_type="gym", config=config, **kwargs)
 
 
 def sac_run(
     skip_confirmation: bool = True,
     environment_type: Union[bool, str] = True,
-    config=None,**kwargs
+    config=None,
+    **kwargs
 ):
     if config is None:
         config = sac_config
     session_factory(
         SoftActorCriticAgent,
         config,
-        session=GDKC(ParallelSession,
+        session=GDKC(
+            ParallelSession,
             procedure=OffPolicyStepWise,
             environment_name=ENVIRONMENT_NAME,
             auto_reset_on_terminal_state=True,
             environment=environment_type,
-                     **kwargs
+            **kwargs
         ),
         skip_confirmation=skip_confirmation,
         **kwargs

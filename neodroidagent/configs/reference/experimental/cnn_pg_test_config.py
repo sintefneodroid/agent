@@ -7,9 +7,9 @@ from neodroidagent.configs.agent_test_configs.base_dicrete_test_config import *
 __author__ = "Christian Heider Nielsen"
 
 CONFIG_NAME = __name__
-import pathlib
+from pathlib import Path
 
-CONFIG_FILE_PATH = pathlib.Path(__file__)
+CONFIG_FILE_PATH = Path(__file__)
 
 CONNECT_TO_RUNNING = False
 RENDER_ENVIRONMENT = False

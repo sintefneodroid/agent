@@ -8,9 +8,7 @@ __all__ = ["AnnealedGaussianProcess"]
 
 
 class AnnealedGaussianProcess(RandomProcess):
-    """
-
-    """
+    """"""
 
     def sample(self, size):
         """
@@ -37,9 +35,7 @@ class AnnealedGaussianProcess(RandomProcess):
             self.sigma_min = sigma
 
     def reset(self):
-        """
-
-        """
+        """"""
         self.n_steps = 0
 
     @property

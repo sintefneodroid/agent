@@ -26,20 +26,20 @@ from warg import GDKC
 
 class CovarianceMatrixAdaptationEvolutionStrategyAgent:
     """Covariance Matrix Adaptation Evolution Strategy.
-  Note:
-      The CMA-ES method can hardly learn a successful policy even for
-      simple task. It is still maintained here only for consistency with
-      original rllab paper.
-  Args:
-      env_spec (garage.envs.EnvSpec): Environment specification.
-      policy_arch (garage.np.policies.Policy): Action policy.
-      baseline (garage.np.baselines.Baseline): Baseline for GAE
-          (Generalized Advantage Estimation).
-      num_candidate_policies (int): Number of policies sampled in one epoch.
-      discount_factor (float): Environment reward discount.
-      max_rollout_length (int): Maximum length of a single rollout.
-      parameters_variance (float): Initial std for param distribution.
-  """
+    Note:
+        The CMA-ES method can hardly learn a successful policy even for
+        simple task. It is still maintained here only for consistency with
+        original rllab paper.
+    Args:
+        env_spec (garage.envs.EnvSpec): Environment specification.
+        policy_arch (garage.np.policies.Policy): Action policy.
+        baseline (garage.np.baselines.Baseline): Baseline for GAE
+            (Generalized Advantage Estimation).
+        num_candidate_policies (int): Number of policies sampled in one epoch.
+        discount_factor (float): Environment reward discount.
+        max_rollout_length (int): Maximum length of a single rollout.
+        parameters_variance (float): Initial std for param distribution.
+    """
 
     def __init__(
         self,
@@ -72,15 +72,13 @@ class CovarianceMatrixAdaptationEvolutionStrategyAgent:
 
     def _resample_shared_parameters(self) -> None:
         """Return sample parameters.
-    Returns:
-        np.ndarray: A numpy array of parameter values.
-    """
+        Returns:
+            np.ndarray: A numpy array of parameter values.
+        """
         self._shared_params = self._evolution_strategy.ask()
 
     def build(self):
-        """
-
-    """
+        """"""
         pass  # TODO:
 
     def __build__(self, init_mean_parameters: Sequence):
@@ -94,13 +92,13 @@ class CovarianceMatrixAdaptationEvolutionStrategyAgent:
 
     def train(self, runner):
         """Initialize variables and start training.
-    Args:
-        runner (LocalRunner): LocalRunner is passed to give algorithm
-            the access to runner.step_epochs(), which provides services
-            such as snapshotting and sampler control.
-    Returns:
-        float: The average return in last epoch cycle.
-    """
+        Args:
+            runner (LocalRunner): LocalRunner is passed to give algorithm
+                the access to runner.step_epochs(), which provides services
+                such as snapshotting and sampler control.
+        Returns:
+            float: The average return in last epoch cycle.
+        """
         self.__build__(self.policy.get_param_values())
 
         self._all_returns = []
@@ -117,9 +115,7 @@ class CovarianceMatrixAdaptationEvolutionStrategyAgent:
         return last_return
 
     def extract_signal(self):
-        """
-
-    """
+        """"""
         pass
 
     def train_once(
@@ -130,14 +126,14 @@ class CovarianceMatrixAdaptationEvolutionStrategyAgent:
         writer: Writer = MockWriter()
     ):
         """Perform one step of policy optimization given one batch of samples.
-    Args:
-        iteration_number (int): Iteration number.
-        trajectories (list[dict]): A list of collected paths.
-    Returns:
-        float: The average return in last epoch cycle.
-        @param writer:
-        @type writer:
-    """
+        Args:
+            iteration_number (int): Iteration number.
+            trajectories (list[dict]): A list of collected paths.
+        Returns:
+            float: The average return in last epoch cycle.
+            @param writer:
+            @type writer:
+        """
 
         undiscounted_returns = []
         for trajectory in TrajectoryBatch.from_trajectory_list(
@@ -166,9 +162,7 @@ class CovarianceMatrixAdaptationEvolutionStrategyAgent:
         return sample_returns
 
     def update(self) -> None:
-        """
-
-    """
+        """"""
         self._evolution_strategy.tell(
             self._shared_params, -np.array(self._all_returns)
         )  # Report back results

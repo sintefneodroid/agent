@@ -22,9 +22,9 @@ Author: Christian Heider Nielsen
 # General
 
 CONFIG_NAME = __name__
-import pathlib
+from pathlib import Path
 
-CONFIG_FILE_PATH = pathlib.Path(__file__)
+CONFIG_FILE_PATH = Path(__file__)
 
 CONNECT_TO_RUNNING = False
 RENDER_ENVIRONMENT = True
@@ -43,31 +43,32 @@ DISCRETE_ARCH_SPEC: GDKC = GDKC(
 ppo_config = globals()
 
 
-def ppo_test(config=None,**kwargs):
+def ppo_test(config=None, **kwargs):
     """
 
-  @param config:
-  @type config:
-  """
+    @param config:
+    @type config:
+    """
     if config is None:
         config = ppo_config
-    ppo_run(environment_type="gym", config=config,**kwargs)
+    ppo_run(environment_type="gym", config=config, **kwargs)
 
 
 def ppo_run(
     skip_confirmation: bool = True,
     environment_type: Union[bool, str] = True,
-    config=None,**kwargs
+    config=None,
+    **kwargs
 ):
     """
 
-  @param skip_confirmation:
-  @type skip_confirmation:
-  @param environment_type:
-  @type environment_type:
-  @param config:
-  @type config:
-  """
+    @param skip_confirmation:
+    @type skip_confirmation:
+    @param environment_type:
+    @type environment_type:
+    @param config:
+    @type config:
+    """
     if config is None:
         config = ppo_config
     session_factory(
@@ -75,7 +76,8 @@ def ppo_run(
         config,
         session=ParallelSession,
         environment=environment_type,
-        skip_confirmation=skip_confirmation,**kwargs
+        skip_confirmation=skip_confirmation,
+        **kwargs
     )
 
 

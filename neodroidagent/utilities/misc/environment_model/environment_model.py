@@ -16,19 +16,19 @@ __all__ = ["EnvModel"]
 
 class EnvModel(object):
     """
-  A simple tabular environment model that maintains the counts of each
-  reward-outcome pair given the state and action that preceded them. The
-  model can be queried with
+    A simple tabular environment model that maintains the counts of each
+    reward-outcome pair given the state and action that preceded them. The
+    model can be queried with
 
-  >>> M = EnvModel()
-  >>> M[(state, action, reward, next_state)] += 1
-  >>> M[(state, action, reward, next_state)]
-  1
-  >>> M.state_action_pairs()
-  [(state, action)]
-  >>> M.outcome_probs(state, action)
-  [(next_state, 1)]
-  """
+    >>> M = EnvModel()
+    >>> M[(state, action, reward, next_state)] += 1
+    >>> M[(state, action, reward, next_state)]
+    1
+    >>> M.state_action_pairs()
+    [(state, action)]
+    >>> M.outcome_probs(state, action)
+    [(next_state, 1)]
+    """
 
     def __init__(self):
         super(EnvModel, self).__init__()
@@ -50,35 +50,32 @@ class EnvModel(object):
 
     def state_action_pairs(self):
         """
-Return all (state, action) pairs in the environment model
-"""
+        Return all (state, action) pairs in the environment model"""
         return list(self._model.keys())
 
     def reward_outcome_pairs(self, s, a):
         """
-Return all (reward, next_state) pairs associated with taking action `a`
-in state `s`.
-"""
+        Return all (reward, next_state) pairs associated with taking action `a`
+        in state `s`."""
         return list(self._model[(s, a)].keys())
 
     def outcome_probs(self, s, a):
         """
-Return the probability under the environment model of each outcome
-state after taking action `a` in state `s`.
+        Return the probability under the environment model of each outcome
+        state after taking action `a` in state `s`.
 
-Parameters
-----------
-s : int as returned by ``self._obs2num``
-The id for the state/observation.
-a : int as returned by ``self._action2num``
-The id for the action taken from state `s`.
+        Parameters
+        ----------
+        s : int as returned by ``self._obs2num``
+        The id for the state/observation.
+        a : int as returned by ``self._action2num``
+        The id for the action taken from state `s`.
 
-Returns
--------
-outcome_probs : list of (state, prob) tuples
-A list of each possible outcome and its associated probability
-under the model.
-"""
+        Returns
+        -------
+        outcome_probs : list of (state, prob) tuples
+        A list of each possible outcome and its associated probability
+        under the model."""
         items = list(self._model[(s, a)].items())
         total_count = numpy.sum([c for (_, c) in items])
         outcome_probs = [c / total_count for (_, c) in items]
@@ -87,20 +84,19 @@ under the model.
 
     def state_action_pairs_leading_to_outcome(self, outcome):
         """
-Return all (state, action) pairs that have a nonzero probability of
-producing `outcome` under the current model.
+        Return all (state, action) pairs that have a nonzero probability of
+        producing `outcome` under the current model.
 
-Parameters
-----------
-outcome : int
-The outcome state.
+        Parameters
+        ----------
+        outcome : int
+        The outcome state.
 
-Returns
--------
-pairs : list of (state, action) tuples
-A list of all (state, action) pairs with a nonzero probability of
-producing `outcome` under the model.
-"""
+        Returns
+        -------
+        pairs : list of (state, action) tuples
+        A list of all (state, action) pairs with a nonzero probability of
+        producing `outcome` under the model."""
         pairs = []
         for sa in self.state_action_pairs():
             outcomes = [o for (r, o) in self.reward_outcome_pairs(*sa)]

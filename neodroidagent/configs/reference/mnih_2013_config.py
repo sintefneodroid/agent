@@ -1,8 +1,11 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-import pathlib
+from pathlib import Path
 
 __author__ = "Christian Heider Nielsen"
+
+from agent.neodroidagent.utilities import ExplorationSpecification
+
 """
 Description: Config for training
 Author: Christian Heider Nielsen
@@ -20,9 +23,9 @@ SAVE_MODEL_INTERVAL = 1000
 
 # General
 CONFIG_NAME = __name__
-import pathlib
+from pathlib import Path
 
-CONFIG_FILE_PATH = pathlib.Path(__file__)
+CONFIG_FILE_PATH = Path(__file__)
 USE_CUDA = True
 
 # Visualisation
@@ -34,7 +37,7 @@ VISDOM_SERVER = "http://localhost"
 
 # Paths
 DATA_SET = "neodroid"
-DATA_SET_DIRECTORY = pathlib.Path("/home/heider/Datasets") / DATA_SET
+DATA_SET_DIRECTORY = Path("/home/heider/Datasets") / DATA_SET
 TARGET_FILE_NAME = "target_position_rotation.csv"
 DEPTH_IMAGES_DIRECTORY = "depth"
 MODEL_DIRECTORY = "models"

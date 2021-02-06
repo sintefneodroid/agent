@@ -33,13 +33,13 @@ class BraindeadIntrinsicSignalProvider(IntrinsicSignalProvider):
     ) -> Sequence:
         """
 
-    @param environment_snapshot:
-    @type environment_snapshot:
-    @param writer:
-    @type writer:
-    @param kwargs:
-    @type kwargs:
-    @return:
-    @rtype:
-    """
+        @param environment_snapshot:
+        @type environment_snapshot:
+        @param writer:
+        @type writer:
+        @param kwargs:
+        @type kwargs:
+        @return:
+        @rtype:
+        """
         return self._signal_space.n * [0]

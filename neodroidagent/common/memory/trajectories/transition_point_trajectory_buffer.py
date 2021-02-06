@@ -17,9 +17,7 @@ __all__ = ["TransitionPointTrajectoryBuffer"]
 
 
 class TransitionPointTrajectoryBuffer(ExpandableCircularBuffer):
-    """
-
-    """
+    """"""
 
     def __init__(self):
         super().__init__()
@@ -27,11 +25,10 @@ class TransitionPointTrajectoryBuffer(ExpandableCircularBuffer):
     @wrap_args(ValuedTransitionPoint)
     def add_transition_point(self, transition_point: ValuedTransitionPoint) -> None:
         """
-args will be wrapped in a TransitionPoint type tuple and collected as transition_point
+        args will be wrapped in a TransitionPoint type tuple and collected as transition_point
 
-@param transition_point:
-@return:
-"""
+        @param transition_point:
+        @return:"""
         self._add(transition_point)
 
     def sample(self) -> ValuedTransitionPoint:

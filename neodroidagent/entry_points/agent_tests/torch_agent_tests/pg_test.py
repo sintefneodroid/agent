@@ -14,7 +14,7 @@ from warg import GDKC
 
 CONFIG_NAME = __name__
 
-CONFIG_FILE_PATH = pathlib.Path(__file__)
+CONFIG_FILE_PATH = Path(__file__)
 
 RENDER_ENVIRONMENT = True
 
@@ -32,8 +32,8 @@ def pg_run(
     skip_confirmation: bool = True,
     environment_type: Union[bool, str] = True,
     *,
-    config=None,**kwargs
-
+    config=None,
+    **kwargs
 ) -> None:
     if config is None:
         config = pg_config
@@ -43,14 +43,15 @@ def pg_run(
         config,
         session=ParallelSession,
         skip_confirmation=skip_confirmation,
-        environment=environment_type,**kwargs
+        environment=environment_type,
+        **kwargs
     )
 
 
-def pg_test(config=None,**kwargs) -> None:
+def pg_test(config=None, **kwargs) -> None:
     if config is None:
         config = pg_config
-    pg_run(environment_type="gym", config=config,**kwargs)
+    pg_run(environment_type="gym", config=config, **kwargs)
 
 
 if __name__ == "__main__":

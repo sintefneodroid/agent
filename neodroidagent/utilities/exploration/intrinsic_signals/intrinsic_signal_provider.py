@@ -24,12 +24,12 @@ from warg import drop_unused_kws
 
 class IntrinsicSignalProvider:
     """
-  A callable module that congests observations and provide augmented signals external to the
-  environment/MDP provided objective signals for
-  the
-  learning
-  control model
-  """
+    A callable module that congests observations and provide augmented signals external to the
+    environment/MDP provided objective signals for
+    the
+    learning
+    control model
+    """
 
     @drop_unused_kws
     def __init__(
@@ -40,13 +40,13 @@ class IntrinsicSignalProvider:
     ):
         """
 
-    @param observation_space:
-    @type observation_space:
-    @param action_space:
-    @type action_space:
-    @param signal_space:
-    @type signal_space:
-    """
+        @param observation_space:
+        @type observation_space:
+        @param action_space:
+        @type action_space:
+        @param signal_space:
+        @type signal_space:
+        """
         self._observation_space = observation_space
         self._action_space = action_space
         self._signal_space = signal_space
@@ -54,11 +54,11 @@ class IntrinsicSignalProvider:
     def __call__(self, environment_snapshot: EnvironmentSnapshot) -> Sequence:
         """
 
-    @param environment_snapshot:
-    @type environment_snapshot:
-    @return:
-    @rtype:
-    """
+        @param environment_snapshot:
+        @type environment_snapshot:
+        @return:
+        @rtype:
+        """
         return self.sample(environment_snapshot)
 
     @abstractmethod
@@ -71,11 +71,11 @@ class IntrinsicSignalProvider:
     ) -> Sequence:
         """
 
-    @param environment_snapshot:
-    @type environment_snapshot:
-    @param writer:
-    @type writer:
-    @param kwargs:
-    @type kwargs:
-    """
+        @param environment_snapshot:
+        @type environment_snapshot:
+        @param writer:
+        @type writer:
+        @param kwargs:
+        @type kwargs:
+        """
         raise NotImplemented

@@ -17,8 +17,8 @@ from warg import passes_kws_to
 
 class PreConcatInputMLP(MLP):
     """
-  Early fusion
-  """
+    Early fusion
+    """
 
     def __init__(self, input_shape: Sequence = (2,), **kwargs):
         if isinstance(input_shape, Iterable):
@@ -30,20 +30,21 @@ class PreConcatInputMLP(MLP):
     def forward(self, *x, **kwargs) -> List:
         """
 
-    @param x:
-    @type x:
-    @param kwargs:
-    @type kwargs:
-    @return:
-    @rtype:
-    """
+        @param x:
+        @type x:
+        @param kwargs:
+        @type kwargs:
+        @return:
+        @rtype:
+        """
         return super().forward(torch.cat(x, dim=-1), **kwargs)
+
 
 class LateConcatInputMLP(MLP):
     """
-  Late fusion, quite a botch job, only a single addition block fusion supported for now
-  You have been warned! ;)
-  """
+    Late fusion, quite a botch job, only a single addition block fusion supported for now
+    You have been warned! ;)
+    """
 
     def __init__(
         self, input_shape: Sequence = (2, 2), output_shape: Sequence = (2,), **kwargs
@@ -73,13 +74,13 @@ class LateConcatInputMLP(MLP):
     def forward(self, *x, **kwargs) -> torch.tensor:
         """
 
-    @param x:
-    @type x:
-    @param kwargs:
-    @type kwargs:
-    @return:
-    @rtype:
-    """
+        @param x:
+        @type x:
+        @param kwargs:
+        @type kwargs:
+        @return:
+        @rtype:
+        """
         forward_x, *residual_x = x
         return self.post_concat_layer(
             torch.cat((*super().forward(forward_x, **kwargs), *residual_x), dim=-1)
@@ -89,9 +90,7 @@ class LateConcatInputMLP(MLP):
 if __name__ == "__main__":
 
     def stest_normal():
-        """
-
-    """
+        """"""
         s = (10,)
         a = (10,)
         model = PreConcatInputMLP(input_shape=s, output_shape=a)
@@ -100,9 +99,7 @@ if __name__ == "__main__":
         print(model.forward(inp))
 
     def stest_multi_dim_normal():
-        """
-
-    """
+        """"""
         s = (19,)
         s1 = (4,)
         batch_size = (100,)
@@ -114,9 +111,7 @@ if __name__ == "__main__":
         print(model.forward(inp, late_input))
 
     def stest_multi_dim_normal21():
-        """
-
-    """
+        """"""
         s = (19,)
         s1 = (4,)
         batch_size = (100,)
@@ -128,9 +123,7 @@ if __name__ == "__main__":
         print(model.forward(inp, late_input))
 
     def stest_multi_dim_normal23121():
-        """
-
-      """
+        """"""
         s = (19,)
         s1 = (4,)
         batch_size = (100,)
@@ -142,9 +135,7 @@ if __name__ == "__main__":
         print(model.forward(inp, late_input))
 
     def stest_multi_dim_normal2321412121():
-        """
-
-      """
+        """"""
         s = (19,)
         s1 = (4,)
         batch_size = (100,)

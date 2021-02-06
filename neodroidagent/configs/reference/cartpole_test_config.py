@@ -13,9 +13,9 @@ from neodroidagent.configs.base_config import *
 from warg import NOD
 
 CONFIG_NAME = __name__
-import pathlib
+from pathlib import Path
 
-CONFIG_FILE_PATH = pathlib.Path(__file__)
+CONFIG_FILE_PATH = Path(__file__)
 
 # Architecture
 POLICY_ARCH_SPEC = GDKC(

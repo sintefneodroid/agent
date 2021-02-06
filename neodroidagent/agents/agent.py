@@ -28,8 +28,7 @@ TogglableLowHigh = namedtuple("ClipFeature", ("enabled", "low", "high"))
 
 class Agent(ABC):
     """
-All agents should inherit from this class
-"""
+    All agents should inherit from this class"""
 
     # region Private
 
@@ -97,10 +96,9 @@ All agents should inherit from this class
         print_inferred_io_shapes: bool = True,
     ) -> None:
         """
-Tries to infer input and output size from env if either _input_shape or _output_shape, is None or -1 (int)
+        Tries to infer input and output size from env if either _input_shape or _output_shape, is None or -1 (int)
 
-:rtype: object
-"""
+        :rtype: object"""
 
         if self._input_shape is None or self._input_shape == -1:
             self._input_shape = observation_space.shape
@@ -143,15 +141,15 @@ Tries to infer input and output size from env if either _input_shape or _output_
     ):
         """
 
-    @param observation_space:
-    @type observation_space:
-    @param action_space:
-    @type action_space:
-    @param signal_space:
-    @type signal_space:
-    @param kwargs:
-    @type kwargs:
-    """
+        @param observation_space:
+        @type observation_space:
+        @param action_space:
+        @type action_space:
+        @param signal_space:
+        @type signal_space:
+        @param kwargs:
+        @type kwargs:
+        """
         if self._intrinsic_signal_provider_arch is None:
             self._intrinsic_signal_provider = lambda *a: 0
         else:
@@ -176,12 +174,11 @@ Tries to infer input and output size from env if either _input_shape or _output_
     ) -> None:
         """
 
-@param observation_space:
-@param action_space:
-@param signal_space:
-@param kwargs:
-@return:
-"""
+        @param observation_space:
+        @param action_space:
+        @param signal_space:
+        @param kwargs:
+        @return:"""
         self.observation_space = observation_space
         self.action_space = action_space
         self.signal_space = signal_space
@@ -203,34 +200,30 @@ Tries to infer input and output size from env if either _input_shape or _output_
     def input_shape(self) -> [int, ...]:
         """
 
-@return:
-"""
+        @return:"""
         return self._input_shape
 
     @input_shape.setter
     def input_shape(self, input_shape: [int, ...]):
         """
 
-@param input_shape:
-@return:
-"""
+        @param input_shape:
+        @return:"""
         self._input_shape = input_shape
 
     @property
     def output_shape(self) -> [int, ...]:
         """
 
-@return:
-"""
+        @return:"""
         return self._output_shape
 
     @output_shape.setter
     def output_shape(self, output_shape: Tuple[int, ...]):
         """
 
-@param output_shape:
-@return:
-"""
+        @param output_shape:
+        @return:"""
         self._output_shape = output_shape
 
     def sample(
@@ -243,13 +236,12 @@ Tries to infer input and output size from env if either _input_shape or _output_
     ) -> Tuple[Any, ...]:
         """
 
-@param state:
-@param args:
-@param deterministic:
-@param metric_writer:
-@param kwargs:
-@return:
-"""
+        @param state:
+        @param args:
+        @param deterministic:
+        @param metric_writer:
+        @param kwargs:
+        @return:"""
         self._sample_i += 1
         self._sample_i_since_last_update += 1
         action = self._sample(
@@ -269,28 +261,25 @@ Tries to infer input and output size from env if either _input_shape or _output_
 
     def extract_features(self, snapshot: EnvironmentSnapshot) -> numpy.ndarray:
         """
-Feature extraction
-"""
+        Feature extraction"""
 
         return numpy.array(snapshot.observables)
 
     def extract_action(self, sample: Any) -> numpy.ndarray:
         """
 
-@param sample:
-@return:
-"""
+        @param sample:
+        @return:"""
         return numpy.array(sample)
 
     def extract_signal(self, snapshot: EnvironmentSnapshot) -> numpy.ndarray:
         """
-Allows for modulation of signal based on for example an Instrinsic Curiosity signal
+        Allows for modulation of signal based on for example an Instrinsic Curiosity signal
 
-  @param snapshot:
-  @type snapshot:
-@param kwargs:
-@return:
-"""
+          @param snapshot:
+          @type snapshot:
+        @param kwargs:
+        @return:"""
 
         signal_out = numpy.array(snapshot.signal)
         signal_out += self._intrinsic_signal_provider(snapshot)
@@ -299,27 +288,25 @@ Allows for modulation of signal based on for example an Instrinsic Curiosity sig
     def eval(self) -> None:
         """
 
-        For inference optimisations
-@return:
-"""
+                For inference optimisations
+        @return:"""
         pass
 
     def train(self) -> None:
         """
-        Reverse inference optimisations
+              Reverse inference optimisations
 
-  @return:
-  """
+        @return:
+        """
         pass
 
     def update(self, *args, metric_writer: Writer = MockWriter(), **kwargs) -> float:
         """
 
-@param args:
-@param metric_writer:
-@param kwargs:
-@return:
-"""
+        @param args:
+        @param metric_writer:
+        @param kwargs:
+        @return:"""
         self._update_i += 1
         self._sample_i_since_last_update = 0
         return self._update(*args, metric_writer=metric_writer, **kwargs)
@@ -327,11 +314,10 @@ Allows for modulation of signal based on for example an Instrinsic Curiosity sig
     def remember(self, *, signal: Any, terminated: Any, **kwargs):
         """
 
-@param terminated:
-@param signal:
-@param kwargs:
-@return:
-"""
+        @param terminated:
+        @param signal:
+        @param kwargs:
+        @return:"""
 
         if self._signal_clipping.enabled:
             signal = numpy.clip(
@@ -355,41 +341,37 @@ Allows for modulation of signal based on for example an Instrinsic Curiosity sig
     ) -> None:
         """
 
-@param observation_space:
-@param action_space:
-@param signal_space:
-@param kwargs:
-@return:
-"""
+        @param observation_space:
+        @param action_space:
+        @param signal_space:
+        @param kwargs:
+        @return:"""
         raise NotImplementedError
 
     @abstractmethod
     def load(self, *, save_directory, **kwargs) -> None:
         """
 
-@param save_directory:
-@param kwargs:
-@return:
-"""
+        @param save_directory:
+        @param kwargs:
+        @return:"""
         raise NotImplementedError
 
     @abstractmethod
     def save(self, *, save_directory, **kwargs) -> None:
         """
 
-@param save_directory:
-@param kwargs:
-@return:
-"""
+        @param save_directory:
+        @param kwargs:
+        @return:"""
         raise NotImplementedError
 
     @abstractmethod
     def _remember(self, *, signal, terminated, **kwargs) -> None:
         """
 
-@param kwargs:
-@return:
-"""
+        @param kwargs:
+        @return:"""
         raise NotImplementedError
 
     @abstractmethod
@@ -403,24 +385,22 @@ Allows for modulation of signal based on for example an Instrinsic Curiosity sig
     ) -> Tuple[Any, ...]:
         """
 
-@param state:
-@param args:
-@param deterministic:
-@param metric_writer:
-@param kwargs:
-@return:
-"""
+        @param state:
+        @param args:
+        @param deterministic:
+        @param metric_writer:
+        @param kwargs:
+        @return:"""
         raise NotImplementedError
 
     @abstractmethod
     def _update(self, *args, metric_writer: Writer = MockWriter(), **kwargs) -> Any:
         """
 
-@param args:
-@param metric_writer:
-@param kwargs:
-@return:
-"""
+        @param args:
+        @param metric_writer:
+        @param kwargs:
+        @return:"""
         raise NotImplementedError
 
     # endregion

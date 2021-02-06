@@ -19,9 +19,7 @@ __all__ = ["DisjunctMLP", "DuelingQMLP"]
 
 
 class DisjunctMLP(MLP):
-    """
-
-    """
+    """"""
 
     def __init__(
         self,

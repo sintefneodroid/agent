@@ -12,17 +12,14 @@ from draugr import indent_lines
 
 
 class SumTree:
-    """
-
-"""
+    """"""
 
     def __init__(
         self, capacity: int, round_capacity_to_nearest_power_of_two: bool = True
     ):
         """
 
-@param capacity:
-"""
+        @param capacity:"""
 
         if round_capacity_to_nearest_power_of_two:
             capacity = 2 ** round(math.log(capacity, 2))
@@ -38,12 +35,11 @@ class SumTree:
 
     def _propagate(self, tree_index: int, delta: float) -> None:
         """
-propagates changes through parents to root
+        propagates changes through parents to root
 
-@param tree_index:
-@param delta:
-@return:
-"""
+        @param tree_index:
+        @param delta:
+        @return:"""
 
         parent_node = math.floor((tree_index - 1) / 2)
         self._tree[parent_node] += delta
@@ -53,10 +49,9 @@ propagates changes through parents to root
     def _retrieve_leaf_recursive(self, tree_index: int, sum: float) -> Any:
         """
 
-@param sum:
-@param tree_index:
-@return:
-"""
+        @param sum:
+        @param tree_index:
+        @return:"""
         left_child = 2 * tree_index + 1
         right_child = left_child + 1
 
@@ -73,9 +68,8 @@ propagates changes through parents to root
     def _retrieve_leaf(self, sum: float) -> Any:
         """
 
-@param sum:
-@return:
-"""
+        @param sum:
+        @return:"""
         parent_index = 0
 
         while True:
@@ -99,11 +93,10 @@ propagates changes through parents to root
 
     def get(self, sum: float, *, normalised_sum: bool = True) -> tuple:
         """
-(leaf_index, data_index, self._tree[leaf_index], self._data[data_index])
-@param sum:
-@param normalised_sum:
-@return:
-"""
+        (leaf_index, data_index, self._tree[leaf_index], self._data[data_index])
+        @param sum:
+        @param normalised_sum:
+        @return:"""
         if normalised_sum:
             sum *= self.total
 
@@ -114,10 +107,9 @@ propagates changes through parents to root
     def push(self, data: Any, sum: float) -> None:
         """
 
-@param data:
-@param sum:
-@return:
-"""
+        @param data:
+        @param sum:
+        @return:"""
 
         self._data[self._cursor] = data
         self.update_leaf(self._cursor + self.capacity - 1, sum)
@@ -127,10 +119,9 @@ propagates changes through parents to root
     def update_leaf(self, leaf_index: int, new_sum: float) -> None:
         """
 
-@param leaf_index:
-@param new_sum:
-@return:
-"""
+        @param leaf_index:
+        @param new_sum:
+        @return:"""
         change = new_sum - self._tree[leaf_index]
         self._tree[leaf_index] = new_sum
 
@@ -140,17 +131,15 @@ propagates changes through parents to root
     @property
     def total(self) -> float:
         """
-Sum of all leaf nodes
+        Sum of all leaf nodes
 
-@return:
-"""
+        @return:"""
         return self._tree[0]
 
     def print_tree(self) -> None:
         """
-WARNING HEAVY with big trees!
-@return:
-"""
+        WARNING HEAVY with big trees!
+        @return:"""
         print("-" * 9)
         for k in range(self.num_tree_levels):
             start = 2 ** k - 1

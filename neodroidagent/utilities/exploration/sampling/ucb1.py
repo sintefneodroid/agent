@@ -8,8 +8,7 @@ __all__ = ["UCB1"]
 
 class UCB1:
     """
-  upper confidence bound
-"""
+    upper confidence bound"""
 
     @staticmethod
     def index_of_max(x: list) -> int:
@@ -19,16 +18,14 @@ class UCB1:
     def __init__(self, n_options):
         """
 
-@param n_options:
-"""
+        @param n_options:"""
         self._counts = [0 for _ in range(n_options)]
         self._values = [1 / n_options for _ in range(n_options)]
 
     def select_arm(self):
         """
 
-@return:
-"""
+        @return:"""
         n_options = len(self._counts)
 
         for option in range(n_options):
@@ -49,11 +46,10 @@ class UCB1:
     def update_belief(self, option_index, signal, min_value: float = 1e-9):
         """
 
-@param option_index:
-@param signal:
-@param min_value:
-@return:
-"""
+        @param option_index:
+        @param signal:
+        @param min_value:
+        @return:"""
         self._counts[option_index] = options_counts_int = self._counts[option_index] + 1
         options_counts_float = float(options_counts_int)
 
@@ -69,24 +65,21 @@ class UCB1:
     def counts(self):
         """
 
-@return:
-"""
+        @return:"""
         return self._counts
 
     @property
     def values(self):
         """
 
-@return:
-"""
+        @return:"""
         return self._values
 
     @property
     def normalised_values(self):
         """
 
-@return:
-"""
+        @return:"""
         s = len(self._values)
         normed = [0] * s
         for i in range(s):
@@ -96,10 +89,9 @@ class UCB1:
     def train(self, arms, rollouts: int = 1000) -> NOD:
         """
 
-@param arms:
-@param rollouts:
-@return:
-"""
+        @param arms:
+        @param rollouts:
+        @return:"""
         for t in range(rollouts):
             chosen_arm = self.select_arm()
             reward = arms[chosen_arm].draw()

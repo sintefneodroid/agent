@@ -18,14 +18,13 @@ class RolloutStorage(object):
         self, num_steps, num_processes, obs_shape, action_space, use_cuda, action_shape
     ):
         """
-A storage class for storing the episode rollouts across various environments
-:param num_steps: Steps into the environment
-:param num_processes: Parallel workers collecting the experiences
-:param obs_shape: Shape of the observation
-:param action_space: Action Shape
-:param state_size: Shape of the state (Maybe similar to the observation)
-:param use_cuda: Use GPU
-"""
+        A storage class for storing the episode rollouts across various environments
+        :param num_steps: Steps into the environment
+        :param num_processes: Parallel workers collecting the experiences
+        :param obs_shape: Shape of the observation
+        :param action_space: Action Shape
+        :param state_size: Shape of the state (Maybe similar to the observation)
+        :param use_cuda: Use GPU"""
         self.observations = torch.zeros(num_steps + 1, num_processes, *obs_shape)
         # Rewards given by the environment - Extrinsic Rewards
         self.rewards = torch.zeros(num_steps, num_processes, 1)
@@ -75,16 +74,15 @@ A storage class for storing the episode rollouts across various environments
         intrinsic_reward,
     ):
         """
-:param step:
-:param current_obs:
-:param state:
-:param action:
-:param action_log_prob:
-:param value_pred:
-:param reward:
-:param mask:
-:return:
-"""
+        :param step:
+        :param current_obs:
+        :param state:
+        :param action:
+        :param action_log_prob:
+        :param value_pred:
+        :param reward:
+        :param mask:
+        :return:"""
         self.observations[step + 1].copy_(current_obs)
         self.actions[step].copy_(action)
         self.action_log_probs[step].copy_(action_log_prob)
@@ -99,14 +97,13 @@ A storage class for storing the episode rollouts across various environments
 
     def compute_returns(self, next_value, use_gae, gamma, tau):
         """
-This function is being used to compute the true state values using a bootstrapped
-estimate and backtracking.
-:param next_value:
-:param use_gae: Use generalized advantage estimation
-:param gamma: Discount factor
-:param tau:
-:return:
-"""
+        This function is being used to compute the true state values using a bootstrapped
+        estimate and backtracking.
+        :param next_value:
+        :param use_gae: Use generalized advantage estimation
+        :param gamma: Discount factor
+        :param tau:
+        :return:"""
         # Returns defines the possible sum of rewards/returns from a given state
 
         if use_gae:

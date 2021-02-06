@@ -22,10 +22,9 @@ __all__ = [
 def compute_state(observations, configuration):
     """
 
-:param observations:
-:param configuration:
-:return StateTensor:
-"""
+    :param observations:
+    :param configuration:
+    :return StateTensor:"""
     StateTensorType = configuration.STATE_TYPE
     return StateTensorType([observations])
 
@@ -33,10 +32,9 @@ def compute_state(observations, configuration):
 def extract_and_compute_state(info, configuration):
     """
 
-:param info:
-:param configuration:
-:return StateTensor:
-"""
+    :param info:
+    :param configuration:
+    :return StateTensor:"""
     # observations = spatial_displacement()
     observations = []
 
@@ -69,20 +67,18 @@ def process_rigidbody_data(data):
 def spatial_displacement(pos1, pos2):
     """
 
-:param pos1:
-:param pos2:
-:return:
-"""
+    :param pos1:
+    :param pos2:
+    :return:"""
     return (numpy.array(pos1) - numpy.array(pos2)).flatten()
 
 
 def normalise_position(elements, bounds):
     """
 
-:param elements:
-:param bounds:
-:return:
-"""
+    :param elements:
+    :param bounds:
+    :return:"""
     normalised_0_1 = (numpy.array(elements) + numpy.array(bounds)) / (
         numpy.array(bounds) * 2
     )
@@ -96,5 +92,6 @@ def gray_downscale(state, configuration):
     state = torch.from_numpy(downsized_img).type(StateTensorType)  # 2D image tensor
     return torch.stack([state], 0).unsqueeze(0)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     gray_downscale()

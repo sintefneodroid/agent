@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 import math
-import pathlib
+from pathlib import Path
 import time
 from os import cpu_count
 
@@ -20,7 +20,7 @@ Author: Christian Heider Nielsen
 
 PROJECT_NAME = PROJECT_NAME
 CONFIG_NAME = __name__
-CONFIG_FILE_PATH = pathlib.Path(__file__)
+CONFIG_FILE_PATH = Path(__file__)
 CONFIG_AUTHOR = __author__
 LOAD_TIME = str(int(time.time()))
 
@@ -44,9 +44,7 @@ ACTION_CLIPPING = TogglableLowHigh(False, -1.0, 1.0)
 GRADIENT_CLIPPING = TogglableLowHigh(False, -1.0, 1.0)
 GRADIENT_NORM_CLIPPING = TogglableLowHigh(False, 0, 1.0)
 
-DISCOUNT_FACTOR = (
-    0.999
-)  # For sparse signal settings is it very important to keep the long term signals relevant by making them stretch far back in the rollout trace
+DISCOUNT_FACTOR = 0.999  # For sparse signal settings is it very important to keep the long term signals relevant by making them stretch far back in the rollout trace
 
 ITERATIONS = 4000
 

@@ -1,17 +1,14 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 import copy
-import hashlib
 from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import Dict, Iterable, Tuple
+from typing import Dict, Iterable
 
 import torch
-from torch.nn import Parameter
-from torch.optim import Optimizer
-
 from draugr import sprint
 from draugr.torch_utilities import (
+    get_model_hash,
     global_torch_device,
     load_latest_model_parameters,
     save_model_parameters,
@@ -24,6 +21,8 @@ from neodroidagent.utilities import IntrinsicSignalProvider
 from neodroidagent.utilities.exploration.intrinsic_signals.braindead import (
     BraindeadIntrinsicSignalProvider,
 )
+from torch.nn import Parameter
+from torch.optim import Optimizer
 from warg import drop_unused_kws, passes_kws_to, super_init_pass_on_kws
 
 __author__ = "Christian Heider Nielsen"
@@ -34,9 +33,7 @@ __all__ = ["TorchAgent"]
 
 @super_init_pass_on_kws(super_base=Agent)
 class TorchAgent(Agent, ABC):
-    """
-
-"""
+    """"""
 
     # region Private
 
@@ -51,12 +48,11 @@ class TorchAgent(Agent, ABC):
     ):
         """
 
-@param device:
-@param gradient_clipping:
-@param grad_clip_low:
-@param grad_clip_high:
-@param kwargs:
-"""
+        @param device:
+        @param gradient_clipping:
+        @param grad_clip_low:
+        @param grad_clip_high:
+        @param kwargs:"""
         super().__init__(
             intrinsic_signal_provider_arch=intrinsic_signal_provider_arch, **kwargs
         )
@@ -69,10 +65,9 @@ class TorchAgent(Agent, ABC):
     def post_process_gradients(self, parameters: Iterable[Parameter]) -> None:
         """
 
-@param model:
-@return:
-        :param parameters:
-"""
+        @param model:
+        @return:
+            :param parameters:"""
         if self._gradient_clipping.enabled:
             for params in parameters:
                 params.grad.data.clamp_(
@@ -88,8 +83,7 @@ class TorchAgent(Agent, ABC):
     def device(self) -> torch.device:
         """
 
-@return:
-"""
+        @return:"""
         return self._device
 
     # endregion
@@ -107,15 +101,14 @@ class TorchAgent(Agent, ABC):
     ) -> None:
         """
 
-@param observation_space:
-@param action_space:
-@param signal_space:
-@param metric_writer:
-@param print_model_repr:
-@param kwargs:
-@return:
-        :param verbose:
-"""
+        @param observation_space:
+        @param action_space:
+        @param signal_space:
+        @param metric_writer:
+        @param print_model_repr:
+        @param kwargs:
+        @return:
+            :param verbose:"""
         super().build(
             observation_space,
             action_space,
@@ -133,7 +126,7 @@ class TorchAgent(Agent, ABC):
                     try:
                         model = copy.deepcopy(w).to("cpu")
                         dummy_input = model.sample_input()
-                        sprint(f'{k} input: {dummy_input.shape}')
+                        sprint(f"{k} input: {dummy_input.shape}")
 
                         import contextlib
 
@@ -141,7 +134,9 @@ class TorchAgent(Agent, ABC):
                             None
                         ):  # So much useless frame info printed... Suppress it
                             if isinstance(metric_writer, GraphWriterMixin):
-                                metric_writer.graph(model, dummy_input, verbose=verbose) # No naming available at moment...
+                                metric_writer.graph(
+                                    model, dummy_input, verbose=verbose
+                                )  # No naming available at moment...
                     except RuntimeError as ex:
                         sprint(
                             f"Tensorboard(Pytorch) does not support you model! No graph added: {str(ex).splitlines()[0]}",
@@ -155,8 +150,7 @@ class TorchAgent(Agent, ABC):
     def models(self) -> Dict[str, Architecture]:
         """
 
-@return:
-"""
+        @return:"""
         raise NotImplementedError
 
     @property
@@ -164,17 +158,15 @@ class TorchAgent(Agent, ABC):
     def optimisers(self) -> Dict[str, Optimizer]:
         """
 
-@return:
-"""
+        @return:"""
         raise NotImplementedError
 
     @passes_kws_to(save_model_parameters)
     def save(self, **kwargs) -> None:
         """
 
-@param kwargs:
-@return:
-"""
+        @param kwargs:
+        @return:"""
         for (k, v), o in zip(self.models.items(), self.optimisers.values()):
             save_model_parameters(
                 v, optimiser=o, model_name=self.model_name(k, v), **kwargs
@@ -184,14 +176,10 @@ class TorchAgent(Agent, ABC):
     def model_name(k, v) -> str:
         """
 
-@param k:
-@param v:
-@return:
-"""
-        model_repr = "".join([str(a) for a in v.named_children()])
-        # print(model_repr)
-        model_hash = hashlib.md5(model_repr.encode("utf-8")).hexdigest()
-        return f"{k}-{model_hash}"
+        @param k:
+        @param v:
+        @return:"""
+        return f"{k}-{get_model_hash(v)}"
 
     def on_load(self) -> None:
         pass
@@ -200,10 +188,9 @@ class TorchAgent(Agent, ABC):
     def load(self, *, save_directory: Path, evaluation: bool = False) -> bool:
         """
 
-@param save_directory:
-@param evaluation:
-@return:
-"""
+        @param save_directory:
+        @param evaluation:
+        @return:"""
         loaded = True
         if save_directory.exists():
             print(f"Loading models from: {str(save_directory)}")
@@ -219,7 +206,7 @@ class TorchAgent(Agent, ABC):
                 )
                 if loaded:
                     model = model.to(self._device)
-                    #optimiser = optimiser.to(self._device)
+                    # optimiser = optimiser.to(self._device)
                     if evaluation:
                         model = model.eval()
                         model.train(False)  # Redundant

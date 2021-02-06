@@ -38,7 +38,6 @@ def test_transition_buffer():
     assert [a] == b, f"Expected {a} and {b} to be equal"
 
 
-@pytest.mark.slow
 def test_transition_buffer_list():
     rb = TransitionBuffer()
     a = numpy.random.random((9, 9))
@@ -75,7 +74,6 @@ def test_trajectory_buffer_more():
     assert (a,) == b, f"Expected {a} and {b} to be equal"
 
 
-@pytest.mark.slow
 def test_trajectory_list():
     rb = TrajectoryBuffer()
     a = numpy.random.random((9, 9))

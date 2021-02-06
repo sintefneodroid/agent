@@ -42,9 +42,11 @@ __all__ = ["PolicyGradientAgent"]
 @super_init_pass_on_kws
 class PolicyGradientAgent(TorchAgent):
     r"""
-REINFORCE, Vanilla Policy Gradient method
+    REINFORCE, Vanilla Policy Gradient method
 
-"""
+    - Williams 1992 paper
+    - Silver and Sutton update the policy in every timestep
+    """
 
     def __init__(
         self,
@@ -59,14 +61,13 @@ REINFORCE, Vanilla Policy Gradient method
         **kwargs,
     ) -> None:
         r"""
-:param evaluation_function:
-:param trajectory_trace:
-:param policy_arch_spec:
-:param discount_factor:
-:param optimiser_spec:
-:param state_type:
-:param kwargs:
-"""
+        :param evaluation_function:
+        :param trajectory_trace:
+        :param policy_arch_spec:
+        :param discount_factor:
+        :param optimiser_spec:
+        :param state_type:
+        :param kwargs:"""
         super().__init__(**kwargs)
 
         assert 0 <= discount_factor <= 1.0
@@ -96,15 +97,14 @@ REINFORCE, Vanilla Policy Gradient method
     ) -> None:
         """
 
-@param observation_space:
-@param action_space:
-@param signal_space:
-@param metric_writer:
-@param print_model_repr:
-@param distributional_regressor:
-@param optimiser:
-@return:
-"""
+        @param observation_space:
+        @param action_space:
+        @param signal_space:
+        @param metric_writer:
+        @param print_model_repr:
+        @param distributional_regressor:
+        @param optimiser:
+        @return:"""
 
         if distributional_regressor:
             self.distributional_regressor = distributional_regressor
@@ -142,8 +142,7 @@ REINFORCE, Vanilla Policy Gradient method
     def models(self) -> dict:
         """
 
-@return:
-"""
+        @return:"""
         return {"distributional_regressor": self.distributional_regressor}
 
     @property
@@ -154,9 +153,8 @@ REINFORCE, Vanilla Policy Gradient method
     def _sample(self, state: Sequence) -> Tuple:
         """
 
-@param state:
-@return:
-"""
+        @param state:
+        @return:"""
         model_input = to_tensor(state, device=self._device, dtype=torch.float)
         distribution = self.distributional_regressor(model_input)
 
@@ -178,11 +176,10 @@ REINFORCE, Vanilla Policy Gradient method
     def _remember(self, *, signal: Any, terminated: Any, sample: SamplePoint) -> None:
         """
 
-@param signal:
-@param terminated:
-@param sample:
-@return:
-"""
+        @param signal:
+        @param terminated:
+        @param sample:
+        @return:"""
         action, dist = sample
         self._memory_buffer.add_trajectory_point(signal, terminated, action, dist)
 
@@ -198,10 +195,9 @@ REINFORCE, Vanilla Policy Gradient method
     def _update(self, *, metric_writer=MockWriter()) -> float:
         """
 
-:param metric_writer:
+        :param metric_writer:
 
-:returns:
-"""
+        :returns:"""
 
         if not len(self._memory_buffer) > 0:
             raise NoTrajectoryException

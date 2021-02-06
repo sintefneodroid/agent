@@ -38,25 +38,24 @@ tqdm.monitor_interval = 0
 @super_init_pass_on_kws
 class DeepDeterministicPolicyGradientAgent(TorchAgent):
     """
-The Deep Deterministic Policy Gradient (DDPG) Agent
+    The Deep Deterministic Policy Gradient (DDPG) Agent
 
-Parameters
-----------
-actor_optimizer_spec: OptimiserSpec
-Specifying the constructor and kwargs, as well as learning rate and other
-parameters for the optimiser
-critic_optimizer_spec: OptimiserSpec
-num_feature: int
-The number of features of the environmental state
-num_action: int
-The number of available actions that agent can choose from
-replay_memory_size: int
-How many memories to store in the replay memory.
-batch_size: int
-How many transitions to sample each time experience is replayed.
-tau: float
-The update rate that target networks slowly track the learned networks.
-"""
+    Parameters
+    ----------
+    actor_optimizer_spec: OptimiserSpec
+    Specifying the constructor and kwargs, as well as learning rate and other
+    parameters for the optimiser
+    critic_optimizer_spec: OptimiserSpec
+    num_feature: int
+    The number of features of the environmental state
+    num_action: int
+    The number of available actions that agent can choose from
+    replay_memory_size: int
+    How many memories to store in the replay memory.
+    batch_size: int
+    How many transitions to sample each time experience is replayed.
+    tau: float
+    The update rate that target networks slowly track the learned networks."""
 
     def __init__(
         self,
@@ -76,20 +75,19 @@ The update rate that target networks slowly track the learned networks.
     ):
         """
 
-@param random_process_spec:
-@param memory_buffer:
-@param evaluation_function:
-@param actor_arch_spec:
-@param critic_arch_spec:
-@param discount_factor:
-@param update_target_interval:
-@param batch_size:
-@param noise_factor:
-@param copy_percentage:
-@param actor_optimiser_spec:
-@param critic_optimiser_spec:
-@param kwargs:
-"""
+        @param random_process_spec:
+        @param memory_buffer:
+        @param evaluation_function:
+        @param actor_arch_spec:
+        @param critic_arch_spec:
+        @param discount_factor:
+        @param update_target_interval:
+        @param batch_size:
+        @param noise_factor:
+        @param copy_percentage:
+        @param actor_optimiser_spec:
+        @param critic_optimiser_spec:
+        @param kwargs:"""
         super().__init__(**kwargs)
 
         assert 0 <= discount_factor <= 1.0
@@ -121,17 +119,16 @@ The update rate that target networks slowly track the learned networks.
     ) -> None:
         """
 
-@param observation_space:
-@param action_space:
-@param signal_space:
-@param metric_writer:
-@param print_model_repr:
-@param critic:
-@param critic_optimiser:
-@param actor:
-@param actor_optimiser:
-@return:
-"""
+        @param observation_space:
+        @param action_space:
+        @param signal_space:
+        @param metric_writer:
+        @param print_model_repr:
+        @param critic:
+        @param critic_optimiser:
+        @param actor:
+        @param actor_optimiser:
+        @return:"""
 
         if action_space.is_discrete:
             raise ActionSpaceNotSupported()
@@ -161,8 +158,7 @@ The update rate that target networks slowly track the learned networks.
     def models(self) -> Dict[str, Architecture]:
         """
 
-@return:
-"""
+        @return:"""
         return {"_actor": self._actor, "_critic": self._critic}
 
     @property
@@ -177,9 +173,8 @@ The update rate that target networks slowly track the learned networks.
     ) -> None:
         """
 
-@param update_percentage:
-@return:
-"""
+        @param update_percentage:
+        @return:"""
         with torch.no_grad():
             if metric_writer:
                 metric_writer.blip("Target Model Synced", self.update_i)
@@ -204,11 +199,10 @@ The update rate that target networks slowly track the learned networks.
     @drop_unused_kws
     def _update(self, *, metric_writer: Writer = MockWriter()) -> None:
         """
-Update
+        Update
 
-:return:
-:rtype:
-"""
+        :return:
+        :rtype:"""
         tensorised = TransitionPoint(
             *[to_tensor(a, device=self._device) for a in self._memory_buffer.sample()]
         )
@@ -257,19 +251,17 @@ Update
     def extract_action(self, sample: Any) -> numpy.ndarray:
         """
 
-@param sample:
-@return:
-"""
+        @param sample:
+        @return:"""
         return sample.to("cpu").numpy()
 
     @drop_unused_kws
     def _sample(self, state: Sequence) -> Any:
         """
 
-@param state:
-@param deterministic:
-@return:
-"""
+        @param state:
+        @param deterministic:
+        @return:"""
 
         with torch.no_grad():
             action_out = self._actor(to_tensor(state, device=self._device)).detach()

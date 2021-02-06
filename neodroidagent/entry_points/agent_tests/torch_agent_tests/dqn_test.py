@@ -20,9 +20,9 @@ Author: Christian Heider Nielsen
 """
 
 CONFIG_NAME = __name__
-import pathlib
+from pathlib import Path
 
-CONFIG_FILE_PATH = pathlib.Path(__file__)
+CONFIG_FILE_PATH = Path(__file__)
 
 EXPLORATION_SPEC = ExplorationSpecification(0.95, 0.05, ITERATIONS)
 OPTIMISER_SPEC = GDKC(torch.optim.Adam, lr=3e-4)
@@ -37,27 +37,31 @@ dqn_config = globals()
 def dqn_run(
     skip_confirmation: bool = True,
     environment_type: Union[bool, str] = True,
-    config=None,**kwargs
+    config=None,
+    **kwargs
 ) -> None:
     if config is None:
         config = dqn_config
     session_factory(
         DeepQNetworkAgent,
         config,
-        session=GDKC(ParallelSession,
+        session=GDKC(
+            ParallelSession,
             environment_name=ENVIRONMENT_NAME,
             procedure=OffPolicyEpisodic,
-            environment=environment_type,**kwargs
+            environment=environment_type,
+            **kwargs
         ),
         skip_confirmation=skip_confirmation,
-        environment=environment_type,**kwargs
+        environment=environment_type,
+        **kwargs
     )
 
 
-def dqn_test(config=None,**kwargs):
+def dqn_test(config=None, **kwargs):
     if config is None:
         config = dqn_config
-    dqn_run(environment_type="gym", config=config,**kwargs)
+    dqn_run(environment_type="gym", config=config, **kwargs)
 
 
 if __name__ == "__main__":

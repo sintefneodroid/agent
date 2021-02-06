@@ -14,6 +14,12 @@ from neodroidagent.entry_points.agent_tests.torch_agent_tests.ppo_test import *
 from .random_test import *
 from neodroidagent.entry_points.agent_tests.torch_agent_tests.sac_test import *
 
+from .torch_agent_tests.ddpg_test import ddpg_config, ddpg_run
+from .torch_agent_tests.dqn_test import dqn_config, dqn_run
+from .torch_agent_tests.pg_test import pg_config, pg_run
+from .torch_agent_tests.ppo_test import ppo_config, ppo_run
+from .torch_agent_tests.sac_test import sac_config, sac_run
+
 AGENT_OPTIONS = {
     "ddpg-gym": ddpg_test,
     "ddpg": ddpg_run,

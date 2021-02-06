@@ -37,7 +37,9 @@ def random_run(
     )
 
 
-def random_test(config=random_config) -> None:
+def random_test(config=None) -> None:
+    if config is None:
+        config = random_config
     random_run(environment_type="gym", config=config)
 
 
