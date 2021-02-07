@@ -33,14 +33,17 @@ class Procedure(abc.ABC):
         @param environment:
         @param on_improvement_callbacks:
         @param save_best_throughout_training:"""
-        if on_improvement_callbacks is None:
+        if not isinstance(on_improvement_callbacks, List) and isinstance(
+            on_improvement_callbacks, Iterable
+        ):
+            on_improvement_callbacks = [*on_improvement_callbacks]
+        elif on_improvement_callbacks is None:
             on_improvement_callbacks = []
 
         self.agent = agent
         self.environment = environment
         if save_best_throughout_training and train_agent:
             on_improvement_callbacks.append(self.agent.save)
-            print("Saving best model throughout training")
         self.on_improvement_callbacks = on_improvement_callbacks
 
     @staticmethod
@@ -48,9 +51,10 @@ class Procedure(abc.ABC):
         """
 
         @return:"""
+        print("STOPPING PROCEDURE!")
         Procedure.early_stop = True
 
-    def call_on_improvement_callbacks(self, *, verbose: bool = True, **kwargs):
+    def model_improved(self, *, step_i, verbose: bool = True, **kwargs):
         """
 
         @param verbose:
@@ -59,8 +63,10 @@ class Procedure(abc.ABC):
         if verbose:
             print("Model improved")
 
-        if self.on_improvement_callbacks:
-            [cb(verbose=verbose, **kwargs) for cb in self.on_improvement_callbacks]
+        [
+            cb(step_i=step_i, verbose=verbose, **kwargs)
+            for cb in self.on_improvement_callbacks
+        ]
 
     @abc.abstractmethod
     def __call__(
@@ -88,3 +94,6 @@ class Procedure(abc.ABC):
         :param kwargs:
         :return:"""
         raise NotImplementedError
+
+    def close(self):
+        self.environment.close()

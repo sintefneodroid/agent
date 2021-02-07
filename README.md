@@ -1,6 +1,13 @@
-![neodroid](.github/images/header.png)
+<!--![header](.github/images/header.png)-->
 
-# Agent
+<p align="center">
+  <img src=".github/images/header.png" alt='header' />
+</p>
+
+<h1 align="center">Agent</h1>
+
+<!--# Agent-->
+
 This repository will host all initial machine learning efforts applying the [Neodroid](https://github.com/sintefneodroid/) platform.
 
 ---

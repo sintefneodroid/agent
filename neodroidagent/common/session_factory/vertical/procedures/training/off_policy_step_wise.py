@@ -98,7 +98,9 @@ class OffPolicyStepWise(Procedure):
                 sig = next(running_signal)
                 if not best_running_signal or sig > best_running_signal:
                     best_running_signal = sig
-                    self.call_on_improvement_callbacks(loss=loss, signal=sig, **kwargs)
+                    self.model_improved(
+                        step_i=self.agent.update_i, loss=loss, signal=sig, **kwargs
+                    )
 
             if terminated.any():
                 termination_i += 1

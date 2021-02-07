@@ -11,6 +11,8 @@ import pytest
 
 from warg import NOD
 
+ATOL = 1e-3
+
 
 def sample_transitions():
     signals = numpy.array([[1, 2, 3, 4, 5], [5, 4, 3, 2, 1]], numpy.float32)
@@ -107,7 +109,7 @@ def test_discounted_gae_returns(transitions):
             ],
         ]
     )
-    numpy.testing.assert_allclose(expected, actual)
+    numpy.testing.assert_allclose(expected, actual, atol=ATOL)
 
 
 def test_n_step_advantage_returns(transitions):
@@ -143,7 +145,7 @@ def test_n_step_advantage_returns(transitions):
             ],
         ]
     )
-    numpy.testing.assert_allclose(actual, expected)
+    numpy.testing.assert_allclose(actual, expected, atol=ATOL)
 
 
 def test_n_step_returns(transitions):
@@ -175,7 +177,7 @@ def test_n_step_returns(transitions):
             ],
         ]
     )
-    numpy.testing.assert_allclose(actual, expected)
+    numpy.testing.assert_allclose(actual, expected, atol=ATOL)
 
 
 def test_ge_returns(transitions):
@@ -253,7 +255,7 @@ def test_ge_returns(transitions):
         )
         + v[:, :-1]
     )
-    numpy.testing.assert_allclose(actual, expected, atol=1e-3)
+    numpy.testing.assert_allclose(actual, expected, atol=ATOL)
 
 
 if __name__ == "__main__":

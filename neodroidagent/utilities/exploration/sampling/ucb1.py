@@ -1,7 +1,7 @@
 import math
 import sys
 
-from warg.named_ordered_dictionary import NOD
+from warg import NOD
 
 __all__ = ["UCB1"]
 

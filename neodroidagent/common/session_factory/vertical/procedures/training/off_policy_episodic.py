@@ -170,7 +170,7 @@ class OffPolicyEpisodic(Procedure):
 
             if best_episode_return < ret:
                 best_episode_return = ret
-                self.call_on_improvement_callbacks(**kwargs)
+                self.model_improved(step_i=self.agent.update_i, **kwargs)
 
             if self.early_stop:
                 break

@@ -3,25 +3,19 @@
 import logging
 import math
 from itertools import count
-from pathlib import Path
-from typing import Union
 
 import numpy
-import torch
-import torchsnooper
-from draugr.drawers import DiscreteScrollPlot
-
-from draugr.drawers.mpldrawer import MplDrawer, MockDrawer
-from draugr.metrics.accumulation import mean_accumulator, total_accumulator
+from draugr.drawers import MockDrawer, MplDrawer
+from draugr.metrics import mean_accumulator, total_accumulator
 from draugr.writers import MockWriter, Writer
-from draugr.torch_utilities import TensorBoardPytorchWriter
+from warg import drop_unused_kws, is_positive_and_mod_zero, passes_kws_to
+
 from neodroid.environments.environment import Environment
 from neodroid.utilities import EnvironmentSnapshot, to_one_hot
 from neodroidagent.agents.agent import Agent
 from neodroidagent.common.session_factory.vertical.procedures.procedure_specification import (
     Procedure,
 )
-from warg import is_positive_and_mod_zero, drop_unused_kws, passes_kws_to
 
 __author__ = "Christian Heider Nielsen"
 __all__ = ["rollout_on_policy", "OnPolicyEpisodic"]
@@ -46,23 +40,23 @@ def rollout_on_policy(
 ):
     """Perform a single rollout until termination in environment
 
-      :param rollout_ith:
-    :param agent:
-    :param rollout_drawer:
-    :param disable_stdout:
-    :param metric_writer:
-    :type max_length: int
-    :param max_length:
-    :type train_agent: bool
-    :type render_environment: bool
-    :param initial_snapshot: The initial state observation in the environment
-    :param env: The environment the agent interacts with
-    :param render_environment: Whether to render environment interaction
-    :param train_agent: Whether the agent should use the rollout to update its model
-    :return:
-    -episode_signal (:py:class:`float`) - first output
-    -episode_length-
-    -average_episode_entropy-"""
+    :param rollout_ith:
+  :param agent:
+  :param rollout_drawer:
+  :param disable_stdout:
+  :param metric_writer:
+  :type max_length: int
+  :param max_length:
+  :type train_agent: bool
+  :type render_environment: bool
+  :param initial_snapshot: The initial state observation in the environment
+  :param env: The environment the agent interacts with
+  :param render_environment: Whether to render environment interaction
+  :param train_agent: Whether the agent should use the rollout to update its model
+  :return:
+  -episode_signal (:py:class:`float`) - first output
+  -episode_length-
+  -average_episode_entropy-"""
 
     state = agent.extract_features(initial_snapshot)
     running_mean_action = mean_accumulator()
@@ -118,11 +112,12 @@ def rollout_on_policy(
         logging.info("no update")
 
     episode_return = next(episode_signal)
-    rma = next(running_mean_action)
 
     if metric_writer:
         metric_writer.scalar("duration", step_i, agent.update_i)
-        metric_writer.scalar("running_mean_action", rma, agent.update_i)
+        metric_writer.scalar(
+            "running_mean_action", next(running_mean_action), agent.update_i
+        )
         metric_writer.scalar("signal", episode_return, agent.update_i)
 
     return episode_return, step_i
@@ -141,17 +136,17 @@ class OnPolicyEpisodic(Procedure):
         **kwargs,
     ):
         r"""
-        :param log_directory:
-        :param disable_stdout: Whether to disable stdout statements or not
-        :type disable_stdout: bool
-        :param iterations: How many iterations to train for
-        :type iterations: int
-        :param render_frequency: How often to render environment
-        :type render_frequency: int
-        :param stat_frequency: How often to write statistics
-        :type stat_frequency: int
-        :return: A training resume containing the trained agents models and some statistics
-        :rtype: TR"""
+    :param log_directory:
+    :param disable_stdout: Whether to disable stdout statements or not
+    :type disable_stdout: bool
+    :param iterations: How many iterations to train for
+    :type iterations: int
+    :param render_frequency: How often to render environment
+    :type render_frequency: int
+    :param stat_frequency: How often to write statistics
+    :type stat_frequency: int
+    :return: A training resume containing the trained agents models and some statistics
+    :rtype: TR"""
 
         E = range(1, iterations)
         E = tqdm(E, desc="Rollout #", leave=False)
@@ -177,7 +172,7 @@ class OnPolicyEpisodic(Procedure):
 
             if best_episode_return < ret:
                 best_episode_return = ret
-                self.call_on_improvement_callbacks(**kwargs)
+                self.model_improved(step_i=self.agent.update_i, **kwargs)
 
             if self.early_stop:
                 break

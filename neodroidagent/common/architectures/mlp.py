@@ -11,7 +11,7 @@ from neodroidagent.common.architectures.architecture import Architecture
 from numpy import prod
 from torch import nn
 from torch.nn import Module
-from warg.named_ordered_dictionary import NOD
+from warg import NOD
 
 __author__ = "Christian Heider Nielsen"
 

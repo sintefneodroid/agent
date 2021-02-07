@@ -10,7 +10,11 @@ import torch
 import torchsnooper
 from draugr import sprint
 from draugr.drawers import DiscreteScrollPlot, SeriesScrollPlot
-from draugr.stopping import CaptureEarlyStop, add_early_stopping_key_combination
+from draugr.stopping import (
+    CaptureEarlyStop,
+    IgnoreInterruptSignal,
+    add_early_stopping_key_combination,
+)
 from draugr.torch_utilities import TensorBoardPytorchWriter
 from draugr.random_utilities import seed_stack
 from draugr.writers import MockWriter
@@ -23,6 +27,8 @@ from warg.decorators.timing import StopWatch
 
 from .environment_session import EnvironmentSession
 from .procedures.procedure_specification import Procedure
+from functools import partial
+from warg import drop_unused_kws
 
 __author__ = "Christian Heider Nielsen"
 __doc__ = r"""
@@ -54,12 +60,12 @@ class SingleAgentEnvironmentSession(EnvironmentSession):
         **kwargs,
     ):
         """
-        Start a session, builds Agent and starts/connect environment(s), and runs Procedure
+    Start a session, builds Agent and starts/connect environment(s), and runs Procedure
 
 
-        :param args:
-        :param kwargs:
-        :return:"""
+    :param args:
+    :param kwargs:
+    :return:"""
         kwargs.update(num_envs=num_envs)
         kwargs.update(train_agent=train_agent)
         kwargs.update(debug=debug)
@@ -108,7 +114,7 @@ class SingleAgentEnvironmentSession(EnvironmentSession):
                 if self._environment.action_space.is_discrete:
                     rollout_drawer = GDKC(
                         DiscreteScrollPlot,
-                        num_actions=self._environment.action_space.discrete_steps,
+                        num_bins=self._environment.action_space.discrete_steps,
                         default_delta=None,
                     )
                 else:
@@ -124,8 +130,9 @@ class SingleAgentEnvironmentSession(EnvironmentSession):
                     metric_writer = GDKC(MockWriter)
 
                 with ContextWrapper(metric_writer, train_agent) as metric_writer:
+                    metric_writer: Writer
                     with ContextWrapper(
-                        rollout_drawer, num_envs == 1
+                        rollout_drawer, num_envs == 1  # bool test
                     ) as rollout_drawer:
 
                         agent.build(
@@ -178,13 +185,19 @@ class SingleAgentEnvironmentSession(EnvironmentSession):
                                 italic=True,
                             )
 
-                        session_proc = self._procedure(agent, **kwargs)
+                        session_proc = self._procedure(
+                            agent,
+                            on_improvement_callbacks=[
+                                lambda *_, step_i, **__: metric_writer.blip(
+                                    "new_best_model", step_i
+                                )
+                            ],
+                            **kwargs,
+                        )
 
-                        with CaptureEarlyStop(
-                            callbacks=self._procedure.stop_procedure, **kwargs
-                        ):
+                        with CaptureEarlyStop(self._procedure.stop_procedure, **kwargs):
                             with StopWatch() as timer:
-                                with suppress(KeyboardInterrupt):
+                                with IgnoreInterruptSignal():
                                     training_resume = session_proc(
                                         metric_writer=metric_writer,
                                         rollout_drawer=rollout_drawer,
@@ -196,6 +209,8 @@ class SingleAgentEnvironmentSession(EnvironmentSession):
                                         and save_training_resume
                                     ):
                                         training_resume.stats.save(**kwargs)
+
+                        session_proc.close()
 
                         end_message = f"Training ended, time elapsed: {timer // 60:.0f}m {timer % 60:.0f}s"
                         line_width = 9
@@ -209,12 +224,12 @@ class SingleAgentEnvironmentSession(EnvironmentSession):
                         if save_ending_model:
                             agent.save(**kwargs)
 
-                        try:
-                            self._environment.close()
-                        except BrokenPipeError:
-                            pass
+                try:
+                    self._environment.close()
+                except BrokenPipeError:
+                    pass
 
-                        exit(0)
+                exit(0)
 
 
 if __name__ == "__main__":

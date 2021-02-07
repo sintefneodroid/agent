@@ -4,13 +4,13 @@ from typing import Any, Dict, Sequence, Tuple
 
 import numpy
 import torch
-from draugr.writers.mixins.graph_writer_mixin import GraphWriterMixin
+from draugr.torch_utilities import to_tensor
+from draugr.writers import MockWriter, Writer
 from torch.nn import Module
 from torch.optim import Optimizer
 from tqdm import tqdm
+from warg import GDKC, drop_unused_kws, super_init_pass_on_kws
 
-from draugr.writers import MockWriter, Writer
-from draugr.torch_utilities import to_tensor
 from neodroid.utilities import (
     ActionSpace,
     ObservationSpace,
@@ -26,7 +26,6 @@ from neodroidagent.common import (
     SampleTrajectoryBuffer,
 )
 from neodroidagent.utilities import NoTrajectoryException, discount_rollout_signal_torch
-from warg import GDKC, drop_unused_kws, super_init_pass_on_kws
 
 tqdm.monitor_interval = 0
 

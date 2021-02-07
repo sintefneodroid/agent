@@ -65,10 +65,7 @@ class OffPolicyBatched(Procedure):
             postfix=f"Agent update #{self.agent.update_i}",
         ):
             for _ in tqdm(
-                range(batch_size),
-                leave=False,
-                disable=disable_stdout,
-                desc="Step #",
+                range(batch_size), leave=False, disable=disable_stdout, desc="Step #",
             ):
 
                 sample = self.agent.sample(state)
@@ -106,7 +103,7 @@ class OffPolicyBatched(Procedure):
 
                 if sig > best_running_signal:
                     best_running_signal = sig
-                    self.call_on_improvement_callbacks(loss=loss, **kwargs)
+                    self.model_improved(step_i=self.agent.update_i, loss=loss, **kwargs)
             else:
                 logging.info("no update")
 

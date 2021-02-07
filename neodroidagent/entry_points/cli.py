@@ -25,7 +25,7 @@ indent = " " * margin
 sponsors = ("SINTEF Ocean", "Alexandra Institute", "Norges Forskningsråd")
 
 
-class RunAgent:
+class RunAgent(object):
     def __init__(self, agent_key: str, agent_callable: callable):
         self.agent_key = agent_key
         self.agent_callable = agent_callable
@@ -41,9 +41,7 @@ class RunAgent:
         for key, arg in config_overrides.items():
             setattr(default_config, key, arg)
 
-        print("Explicit Overrides:")
-        print(explicit_overrides)
-        # print(default_config)
+        print(f"Explicit Overrides:\n{explicit_overrides}")
 
         self.agent_callable(config=default_config, **explicit_overrides)
 
