@@ -15,7 +15,7 @@ from pathlib import Path
 
 from cloudpickle import cloudpickle
 
-from neodroid.environments.droid_environment import UnityEnvironment
+from neodroid.environments.droid_environment import DictUnityEnvironment
 from neodroidagent.agents import SoftActorCriticAgent
 from neodroidagent.common import CategoricalMLP
 
@@ -149,7 +149,7 @@ if __name__ == "__main__":
 
     ENV = ""
 
-    env = UnityEnvironment(env_name=ENV)
+    env = DictUnityEnvironment(env_name=ENV)
 
     policy = CategoricalMLP(
         input_shape=env.observation_space,

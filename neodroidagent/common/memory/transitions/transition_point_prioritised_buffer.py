@@ -18,7 +18,7 @@ from neodroidagent.common.memory.transitions.transitions import TransitionPoint
 
 
 class TransitionPointPrioritisedBuffer(PrioritisedBuffer):
-    """"""
+    """ """
 
     def add_transition_point(self, sample: Any, error: float = 0.0) -> None:
         super().add(sample, error)

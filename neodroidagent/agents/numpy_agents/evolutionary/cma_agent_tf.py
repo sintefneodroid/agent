@@ -78,7 +78,7 @@ class CovarianceMatrixAdaptationEvolutionStrategyAgent:
         self._shared_params = self._evolution_strategy.ask()
 
     def build(self):
-        """"""
+        """ """
         pass  # TODO:
 
     def __build__(self, init_mean_parameters: Sequence):
@@ -115,7 +115,7 @@ class CovarianceMatrixAdaptationEvolutionStrategyAgent:
         return last_return
 
     def extract_signal(self):
-        """"""
+        """ """
         pass
 
     def train_once(
@@ -131,8 +131,8 @@ class CovarianceMatrixAdaptationEvolutionStrategyAgent:
             trajectories (list[dict]): A list of collected paths.
         Returns:
             float: The average return in last epoch cycle.
-            @param writer:
-            @type writer:
+            :param writer:
+            :type writer:
         """
 
         undiscounted_returns = []
@@ -162,7 +162,7 @@ class CovarianceMatrixAdaptationEvolutionStrategyAgent:
         return sample_returns
 
     def update(self) -> None:
-        """"""
+        """ """
         self._evolution_strategy.tell(
             self._shared_params, -np.array(self._all_returns)
         )  # Report back results

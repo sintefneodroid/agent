@@ -21,17 +21,17 @@ from .torch_agent_tests.ppo_test import ppo_config, ppo_run
 from .torch_agent_tests.sac_test import sac_config, sac_run
 
 AGENT_OPTIONS = {
-    "ddpg-gym": ddpg_test,
+    "ddpg-gym": ddpg_gym_test,
     "ddpg": ddpg_run,
-    "ppo-gym": ppo_test,
+    "ppo-gym": ppo_gym_test,
     "ppo": ppo_run,
-    "pg-gym": pg_test,
+    "pg-gym": pg_gym_test,
     "pg": pg_run,
-    "dqn-gym": dqn_test,
+    "dqn-gym": dqn_gym_test,
     "dqn": dqn_run,
-    "sac-gym": sac_test,
+    "sac-gym": sac_gym_test,
     "sac": sac_run,
-    "random-gym": random_test,
+    "random-gym": random_gym_test,
     "random": random_run,
 }
 

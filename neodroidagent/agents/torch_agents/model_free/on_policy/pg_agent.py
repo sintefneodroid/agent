@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-from typing import Any, Dict, Sequence, Tuple
+from typing import Any, Dict, Optional, Sequence, Tuple
 
 import numpy
 import torch
@@ -12,10 +12,13 @@ from tqdm import tqdm
 from warg import GDKC, drop_unused_kws, super_init_pass_on_kws
 
 from neodroid.utilities import (
+    non_terminal_numerical_mask,
+)
+
+from trolls.spaces import (
     ActionSpace,
     ObservationSpace,
     SignalSpace,
-    non_terminal_numerical_mask,
 )
 from neodroidagent.agents.torch_agents.torch_agent import TorchAgent
 from neodroidagent.common import (
@@ -88,7 +91,7 @@ class PolicyGradientAgent(TorchAgent):
         observation_space: ObservationSpace,
         action_space: ActionSpace,
         signal_space: SignalSpace,
-        metric_writer: Writer = MockWriter(),
+        metric_writer: Optional[Writer] = MockWriter(),
         print_model_repr: bool = True,
         *,
         distributional_regressor: Module = None,
@@ -96,20 +99,20 @@ class PolicyGradientAgent(TorchAgent):
     ) -> None:
         """
 
-        @param observation_space:
-        @param action_space:
-        @param signal_space:
-        @param metric_writer:
-        @param print_model_repr:
-        @param distributional_regressor:
-        @param optimiser:
-        @return:"""
+        :param observation_space:
+        :param action_space:
+        :param signal_space:
+        :param metric_writer:
+        :param print_model_repr:
+        :param distributional_regressor:
+        :param optimiser:
+        :return:"""
 
         if distributional_regressor:
             self.distributional_regressor = distributional_regressor
         else:
             self._policy_arch_spec.kwargs["input_shape"] = self._input_shape
-            if action_space.is_discrete:
+            if action_space.is_singular_discrete:
                 self._policy_arch_spec = GDKC(
                     constructor=CategoricalMLP, kwargs=self._policy_arch_spec.kwargs
                 )
@@ -141,7 +144,7 @@ class PolicyGradientAgent(TorchAgent):
     def models(self) -> dict:
         """
 
-        @return:"""
+        :return:"""
         return {"distributional_regressor": self.distributional_regressor}
 
     @property
@@ -152,15 +155,15 @@ class PolicyGradientAgent(TorchAgent):
     def _sample(self, state: Sequence) -> Tuple:
         """
 
-        @param state:
-        @return:"""
+        :param state:
+        :return:"""
         model_input = to_tensor(state, device=self._device, dtype=torch.float)
         distribution = self.distributional_regressor(model_input)
 
         with torch.no_grad():
             action = distribution.sample().detach()
 
-        if self.action_space.is_discrete:
+        if self.action_space.is_singular_discrete:
             action = action.unsqueeze(-1)
         else:
             pass
@@ -175,17 +178,17 @@ class PolicyGradientAgent(TorchAgent):
     def _remember(self, *, signal: Any, terminated: Any, sample: SamplePoint) -> None:
         """
 
-        @param signal:
-        @param terminated:
-        @param sample:
-        @return:"""
+        :param signal:
+        :param terminated:
+        :param sample:
+        :return:"""
         action, dist = sample
         self._memory_buffer.add_trajectory_point(signal, terminated, action, dist)
 
     # region Protected
 
     def get_log_prob(self, dist, action):
-        if self.action_space.is_discrete:
+        if self.action_space.is_singular_discrete:
             return dist.log_prob(action.squeeze(-1)).unsqueeze(-1)
         else:
             return dist.log_prob(action).sum(axis=-1, keepdims=True)

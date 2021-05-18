@@ -2,33 +2,30 @@
 # -*- coding: utf-8 -*-
 import inspect
 import time
-from contextlib import suppress
 from os import cpu_count
 from typing import Any, Type
 
 import torch
-import torchsnooper
-from draugr import sprint
+
+# import torchsnooper
+from draugr import IgnoreInterruptSignal, sprint
 from draugr.drawers import DiscreteScrollPlot, SeriesScrollPlot
+from draugr.random_utilities import seed_stack
 from draugr.stopping import (
     CaptureEarlyStop,
-    IgnoreInterruptSignal,
     add_early_stopping_key_combination,
 )
 from draugr.torch_utilities import TensorBoardPytorchWriter
-from draugr.random_utilities import seed_stack
 from draugr.writers import MockWriter
-from neodroidagent import PROJECT_APP_PATH
-from neodroidagent.agents import Agent
-from neodroidagent.utilities import NoAgent
 from warg import GDKC, passes_kws_to
 from warg.context_wrapper import ContextWrapper
 from warg.decorators.timing import StopWatch
 
+from neodroidagent import PROJECT_APP_PATH
+from neodroidagent.agents import Agent
+from neodroidagent.utilities import NoAgent
 from .environment_session import EnvironmentSession
 from .procedures.procedure_specification import Procedure
-from functools import partial
-from warg import drop_unused_kws
 
 __author__ = "Christian Heider Nielsen"
 __doc__ = r"""
@@ -60,18 +57,19 @@ class SingleAgentEnvironmentSession(EnvironmentSession):
         **kwargs,
     ):
         """
-    Start a session, builds Agent and starts/connect environment(s), and runs Procedure
+        Start a session, builds Agent and starts/connect environment(s), and runs Procedure
 
 
-    :param args:
-    :param kwargs:
-    :return:"""
+        :param args:
+        :param kwargs:
+        :return:"""
         kwargs.update(num_envs=num_envs)
         kwargs.update(train_agent=train_agent)
         kwargs.update(debug=debug)
         kwargs.update(environment=self._environment)
 
-        with ContextWrapper(torchsnooper.snoop, debug):
+        # with ContextWrapper(torchsnooper.snoop, debug):
+        if True:
             with ContextWrapper(torch.autograd.detect_anomaly, debug):
 
                 if agent is None:
@@ -111,7 +109,7 @@ class SingleAgentEnvironmentSession(EnvironmentSession):
                     / load_time
                 )
 
-                if self._environment.action_space.is_discrete:
+                if self._environment.action_space.is_singular_discrete:
                     rollout_drawer = GDKC(
                         DiscreteScrollPlot,
                         num_bins=self._environment.action_space.discrete_steps,
@@ -130,9 +128,8 @@ class SingleAgentEnvironmentSession(EnvironmentSession):
                     metric_writer = GDKC(MockWriter)
 
                 with ContextWrapper(metric_writer, train_agent) as metric_writer:
-                    metric_writer: Writer
                     with ContextWrapper(
-                        rollout_drawer, num_envs == 1  # bool test
+                        rollout_drawer, not train_agent  # num_envs == 1  # bool test
                     ) as rollout_drawer:
 
                         agent.build(
@@ -185,13 +182,16 @@ class SingleAgentEnvironmentSession(EnvironmentSession):
                                 italic=True,
                             )
 
-                        session_proc = self._procedure(
-                            agent,
-                            on_improvement_callbacks=[
+                        cbs = []
+                        if metric_writer:
+                            cbs.append(
                                 lambda *_, step_i, **__: metric_writer.blip(
                                     "new_best_model", step_i
                                 )
-                            ],
+                            )
+                        session_proc = self._procedure(
+                            agent,
+                            on_improvement_callbacks=cbs,
                             **kwargs,
                         )
 

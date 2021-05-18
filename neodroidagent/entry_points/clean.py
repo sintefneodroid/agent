@@ -11,7 +11,7 @@ __all__ = ["clean_all", "clean_cache", "clean_config", "clean_data", "clean_log"
 
 
 def clean_data() -> None:
-    """"""
+    """ """
     print(f"Wiping {PROJECT_APP_PATH.user_data}")
     if PROJECT_APP_PATH.user_data.exists():
         data_dir = str(PROJECT_APP_PATH.user_data)
@@ -21,7 +21,7 @@ def clean_data() -> None:
 
 
 def clean_log() -> None:
-    """"""
+    """ """
     print(f"Wiping {PROJECT_APP_PATH.user_log}")
     if PROJECT_APP_PATH.user_log.exists():
         log_dir = str(PROJECT_APP_PATH.user_log)
@@ -31,7 +31,7 @@ def clean_log() -> None:
 
 
 def clean_cache() -> None:
-    """"""
+    """ """
     print(f"Wiping {PROJECT_APP_PATH.user_cache}")
     if PROJECT_APP_PATH.user_cache.exists():
         cache_dir = str(PROJECT_APP_PATH.user_cache)
@@ -41,7 +41,7 @@ def clean_cache() -> None:
 
 
 def clean_config() -> None:
-    """"""
+    """ """
     print(f"Wiping {PROJECT_APP_PATH.user_config}")
     if PROJECT_APP_PATH.user_config.exists():
         config_dir = str(PROJECT_APP_PATH.user_config)
@@ -51,6 +51,7 @@ def clean_config() -> None:
 
 
 def clean_all() -> None:
+    """ """
     clean_config()
     clean_data()
     clean_cache()

@@ -8,7 +8,7 @@ __all__ = ["SegmentTree"]
 
 
 class SegmentTree(object):
-    """"""
+    """ """
 
     def __init__(self, capacity, operation, neutral_element):
         """Build a Segment Tree data structure.
@@ -46,12 +46,12 @@ class SegmentTree(object):
     def _reduce_helper(self, start, end, node, node_start, node_end):
         """
 
-        @param start:
-        @param end:
-        @param node:
-        @param node_start:
-        @param node_end:
-        @return:"""
+        :param start:
+        :param end:
+        :param node:
+        :param node_start:
+        :param node_end:
+        :return:"""
         if start == node_start and end == node_end:
             return self._value[node]
         mid = (node_start + node_end) // 2
@@ -93,9 +93,9 @@ class SegmentTree(object):
     def __setitem__(self, idx, val):
         """
 
-        @param idx:
-        @param val:
-        @return:"""
+        :param idx:
+        :param val:
+        :return:"""
 
         idx += self._capacity  # index of the leaf
         self._value[idx] = val
@@ -109,19 +109,19 @@ class SegmentTree(object):
     def __getitem__(self, idx):
         """
 
-        @param idx:
-        @return:"""
+        :param idx:
+        :return:"""
         assert 0 <= idx < self._capacity
         return self._value[self._capacity + idx]
 
 
 class SumSegmentTree(SegmentTree):
-    """"""
+    """ """
 
     def __init__(self, capacity):
         """
 
-        @param capacity:"""
+        :param capacity:"""
         super().__init__(capacity=capacity, operation=operator.add, neutral_element=0.0)
 
     def sum(self, start=0, end=None):
@@ -153,12 +153,12 @@ class SumSegmentTree(SegmentTree):
 
 
 class MinSegmentTree(SegmentTree):
-    """"""
+    """ """
 
     def __init__(self, capacity):
         """
 
-        @param capacity:"""
+        :param capacity:"""
         super().__init__(capacity=capacity, operation=min, neutral_element=float("inf"))
 
     def min(self, start=0, end=None):

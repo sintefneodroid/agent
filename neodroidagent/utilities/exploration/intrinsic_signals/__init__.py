@@ -9,3 +9,4 @@ __doc__ = r"""
 
 from .intrinsic_signal_provider import *
 from .torch_isp import *
+from .braindead import *

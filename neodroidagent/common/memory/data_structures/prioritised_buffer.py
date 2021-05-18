@@ -16,7 +16,7 @@ from neodroidagent.common.memory.data_structures.sum_tree import SumTree
 
 
 class PrioritisedBuffer:
-    """"""
+    """ """
 
     def __init__(
         self,
@@ -29,12 +29,12 @@ class PrioritisedBuffer:
     ):
         """
 
-        @param capacity:
-        @param per_epsilon:
-        @param per_alpha:
-        @param per_beta:
-        @param per_beta_increment_per_sampling:
-        @param max_abs_dist:"""
+        :param capacity:
+        :param per_epsilon:
+        :param per_alpha:
+        :param per_beta:
+        :param per_beta_increment_per_sampling:
+        :param max_abs_dist:"""
         self._epsilon = per_epsilon
         self._alpha = per_alpha
         self._beta = per_beta
@@ -45,8 +45,8 @@ class PrioritisedBuffer:
     def _get_priority(self, dist: float) -> float:
         """
 
-        @param dist:
-        @return:"""
+        :param dist:
+        :return:"""
         abs_dist = numpy.abs(dist) + self._epsilon
 
         if self._max_abs_dist:
@@ -57,16 +57,16 @@ class PrioritisedBuffer:
     def add(self, sample: Any, dist: float) -> None:
         """
 
-        @param sample:
-        @param error:
-        @return:"""
+        :param sample:
+        :param error:
+        :return:"""
         self._tree.push(sample, self._get_priority(dist))
 
     def sample(self, num: int) -> Iterable:
         """
 
-        @param num:
-        @return:"""
+        :param num:
+        :return:"""
         segment = self._tree.total / num
         data = []
         leaf_indices = []
@@ -95,31 +95,31 @@ weights /= (weights.max() + 1e-10)  # Normalize for stability
     def update_last_batch(self, errors: Iterable) -> None:
         """
 
-        @param errors:
-        @return:"""
+        :param errors:
+        :return:"""
         for leaf_index, error in zip(self._last_leaf_indices, errors):
             self.update(leaf_index, error)
 
     def update(self, leaf_index: int, error: float) -> None:
         """
 
-        @param leaf_index:
-        @param error:
-        @return:"""
+        :param leaf_index:
+        :param error:
+        :return:"""
         self._tree.update_leaf(leaf_index, self._get_priority(error))
 
     def __len__(self) -> int:
         """
 
-        @return:"""
+        :return:"""
         return len(self._tree)
 
     @property
     def capacity(self) -> int:
         """
 
-        @return:
-        @rtype:
+        :return:
+        :rtype:
         """
         return self._tree.capacity
 
@@ -127,7 +127,7 @@ weights /= (weights.max() + 1e-10)  # Normalize for stability
 if __name__ == "__main__":
 
     def stest_experience_buffer():
-        """"""
+        """ """
         capacity = 2 ** 8
         batch_size = 4
 

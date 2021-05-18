@@ -27,13 +27,13 @@ class SamplePoint(IterDictValuesMixin, OrdinalIndexingDictMixin):
     def get_fields() -> Sequence:
         """
 
-        @return:"""
+        :return:"""
         return SamplePoint.__slots__
 
     def __len__(self):
         """
 
-        @return:"""
+        :return:"""
         return len(self.action)
 
 
@@ -50,7 +50,7 @@ class SampleTrajectoryPoint(IterDictValuesMixin, OrdinalIndexingDictMixin):
     def __len__(self):
         """
 
-        @return:"""
+        :return:"""
         return len(self.signal)
 
 
@@ -65,14 +65,14 @@ class SampleTrajectoryBuffer(ExpandableCircularBuffer):
     def add_trajectory_point(self, point: SampleTrajectoryPoint):
         """
 
-        @param point:
-        @return:"""
+        :param point:
+        :return:"""
         self._add(point)
 
     def retrieve_trajectory(self) -> SampleTrajectoryPoint:
         """
 
-        @return:"""
+        :return:"""
         if len(self):
             return SampleTrajectoryPoint(*zip(*self._sample()))
         raise NoData

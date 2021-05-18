@@ -128,18 +128,18 @@ class MLP(Architecture):
     ) -> Sequence[nn.Module]:
         """
 
-        @param _input_shape:
-        @type _input_shape:
-        @param _output_shape:
-        @type _output_shape:
-        @param input_multiplier:
-        @type input_multiplier:
-        @param output_multiplier:
-        @type output_multiplier:
-        @param max_layer_width:
-        @type max_layer_width:
-        @return:
-        @rtype:
+        :param _input_shape:
+        :type _input_shape:
+        :param _output_shape:
+        :type _output_shape:
+        :param input_multiplier:
+        :type input_multiplier:
+        :param output_multiplier:
+        :type output_multiplier:
+        :param max_layer_width:
+        :type max_layer_width:
+        :return:
+        :rtype:
         """
         h_first_size = min(int(sum(_input_shape) * input_multiplier), max_layer_width)
         h_last_size = min(int(sum(_output_shape) * output_multiplier), max_layer_width)
@@ -154,10 +154,10 @@ class MLP(Architecture):
     def infer_input_shape(input_shape: Sequence[int]) -> Sequence[int]:
         """
 
-            @return:
-            @rtype:
-        @param input_shape:
-        @return:"""
+            :return:
+            :rtype:
+        :param input_shape:
+        :return:"""
         if isinstance(input_shape, Sequence):
             assert len(input_shape) > 0, f"Got length {len(input_shape)}"
             new_input_shape = input_shape
@@ -174,10 +174,10 @@ class MLP(Architecture):
     def infer_output_shape(output_shape: Sequence[int]) -> Sequence[int]:
         """
 
-            @return:
-            @rtype:
-        @param output_shape:
-        @return:"""
+            :return:
+            :rtype:
+        :param output_shape:
+        :return:"""
         if isinstance(output_shape, Sequence):
             assert len(output_shape) > 0, f"Got length {len(output_shape)}"
             new_output_shape = output_shape
@@ -223,7 +223,7 @@ if __name__ == "__main__":
     seed_stack(4)
 
     def stest_single_dim():
-        """"""
+        """ """
         pos_size = (4,)
         a_size = (1,)
         model = MLP(input_shape=pos_size, output_shape=a_size)
@@ -232,7 +232,7 @@ if __name__ == "__main__":
         print(model(pos_1)[0].shape)
 
     def stest_hidden_dim():
-        """"""
+        """ """
         pos_size = (3,)
         hidden_size = list(range(6, 10))
         a_size = (4,)
@@ -281,7 +281,7 @@ if __name__ == "__main__":
         print(model3(pos_1).shape)
 
     def stest_multi_dim_in():
-        """"""
+        """ """
         pos_size = (2, 3, 2)
         a_size = (2, 4, 5)
         model = MLP(input_shape=pos_size, output_shape=a_size)
@@ -291,7 +291,7 @@ if __name__ == "__main__":
         print(model(pos_1, pos_2)[0].shape)
 
     def stest_multi_dim_out():
-        """"""
+        """ """
         pos_size = (10,)
         a_size = (2, 1)
         model = MLP(input_shape=pos_size, hidden_layers=(100,), output_shape=a_size)
@@ -302,7 +302,7 @@ if __name__ == "__main__":
         print(len(res), res[0].shape, res[1].shape)
 
     def stest_multi_dim_both():
-        """"""
+        """ """
         pos_size = (2, 3)
         a_size = (2, 4, 5)
         model = MLP(input_shape=pos_size, output_shape=a_size)
@@ -314,7 +314,7 @@ if __name__ == "__main__":
         print(len(res), res[0].shape, res[1].shape, res[2].shape)
 
     def stest_auto():
-        """"""
+        """ """
         pos_size = (4,)
         a_size = (2,)
         model = MLP(input_shape=pos_size, output_shape=a_size)

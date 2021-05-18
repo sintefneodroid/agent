@@ -8,13 +8,13 @@ __all__ = ["AnnealedGaussianProcess"]
 
 
 class AnnealedGaussianProcess(RandomProcess):
-    """"""
+    """ """
 
     def sample(self, size):
         """
 
-        @param size:
-        @type size:
+        :param size:
+        :type size:
         """
         pass
 
@@ -35,15 +35,15 @@ class AnnealedGaussianProcess(RandomProcess):
             self.sigma_min = sigma
 
     def reset(self):
-        """"""
+        """ """
         self.n_steps = 0
 
     @property
     def current_sigma(self):
         """
 
-        @return:
-        @rtype:
+        :return:
+        :rtype:
         """
         sigma = max(self.sigma_min, self.m * float(self.n_steps) + self.c)
         return sigma

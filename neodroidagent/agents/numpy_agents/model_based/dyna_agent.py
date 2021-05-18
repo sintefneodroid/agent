@@ -8,7 +8,7 @@ from neodroidagent.utilities.misc import tile_state_space, EnvModel
 
 
 class DynaAgent(NumpyAgent):
-    """"""
+    """ """
 
     def __init__(
         self,
@@ -71,7 +71,7 @@ class DynaAgent(NumpyAgent):
         super().__init__(env)
 
         if grid_dims is None:
-          grid_dims = [8, 8]
+            grid_dims = [8, 8]
         self.lr = lr
         self.q_plus = q_plus
         self.obs_max = obs_max

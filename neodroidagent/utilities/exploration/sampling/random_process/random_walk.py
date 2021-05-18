@@ -15,7 +15,7 @@ class RandomWalk(RandomProcess):
 
     def __init__(self, options=None):
         if options is None:
-          options = [-1, +1]
+            options = [-1, +1]
         self.options = options
 
     def sample(self, size=1):

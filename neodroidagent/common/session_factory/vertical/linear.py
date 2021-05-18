@@ -7,10 +7,13 @@ import gym
 from neodroid.environments import Environment
 from neodroid.environments.gym_environment import NeodroidGymEnvironment
 from neodroid.environments.droid_environment import VectorUnityEnvironment
-from trolls import NormalisedActions, VectorWrap
+from trolls.vector_environments import VectorWrap
+from trolls.gym_wrappers import NormalisedActions
 from warg import super_init_pass_on_kws
 from .procedures import OnPolicyEpisodic, Procedure
 from .single_agent_environment_session import SingleAgentEnvironmentSession
+
+from .environment_session import EnvironmentType
 
 __author__ = "Christian Heider Nielsen"
 __doc__ = r"""
@@ -23,33 +26,37 @@ class LinearSession(SingleAgentEnvironmentSession):
     def __init__(
         self,
         *,
+        environment: Union[Environment, EnvironmentType],
         environment_name: Union[str, Environment] = "Unnamed",
         procedure: Union[Type[Procedure], Procedure] = OnPolicyEpisodic,
         auto_reset_on_terminal_state=True,
-        environment: Union[bool, str, Environment] = False,
         **kwargs
     ):
         """
 
-        @param environment_name:
-        @param procedure:
-        @param environment_type:
-        @param kwargs:"""
-
-        if isinstance(environment, str) and environment == "gym":
-            assert environment_name != ""
-            environments = VectorWrap(
-                NeodroidGymEnvironment(
-                    NormalisedActions(gym.make(environment_name)),
-                    auto_reset_on_terminal_state=auto_reset_on_terminal_state,
+        :param environment_name:
+        :param procedure:
+        :param kwargs:"""
+        if isinstance(environment, EnvironmentType):
+            if environment == EnvironmentType.gym:
+                assert environment_name != ""
+                environment_ = VectorWrap(
+                    NeodroidGymEnvironment(
+                        NormalisedActions(gym.make(environment_name)),
+                        auto_reset_on_terminal_state=auto_reset_on_terminal_state,
+                    )
                 )
-            )
-        elif isinstance(environment, bool):
-            environments = VectorUnityEnvironment(
-                name=environment_name, connect_to_running=environment
-            )
+            elif (
+                environment == EnvironmentType.zmq_pipe
+                or environment == EnvironmentType.unity
+            ):
+                environment_ = VectorUnityEnvironment(
+                    name=environment_name, connect_to_running=environment
+                )
+            else:
+                raise NotImplementedError
         else:
             assert isinstance(environment, Environment)
-            environments = environment
+            environment_ = environment
 
-        super().__init__(environments=environments, procedure=procedure, **kwargs)
+        super().__init__(environment=environment_, procedure=procedure, **kwargs)

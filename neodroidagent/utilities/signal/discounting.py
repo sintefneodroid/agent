@@ -51,11 +51,11 @@ def discount_rollout_signal_torch(
     non_terminal if supplied lets you define a mask for masking terminal state signals.
 
 
-    @param signal:
-    @param discounting_factor:
-    @param device:
-    @param non_terminal:
-    @return:"""
+    :param signal:
+    :param discounting_factor:
+    :param device:
+    :param non_terminal:
+    :return:"""
 
     discounted = torch.zeros_like(signal, device=device)
     R = torch.zeros(signal.shape[-1], device=device)

@@ -41,13 +41,12 @@ from neodroidagent.utilities.signal.experimental.nstep import (
 )
 
 
-def test_discounted_gae_returns(transitions):
+def test_discounted_gae_returns(transitions, steps=0.9, d=0.8):
     # given
     s = transitions.signals
     t = transitions.terminals
     v = transitions.values
-    steps = 0.9
-    d = 0.8
+
     # when
     actual = discounted_gae(
         signals=s, values=v, terminals=t, discount_factor=d, step_factor=steps
@@ -112,14 +111,12 @@ def test_discounted_gae_returns(transitions):
     numpy.testing.assert_allclose(expected, actual, atol=ATOL)
 
 
-def test_n_step_advantage_returns(transitions):
+def test_n_step_advantage_returns(transitions, d=0.9, n_step=4):
     # given
     s = transitions.signals
     t = transitions.terminals
     v = transitions.values
 
-    d = 0.9
-    n_step = 4
     # when
     actual = discounted_nstep_adv(s, v, t, discount_factor=d, n=n_step)
     # then
@@ -148,14 +145,12 @@ def test_n_step_advantage_returns(transitions):
     numpy.testing.assert_allclose(actual, expected, atol=ATOL)
 
 
-def test_n_step_returns(transitions):
+def test_n_step_returns(transitions, d=0.9, n_step=4):
     # given
     s = transitions.signals
     t = transitions.terminals
     v = transitions.values
 
-    d = 0.9
-    n_step = 4
     # when
     actual = discounted_nstep(s, v, t, discount_factor=d, n=n_step)
     # then
@@ -180,15 +175,12 @@ def test_n_step_returns(transitions):
     numpy.testing.assert_allclose(actual, expected, atol=ATOL)
 
 
-def test_ge_returns(transitions):
+def test_ge_returns(transitions, d=0.8, steps=0.9):
     # given
 
     s = transitions.signals
     t = transitions.terminals
     v = transitions.values
-
-    d = 0.8
-    steps = 0.9
 
     # when
     actual = discounted_ge(s, v, t, d, steps)

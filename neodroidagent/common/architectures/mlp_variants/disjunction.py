@@ -19,7 +19,7 @@ __all__ = ["DisjunctMLP", "DuelingQMLP"]
 
 
 class DisjunctMLP(MLP):
-    """"""
+    """ """
 
     def __init__(
         self,
@@ -51,12 +51,12 @@ class DisjunctMLP(MLP):
     def forward(self, *act, **kwargs) -> Tuple[torch.tensor, torch.tensor]:
         """
 
-        @param act:
-        @type act:
-        @param kwargs:
-        @type kwargs:
-        @return:
-        @rtype:
+        :param act:
+        :type act:
+        :param kwargs:
+        :type kwargs:
+        :return:
+        :rtype:
         """
         x = super().forward(*act, **kwargs)
         return self.subnet_1(x), self.subnet_2(x)
@@ -66,12 +66,12 @@ class DuelingQMLP(DisjunctMLP):
     def forward(self, *act, **kwargs) -> torch.tensor:
         """
 
-        @param act:
-        @type act:
-        @param kwargs:
-        @type kwargs:
-        @return:
-        @rtype:
+        :param act:
+        :type act:
+        :param kwargs:
+        :type kwargs:
+        :return:
+        :rtype:
         """
         advantages, value = super().forward(*act, **kwargs)
         return value + (advantages - advantages.mean())

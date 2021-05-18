@@ -10,7 +10,7 @@ from torch.nn import CrossEntropyLoss, MSELoss
 
 from draugr.torch_utilities import to_tensor
 from draugr.writers import Writer
-from neodroid.utilities import ActionSpace, ObservationSpace, SignalSpace
+from trolls.spaces import ActionSpace, ObservationSpace, SignalSpace
 
 __author__ = "Christian Heider Nielsen"
 __doc__ = r"""
@@ -23,17 +23,17 @@ from neodroidagent.utilities.exploration.intrinsic_signals.torch_isp.torch_isp_m
 
 
 class ForwardModel(nn.Module):
-    """"""
+    """ """
 
     def __init__(self, action_converter: ActionSpace, state_latent_features: int):
         """
 
-        @param action_converter:
-        @param state_latent_features:"""
+        :param action_converter:
+        :param state_latent_features:"""
         super().__init__()
 
         action_latent_features = 128
-        if action_converter.is_discrete:
+        if action_converter.is_singular_discrete:
             self.action_encoder = nn.Embedding(
                 action_converter.shape[0], action_latent_features
             )
@@ -52,9 +52,9 @@ class ForwardModel(nn.Module):
     def forward(self, state_latent: torch.Tensor, action: torch.Tensor) -> torch.Tensor:
         """
 
-        @param state_latent:
-        @param action:
-        @return:"""
+        :param state_latent:
+        :param action:
+        :return:"""
         action = self.action_encoder(
             action.long() if self.action_converter.discrete else action
         )
@@ -64,15 +64,15 @@ class ForwardModel(nn.Module):
 
 
 class InverseModel(nn.Module):
-    """"""
+    """ """
 
     def __init__(self, action_space: ActionSpace, state_latent_features: int):
         """
 
-        @param action_space:
-        @type action_space:
-        @param state_latent_features:
-        @type state_latent_features:
+        :param action_space:
+        :type action_space:
+        :param state_latent_features:
+        :type state_latent_features:
         """
         super().__init__()
         self.input = nn.Sequential(
@@ -88,12 +88,12 @@ class InverseModel(nn.Module):
     ) -> torch.Tensor:
         """
 
-        @param state_latent:
-        @type state_latent:
-        @param next_state_latent:
-        @type next_state_latent:
-        @return:
-        @rtype:
+        :param state_latent:
+        :type state_latent:
+        :param next_state_latent:
+        :type next_state_latent:
+        :return:
+        :rtype:
         """
         return self.input(torch.cat((state_latent, next_state_latent), dim=-1))
 
@@ -161,14 +161,14 @@ class MLPICM(TorchISPModule):
     ) -> Tuple:
         """
 
-        @param state:
-        @type state:
-        @param next_state:
-        @type next_state:
-        @param action:
-        @type action:
-        @return:
-        @rtype:
+        :param state:
+        :type state:
+        :param next_state:
+        :type next_state:
+        :param action:
+        :type action:
+        :return:
+        :rtype:
         """
         state = self.encoder(state)
         next_state = self.encoder(next_state)
@@ -186,16 +186,16 @@ class MLPICM(TorchISPModule):
     ) -> numpy.ndarray:
         """
 
-        @param signals:
-        @type signals:
-        @param states:
-        @type states:
-        @param actions:
-        @type actions:
-        @param writer:
-        @type writer:
-        @return:
-        @rtype:
+        :param signals:
+        :type signals:
+        :param states:
+        :type states:
+        :param actions:
+        :type actions:
+        :param writer:
+        :type writer:
+        :return:
+        :rtype:
         """
         n, t = actions.shape[0], actions.shape[1]
         states, next_states = states[:, :-1], states[:, 1:]
@@ -239,18 +239,18 @@ class MLPICM(TorchISPModule):
     ) -> torch.Tensor:
         """
 
-        @param policy_loss:
-        @type policy_loss:
-        @param states:
-        @type states:
-        @param next_states:
-        @type next_states:
-        @param actions:
-        @type actions:
-        @param writer:
-        @type writer:
-        @return:
-        @rtype:
+        :param policy_loss:
+        :type policy_loss:
+        :param states:
+        :type states:
+        :param next_states:
+        :type next_states:
+        :param actions:
+        :type actions:
+        :param writer:
+        :type writer:
+        :return:
+        :rtype:
         """
         next_states_latent, next_states_hat, actions_hat = self.forward(
             states, next_states, actions

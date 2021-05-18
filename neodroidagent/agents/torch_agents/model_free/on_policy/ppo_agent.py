@@ -1,14 +1,14 @@
 #!/usr/local/bin/python
 # coding: utf-8
 import copy
-from typing import Any, Dict, Tuple
+from typing import Any, Dict, Optional, Tuple
 
 import numpy
 import torch
 from draugr import mean_accumulator, shuffled_batches
 from draugr.torch_utilities import freeze_model, to_scalar, to_tensor
 from draugr.writers import MockWriter, Writer
-from neodroid.utilities import ActionSpace, ObservationSpace, SignalSpace
+from trolls.spaces import ActionSpace, ObservationSpace, SignalSpace
 from neodroidagent.agents.agent import TogglableLowHigh
 from neodroidagent.agents.torch_agents.torch_agent import TorchAgent
 from neodroidagent.common import (
@@ -54,8 +54,8 @@ class ProximalPolicyOptimizationAgent(TorchAgent):
         self,
         discount_factor: float = 0.95,
         gae_lambda: float = 0.95,
-        entropy_reg_coef: float = 0,
-        value_reg_coef: float = 5e-1,
+        entropy_regularisation_coefficient: float = 0,
+        value_regularisation_coefficient: float = 5e-1,
         num_inner_updates: int = 10,
         mini_batch_size: int = 64,
         update_target_interval: int = 1,
@@ -76,8 +76,8 @@ class ProximalPolicyOptimizationAgent(TorchAgent):
         :param gae_lambda:
         :param actor_lr:
         :param critic_lr:
-        :param entropy_reg_coef:
-        :param value_reg_coef:
+        :param entropy_regularisation_coefficient:
+        :param value_regularisation_coefficient:
         :param num_inner_updates:
         :param copy_percentage:
         :param update_target_interval:
@@ -110,8 +110,8 @@ class ProximalPolicyOptimizationAgent(TorchAgent):
         self._target_kl = target_kl
 
         self._mini_batch_size = mini_batch_size
-        self._entropy_reg_coefficient = entropy_reg_coef
-        self._value_reg_coefficient = value_reg_coef
+        self._entropy_regularisation_coefficient = entropy_regularisation_coefficient
+        self._value_regularisation_coefficient = value_regularisation_coefficient
         self._num_inner_updates = num_inner_updates
         self._update_target_interval = update_target_interval
         self._critic_criterion = critic_criterion
@@ -124,17 +124,17 @@ class ProximalPolicyOptimizationAgent(TorchAgent):
         observation_space: ObservationSpace,
         action_space: ActionSpace,
         signal_space: SignalSpace,
-        metric_writer: Writer = MockWriter(),
+        metric_writer: Optional[Writer] = MockWriter(),
         print_model_repr: bool = True,
     ) -> None:
         """
 
-        @param observation_space:
-        @param action_space:
-        @param signal_space:
-        @param metric_writer:
-        @param print_model_repr:
-        @return:"""
+        :param observation_space:
+        :param action_space:
+        :param signal_space:
+        :param metric_writer:
+        :param print_model_repr:
+        :return:"""
         if action_space.is_mixed:
             raise ActionSpaceNotSupported()
         elif action_space.is_continuous:
@@ -155,7 +155,7 @@ class ProximalPolicyOptimizationAgent(TorchAgent):
     def models(self) -> dict:
         """
 
-        @return:"""
+        :return:"""
         return {"actor_critic": self.actor_critic}
 
     @property
@@ -168,22 +168,22 @@ class ProximalPolicyOptimizationAgent(TorchAgent):
     def _sample(self, state: numpy.ndarray, deterministic: bool = False) -> Tuple:
         """
 
-        @param state:
-        @return:"""
+        :param state:
+        :return:"""
         with torch.no_grad():
             dist, val_est = self._target_actor_critic(
                 to_tensor(state, device=self._device, dtype=torch.float)
             )
 
             if deterministic:
-                if self.action_space.is_discrete:
+                if self.action_space.is_singular_discrete:
                     action = dist.logits.max(-1)[-1]
                 else:
                     action = dist.mean
             else:
                 action = dist.sample()
 
-            if self.action_space.is_discrete:
+            if self.action_space.is_singular_discrete:
                 action = action.unsqueeze(-1)
 
         return action.detach(), dist, val_est.detach()
@@ -191,8 +191,8 @@ class ProximalPolicyOptimizationAgent(TorchAgent):
     def extract_action(self, sample: torch.tensor) -> numpy.ndarray:
         """
 
-        @param sample:
-        @return:"""
+        :param sample:
+        :return:"""
         return sample[0].to("cpu").numpy()
 
     @drop_unused_kws
@@ -218,12 +218,12 @@ class ProximalPolicyOptimizationAgent(TorchAgent):
         )
 
     def _update_targets(
-        self, copy_percentage: float, *, metric_writer: Writer = None
+        self, copy_percentage: float, *, metric_writer: Optional[Writer] = None
     ) -> None:
         """
 
-        @param copy_percentage:
-        @return:"""
+        :param copy_percentage:
+        :return:"""
         if metric_writer:
             metric_writer.blip("Target Model Synced", self.update_i)
 
@@ -234,7 +234,7 @@ class ProximalPolicyOptimizationAgent(TorchAgent):
         )
 
     def get_log_prob(self, dist: Distribution, action: torch.tensor) -> torch.tensor:
-        if self.action_space.is_discrete:
+        if self.action_space.is_singular_discrete:
             return dist.log_prob(action.squeeze(-1)).unsqueeze(-1)
         else:
             return dist.log_prob(action).sum(axis=-1, keepdims=True)
@@ -287,11 +287,11 @@ class ProximalPolicyOptimizationAgent(TorchAgent):
         )
 
     @drop_unused_kws
-    def _update(self, metric_writer: Writer = MockWriter()) -> float:
+    def _update(self, metric_writer: Optional[Writer] = MockWriter()) -> float:
         """
 
-        @param metric_writer:
-        @return:"""
+        :param metric_writer:
+        :return:"""
         transitions = self._prepare_transitions()
 
         accum_loss = mean_accumulator()
@@ -327,7 +327,7 @@ class ProximalPolicyOptimizationAgent(TorchAgent):
         log_prob_batch_old,
         adv_batch,
         *,
-        metric_writer: Writer = None
+        metric_writer: Optional[Writer] = None
     ):
         action_log_probs_new = self.get_log_prob(new_distribution, action_batch)
         ratio = torch.exp(action_log_probs_new - log_prob_batch_old)
@@ -342,7 +342,9 @@ class ProximalPolicyOptimizationAgent(TorchAgent):
         )
 
         policy_loss = -torch.min(ratio * adv_batch, clamped_ratio * adv_batch).mean()
-        entropy_loss = new_distribution.entropy().mean() * self._entropy_reg_coefficient
+        entropy_loss = (
+            new_distribution.entropy().mean() * self._entropy_regularisation_coefficient
+        )
 
         with torch.no_grad():
             approx_kl = to_scalar((log_prob_batch_old - action_log_probs_new))
@@ -354,7 +356,9 @@ class ProximalPolicyOptimizationAgent(TorchAgent):
 
         return policy_loss - entropy_loss, approx_kl
 
-    def inner_update(self, *transitions, metric_writer: Writer = None) -> Tuple:
+    def inner_update(
+        self, *transitions, metric_writer: Optional[Writer] = None
+    ) -> Tuple:
         batch_generator = shuffled_batches(
             *transitions, size=transitions[0].size(0), batch_size=self._mini_batch_size
         )
@@ -376,7 +380,7 @@ class ProximalPolicyOptimizationAgent(TorchAgent):
             )
             critic_loss = (
                 self._critic_criterion(value_estimate, discounted_signal)
-                * self._value_reg_coefficient
+                * self._value_regularisation_coefficient
             )
 
             loss = policy_loss + critic_loss

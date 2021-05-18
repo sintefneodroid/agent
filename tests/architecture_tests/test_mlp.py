@@ -40,7 +40,7 @@ def test_multi_dim():
     TODO: BROKEN!
     """
 
-    pos_size = (2, 3, 2)  # two, 2d tensors
+    pos_size = (2, 3, 2)  # two, 2d tensors, expected flatten
     a_size = (2, 4, 5)
     model = MLP(input_shape=pos_size, output_shape=a_size)
 

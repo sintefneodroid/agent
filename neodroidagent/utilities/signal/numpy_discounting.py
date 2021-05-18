@@ -19,9 +19,9 @@ __all__ = ["discount_signal", "discount_signal_numpy"]
 def discount_signal(signal: list, discounting_factor: float) -> list:
     """
 
-    @param signal:
-    @param discounting_factor:
-    @return:"""
+    :param signal:
+    :param discounting_factor:
+    :return:"""
     signals = []
     r_ = numpy.zeros_like(signal[0])
     for r in signal[::-1]:

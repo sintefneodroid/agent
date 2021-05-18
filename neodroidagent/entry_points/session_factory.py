@@ -9,7 +9,7 @@ __doc__ = r"""
 
 import inspect
 from os import getenv
-from typing import Type, TypeVar, Union
+from typing import Callable, Type, TypeVar, Union
 
 import torch
 
@@ -30,7 +30,7 @@ def session_factory(
     agent: Type[AgentType] = None,
     config=None,
     *,
-    session: Union[Type[EnvironmentSessionType], EnvironmentSession],
+    session: Union[Type[EnvironmentSessionType], EnvironmentSession, Callable],
     save: bool = True,
     has_x_server: bool = True,
     skip_confirmation: bool = True,

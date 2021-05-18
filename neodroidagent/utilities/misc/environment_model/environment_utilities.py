@@ -16,12 +16,12 @@ __all__ = [
 
 
 def get_gym_environs():
-    """ List all valid OpenAI ``gym`` environment ids.  """
+    """List all valid OpenAI ``gym`` environment ids."""
     return [e.id for e in gym.envs.registry.all()]
 
 
 def get_gym_stats():
-    """ Return a pandas DataFrame of the environment IDs.  """
+    """Return a pandas DataFrame of the environment IDs."""
     try:
         import pandas as pd
     except:

@@ -26,6 +26,8 @@ sponsors = ("SINTEF Ocean", "Alexandra Institute", "Norges Forskningsråd")
 
 
 class RunAgent(object):
+    """ """
+
     def __init__(self, agent_key: str, agent_callable: callable):
         self.agent_key = agent_key
         self.agent_callable = agent_callable
@@ -33,8 +35,8 @@ class RunAgent(object):
     def train(self, **explicit_overrides) -> None:
         """
 
-        @param explicit_overrides: Accepts kwarg overrides to config
-        @return:"""
+        :param explicit_overrides: Accepts kwarg overrides to config
+        :return:"""
         default_config = NOD(AGENT_CONFIG[self.agent_key])
 
         config_overrides = upper_dict(explicit_overrides)
@@ -57,6 +59,8 @@ class RunAgent(object):
 
 
 class NeodroidAgentCLI:
+    """ """
+
     def __init__(self):
         for k, v in AGENT_OPTIONS.items():
             setattr(self, k, RunAgent(k, v))

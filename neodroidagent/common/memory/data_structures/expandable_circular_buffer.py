@@ -25,7 +25,7 @@ class ExpandableCircularBuffer(Memory):
     def __init__(self, capacity: int = 0):
         """
 
-        @param capacity:"""
+        :param capacity:"""
         self._capacity = capacity
         self._memory = []
         self._position = 0
@@ -72,7 +72,7 @@ class ExpandableCircularBuffer(Memory):
     def clear(self):
         """
 
-        @return:"""
+        :return:"""
         del self._memory[:]
         self._position = 0
 

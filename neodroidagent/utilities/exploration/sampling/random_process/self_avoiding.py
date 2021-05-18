@@ -8,7 +8,6 @@ import random
 
 import numpy
 
-
 __all__ = ["SelfAvoiding"]
 
 

@@ -1,11 +1,14 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 from typing import Union
-
+from neodroid.environments.environment import Environment
 from neodroidagent.agents import DeepDeterministicPolicyGradientAgent
 from neodroidagent.common import ParallelSession
 from neodroidagent.entry_points.session_factory import session_factory
 from neodroidagent.configs.test_reference.base_continous_test_config import *
+from neodroidagent.common.session_factory.vertical.environment_session import (
+    EnvironmentType,
+)
 
 __author__ = "Christian Heider Nielsen"
 
@@ -31,7 +34,7 @@ ddpg_config = globals()
 
 def ddpg_run(
     skip_confirmation: bool = True,
-    environment_type: Union[bool, str] = True,
+    environment: Union[EnvironmentType, Environment] = EnvironmentType.zmq_pipe,
     config=None,
     **kwargs
 ):
@@ -42,16 +45,16 @@ def ddpg_run(
         config,
         session=ParallelSession,
         skip_confirmation=skip_confirmation,
-        environment=environment_type,
+        environment=environment,
         **kwargs
     )
 
 
-def ddpg_test(config=None, **kwargs):
+def ddpg_gym_test(config=None, **kwargs):
     if config is None:
         config = ddpg_config
-    ddpg_run(environment_type="gym", config=config, **kwargs)
+    ddpg_run(environment=EnvironmentType.gym, config=config, **kwargs)
 
 
 if __name__ == "__main__":
-    ddpg_test()
+    ddpg_gym_test()

@@ -11,11 +11,11 @@ import torch.nn as nn
 from torch.nn.functional import mse_loss
 from torch.optim import Optimizer
 from tqdm import tqdm
-from typing import Any, Dict, Sequence, Tuple
+from typing import Any, Dict, Optional, Sequence, Tuple
 
 from draugr.torch_utilities import freeze_model, frozen_parameters, to_scalar, to_tensor
 from draugr.writers import MockWriter, Writer
-from neodroid.utilities import ActionSpace, ObservationSpace, SignalSpace
+from trolls.spaces import ActionSpace, ObservationSpace, SignalSpace
 from neodroidagent.agents.torch_agents.torch_agent import TorchAgent
 from neodroidagent.common import (
     Architecture,
@@ -119,13 +119,13 @@ class SoftActorCriticAgent(TorchAgent):
     ) -> None:
         """
 
-        @param signal:
-        @param terminated:
-        @param state:
-        @param successor_state:
-        @param sample:
-        @param kwargs:
-        @return:"""
+        :param signal:
+        :param terminated:
+        :param state:
+        :param successor_state:
+        :param sample:
+        :param kwargs:
+        :return:"""
         a = [
             TransitionPoint(*s)
             for s in zip(state, sample[0], successor_state, signal, terminated)
@@ -137,7 +137,7 @@ class SoftActorCriticAgent(TorchAgent):
     def models(self) -> Dict[str, Architecture]:
         """
 
-        @return:"""
+        :return:"""
         return {
             "critic_1": self.critic_1,
             "critic_2": self.critic_2,
@@ -157,17 +157,17 @@ class SoftActorCriticAgent(TorchAgent):
         state: Any,
         *args,
         deterministic: bool = False,
-        metric_writer: Writer = MockWriter(),
+        metric_writer: Optional[Writer] = MockWriter(),
     ) -> Tuple[torch.Tensor, Any]:
         """
 
-        @param state:
-        @param args:
-        @param deterministic:
-        @param metric_writer:
-        @param kwargs:
-        @return:"""
-        distribution = self.actor(to_tensor(state, device=self._device))
+        :param state:
+        :param args:
+        :param deterministic:
+        :param metric_writer:
+        :param kwargs:
+        :return:"""
+        distribution = self.actor(to_tensor(state, device=self._device, dtype=float))
 
         with torch.no_grad():
             return (torch.tanh(distribution.sample().detach()), distribution)
@@ -175,8 +175,8 @@ class SoftActorCriticAgent(TorchAgent):
     def extract_action(self, sample: SamplePoint) -> numpy.ndarray:
         """
 
-        @param sample:
-        @return:"""
+        :param sample:
+        :return:"""
         return sample[0].to("cpu").numpy()
 
     @drop_unused_kws
@@ -185,18 +185,18 @@ class SoftActorCriticAgent(TorchAgent):
         observation_space: ObservationSpace,
         action_space: ActionSpace,
         signal_space: SignalSpace,
-        metric_writer: Writer = MockWriter(),
+        metric_writer: Optional[Writer] = MockWriter(),
         print_model_repr: bool = True,
     ) -> None:
         """
 
-        @param observation_space:
-        @param action_space:
-        @param signal_space:
-        @param metric_writer:
-        @param print_model_repr:
-        @return:"""
-        if action_space.is_discrete:
+        :param observation_space:
+        :param action_space:
+        :param signal_space:
+        :param metric_writer:
+        :param print_model_repr:
+        :return:"""
+        if action_space.is_singular_discrete:
             raise ActionSpaceNotSupported(
                 "discrete action space not supported in this implementation"
             )
@@ -225,10 +225,10 @@ class SoftActorCriticAgent(TorchAgent):
 
         if self._auto_tune_sac_alpha:
             self._target_entropy = -torch.prod(
-                to_tensor(self._output_shape, device=self._device)
+                to_tensor(self._output_shape, device=self._device, dtype=float)
             ).item()
             self._log_sac_alpha = nn.Parameter(
-                torch.log(to_tensor(self._sac_alpha, device=self._device)),
+                torch.log(to_tensor(self._sac_alpha, device=self._device, dtype=float)),
                 requires_grad=True,
             )
             self.sac_alpha_optimiser = self._auto_tune_sac_alpha_optimiser_spec(
@@ -238,17 +238,17 @@ class SoftActorCriticAgent(TorchAgent):
     def on_load(self) -> None:
         """
 
-        @return:"""
+        :return:"""
         self.update_targets(1.0)
 
     def update_critics(
-        self, tensorised: TransitionPoint, metric_writer: Writer = None
+        self, tensorised: TransitionPoint, metric_writer: Optional[Writer] = None
     ) -> float:
         """
 
-        @param metric_writer:
-        @param tensorised:
-        @return:"""
+        :param metric_writer:
+        :param tensorised:
+        :return:"""
         with torch.no_grad():
             successor_action, successor_log_prob = normal_tanh_reparameterised_sample(
                 self.actor(tensorised.successor_state)
@@ -304,13 +304,13 @@ class SoftActorCriticAgent(TorchAgent):
         return out_loss
 
     def update_actor(
-        self, tensorised: torch.Tensor, metric_writer: Writer = None
+        self, tensorised: torch.Tensor, metric_writer: Optional[Writer] = None
     ) -> float:
         """
 
-        @param tensorised:
-        @param metric_writer:
-        @return:"""
+        :param tensorised:
+        :param metric_writer:
+        :return:"""
 
         dist = self.actor(tensorised.state)
         action, log_prob = normal_tanh_reparameterised_sample(dist)
@@ -348,15 +348,15 @@ class SoftActorCriticAgent(TorchAgent):
         return out_loss
 
     def update_alpha(
-        self, log_prob: torch.Tensor, metric_writer: Writer = None
+        self, log_prob: torch.Tensor, metric_writer: Optional[Writer] = None
     ) -> float:
         """
 
-        @param log_prob:
-        @type log_prob:
-        @param tensorised:
-        @param metric_writer:
-        @return:"""
+        :param log_prob:
+        :type log_prob:
+        :param tensorised:
+        :param metric_writer:
+        :return:"""
         assert not log_prob.requires_grad
 
         alpha_loss = -torch.mean(
@@ -378,13 +378,15 @@ class SoftActorCriticAgent(TorchAgent):
 
         return out_loss
 
-    def _update(self, *args, metric_writer: Writer = MockWriter(), **kwargs) -> float:
+    def _update(
+        self, *args, metric_writer: Optional[Writer] = MockWriter(), **kwargs
+    ) -> float:
         """
 
-        @param args:
-        @param metric_writer:
-        @param kwargs:
-        @return:"""
+        :param args:
+        :param metric_writer:
+        :param kwargs:
+        :return:"""
         accum_loss = 0
         for ith_inner_update in tqdm(
             range(self._num_inner_updates),
@@ -395,7 +397,7 @@ class SoftActorCriticAgent(TorchAgent):
             self.inner_update_i += 1
             batch = self._memory_buffer.sample(self._batch_size)
             tensorised = TransitionPoint(
-                *[to_tensor(a, device=self._device) for a in batch]
+                *[to_tensor(a, device=self._device, dtype=float) for a in batch]
             )
 
             with frozen_parameters(self.actor.parameters()):
@@ -418,7 +420,7 @@ class SoftActorCriticAgent(TorchAgent):
         return accum_loss
 
     def update_targets(
-        self, copy_percentage: float = 0.005, *, metric_writer: Writer = None
+        self, copy_percentage: float = 0.005, *, metric_writer: Optional[Writer] = None
     ) -> None:
         """
 
@@ -430,10 +432,10 @@ class SoftActorCriticAgent(TorchAgent):
 
         where \rho is polyak. (Always between 0 and 1, usually close to 1.)
 
-        @param metric_writer:
-        @type metric_writer:
-        @param copy_percentage:
-        @return:"""
+        :param metric_writer:
+        :type metric_writer:
+        :param copy_percentage:
+        :return:"""
         if metric_writer:
             metric_writer.blip("Target Models Synced", self.update_i)
 

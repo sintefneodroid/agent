@@ -16,19 +16,19 @@ from neodroidagent.utilities.misc.environment_model import tile_state_space
 
 
 class TemporalDifferenceAgent(NumpyAgent):
-    """"""
+    """ """
 
     def __init__(
         self,
         env,
-        lr=0.4,
-        epsilon=0.1,
-        n_tilings=8,
+        lr: float = 0.4,
+        epsilon: float = 0.1,
+        n_tilings: int = 8,
         obs_max=None,
         obs_min=None,
         grid_dims=None,
         off_policy=False,
-        temporal_discount=0.99,
+        temporal_discount: float = 0.99,
     ):
         """
         A temporal difference learning agent with expected SARSA (on-policy) or
@@ -77,7 +77,7 @@ class TemporalDifferenceAgent(NumpyAgent):
         super().__init__(env)
 
         if grid_dims is None:
-          grid_dims = [8, 8]
+            grid_dims = [8, 8]
         self.lr = lr
         self.obs_max = obs_max
         self.obs_min = obs_min

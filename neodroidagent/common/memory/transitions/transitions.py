@@ -34,13 +34,13 @@ class Transition(IterDictValuesMixin, OrdinalIndexingDictMixin):
     def get_fields() -> Sequence:
         """
 
-        @return:"""
+        :return:"""
         return Transition.__slots__
 
     def __len__(self):
         """
 
-        @return:"""
+        :return:"""
         return len(self.state)
 
 
@@ -59,7 +59,7 @@ class TransitionPoint(Transition):
     def __post_init__(self):
         """
 
-        @return:"""
+        :return:"""
         if self.terminal:
             self.successor_state = None
 
@@ -67,21 +67,21 @@ class TransitionPoint(Transition):
     def get_fields() -> Sequence:
         """
 
-        @return:"""
+        :return:"""
         return TransitionPoint.__slots__
 
     @property
     def non_terminal(self):
         """
 
-        @return:"""
+        :return:"""
         return non_terminal_mask(self.terminal)
 
     @property
     def non_terminal_numerical(self):
         """
 
-        @return:"""
+        :return:"""
         return non_terminal_numerical_mask(self.terminal)
 
 
@@ -103,7 +103,7 @@ class ValuedTransitionPoint(TransitionPoint):
     def get_fields() -> Sequence:
         """
 
-        @return:"""
+        :return:"""
         return ValuedTransitionPoint.__slots__
 
 
@@ -137,7 +137,7 @@ class AdvantageTransitionPoint(Transition):
     def get_fields() -> Sequence:
         """
 
-        @return:"""
+        :return:"""
         return AdvantageTransitionPoint.__slots__
 
 

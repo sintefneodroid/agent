@@ -435,19 +435,19 @@ class LocalRunner:
         pause_for_plot = self._train_args.pause_for_plot
 
         """
-        fmt = '{:<20} {:<15}'
-        logger.log('Restore from snapshot saved in %s' %
-                   self._snapshotter.snapshot_dir)
-        logger.log(fmt.format('-- Train Args --', '-- Value --'))
-        logger.log(fmt.format('n_epochs', n_epochs))
-        logger.log(fmt.format('last_epoch', last_epoch))
-        logger.log(fmt.format('batch_size', batch_size))
-        logger.log(fmt.format('store_paths', store_paths))
-        logger.log(fmt.format('pause_for_plot', pause_for_plot))
-        logger.log(fmt.format('-- Stats --', '-- Value --'))
-        logger.log(fmt.format('last_itr', last_itr))
-        logger.log(fmt.format('total_env_steps', total_env_steps))
-        """
+    fmt = '{:<20} {:<15}'
+    logger.log('Restore from snapshot saved in %s' %
+               self._snapshotter.snapshot_dir)
+    logger.log(fmt.format('-- Train Args --', '-- Value --'))
+    logger.log(fmt.format('n_epochs', n_epochs))
+    logger.log(fmt.format('last_epoch', last_epoch))
+    logger.log(fmt.format('batch_size', batch_size))
+    logger.log(fmt.format('store_paths', store_paths))
+    logger.log(fmt.format('pause_for_plot', pause_for_plot))
+    logger.log(fmt.format('-- Stats --', '-- Value --'))
+    logger.log(fmt.format('last_itr', last_itr))
+    logger.log(fmt.format('total_env_steps', total_env_steps))
+    """
 
         self._train_args.start_epoch = last_epoch + 1
         return copy.copy(self._train_args)
@@ -560,11 +560,11 @@ class LocalRunner:
                 self.save(epoch)
 
                 """
-                if self.enable_logging:
-                    self.log_diagnostics(self._train_args.pause_for_plot)
-                    logger.dump_all(self.step_itr)
-                    tabular.clear()
-                """
+        if self.enable_logging:
+            self.log_diagnostics(self._train_args.pause_for_plot)
+            logger.dump_all(self.step_itr)
+            tabular.clear()
+        """
 
     def resume(
         self,

@@ -12,10 +12,10 @@ __all__ = ["sample"]
 def sample(iter_set: iter) -> Any:
     """
 
-    @param iter_set:
-    @type iter_set:
-    @return:
-    @rtype:
+    :param iter_set:
+    :type iter_set:
+    :return:
+    :rtype:
     """
     a = list(iter_set)
     if len(a):

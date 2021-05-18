@@ -11,8 +11,11 @@ from neodroidagent.common import (
 from neodroidagent.configs.test_reference.base_continous_test_config import *
 
 __author__ = "Christian Heider Nielsen"
-
+from neodroid.environments.environment import Environment
 from neodroidagent.entry_points.session_factory import session_factory
+from neodroidagent.common.session_factory.vertical.environment_session import (
+    EnvironmentType,
+)
 
 """
 Description: Config for training
@@ -27,13 +30,13 @@ from pathlib import Path
 CONFIG_FILE_PATH = Path(__file__)
 
 CONNECT_TO_RUNNING = False
-RENDER_ENVIRONMENT = True
+# RENDER_ENVIRONMENT = True
 # RENDER_FREQUENCY = 10
 
 INITIAL_OBSERVATION_PERIOD = 0
 
 BATCH_SIZE = 256
-OPTIMISER_SPEC = GDKC(torch.optim.Adam, lr=3e-4)
+OPTIMISER_SPEC = GDKC(torch.optim.Adam, lr=3e-4, eps=1e-5)
 CONTINUOUS_ARCH_SPEC: GDKC = GDKC(constructor=ActorCriticMLP, hidden_layers=128)
 DISCRETE_ARCH_SPEC: GDKC = GDKC(
     constructor=CategoricalActorCriticMLP, hidden_layers=128
@@ -43,31 +46,30 @@ DISCRETE_ARCH_SPEC: GDKC = GDKC(
 ppo_config = globals()
 
 
-def ppo_test(config=None, **kwargs):
+def ppo_gym_test(config=None, **kwargs):
     """
 
-    @param config:
-    @type config:
+    :param config:
+    :type config:
     """
     if config is None:
         config = ppo_config
-    ppo_run(environment_type="gym", config=config, **kwargs)
+    ppo_run(environment=EnvironmentType.gym, config=config, **kwargs)
 
 
 def ppo_run(
     skip_confirmation: bool = True,
-    environment_type: Union[bool, str] = True,
+    environment: Union[EnvironmentType, Environment] = EnvironmentType.zmq_pipe,
     config=None,
     **kwargs
 ):
     """
 
-    @param skip_confirmation:
-    @type skip_confirmation:
-    @param environment_type:
-    @type environment_type:
-    @param config:
-    @type config:
+    :param skip_confirmation:
+    :type skip_confirmation:
+
+    :param config:
+    :type config:
     """
     if config is None:
         config = ppo_config
@@ -75,11 +77,11 @@ def ppo_run(
         ProximalPolicyOptimizationAgent,
         config,
         session=ParallelSession,
-        environment=environment_type,
+        environment=environment,
         skip_confirmation=skip_confirmation,
         **kwargs
     )
 
 
 if __name__ == "__main__":
-    ppo_test()
+    ppo_gym_test()

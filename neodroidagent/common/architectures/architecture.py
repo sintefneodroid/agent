@@ -17,7 +17,7 @@ from draugr import indent_lines
 
 
 class Architecture(nn.Module, ABC):
-    """"""
+    """ """
 
     @drop_unused_kws
     def __init__(self, input_shape: Sequence[int], output_shape: Sequence[int]):
@@ -29,16 +29,16 @@ class Architecture(nn.Module, ABC):
     def input_shape(self) -> Sequence[int]:
         """
 
-        @return:
-        @rtype:"""
+        :return:
+        :rtype:"""
         return self._input_shape
 
     @property
     def output_shape(self) -> Sequence[int]:
         """
 
-        @return:
-        @rtype:"""
+        :return:
+        :rtype:"""
         return self._output_shape
 
     def sample_input(self) -> Any:

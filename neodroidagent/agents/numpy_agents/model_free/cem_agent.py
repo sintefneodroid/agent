@@ -14,9 +14,11 @@ from neodroidagent.agents.numpy_agents.numpy_agent import NumpyAgent
 
 
 class CrossEntropyAgent(NumpyAgent):
-    """"""
+    """ """
 
-    def __init__(self, env, n_samples_per_episode=500, retain_percentage=0.2):
+    def __init__(
+        self, env, n_samples_per_episode: int = 500, retain_percentage: float = 0.2
+    ):
         """
 A cross-entropy method agent.
 

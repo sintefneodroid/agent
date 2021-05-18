@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 import logging
+from typing import Optional
 
 from draugr.writers import MockWriter, Writer
 from tqdm import tqdm
@@ -16,6 +17,8 @@ from neodroidagent.common.session_factory.vertical.procedures.procedure_specific
     Procedure,
 )
 from warg import is_positive_and_mod_zero
+from draugr.drawers import MplDrawer, MockDrawer
+from neodroid.utilities import EnvironmentSnapshot, to_one_hot
 
 
 class OffPolicyBatched(Procedure):
@@ -28,7 +31,8 @@ class OffPolicyBatched(Procedure):
         render_frequency=10,
         disable_stdout: bool = False,
         train_agent: bool = True,
-        metric_writer: Writer = MockWriter(),
+        metric_writer: Optional[Writer] = MockWriter(),
+        rollout_drawer: MplDrawer = MockDrawer(),
         **kwargs,
     ) -> None:
         """
@@ -41,15 +45,15 @@ class OffPolicyBatched(Procedure):
         :param render_frequency:
         :param disable_stdout:
         :return:
-        @rtype: object
-        @param batch_size:
-        @param log_directory:
-        @param iterations:
-        @param stat_frequency:
-        @param render_frequency:
-        @param disable_stdout:
-        @param train_agent:
-        @param kwargs:"""
+        :rtype: object
+        :param batch_size:
+        :param log_directory:
+        :param iterations:
+        :param stat_frequency:
+        :param render_frequency:
+        :param disable_stdout:
+        :param train_agent:
+        :param kwargs:"""
 
         state = self.agent.extract_features(self.environment.reset())
 
@@ -65,7 +69,10 @@ class OffPolicyBatched(Procedure):
             postfix=f"Agent update #{self.agent.update_i}",
         ):
             for _ in tqdm(
-                range(batch_size), leave=False, disable=disable_stdout, desc="Step #",
+                range(batch_size),
+                leave=False,
+                disable=disable_stdout,
+                desc="Step #",
             ):
 
                 sample = self.agent.sample(state)
@@ -76,6 +83,12 @@ class OffPolicyBatched(Procedure):
 
                 if is_positive_and_mod_zero(render_frequency, batch_i):
                     self.environment.render()
+                    if rollout_drawer is not None and action is not None:
+                        if self.environment.action_space.is_singular_discrete:
+                            action_a = to_one_hot(self.agent.output_shape, action)
+                        else:
+                            action_a = action[0]
+                        rollout_drawer.draw(action_a)
 
                 if train_agent:
                     self.agent.remember(

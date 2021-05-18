@@ -35,14 +35,14 @@ def torch_advantage_estimate(
     :type tau:
     :return:
     :rtype:
-    @param device:
-    @param tau:
-    @param discount_factor:
-    @param value_estimate:
-    @param non_terminal:
-    @param signal:
-    @param divide_by_zero_safety:
-    @param normalise:"""
+    :param device:
+    :param tau:
+    :param discount_factor:
+    :param value_estimate:
+    :param non_terminal:
+    :param signal:
+    :param divide_by_zero_safety:
+    :param normalise:"""
     horizon_length, num_workers, *_ = signal.size()
 
     advantages_out = torch.zeros_like(signal, device=device)
@@ -80,14 +80,14 @@ def torch_compute_gae(
 
     Computes discounted return and advantage
 
-    @param signal:
-    @param non_terminal:
-    @param values:
-    @param discount_factor:
-    @param gae_lambda:
-    @param device:
-    @param normalise:
-    @return:"""
+    :param signal:
+    :param non_terminal:
+    :param values:
+    :param discount_factor:
+    :param gae_lambda:
+    :param device:
+    :param normalise:
+    :return:"""
     len_signal = len(signal)
     assert len_signal == len(non_terminal) == len(values) - 1, (
         f"{signal.shape}, {non_terminal.shape}, " f"{values.shape}"

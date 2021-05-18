@@ -4,7 +4,7 @@ import math
 from pathlib import Path
 import time
 from os import cpu_count
-
+from trolls.render_mode import RenderModeEnum
 import torch
 
 from draugr.torch_utilities import global_torch_device
@@ -32,6 +32,7 @@ ENVIRONMENT_NAME = "ConnectToRunning"
 CONNECT_TO_RUNNING = False
 RENDER_ENVIRONMENT = False
 RENDER_FREQUENCY = 0
+RENDER_MODE = RenderModeEnum.rgb_array
 # CONTINUE_TRAINING = False
 NUM_ENVS = cpu_count()
 
@@ -44,7 +45,7 @@ ACTION_CLIPPING = TogglableLowHigh(False, -1.0, 1.0)
 GRADIENT_CLIPPING = TogglableLowHigh(False, -1.0, 1.0)
 GRADIENT_NORM_CLIPPING = TogglableLowHigh(False, 0, 1.0)
 
-DISCOUNT_FACTOR = 0.999  # For sparse signal settings is it very important to keep the long term signals relevant by making them stretch far back in the rollout trace
+DISCOUNT_FACTOR = 0.99  # For sparse signal settings is it very important to keep the long term signals relevant by making them stretch far back in the rollout trace
 
 ITERATIONS = 4000
 

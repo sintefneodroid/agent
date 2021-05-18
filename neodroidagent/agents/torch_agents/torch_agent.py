@@ -3,7 +3,7 @@
 import copy
 from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import Dict, Iterable
+from typing import Dict, Iterable, Optional
 
 import torch
 from draugr import sprint
@@ -14,7 +14,7 @@ from draugr.torch_utilities import (
     save_model_parameters,
 )
 from draugr.writers import GraphWriterMixin, MockWriter, Writer
-from neodroid.utilities import ActionSpace, ObservationSpace, SignalSpace
+from trolls.spaces import ActionSpace, ObservationSpace, SignalSpace
 from neodroidagent.agents.agent import Agent, TogglableLowHigh
 from neodroidagent.common.architectures.architecture import Architecture
 from neodroidagent.utilities import IntrinsicSignalProvider
@@ -33,7 +33,7 @@ __all__ = ["TorchAgent"]
 
 @super_init_pass_on_kws(super_base=Agent)
 class TorchAgent(Agent, ABC):
-    """"""
+    """ """
 
     # region Private
 
@@ -48,11 +48,11 @@ class TorchAgent(Agent, ABC):
     ):
         """
 
-        @param device:
-        @param gradient_clipping:
-        @param grad_clip_low:
-        @param grad_clip_high:
-        @param kwargs:"""
+        :param device:
+        :param gradient_clipping:
+        :param grad_clip_low:
+        :param grad_clip_high:
+        :param kwargs:"""
         super().__init__(
             intrinsic_signal_provider_arch=intrinsic_signal_provider_arch, **kwargs
         )
@@ -65,8 +65,8 @@ class TorchAgent(Agent, ABC):
     def post_process_gradients(self, parameters: Iterable[Parameter]) -> None:
         """
 
-        @param model:
-        @return:
+        :param model:
+        :return:
             :param parameters:"""
         if self._gradient_clipping.enabled:
             for params in parameters:
@@ -83,7 +83,7 @@ class TorchAgent(Agent, ABC):
     def device(self) -> torch.device:
         """
 
-        @return:"""
+        :return:"""
         return self._device
 
     # endregion
@@ -94,20 +94,20 @@ class TorchAgent(Agent, ABC):
         action_space: ActionSpace,
         signal_space: SignalSpace,
         *,
-        metric_writer: Writer = MockWriter(),
+        metric_writer: Optional[Writer] = MockWriter(),
         print_model_repr: bool = True,
         verbose: bool = False,
         **kwargs,
     ) -> None:
         """
 
-        @param observation_space:
-        @param action_space:
-        @param signal_space:
-        @param metric_writer:
-        @param print_model_repr:
-        @param kwargs:
-        @return:
+        :param observation_space:
+        :param action_space:
+        :param signal_space:
+        :param metric_writer:
+        :param print_model_repr:
+        :param kwargs:
+        :return:
             :param verbose:"""
         super().build(
             observation_space,
@@ -150,7 +150,7 @@ class TorchAgent(Agent, ABC):
     def models(self) -> Dict[str, Architecture]:
         """
 
-        @return:"""
+        :return:"""
         raise NotImplementedError
 
     @property
@@ -158,15 +158,15 @@ class TorchAgent(Agent, ABC):
     def optimisers(self) -> Dict[str, Optimizer]:
         """
 
-        @return:"""
+        :return:"""
         raise NotImplementedError
 
     @passes_kws_to(save_model_parameters)
     def save(self, **kwargs) -> None:
         """
 
-        @param kwargs:
-        @return:"""
+        :param kwargs:
+        :return:"""
         for (k, v), o in zip(self.models.items(), self.optimisers.values()):
             save_model_parameters(
                 v, optimiser=o, model_name=self.model_name(k, v), **kwargs
@@ -176,9 +176,9 @@ class TorchAgent(Agent, ABC):
     def model_name(k, v) -> str:
         """
 
-        @param k:
-        @param v:
-        @return:"""
+        :param k:
+        :param v:
+        :return:"""
         return f"{k}-{get_model_hash(v)}"
 
     def on_load(self) -> None:
@@ -188,9 +188,9 @@ class TorchAgent(Agent, ABC):
     def load(self, *, save_directory: Path, evaluation: bool = False) -> bool:
         """
 
-        @param save_directory:
-        @param evaluation:
-        @return:"""
+        :param save_directory:
+        :param evaluation:
+        :return:"""
         loaded = True
         if save_directory.exists():
             print(f"Loading models from: {str(save_directory)}")

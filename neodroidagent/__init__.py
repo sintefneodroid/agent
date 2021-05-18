@@ -20,7 +20,6 @@ Created on 27/04/2019
 """
 __all__ = ["PROJECT_APP_PATH", "PROJECT_NAME", "PROJECT_VERSION", "get_version"]
 
-
 from typing import Any
 
 
@@ -35,6 +34,7 @@ def dist_is_editable(dist: Any) -> bool:
 
 
 PROJECT_NAME = __project__.lower().strip().replace(" ", "_")
+PROJECT_YEAR = 2018
 PROJECT_VERSION = __version__
 PROJECT_AUTHOR = __author__.lower().strip().replace(" ", "_")
 PROJECT_APP_PATH = AppPath(app_name=PROJECT_NAME, app_author=PROJECT_AUTHOR)

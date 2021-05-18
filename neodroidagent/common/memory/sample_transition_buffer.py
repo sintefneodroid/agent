@@ -34,7 +34,7 @@ class SampleTransitionPoint(TransitionPoint):
     def get_fields() -> Sequence:
         """
 
-        @return:"""
+        :return:"""
         return SampleTransitionPoint.__slots__
 
     def __post_init__(self):
@@ -47,8 +47,8 @@ class SampleTransitionBuffer(ExpandableCircularBuffer):
         """
         Iteratively adds transition points with TransitionPointBuffer.add_transition_point
 
-        @param transition_points:
-        @return:"""
+        :param transition_points:
+        :return:"""
         for t in zip(*transition_points):
             self.add_transition_point(SampleTransitionPoint(*t))
 
@@ -57,8 +57,8 @@ class SampleTransitionBuffer(ExpandableCircularBuffer):
         """
         args will be wrapped in a TransitionPoint type tuple and collected as transition_point
 
-        @param transition_point:
-        @return:"""
+        :param transition_point:
+        :return:"""
         self._add(transition_point)
 
     def sample(self, num) -> SampleTransitionPoint:

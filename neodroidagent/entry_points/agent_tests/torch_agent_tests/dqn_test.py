@@ -1,10 +1,17 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 from typing import Union
-
+from neodroid.environments.environment import Environment
 from neodroidagent.agents import DeepQNetworkAgent
-from neodroidagent.common import OffPolicyEpisodic, ParallelSession
+from neodroidagent.common import (
+    OffPolicyEpisodic,
+    ParallelSession,
+    TransitionPointPrioritisedBuffer,
+)
 from neodroidagent.configs.test_reference.base_dicrete_test_config import *
+from neodroidagent.common.session_factory.vertical.environment_session import (
+    EnvironmentType,
+)
 
 __author__ = "Christian Heider Nielsen"
 
@@ -27,16 +34,20 @@ CONFIG_FILE_PATH = Path(__file__)
 EXPLORATION_SPEC = ExplorationSpecification(0.95, 0.05, ITERATIONS)
 OPTIMISER_SPEC = GDKC(torch.optim.Adam, lr=3e-4)
 
-INITIAL_OBSERVATION_PERIOD = 1
-# RENDER_FREQUENCY = 0
+BATCH_SIZE = 512
+INITIAL_OBSERVATION_PERIOD = BATCH_SIZE
+# RENDER_FREQUENCY = 1
 LEARNING_FREQUENCY = 1
+# RENDER_ENVIRONMENT = True
+# RUN_TRAINING = False
+MEMORY_BUFFER = TransitionPointPrioritisedBuffer(int(1e6))
 
 dqn_config = globals()
 
 
 def dqn_run(
     skip_confirmation: bool = True,
-    environment_type: Union[bool, str] = True,
+    environment: Union[EnvironmentType, Environment] = EnvironmentType.zmq_pipe,
     config=None,
     **kwargs
 ) -> None:
@@ -49,20 +60,20 @@ def dqn_run(
             ParallelSession,
             environment_name=ENVIRONMENT_NAME,
             procedure=OffPolicyEpisodic,
-            environment=environment_type,
+            environment=environment,
             **kwargs
         ),
         skip_confirmation=skip_confirmation,
-        environment=environment_type,
+        environment=environment,
         **kwargs
     )
 
 
-def dqn_test(config=None, **kwargs):
+def dqn_gym_test(config=None, **kwargs):
     if config is None:
         config = dqn_config
-    dqn_run(environment_type="gym", config=config, **kwargs)
+    dqn_run(environment=EnvironmentType.gym, config=config, **kwargs)
 
 
 if __name__ == "__main__":
-    dqn_test()
+    dqn_gym_test()

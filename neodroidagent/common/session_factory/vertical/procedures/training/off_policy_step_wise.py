@@ -1,21 +1,17 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-from pathlib import Path
-from typing import Union
+from typing import Optional
 
-import torch
-import torchsnooper
-from draugr.drawers import MplDrawer, MockDrawer
+from draugr.drawers import MockDrawer, MplDrawer
+from draugr.metrics.accumulation import mean_accumulator
 from draugr.writers import MockWriter, Writer
 from tqdm import tqdm
-
-from draugr.metrics.accumulation import mean_accumulator
-from draugr.torch_utilities import TensorBoardPytorchWriter
 
 __author__ = "Christian Heider Nielsen"
 __all__ = ["OffPolicyStepWise"]
 __doc__ = "Collects agent experience in a step wise fashion"
 
+from neodroid.utilities import to_one_hot
 from neodroidagent.common.session_factory.vertical.procedures.procedure_specification import (
     Procedure,
 )
@@ -35,7 +31,7 @@ class OffPolicyStepWise(Procedure):
         update_agent_frequency: int = 1,
         disable_stdout: bool = False,
         train_agent: bool = True,
-        metric_writer: Writer = MockWriter(),
+        metric_writer: Optional[Writer] = MockWriter(),
         rollout_drawer: MplDrawer = MockDrawer(),
         **kwargs
     ) -> None:
@@ -124,8 +120,12 @@ class OffPolicyStepWise(Procedure):
                 and render_frequency != 0
             ):
                 self.environment.render()
-                if rollout_drawer:
-                    rollout_drawer.draw(action)
+                if rollout_drawer is not None and action is not None:
+                    if self.environment.action_space.is_singular_discrete:
+                        action_a = to_one_hot(self.agent.output_shape, action)
+                    else:
+                        action_a = action[0]
+                    rollout_drawer.draw(action_a)
 
             if self.early_stop:
                 break

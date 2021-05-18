@@ -13,9 +13,15 @@ from neodroidagent.agents.numpy_agents.numpy_agent import NumpyAgent
 
 
 class MonteCarloAgent(NumpyAgent):
-    """"""
+    """ """
 
-    def __init__(self, env, off_policy=False, temporal_discount=0.9, epsilon=0.1):
+    def __init__(
+        self,
+        env,
+        off_policy=False,
+        temporal_discount: float = 0.9,
+        epsilon: float = 0.1,
+    ):
         """
         A Monte-Carlo learning agent trained using either first-visit Monte
         Carlo updates (on-policy) or incremental weighted importance sampling

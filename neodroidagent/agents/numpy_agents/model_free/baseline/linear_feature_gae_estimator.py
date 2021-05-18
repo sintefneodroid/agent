@@ -7,7 +7,7 @@ __doc__ = r"""
            Created on 19/01/2020
            """
 
-from typing import Any, Tuple
+from typing import Any, Optional, Tuple
 
 import numpy
 from draugr.writers import MockWriter, Writer
@@ -37,23 +37,23 @@ class LinearFeatureBaseline:
         self,
         state: EnvironmentSnapshot,
         *args,
-        metric_writer: Writer = MockWriter(),
+        metric_writer: Optional[Writer] = MockWriter(),
         **kwargs
     ) -> Any:
         """
 
         samples signal
 
-        @param state:
-        @type state:
-        @param args:
-        @type args:
-        @param metric_writer:
-        @type metric_writer:
-        @param kwargs:
-        @type kwargs:
-        @return:
-        @rtype:
+        :param state:
+        :type state:
+        :param args:
+        :type args:
+        :param metric_writer:
+        :type metric_writer:
+        :param kwargs:
+        :type kwargs:
+        :return:
+        :rtype:
         """
         if self._linear_coefficients is None:
             return numpy.zeros(len(state["rewards"]))
@@ -65,10 +65,10 @@ class LinearFeatureBaseline:
         b0 + b1*obs + b2*obs^2 + b3*t + b4*t^2+  b5*t^3
 
 
-        @param state:
-        @type state:
-        @return:
-        @rtype:
+        :param state:
+        :type state:
+        :return:
+        :rtype:
         """
         obs = numpy.clip(state["observations"], -10, 10)
         trajectory_length = len(state["rewards"])
@@ -100,7 +100,7 @@ class LinearFeatureBaseline:
         self,
         trajectories,
         *args,
-        metric_writer: Writer = MockWriter(),
+        metric_writer: Optional[Writer] = MockWriter(),
         attempts=5,
         **kwargs
     ) -> Any:
@@ -109,18 +109,18 @@ class LinearFeatureBaseline:
         Fit the linear baseline model (signal estimator) with the provided paths via damped least squares
 
 
-        @param trajectories:
-        @type trajectories:
-        @param args:
-        @type args:
-        @param metric_writer:
-        @type metric_writer:
-        @param attempts:
-        @type attempts:
-        @param kwargs:
-        @type kwargs:
-        @return:
-        @rtype:
+        :param trajectories:
+        :type trajectories:
+        :param args:
+        :type args:
+        :param metric_writer:
+        :type metric_writer:
+        :param attempts:
+        :type attempts:
+        :param kwargs:
+        :type kwargs:
+        :return:
+        :rtype:
         """
         features_matrix = numpy.concatenate(
             [self.extract_features(trajectory) for trajectory in trajectories]

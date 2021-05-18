@@ -1,5 +1,5 @@
 import copy
-from typing import Any, Dict, Sequence
+from typing import Any, Dict, Optional, Sequence
 
 import numpy
 import torch
@@ -8,7 +8,7 @@ from torch.optim import Optimizer
 
 from draugr.torch_utilities import freeze_model, frozen_model, to_tensor
 from draugr.writers import MockWriter, Writer
-from neodroid.utilities import ActionSpace, ObservationSpace, SignalSpace
+from trolls.spaces import ActionSpace, ObservationSpace, SignalSpace
 from neodroidagent.agents.torch_agents.torch_agent import TorchAgent
 from neodroidagent.common import (
     Architecture,
@@ -75,19 +75,19 @@ class DeepDeterministicPolicyGradientAgent(TorchAgent):
     ):
         """
 
-        @param random_process_spec:
-        @param memory_buffer:
-        @param evaluation_function:
-        @param actor_arch_spec:
-        @param critic_arch_spec:
-        @param discount_factor:
-        @param update_target_interval:
-        @param batch_size:
-        @param noise_factor:
-        @param copy_percentage:
-        @param actor_optimiser_spec:
-        @param critic_optimiser_spec:
-        @param kwargs:"""
+        :param random_process_spec:
+        :param memory_buffer:
+        :param evaluation_function:
+        :param actor_arch_spec:
+        :param critic_arch_spec:
+        :param discount_factor:
+        :param update_target_interval:
+        :param batch_size:
+        :param noise_factor:
+        :param copy_percentage:
+        :param actor_optimiser_spec:
+        :param critic_optimiser_spec:
+        :param kwargs:"""
         super().__init__(**kwargs)
 
         assert 0 <= discount_factor <= 1.0
@@ -114,23 +114,23 @@ class DeepDeterministicPolicyGradientAgent(TorchAgent):
         observation_space: ObservationSpace,
         action_space: ActionSpace,
         signal_space: SignalSpace,
-        metric_writer: Writer = MockWriter(),
+        metric_writer: Optional[Writer] = MockWriter(),
         print_model_repr: bool = True,
     ) -> None:
         """
 
-        @param observation_space:
-        @param action_space:
-        @param signal_space:
-        @param metric_writer:
-        @param print_model_repr:
-        @param critic:
-        @param critic_optimiser:
-        @param actor:
-        @param actor_optimiser:
-        @return:"""
+        :param observation_space:
+        :param action_space:
+        :param signal_space:
+        :param metric_writer:
+        :param print_model_repr:
+        :param critic:
+        :param critic_optimiser:
+        :param actor:
+        :param actor_optimiser:
+        :return:"""
 
-        if action_space.is_discrete:
+        if action_space.is_singular_discrete:
             raise ActionSpaceNotSupported()
 
         self._actor_arch_spec.kwargs["input_shape"] = self._input_shape
@@ -158,7 +158,7 @@ class DeepDeterministicPolicyGradientAgent(TorchAgent):
     def models(self) -> Dict[str, Architecture]:
         """
 
-        @return:"""
+        :return:"""
         return {"_actor": self._actor, "_critic": self._critic}
 
     @property
@@ -169,12 +169,12 @@ class DeepDeterministicPolicyGradientAgent(TorchAgent):
         }
 
     def update_targets(
-        self, update_percentage: float, *, metric_writer: Writer = None
+        self, update_percentage: float, *, metric_writer: Optional[Writer] = None
     ) -> None:
         """
 
-        @param update_percentage:
-        @return:"""
+        :param update_percentage:
+        :return:"""
         with torch.no_grad():
             if metric_writer:
                 metric_writer.blip("Target Model Synced", self.update_i)
@@ -197,7 +197,7 @@ class DeepDeterministicPolicyGradientAgent(TorchAgent):
         )
 
     @drop_unused_kws
-    def _update(self, *, metric_writer: Writer = MockWriter()) -> None:
+    def _update(self, *, metric_writer: Optional[Writer] = MockWriter()) -> None:
         """
         Update
 
@@ -251,25 +251,29 @@ class DeepDeterministicPolicyGradientAgent(TorchAgent):
     def extract_action(self, sample: Any) -> numpy.ndarray:
         """
 
-        @param sample:
-        @return:"""
+        :param sample:
+        :return:"""
         return sample.to("cpu").numpy()
 
     @drop_unused_kws
     def _sample(self, state: Sequence) -> Any:
         """
 
-        @param state:
-        @param deterministic:
-        @return:"""
+        :param state:
+        :param deterministic:
+        :return:"""
 
         with torch.no_grad():
-            action_out = self._actor(to_tensor(state, device=self._device)).detach()
+            action_out = self._actor(
+                to_tensor(state, device=self._device, dtype=torch.float)
+            ).detach()
 
         deterministic = False
         if not deterministic:
             # Add action space noise for exploration, alternative is parameter space noise
             noise = self._random_process.sample(action_out.shape)
-            action_out += to_tensor(noise * self._noise_factor, device=self.device)
+            action_out += to_tensor(
+                noise * self._noise_factor, device=self.device, dtype=torch.float
+            )
 
         return action_out

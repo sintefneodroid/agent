@@ -1,16 +1,22 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 from typing import Union
-
+from neodroid.environments.environment import Environment
 from neodroidagent.agents import PolicyGradientAgent
 from neodroidagent.common import ParallelSession
 from neodroidagent.common.architectures.distributional.categorical import CategoricalMLP
 from neodroidagent.configs.test_reference.base_dicrete_test_config import *
+from neodroidagent.common.session_factory.vertical.environment_session import (
+    EnvironmentType,
+)
 
 __author__ = "Christian Heider Nielsen"
 
 from neodroidagent.entry_points.session_factory import session_factory
 from warg import GDKC
+from neodroidagent.common.session_factory.vertical.environment_session import (
+    EnvironmentType,
+)
 
 CONFIG_NAME = __name__
 
@@ -30,7 +36,7 @@ pg_config = globals()
 
 def pg_run(
     skip_confirmation: bool = True,
-    environment_type: Union[bool, str] = True,
+    environment: Union[EnvironmentType, Environment] = EnvironmentType.zmq_pipe,
     *,
     config=None,
     **kwargs
@@ -43,16 +49,16 @@ def pg_run(
         config,
         session=ParallelSession,
         skip_confirmation=skip_confirmation,
-        environment=environment_type,
+        environment=environment,
         **kwargs
     )
 
 
-def pg_test(config=None, **kwargs) -> None:
+def pg_gym_test(config=None, **kwargs) -> None:
     if config is None:
         config = pg_config
-    pg_run(environment_type="gym", config=config, **kwargs)
+    pg_run(environment=EnvironmentType.gym, config=config, **kwargs)
 
 
 if __name__ == "__main__":
-    pg_test()
+    pg_gym_test()

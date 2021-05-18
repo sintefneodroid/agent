@@ -2,11 +2,12 @@
 # -*- coding: utf-8 -*-
 import abc
 from pathlib import Path
-from typing import List, Union
+from typing import Iterable, List, Union
 
-from neodroid import Environment
+from neodroid.environments import Environment
 from neodroidagent.agents import Agent
 from warg import drop_unused_kws
+from draugr import max_freq_wrapper_global
 
 __author__ = "Christian Heider Nielsen"
 __doc__ = r"""
@@ -25,14 +26,15 @@ class Procedure(abc.ABC):
         environment: Environment,
         on_improvement_callbacks=None,
         save_best_throughout_training: bool = True,
-        train_agent: bool = True
+        train_agent: bool = True,
+        min_save_interval: int = 0
     ):
         """
 
-        @param agent:
-        @param environment:
-        @param on_improvement_callbacks:
-        @param save_best_throughout_training:"""
+        :param agent:
+        :param environment:
+        :param on_improvement_callbacks:
+        :param save_best_throughout_training:"""
         if not isinstance(on_improvement_callbacks, List) and isinstance(
             on_improvement_callbacks, Iterable
         ):
@@ -43,23 +45,26 @@ class Procedure(abc.ABC):
         self.agent = agent
         self.environment = environment
         if save_best_throughout_training and train_agent:
-            on_improvement_callbacks.append(self.agent.save)
+            func = self.agent.save
+            if min_save_interval:
+                max_freq_wrapper_global(func, max_freq=min_save_interval)
+            on_improvement_callbacks.append(func)
         self.on_improvement_callbacks = on_improvement_callbacks
 
     @staticmethod
     def stop_procedure() -> None:
         """
 
-        @return:"""
+        :return:"""
         print("STOPPING PROCEDURE!")
         Procedure.early_stop = True
 
     def model_improved(self, *, step_i, verbose: bool = True, **kwargs):
         """
 
-        @param verbose:
-        @param kwargs:
-        @return:"""
+        :param verbose:
+        :param kwargs:
+        :return:"""
         if verbose:
             print("Model improved")
 
