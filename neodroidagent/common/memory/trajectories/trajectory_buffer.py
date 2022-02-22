@@ -3,12 +3,13 @@
 from dataclasses import dataclass
 from typing import Any, Sequence
 
+from warg import OrdinalIndexingDictMixin, IterDictValuesMixin
+
 from neodroidagent.common.memory.data_structures.expandable_circular_buffer import (
     ExpandableCircularBuffer,
 )
 from neodroidagent.utilities import NoData
-from warg import OrdinalIndexingDictMixin, IterDictValuesMixin
-from warg.arguments import wrap_args
+from draugr.python_utilities import wrap_args
 
 __author__ = "Christian Heider Nielsen"
 

@@ -8,7 +8,7 @@ from neodroidagent.common.memory.data_structures.expandable_circular_buffer impo
 )
 from neodroidagent.common.memory.transitions import Transition, TransitionPoint
 from neodroidagent.utilities import NoData
-from warg.arguments import wrap_args
+from draugr.python_utilities import wrap_args
 
 __author__ = "Christian Heider Nielsen"
 __doc__ = r"""

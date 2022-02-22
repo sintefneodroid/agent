@@ -32,18 +32,18 @@ jobs:
               .
       - name: Publish distribution 📦 to Test PyPI
         env:
-          test_pypi_password: ${{ secrets.test_pypi_password }}
-        if:   env.test_pypi_password != null && endsWith(github.ref, 'master')
+          test_pypi_password: ${{ secrets.test_pypi_secret }}
+        if:   env.test_pypi_password != null && endsWith(github.ref, 'master') && github.repository_owner == 'sintefneodroid'
         uses: pypa/gh-action-pypi-publish@master
         with:
-          password:       env.test_pypi_password
+          password:       ${{ secrets.test_pypi_secret }}
           repository_url: https://test.pypi.org/legacy/
       - name: Publish distribution 📦 to PyPI
         env:
-          pypi_password: ${{ secrets.pypi_password }}
-        if:   env.pypi_password != null && startsWith(github.ref, 'refs/tags')
+          pypi_password: ${{ secrets.pypi_secret }}
+        if:   env.pypi_password != null && startsWith(github.ref, 'refs/tags') && github.repository_owner == 'sintefneodroid'
         uses: pypa/gh-action-pypi-publish@master
         with:
-          password: ${{ secrets.pypi_password }}
+          password: ${{ secrets.pypi_secret }}
           #verbose: true
           #skip_existing: true

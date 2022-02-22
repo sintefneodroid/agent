@@ -4,10 +4,12 @@ import abc
 from pathlib import Path
 from typing import Iterable, List, Union
 
+from draugr import min_interval_wrapper_global
+
 from neodroid.environments import Environment
 from neodroidagent.agents import Agent
 from warg import drop_unused_kws
-from draugr import max_freq_wrapper_global
+
 
 __author__ = "Christian Heider Nielsen"
 __doc__ = r"""
@@ -47,7 +49,7 @@ class Procedure(abc.ABC):
         if save_best_throughout_training and train_agent:
             func = self.agent.save
             if min_save_interval:
-                max_freq_wrapper_global(func, max_freq=min_save_interval)
+                min_interval_wrapper_global(func, min_interval=min_save_interval)
             on_improvement_callbacks.append(func)
         self.on_improvement_callbacks = on_improvement_callbacks
 
