@@ -9,6 +9,7 @@ from neodroidagent.configs.test_reference.base_dicrete_test_config import *
 from neodroidagent.common.session_factory.vertical.environment_session import (
     EnvironmentType,
 )
+import torch
 
 __author__ = "Christian Heider Nielsen"
 

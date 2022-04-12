@@ -1,16 +1,14 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-import math
-from pathlib import Path
 import time
 from os import cpu_count
-from trolls.render_mode import RenderModeEnum
-import torch
+from pathlib import Path
 
 from draugr.torch_utilities import global_torch_device
+
 from neodroidagent import PROJECT_NAME
 from neodroidagent.agents.agent import TogglableLowHigh
-from warg.gdkc import GDKC
+from trolls.render_mode import RenderModeEnum
 
 __author__ = "Christian Heider Nielsen"
 """
@@ -60,4 +58,4 @@ SAVE_MODEL_INTERVAL = 100
 SEED = 2 ** 6 - 1  # Up to power 32
 
 if __name__ == "__main__":
-    print(CONFIG_FILE_PATH)
+  print(CONFIG_FILE_PATH)

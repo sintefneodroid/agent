@@ -5,7 +5,7 @@ __doc__ = """
 Description: Config for training
 Author: Christian Heider Nielsen
 """
-
+# noinspection PyUnresolvedReferences
 from neodroidagent.configs.base_config import *
 
 # Mujoco

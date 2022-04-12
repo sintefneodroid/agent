@@ -8,11 +8,12 @@ Author: Christian Heider Nielsen
 
 CONFIG_NAME = __name__
 
+# noinspection PyUnresolvedReferences
 from neodroidagent.configs.base_config import *
 
 # ENVIRONMENT_NAME = 'LunarLanderContinuous-v2'
 
-ENVIRONMENT_NAME = "Pendulum-v0"
+ENVIRONMENT_NAME = "Pendulum-v1"
 # ENVIRONMENT_NAME = "BipedalWalker-v2"
 # ENVIRONMENT_NAME = "LunarLanderContinuous-v2"
 # ENVIRONMENT_NAME = 'MountainCarContinuous-v0'
