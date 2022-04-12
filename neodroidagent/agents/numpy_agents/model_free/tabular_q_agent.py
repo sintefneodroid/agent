@@ -5,10 +5,9 @@ from typing import Any, Tuple
 
 import gym
 import numpy
-from tqdm import tqdm
-
 from neodroid.environments.gym_environment import NeodroidGymEnvironment
 from neodroidagent.agents.numpy_agents.numpy_agent import NumpyAgent
+from tqdm import tqdm
 
 
 class TabularQAgent(NumpyAgent):

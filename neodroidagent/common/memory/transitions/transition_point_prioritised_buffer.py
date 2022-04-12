@@ -30,7 +30,7 @@ class TransitionPointPrioritisedBuffer(PrioritisedBuffer):
 if __name__ == "__main__":
 
     def stest_experience_buffer():
-        capacity = 2 ** 8
+        capacity = 2**8
         batch_size = 4
 
         rb = TransitionPointPrioritisedBuffer(capacity)

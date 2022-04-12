@@ -5,7 +5,6 @@ from os import cpu_count
 from pathlib import Path
 
 from draugr.torch_utilities import global_torch_device
-
 from neodroidagent import PROJECT_NAME
 from neodroidagent.agents.agent import TogglableLowHigh
 from trolls.render_mode import RenderModeEnum
@@ -55,7 +54,7 @@ GLOBAL_DEVICE = global_torch_device(USE_CUDA)
 MOVING_AVERAGE_WINDOW = 100
 SPACER_SIZE = 60
 SAVE_MODEL_INTERVAL = 100
-SEED = 2 ** 6 - 1  # Up to power 32
+SEED = 2**6 - 1  # Up to power 32
 
 if __name__ == "__main__":
-  print(CONFIG_FILE_PATH)
+    print(CONFIG_FILE_PATH)

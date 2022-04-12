@@ -2,12 +2,12 @@
 # -*- coding: utf-8 -*-
 from itertools import count
 
+from draugr.python_utilities import wrap_args
 from neodroidagent.common.memory.data_structures.expandable_circular_buffer import (
     ExpandableCircularBuffer,
 )
 from neodroidagent.common.memory.transitions import TransitionPoint
 from neodroidagent.utilities import NoData
-from draugr.python_utilities import wrap_args
 
 __author__ = "Christian Heider Nielsen"
 __doc__ = r"""

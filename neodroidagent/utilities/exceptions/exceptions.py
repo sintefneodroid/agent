@@ -3,8 +3,6 @@
 
 __author__ = "Christian Heider Nielsen"
 
-from draugr.python_utilities.exceptions import NoData
-
 __all__ = [
     "NoData",
     "NoAgent",
@@ -12,6 +10,13 @@ __all__ = [
     "NoTrajectoryException",
     "ActionSpaceNotSupported",
 ]
+
+
+class NoData(Exception):
+    """ """
+
+    def __init__(self, msg="Data"):
+        Exception.__init__(self, msg)
 
 
 class NoProcedure(Exception):

@@ -3,6 +3,7 @@
 
 import draugr
 from draugr.stopping.stopping_key import add_early_stopping_key_combination
+
 from neodroid.environments.droid_environment import SingleUnityEnvironment
 
 __author__ = "Christian Heider Nielsen"

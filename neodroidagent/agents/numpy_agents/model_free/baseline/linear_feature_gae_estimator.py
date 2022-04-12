@@ -7,17 +7,13 @@ __doc__ = r"""
            Created on 19/01/2020
            """
 
-from typing import Any, Optional, Tuple
+from typing import Any, Optional
 
 import numpy
 from draugr.writers import MockWriter, Writer
 from neodroid.utilities import (
-    ActionSpace,
     EnvironmentSnapshot,
-    ObservationSpace,
-    SignalSpace,
 )
-from neodroidagent.agents import Agent
 
 
 class LinearFeatureBaseline:
@@ -78,10 +74,10 @@ class LinearFeatureBaseline:
         return numpy.concatenate(
             [
                 obs,
-                obs ** 2,
+                obs**2,
                 time_steps,
-                time_steps ** 2,
-                time_steps ** 3,
+                time_steps**2,
+                time_steps**3,
                 numpy.ones((trajectory_length, 1)),
             ],
             axis=1,

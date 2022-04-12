@@ -5,8 +5,8 @@ pipelines data between sampler and algorithm during training.
 """
 
 import psutil
-
 from garage.sampler import DefaultWorker
+
 from neodroidagent.agents.numpy_agents.evolutionary.get_rid.local_runner import (
     LocalRunner,
 )
@@ -14,7 +14,7 @@ from neodroidagent.agents.numpy_agents.evolutionary.get_rid.local_runner import 
 tf = False
 TFWorkerClassWrapper = False
 try:
-    import tensorflow as tf
+    import tensorflow
     from garage.tf.samplers import (
         TFWorkerClassWrapper,
     )  # noqa: E501; pylint: disable=ungrouped-imports
@@ -176,7 +176,7 @@ class LocalTFRunner(LocalRunner):
             policy weights can be loaded before setup().
 
         Args:
-            algo (garage.np.algos.RLAlgorithm): An algorithm instance.
+            algo (garage.numpy.algos.RLAlgorithm): An algorithm instance.
             env (garage.envs.GarageEnv): An environement instance.
             sampler_cls (garage.sampler.Sampler): A sampler class.
             sampler_args (dict): Arguments to be passed to sampler constructor.

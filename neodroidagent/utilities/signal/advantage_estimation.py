@@ -3,7 +3,6 @@
 from typing import Union
 
 import numpy
-
 from draugr.torch_utilities import to_tensor
 
 __author__ = "Christian Heider Nielsen"
@@ -116,7 +115,6 @@ def torch_compute_gae(
 if __name__ == "__main__":
 
     def s():
-
         numpy.random.seed(23)
         size = (10, 3, 1)
         a_size = (size[0] + 1, *size[1:])

@@ -3,17 +3,18 @@ from typing import Any, Dict, Optional, Sequence
 
 import numpy
 import torch
-import torch.nn.functional as F
-from torch.optim import Optimizer
-
-from draugr.torch_utilities import freeze_model, frozen_model, to_tensor
-from draugr.writers import MockWriter, Writer
-from trolls.spaces import ActionSpace, ObservationSpace, SignalSpace
-from neodroidagent.agents.torch_agents.torch_agent import TorchAgent
-from neodroidagent.common import (
-    Architecture,
+import torch.nn.functional
+from draugr.torch_utilities import (
+    freeze_model,
+    frozen_model,
+    to_tensor,
     LateConcatInputMLP,
     MLP,
+    Architecture,
+)
+from draugr.writers import MockWriter, Writer
+from neodroidagent.agents.torch_agents.torch_agent import TorchAgent
+from neodroidagent.common import (
     Memory,
     TransitionPoint,
     TransitionPointBuffer,
@@ -24,7 +25,10 @@ from neodroidagent.utilities import (
     update_target,
 )
 from numpy import mean
+from torch.nn import functional
+from torch.optim import Optimizer
 from tqdm import tqdm
+from trolls.spaces import ActionSpace, ObservationSpace, SignalSpace
 from warg import GDKC, drop_unused_kws, is_zero_or_mod_zero, super_init_pass_on_kws
 
 __author__ = "Christian Heider Nielsen"
@@ -61,7 +65,7 @@ class DeepDeterministicPolicyGradientAgent(TorchAgent):
         self,
         random_process_spec: GDKC = GDKC(constructor=OrnsteinUhlenbeckProcess),
         memory_buffer: Memory = TransitionPointBuffer(),
-        evaluation_function: callable = F.mse_loss,
+        evaluation_function: callable = functional.mse_loss,
         actor_arch_spec: GDKC = GDKC(MLP, output_activation=torch.nn.Tanh()),
         critic_arch_spec: GDKC = GDKC(LateConcatInputMLP),
         discount_factor: float = 0.95,

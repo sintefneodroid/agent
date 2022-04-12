@@ -7,9 +7,8 @@ import random
 from types import coroutine
 
 import numpy
-from tqdm import tqdm
-
 from neodroid.utilities import Configuration, Displayable, Reaction, ReactionParameters
+from tqdm import tqdm
 
 
 @coroutine

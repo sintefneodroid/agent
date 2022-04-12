@@ -1,8 +1,7 @@
 from itertools import count
 
-from tqdm import tqdm
-
 from neodroid.environments.droid_environment import VectorUnityEnvironment
+from tqdm import tqdm
 
 
 def run(self, environment: VectorUnityEnvironment, render: bool = True) -> None:

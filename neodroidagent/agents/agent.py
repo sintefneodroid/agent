@@ -5,16 +5,15 @@ from collections import namedtuple
 from typing import Any, Optional, Sequence, Tuple
 
 import numpy
-
 from draugr import sprint
 from draugr.writers import MockWriter, Writer
+from neodroid.utilities import EnvironmentSnapshot
+from neodroidagent.utilities import IntrinsicSignalProvider
 from trolls.spaces import (
     ActionSpace,
     ObservationSpace,
     SignalSpace,
 )
-from neodroidagent.utilities import IntrinsicSignalProvider
-from neodroid.utilities import EnvironmentSnapshot
 
 __author__ = "Christian Heider Nielsen"
 __doc__ = r"""

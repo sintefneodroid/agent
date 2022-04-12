@@ -11,11 +11,9 @@ from typing import Sequence
 
 import numpy
 import torch
+from draugr.torch_utilities import to_tensor, MLP
 from torch import nn
 from torch.distributions import Categorical, Normal
-
-from draugr.torch_utilities import to_tensor
-from neodroidagent.common.architectures.mlp import MLP
 
 __all__ = ["ActorCriticMLP", "CategoricalActorCriticMLP"]
 

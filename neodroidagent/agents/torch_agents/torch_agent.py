@@ -7,22 +7,23 @@ from typing import Dict, Iterable, Optional
 
 import torch
 from draugr import sprint
+from draugr.torch_utilities import GraphWriterMixin
 from draugr.torch_utilities import (
     get_model_hash,
     global_torch_device,
     load_latest_model_parameters,
     save_model_parameters,
+    Architecture,
 )
-from draugr.writers import GraphWriterMixin, MockWriter, Writer
-from trolls.spaces import ActionSpace, ObservationSpace, SignalSpace
+from draugr.writers import MockWriter, Writer
 from neodroidagent.agents.agent import Agent, TogglableLowHigh
-from neodroidagent.common.architectures.architecture import Architecture
 from neodroidagent.utilities import IntrinsicSignalProvider
 from neodroidagent.utilities.exploration.intrinsic_signals.braindead import (
     BraindeadIntrinsicSignalProvider,
 )
 from torch.nn import Parameter
 from torch.optim import Optimizer
+from trolls.spaces import ActionSpace, ObservationSpace, SignalSpace
 from warg import drop_unused_kws, passes_kws_to, super_init_pass_on_kws
 
 __author__ = "Christian Heider Nielsen"

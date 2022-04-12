@@ -229,7 +229,6 @@ class NeodroidAgentPackage(metaclass=NeodroidAgentPackageMeta):
 
 
 if __name__ == "__main__":
-
     pkg = NeodroidAgentPackage
 
     setup(

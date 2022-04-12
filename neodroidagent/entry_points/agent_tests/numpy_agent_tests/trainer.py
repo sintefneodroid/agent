@@ -68,6 +68,7 @@ class Trainer(object):
         t0 = time()
         render_every = numpy.inf if render_every is None else render_every
         sf = smooth_factor
+        smooth_tot = 0
 
         for ep in range(n_episodes):
             tot_rwd, duration, n_steps = self._train_episode(max_steps)
@@ -116,12 +117,12 @@ class Trainer(object):
         target policy."""
         try:
             from matplotlib import pyplot
-            import seaborn as sns
+            import seaborn
 
             # https://seaborn.pydata.org/generated/seaborn.set_context.html
             # https://seaborn.pydata.org/generated/seaborn.set_style.html
-            sns.set_style("white")
-            sns.set_context("notebook", font_scale=1)
+            seaborn.set_style("white")
+            seaborn.set_context("notebook", font_scale=1)
         except:
             fstr = "Error importing `matplotlib` and `seaborn` -- plotting functionality is disabled"
             raise ImportError(fstr)
@@ -136,7 +137,7 @@ class Trainer(object):
         ax.plot(x, y_raw, alpha=0.5, label="raw")
         ax.axhline(y=rwd_greedy, xmin=min(x), xmax=max(x), ls=":", label="final greedy")
         ax.legend()
-        sns.despine()
+        seaborn.despine()
 
         env = self.agent.env_info["id"]
         agent = self.agent.hyperparameters["agent"]

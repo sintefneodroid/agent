@@ -4,12 +4,11 @@ from typing import Tuple
 
 import numpy
 import torch
+from draugr.torch_utilities import to_tensor
+from draugr.writers import Writer
 from torch import nn
 from torch.distributions import Categorical
 from torch.nn import CrossEntropyLoss, MSELoss
-
-from draugr.torch_utilities import to_tensor
-from draugr.writers import Writer
 from trolls.spaces import ActionSpace, ObservationSpace, SignalSpace
 
 __author__ = "Christian Heider Nielsen"

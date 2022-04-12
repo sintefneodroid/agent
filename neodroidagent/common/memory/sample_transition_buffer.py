@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 from dataclasses import dataclass
-from typing import Any, Sequence, Sized
+from typing import Any, Sequence
 
+from draugr.python_utilities import wrap_args
 from neodroidagent.common.memory.data_structures.expandable_circular_buffer import (
     ExpandableCircularBuffer,
 )
 from neodroidagent.common.memory.transitions import Transition, TransitionPoint
 from neodroidagent.utilities import NoData
-from draugr.python_utilities import wrap_args
 
 __author__ = "Christian Heider Nielsen"
 __doc__ = r"""

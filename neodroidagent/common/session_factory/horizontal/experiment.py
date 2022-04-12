@@ -10,14 +10,69 @@ __doc__ = r"""
 import base64
 import os
 import pickle
+import re
 import time
 from pathlib import Path
 
 from cloudpickle import cloudpickle
-
+from draugr.torch_utilities import CategoricalMLP
 from neodroid.environments.droid_environment import DictUnityEnvironment
 from neodroidagent.agents import SoftActorCriticAgent
-from neodroidagent.common import CategoricalMLP
+
+_find_unsafe = re.compile(r"[a-zA-Z0-9_^@%+=:,./-]").search
+
+
+def _shellquote(s):
+    """Return a shell-escaped version of the string *s*."""
+    if not s:
+        return "''"
+
+    if _find_unsafe(s) is None:
+        return s
+
+    # use single quotes, and put single quotes into double quotes
+    # the string $'b is then quoted as '$'"'"'b'
+
+    return "'" + s.replace("'", "'\"'\"'") + "'"
+
+
+def _to_param_val(v):
+    if v is None:
+        return ""
+    elif isinstance(v, list):
+        return " ".join(map(_shellquote, list(map(str, v))))
+    else:
+        return _shellquote(str(v))
+
+
+def to_local_command(
+    params, python_command="python", script="garage.experiment.experiment_wrapper"
+):
+    command = python_command + " -m " + script
+
+    garage_env = eval(os.environ.get("GARAGE_ENV", "{}"))
+    for k, v in garage_env.items():
+        command = "{}={} ".format(k, v) + command
+    pre_commands = params.pop("pre_commands", None)
+    post_commands = params.pop("post_commands", None)
+    if pre_commands is not None or post_commands is not None:
+        print(
+            "Not executing the pre_commands: ",
+            pre_commands,
+            ", nor post_commands: ",
+            post_commands,
+        )
+
+    for k, v in params.items():
+        if isinstance(v, dict):
+            for nk, nv in v.items():
+                if str(nk) == "_name":
+                    command += "  --{} {}".format(k, _to_param_val(nv))
+                else:
+                    command += "  --{}_{} {}".format(k, nk, _to_param_val(nv))
+        else:
+            command += "  --{} {}".format(k, _to_param_val(v))
+    return command
 
 
 class Experiment:
@@ -128,7 +183,7 @@ class Experiment:
 
         for task in batch_tasks:
             env = task.pop("env", None)
-            command = garage.to_local_command(
+            command = to_local_command(
                 task, python_command=python_command, script=script
             )
             print(command)
@@ -146,7 +201,6 @@ class Experiment:
 
 
 if __name__ == "__main__":
-
     ENV = ""
 
     env = DictUnityEnvironment(env_name=ENV)

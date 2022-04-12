@@ -3,26 +3,25 @@
 
 
 import copy
-
 import itertools
+from typing import Any, Dict, Optional, Tuple
+
 import numpy
 import torch
-import torch.nn as nn
-from torch.nn.functional import mse_loss
-from torch.optim import Optimizer
-from tqdm import tqdm
-from typing import Any, Dict, Optional, Sequence, Tuple
-
-from draugr.torch_utilities import freeze_model, frozen_parameters, to_scalar, to_tensor
+from draugr.torch_utilities import (
+    freeze_model,
+    frozen_parameters,
+    to_scalar,
+    to_tensor,
+    ShallowStdNormalMLP,
+    PreConcatInputMLP,
+    Architecture,
+)
 from draugr.writers import MockWriter, Writer
-from trolls.spaces import ActionSpace, ObservationSpace, SignalSpace
 from neodroidagent.agents.torch_agents.torch_agent import TorchAgent
 from neodroidagent.common import (
-    Architecture,
-    PreConcatInputMLP,
     Memory,
     SamplePoint,
-    ShallowStdNormalMLP,
     TransitionPoint,
     TransitionPointBuffer,
 )
@@ -31,6 +30,11 @@ from neodroidagent.utilities import (
     update_target,
 )
 from neodroidagent.utilities.misc.sampling import normal_tanh_reparameterised_sample
+from torch import nn
+from torch.nn.functional import mse_loss
+from torch.optim import Optimizer
+from tqdm import tqdm
+from trolls.spaces import ActionSpace, ObservationSpace, SignalSpace
 from warg import GDKC, drop_unused_kws, super_init_pass_on_kws, is_zero_or_mod_zero
 
 __author__ = "Christian Heider Nielsen"

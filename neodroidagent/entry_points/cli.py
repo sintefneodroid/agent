@@ -7,12 +7,11 @@ __doc__ = r"""
            Created on 19/01/2020
            """
 
-import fire
-from pyfiglet import Figlet
-
 import draugr
+import fire
 from neodroidagent import get_version
 from neodroidagent.entry_points.agent_tests import AGENT_CONFIG, AGENT_OPTIONS
+from pyfiglet import Figlet
 from warg import NOD
 from warg.arguments import upper_dict
 

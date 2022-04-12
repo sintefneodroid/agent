@@ -3,8 +3,6 @@
 from typing import Union
 
 import torch
-from warg import GDKC
-
 from neodroid.environments.environment import Environment
 from neodroidagent.agents import DeepQNetworkAgent
 from neodroidagent.common import (
@@ -12,10 +10,11 @@ from neodroidagent.common import (
     ParallelSession,
     TransitionPointPrioritisedBuffer,
 )
-from neodroidagent.configs.test_reference.base_dicrete_test_config import *
 from neodroidagent.common.session_factory.vertical.environment_session import (
     EnvironmentType,
 )
+from neodroidagent.configs.test_reference.base_dicrete_test_config import *
+from warg import GDKC
 
 __author__ = "Christian Heider Nielsen"
 

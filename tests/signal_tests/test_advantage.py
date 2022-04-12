@@ -251,7 +251,6 @@ def test_ge_returns(transitions, d=0.8, steps=0.9):
 
 
 if __name__ == "__main__":
-
     test_discounted_gae_returns(sample_transitions())
     test_ge_returns(sample_transitions())
     test_n_step_advantage_returns(sample_transitions())

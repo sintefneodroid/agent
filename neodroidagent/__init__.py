@@ -2,12 +2,11 @@
 # -*- coding: utf-8 -*-
 import datetime
 import os
+import sys
+from pathlib import Path
 from warnings import warn
 
 import pkg_resources
-import sys
-from pathlib import Path
-
 from apppath import AppPath
 
 __project__ = "NeodroidAgent"

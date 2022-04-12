@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 import draugr
+
 from neodroid.wrappers import BinaryActionEncodingWrapper
 
 __author__ = "Christian Heider Nielsen"

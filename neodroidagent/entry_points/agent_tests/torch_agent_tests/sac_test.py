@@ -3,19 +3,20 @@
 from typing import Union
 
 import torch
-from warg import GDKC
-
+from draugr.torch_utilities import PreConcatInputMLP, ShallowStdNormalMLP
 from neodroidagent.agents import SoftActorCriticAgent
-from neodroidagent.common import ParallelSession, PreConcatInputMLP, ShallowStdNormalMLP
+from neodroidagent.common import ParallelSession
+from neodroidagent.common.session_factory.vertical.environment_session import (
+    EnvironmentType,
+)
 from neodroidagent.common.session_factory.vertical.procedures.training.off_policy_step_wise import (
     OffPolicyStepWise,
 )
 from neodroidagent.configs.test_reference.base_continous_test_config import *
-from neodroidagent.common.session_factory.vertical.environment_session import (
-    EnvironmentType,
-)
+from warg import GDKC
 
 __author__ = "Christian Heider Nielsen"
+
 from neodroid.environments.environment import Environment
 from neodroidagent.entry_points.session_factory import session_factory
 
@@ -34,7 +35,6 @@ RENDER_ENVIRONMENT = True
 RUN_TRAINING = False
 RENDER_FREQUENCY = 1
 INITIAL_OBSERVATION_PERIOD = 1000
-
 
 ACTOR_OPTIMISER_SPEC: GDKC = GDKC(constructor=torch.optim.Adam, lr=3e-4, eps=1e-5)
 CRITIC_OPTIMISER_SPEC: GDKC = GDKC(constructor=torch.optim.Adam, lr=3e-4, eps=1e-5)

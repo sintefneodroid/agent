@@ -3,17 +3,16 @@
 from typing import Union
 
 import torch
-from warg import GDKC
-
 from neodroidagent.agents import ProximalPolicyOptimizationAgent
 from neodroidagent.common import (
     ActorCriticMLP,
     CategoricalActorCriticMLP,
     ParallelSession,
 )
-from neodroidagent.configs.test_reference.base_continous_test_config import *
+from warg import GDKC
 
 __author__ = "Christian Heider Nielsen"
+
 from neodroid.environments.environment import Environment
 from neodroidagent.entry_points.session_factory import session_factory
 from neodroidagent.common.session_factory.vertical.environment_session import (

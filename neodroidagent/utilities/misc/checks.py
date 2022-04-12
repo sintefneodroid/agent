@@ -7,7 +7,7 @@ __doc__ = r"""
            Created on 11/02/2020
            """
 
-from typing import Any, Sequence
+from typing import Sequence
 from warnings import warn
 
 __all__ = ["check_tensorised_shapes"]

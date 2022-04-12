@@ -8,7 +8,6 @@ import torch
 from draugr import mean_accumulator, shuffled_batches
 from draugr.torch_utilities import freeze_model, to_scalar, to_tensor
 from draugr.writers import MockWriter, Writer
-from trolls.spaces import ActionSpace, ObservationSpace, SignalSpace
 from neodroidagent.agents.agent import TogglableLowHigh
 from neodroidagent.agents.torch_agents.torch_agent import TorchAgent
 from neodroidagent.common import (
@@ -26,6 +25,7 @@ from torch.distributions import Distribution
 from torch.nn.functional import mse_loss
 from torch.optim import Optimizer
 from tqdm import tqdm
+from trolls.spaces import ActionSpace, ObservationSpace, SignalSpace
 from warg import (
     GDKC,
     drop_unused_kws,

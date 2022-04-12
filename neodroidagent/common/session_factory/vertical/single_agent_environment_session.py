@@ -17,13 +17,13 @@ from draugr.stopping import (
 )
 from draugr.torch_utilities import TensorBoardPytorchWriter
 from draugr.writers import MockWriter
+from neodroidagent import PROJECT_APP_PATH
+from neodroidagent.agents import Agent
+from neodroidagent.utilities import NoAgent
 from warg import GDKC, passes_kws_to
 from warg.context_wrapper import ContextWrapper
 from warg.decorators.timing import StopWatch
 
-from neodroidagent import PROJECT_APP_PATH
-from neodroidagent.agents import Agent
-from neodroidagent.utilities import NoAgent
 from .environment_session import EnvironmentSession
 from .procedures.procedure_specification import Procedure
 

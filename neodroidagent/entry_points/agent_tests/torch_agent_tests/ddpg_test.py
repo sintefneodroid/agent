@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 from typing import Union
+
 from neodroid.environments.environment import Environment
 from neodroidagent.agents import DeepDeterministicPolicyGradientAgent
 from neodroidagent.common import ParallelSession
-from neodroidagent.entry_points.session_factory import session_factory
-from neodroidagent.configs.test_reference.base_continous_test_config import *
 from neodroidagent.common.session_factory.vertical.environment_session import (
     EnvironmentType,
 )
+from neodroidagent.entry_points.session_factory import session_factory
 
 __author__ = "Christian Heider Nielsen"
 

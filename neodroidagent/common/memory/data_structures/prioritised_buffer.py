@@ -52,7 +52,7 @@ class PrioritisedBuffer:
         if self._max_abs_dist:
             abs_dist = min(abs_dist, self._max_abs_dist)
 
-        return abs_dist ** self._alpha
+        return abs_dist**self._alpha
 
     def add(self, sample: Any, dist: float) -> None:
         """
@@ -128,7 +128,7 @@ if __name__ == "__main__":
 
     def stest_experience_buffer():
         """ """
-        capacity = 2 ** 8
+        capacity = 2**8
         batch_size = 4
 
         rb = PrioritisedBuffer(capacity)

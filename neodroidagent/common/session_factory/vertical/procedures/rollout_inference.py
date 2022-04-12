@@ -5,10 +5,10 @@ from pathlib import Path
 from typing import Union
 
 import torch
-from tqdm import tqdm
-
 from draugr.torch_utilities import TensorBoardPytorchWriter
+from tqdm import tqdm
 from warg import drop_unused_kws
+
 from .procedure_specification import Procedure
 
 __author__ = "Christian Heider Nielsen"

@@ -12,13 +12,11 @@ from os import getenv
 from typing import Callable, Type, TypeVar, Union
 
 import torch
-
 from draugr import sprint
 from neodroidagent.agents import Agent
 from neodroidagent.common.session_factory.vertical.environment_session import (
     EnvironmentSession,
 )
-
 from neodroidagent.utilities import NoProcedure
 from warg import GDKC, NOD, config_to_mapping
 

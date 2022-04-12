@@ -1,15 +1,13 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-from typing import Any, Sequence, Sized
+from typing import Any, Sequence
 
 from attr import dataclass
-from warg import OrdinalIndexingDictMixin, IterDictValuesMixin
-
 from neodroid.utilities.transformations.terminal_masking import (
     non_terminal_mask,
     non_terminal_numerical_mask,
 )
-
+from warg import OrdinalIndexingDictMixin, IterDictValuesMixin
 
 __author__ = "Christian Heider Nielsen"
 

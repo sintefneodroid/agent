@@ -10,7 +10,6 @@ from neodroidagent.common import MultiVariateNormalMLP
 Description: Config for training
 Author: Christian Heider Nielsen
 """
-from neodroidagent.configs.base_config import *
 
 CONFIG_NAME = __name__
 from pathlib import Path

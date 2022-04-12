@@ -4,25 +4,23 @@ import logging
 import math
 import random
 import time
-from enum import Enum
 from itertools import count
 from typing import Optional
 
 import numpy
 from draugr.drawers import MockDrawer, MplDrawer
 from draugr.metrics import mean_accumulator, total_accumulator
-from draugr.writers import MockWriter, VideoInputDimsEnum, VideoWriterMixin, Writer
+from draugr.opencv_utilities import blit_fps, blit_numbering_raster_sequence
 from draugr.tqdm_utilities import progress_bar
-from warg import drop_unused_kws, is_positive_and_mod_zero, passes_kws_to
-
+from draugr.writers import MockWriter, VideoInputDimsEnum, VideoWriterMixin, Writer
 from neodroid.environments.environment import Environment
 from neodroid.utilities import EnvironmentSnapshot, to_one_hot
 from neodroidagent.agents.agent import Agent
 from neodroidagent.common.session_factory.vertical.procedures.procedure_specification import (
     Procedure,
 )
-from draugr.opencv_utilities import blit_fps, blit_numbering_raster_sequence
 from trolls.render_mode import RenderModeEnum
+from warg import drop_unused_kws, is_positive_and_mod_zero, passes_kws_to
 
 __author__ = "Christian Heider Nielsen"
 __all__ = ["rollout_on_policy", "OnPolicyEpisodic"]

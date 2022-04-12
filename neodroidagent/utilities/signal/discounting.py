@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-from typing import Any, Iterable, Union
+from typing import Any
 
 import numpy
 
@@ -11,8 +11,6 @@ __doc__ = r"""
            """
 
 import torch
-
-from scipy.signal import lfilter
 
 __all__ = ["discount_rollout_signal_torch"]
 

@@ -1,15 +1,12 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 from typing import Union
+
+import torch
 from neodroid.environments.environment import Environment
 from neodroidagent.agents import PolicyGradientAgent
 from neodroidagent.common import ParallelSession
-from neodroidagent.common.architectures.distributional.categorical import CategoricalMLP
 from neodroidagent.configs.test_reference.base_dicrete_test_config import *
-from neodroidagent.common.session_factory.vertical.environment_session import (
-    EnvironmentType,
-)
-import torch
 
 __author__ = "Christian Heider Nielsen"
 
@@ -18,6 +15,7 @@ from warg import GDKC
 from neodroidagent.common.session_factory.vertical.environment_session import (
     EnvironmentType,
 )
+from draugr.torch_utilities import CategoricalMLP
 
 CONFIG_NAME = __name__
 

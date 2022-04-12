@@ -20,7 +20,7 @@ class WienerProcess(RandomProcess):
         self.last_x = initial
 
     def sample(self, size=1):
-        x = self.last_x + norm.rvs(scale=self.delta ** 2 * self.dt)
+        x = self.last_x + norm.rvs(scale=self.delta**2 * self.dt)
         self.last_x = x
         return x
 

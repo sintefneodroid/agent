@@ -1,16 +1,14 @@
 """Covariance Matrix Adaptation Evolution Strategy."""
 from typing import Sequence
 
-import numpy as np
+import numpy
 from cma import CMAEvolutionStrategy
+from draugr.torch_utilities import TensorBoardPytorchWriter
+from draugr.writers import MockWriter, Writer
 from garage.envs import GarageEnv
 from garage.experiment import SnapshotConfig
 from garage.sampler import LocalSampler, RaySampler
 from garage.tf.policies import CategoricalMLPPolicy
-from tensorflow import Module
-
-from draugr.torch_utilities import TensorBoardPytorchWriter
-from draugr.writers import MockWriter, Writer
 from neodroidagent import PROJECT_APP_PATH
 from neodroidagent.agents.numpy_agents.evolutionary.get_rid.local_tf_runner import (
     LocalTFRunner,
@@ -21,6 +19,7 @@ from neodroidagent.agents.numpy_agents.evolutionary.get_rid.meh_wat import (
 from neodroidagent.agents.numpy_agents.model_free.baseline.linear_feature_gae_estimator import (
     LinearFeatureBaseline,
 )
+from tensorflow import Module
 from warg import GDKC
 
 
@@ -32,8 +31,8 @@ class CovarianceMatrixAdaptationEvolutionStrategyAgent:
         original rllab paper.
     Args:
         env_spec (garage.envs.EnvSpec): Environment specification.
-        policy_arch (garage.np.policies.Policy): Action policy.
-        baseline (garage.np.baselines.Baseline): Baseline for GAE
+        policy_arch (garage.numpy.policies.Policy): Action policy.
+        baseline (garage.numpy.baselines.Baseline): Baseline for GAE
             (Generalized Advantage Estimation).
         num_candidate_policies (int): Number of policies sampled in one epoch.
         discount_factor (float): Environment reward discount.
@@ -73,7 +72,7 @@ class CovarianceMatrixAdaptationEvolutionStrategyAgent:
     def _resample_shared_parameters(self) -> None:
         """Return sample parameters.
         Returns:
-            np.ndarray: A numpy array of parameter values.
+            numpy.ndarray: A numpy array of parameter values.
         """
         self._shared_params = self._evolution_strategy.ask()
 
@@ -141,7 +140,7 @@ class CovarianceMatrixAdaptationEvolutionStrategyAgent:
         ).split():  # TODO: EEEEW
             undiscounted_returns.append(sum(trajectory.rewards))
 
-        sample_returns = np.mean(undiscounted_returns)
+        sample_returns = numpy.mean(undiscounted_returns)
         self._all_returns.append(sample_returns)
 
         epoch = iteration_number // self._num_candidate_policies
@@ -164,7 +163,7 @@ class CovarianceMatrixAdaptationEvolutionStrategyAgent:
     def update(self) -> None:
         """ """
         self._evolution_strategy.tell(
-            self._shared_params, -np.array(self._all_returns)
+            self._shared_params, -numpy.array(self._all_returns)
         )  # Report back results
         self.policy.set_param_values(
             self._evolution_strategy.best.get()[0]
@@ -175,7 +174,6 @@ class CovarianceMatrixAdaptationEvolutionStrategyAgent:
 
 
 if __name__ == "__main__":
-
     path = PROJECT_APP_PATH.user_data / "data" / "local" / "experiment"
     snapshot_config = SnapshotConfig(
         snapshot_dir=path, snapshot_mode="last", snapshot_gap=1

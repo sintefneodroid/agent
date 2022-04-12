@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 import draugr
 from draugr.stopping.stopping_key import add_early_stopping_key_combination
+
 from neodroid.environments.gym_environment import NeodroidGymEnvironment
 
 __author__ = "Christian Heider Nielsen"

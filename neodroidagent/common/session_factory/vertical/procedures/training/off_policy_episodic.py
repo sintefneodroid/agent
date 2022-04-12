@@ -8,14 +8,13 @@ from typing import Optional
 import numpy
 from draugr.metrics.accumulation import mean_accumulator, total_accumulator
 from draugr.writers import MockWriter, Writer
-from warg import drop_unused_kws, is_positive_and_mod_zero, passes_kws_to
-
 from neodroid.environments.environment import Environment
 from neodroidagent.agents import Agent
 from neodroidagent.common.memory.transitions import Transition, TransitionPoint
 from neodroidagent.common.session_factory.vertical.procedures.procedure_specification import (
     Procedure,
 )
+from warg import drop_unused_kws, is_positive_and_mod_zero, passes_kws_to
 
 __author__ = "Christian Heider Nielsen"
 __all__ = ["rollout_off_policy", "OffPolicyEpisodic"]

@@ -5,11 +5,9 @@ from pathlib import Path
 from typing import Iterable, List, Union
 
 from draugr import min_interval_wrapper_global
-
 from neodroid.environments import Environment
 from neodroidagent.agents import Agent
 from warg import drop_unused_kws
-
 
 __author__ = "Christian Heider Nielsen"
 __doc__ = r"""

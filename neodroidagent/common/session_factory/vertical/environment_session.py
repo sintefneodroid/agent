@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 import abc
+from enum import Enum
 from typing import Type, TypeVar, Union
 
 from neodroid.environments import Environment
 from neodroidagent.agents import Agent
+
 from .procedures import OnPolicyEpisodic, Procedure
-from enum import Enum
 
 __author__ = "Christian Heider Nielsen"
 __doc__ = r"""

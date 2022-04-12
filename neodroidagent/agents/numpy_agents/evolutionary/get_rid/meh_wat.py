@@ -10,7 +10,7 @@ __doc__ = r"""
 import collections
 
 import akro
-import numpy as np
+import numpy
 from garage.misc import tensor_utils
 
 
@@ -131,7 +131,7 @@ class TrajectoryBatch(
             if isinstance(
                 env_spec.observation_space, (akro.Box, akro.Discrete, akro.Dict)
             ):
-                if env_spec.observation_space.flat_dim != np.prod(
+                if env_spec.observation_space.flat_dim != numpy.prod(
                     first_observation.shape
                 ):
                     raise ValueError(
@@ -165,7 +165,7 @@ class TrajectoryBatch(
             if isinstance(
                 env_spec.observation_space, (akro.Box, akro.Discrete, akro.Dict)
             ):
-                if env_spec.observation_space.flat_dim != np.prod(
+                if env_spec.observation_space.flat_dim != numpy.prod(
                     last_observations[0].shape
                 ):
                     raise ValueError(
@@ -198,7 +198,7 @@ class TrajectoryBatch(
             # Discrete actions can be either in the space normally, or one-hot
             # encoded.
             if isinstance(env_spec.action_space, (akro.Box, akro.Discrete, akro.Dict)):
-                if env_spec.action_space.flat_dim != np.prod(first_action.shape):
+                if env_spec.action_space.flat_dim != numpy.prod(first_action.shape):
                     raise ValueError(
                         "actions should have the same "
                         "dimensionality as the action_space "
@@ -233,15 +233,15 @@ class TrajectoryBatch(
                 "instead.".format(inferred_batch_size, terminals.shape)
             )
 
-        if terminals.dtype != np.bool:
+        if terminals.dtype != numpy.bool:
             raise ValueError(
-                "terminals tensor must be dtype np.bool, but got tensor "
+                "terminals tensor must be dtype numpy.bool, but got tensor "
                 "of dtype {} instead.".format(terminals.dtype)
             )
 
         # env_infos
         for key, val in env_infos.items():
-            if not isinstance(val, (dict, np.ndarray)):
+            if not isinstance(val, (dict, numpy.ndarray)):
                 raise ValueError(
                     "Each entry in env_infos must be a numpy array or "
                     "dictionary, but got key {} with value type {} instead.".format(
@@ -249,7 +249,7 @@ class TrajectoryBatch(
                     )
                 )
 
-            if isinstance(val, np.ndarray) and val.shape[0] != inferred_batch_size:
+            if isinstance(val, numpy.ndarray) and val.shape[0] != inferred_batch_size:
                 raise ValueError(
                     "Each entry in env_infos must have a batch dimension of "
                     "length {}, but got key {} with batch size {} instead.".format(
@@ -259,14 +259,14 @@ class TrajectoryBatch(
 
         # agent_infos
         for key, val in agent_infos.items():
-            if not isinstance(val, (dict, np.ndarray)):
+            if not isinstance(val, (dict, numpy.ndarray)):
                 raise ValueError(
                     "Each entry in agent_infos must be a numpy array or "
                     "dictionary, but got key {} with value type {} instead."
                     "instead".format(key, type(val))
                 )
 
-            if isinstance(val, np.ndarray) and val.shape[0] != inferred_batch_size:
+            if isinstance(val, numpy.ndarray) and val.shape[0] != inferred_batch_size:
                 raise ValueError(
                     "Each entry in agent_infos must have a batch dimension of "
                     "length {}, but got key {} with batch size {} instead.".format(
@@ -303,23 +303,23 @@ class TrajectoryBatch(
                 assert set(b.env_infos.keys()) == set(batches[0].env_infos.keys())
                 assert set(b.agent_infos.keys()) == set(batches[0].agent_infos.keys())
         env_infos = {
-            k: np.concatenate([b.env_infos[k] for b in batches])
+            k: numpy.concatenate([b.env_infos[k] for b in batches])
             for k in batches[0].env_infos.keys()
         }
         agent_infos = {
-            k: np.concatenate([b.agent_infos[k] for b in batches])
+            k: numpy.concatenate([b.agent_infos[k] for b in batches])
             for k in batches[0].agent_infos.keys()
         }
         return cls(
             batches[0].env_spec,
-            np.concatenate([batch.observations for batch in batches]),
-            np.concatenate([batch.last_observations for batch in batches]),
-            np.concatenate([batch.actions for batch in batches]),
-            np.concatenate([batch.rewards for batch in batches]),
-            np.concatenate([batch.terminals for batch in batches]),
+            numpy.concatenate([batch.observations for batch in batches]),
+            numpy.concatenate([batch.last_observations for batch in batches]),
+            numpy.concatenate([batch.actions for batch in batches]),
+            numpy.concatenate([batch.rewards for batch in batches]),
+            numpy.concatenate([batch.terminals for batch in batches]),
             env_infos,
             agent_infos,
-            np.concatenate([batch.lengths for batch in batches]),
+            numpy.concatenate([batch.lengths for batch in batches]),
         )
 
     def split(self):
@@ -339,7 +339,7 @@ class TrajectoryBatch(
             traj = TrajectoryBatch(
                 env_spec=self.env_spec,
                 observations=self.observations[start:stop],
-                last_observations=np.asarray([self.last_observations[i]]),
+                last_observations=numpy.asarray([self.last_observations[i]]),
                 actions=self.actions[start:stop],
                 rewards=self.rewards[start:stop],
                 terminals=self.terminals[start:stop],
@@ -347,7 +347,7 @@ class TrajectoryBatch(
                 agent_infos=tensor_utils.slice_nested_dict(
                     self.agent_infos, start, stop
                 ),
-                lengths=np.asarray([length]),
+                lengths=numpy.asarray([length]),
             )
             trajectories.append(traj)
             start = stop
@@ -357,24 +357,24 @@ class TrajectoryBatch(
         """Convert the batch into a list of dictionaries.
 
         Returns:
-            list[dict[str, np.ndarray or dict[str, np.ndarray]]]: Keys:
-                * observations (np.ndarray): Non-flattened array of
+            list[dict[str, numpy.ndarray or dict[str, numpy.ndarray]]]: Keys:
+                * observations (numpy.ndarray): Non-flattened array of
                     observations. Has shape (T, S^*) (the unflattened state
                     space of the current environment).  observations[i] was
                     used by the agent to choose actions[i].
-                * next_observations (np.ndarray): Non-flattened array of
+                * next_observations (numpy.ndarray): Non-flattened array of
                     observations. Has shape (T, S^*). next_observations[i] was
                     observed by the agent after taking actions[i].
-                * actions (np.ndarray): Non-flattened array of actions. Should
+                * actions (numpy.ndarray): Non-flattened array of actions. Should
                     have shape (T, S^*) (the unflattened action space of the
                     current environment).
-                * rewards (np.ndarray): Array of rewards of shape (T,) (1D
+                * rewards (numpy.ndarray): Array of rewards of shape (T,) (1D
                     array of length timesteps).
-                * dones (np.ndarray): Array of dones of shape (T,) (1D array
+                * dones (numpy.ndarray): Array of dones of shape (T,) (1D array
                     of length timesteps).
-                * agent_infos (dict[str, np.ndarray]): Dictionary of stacked,
+                * agent_infos (dict[str, numpy.ndarray]): Dictionary of stacked,
                     non-flattened `agent_info` arrays.
-                * env_infos (dict[str, np.ndarray]): Dictionary of stacked,
+                * env_infos (dict[str, numpy.ndarray]): Dictionary of stacked,
                     non-flattened `env_info` arrays.
 
         """
@@ -385,7 +385,7 @@ class TrajectoryBatch(
             trajectories.append(
                 {
                     "observations": self.observations[start:stop],
-                    "next_observations": np.concatenate(
+                    "next_observations": numpy.concatenate(
                         (
                             self.observations[1 + start : stop],
                             [self.last_observations[i]],
@@ -412,13 +412,13 @@ class TrajectoryBatch(
         Args:
             env_spec (garage.envs.EnvSpec): Specification for the environment
                 from which this data was sampled.
-            paths (list[dict[str, np.ndarray or dict[str, np.ndarray]]]): Keys:
-                * observations (np.ndarray): Non-flattened array of
+            paths (list[dict[str, numpy.ndarray or dict[str, numpy.ndarray]]]): Keys:
+                * observations (numpy.ndarray): Non-flattened array of
                     observations. Typically has shape (T, S^*) (the unflattened
                     state space of the current environment). observations[i]
                     was used by the agent to choose actions[i]. observations
                     may instead have shape (T + 1, S^*).
-                * next_observations (np.ndarray): Non-flattened array of
+                * next_observations (numpy.ndarray): Non-flattened array of
                     observations. Has shape (T, S^*). next_observations[i] was
                     observed by the agent after taking actions[i]. Optional.
                     Note that to ensure all information from the environment
@@ -426,35 +426,37 @@ class TrajectoryBatch(
                     S^*), or this key should be set. However, this method is
                     lenient and will "duplicate" the last observation if the
                     original last observation has been lost.
-                * actions (np.ndarray): Non-flattened array of actions. Should
+                * actions (numpy.ndarray): Non-flattened array of actions. Should
                     have shape (T, S^*) (the unflattened action space of the
                     current environment).
-                * rewards (np.ndarray): Array of rewards of shape (T,) (1D
+                * rewards (numpy.ndarray): Array of rewards of shape (T,) (1D
                     array of length timesteps).
-                * dones (np.ndarray): Array of rewards of shape (T,) (1D array
+                * dones (numpy.ndarray): Array of rewards of shape (T,) (1D array
                     of length timesteps).
-                * agent_infos (dict[str, np.ndarray]): Dictionary of stacked,
+                * agent_infos (dict[str, numpy.ndarray]): Dictionary of stacked,
                     non-flattened `agent_info` arrays.
-                * env_infos (dict[str, np.ndarray]): Dictionary of stacked,
+                * env_infos (dict[str, numpy.ndarray]): Dictionary of stacked,
                     non-flattened `env_info` arrays.
 
         """
-        lengths = np.asarray([len(p["rewards"]) for p in paths])
+        lengths = numpy.asarray([len(p["rewards"]) for p in paths])
         if all(
             len(path["observations"]) == length + 1
             for (path, length) in zip(paths, lengths)
         ):
-            last_observations = np.asarray([p["observations"][-1] for p in paths])
-            observations = np.concatenate([p["observations"][:-1] for p in paths])
+            last_observations = numpy.asarray([p["observations"][-1] for p in paths])
+            observations = numpy.concatenate([p["observations"][:-1] for p in paths])
         else:
             # The number of observations and timesteps must match.
-            observations = np.concatenate([p["observations"] for p in paths])
+            observations = numpy.concatenate([p["observations"] for p in paths])
             if paths[0].get("next_observations") is not None:
-                last_observations = np.asarray(
+                last_observations = numpy.asarray(
                     [p["next_observations"][-1] for p in paths]
                 )
             else:
-                last_observations = np.asarray([p["observations"][-1] for p in paths])
+                last_observations = numpy.asarray(
+                    [p["observations"][-1] for p in paths]
+                )
 
         stacked_paths = tensor_utils.concat_tensor_dict_list(paths)
         return cls(
@@ -526,7 +528,7 @@ class TrajectoryBatch(
             [tensor_utils.pad_tensor_dict(p, max_path_length) for p in env_infos]
         )
 
-        valids = [np.ones_like(path["returns"]) for path in paths]
+        valids = [numpy.ones_like(path["returns"]) for path in paths]
         valids = tensor_utils.pad_tensor_n(valids, max_path_length)
 
         samples_data = dict(

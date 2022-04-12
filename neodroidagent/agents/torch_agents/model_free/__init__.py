@@ -7,5 +7,5 @@ __doc__ = r"""
            Created on 23/09/2019
            """
 
-from .on_policy import *
 from .off_policy import *
+from .on_policy import *

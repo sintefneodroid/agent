@@ -26,7 +26,7 @@ class SumTree:
 
         self.capacity = capacity
         self.num_tree_levels = math.ceil(math.log(capacity, 2)) + 1
-        self._tree_size = 2 ** self.num_tree_levels - 1
+        self._tree_size = 2**self.num_tree_levels - 1
         self._trunc_tree_size = 2 * self.capacity - 1
         self._tree = [0.0 for _ in range(self._tree_size)]
         self._data = [None for _ in range(self.capacity)]
@@ -142,7 +142,7 @@ class SumTree:
         :return:"""
         print("-" * 9)
         for k in range(self.num_tree_levels):
-            start = 2 ** k - 1
+            start = 2**k - 1
             end = 2 ** (k + 1) - 1
             print(
                 indent_lines(
@@ -167,7 +167,7 @@ class SumTree:
 if __name__ == "__main__":
 
     def stest_experience_buffer():
-        capacity = int(2 ** 16)
+        capacity = int(2**16)
         s = SumTree(capacity)
         for i in range(capacity):
             s.push(i, 1 / (i + 1))

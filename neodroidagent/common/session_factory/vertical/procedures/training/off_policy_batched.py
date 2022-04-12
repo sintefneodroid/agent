@@ -3,10 +3,9 @@
 import logging
 from typing import Optional
 
+from draugr.metrics.accumulation import mean_accumulator
 from draugr.writers import MockWriter, Writer
 from tqdm import tqdm
-
-from draugr.metrics.accumulation import mean_accumulator
 
 __author__ = "Christian Heider Nielsen"
 
@@ -18,7 +17,7 @@ from neodroidagent.common.session_factory.vertical.procedures.procedure_specific
 )
 from warg import is_positive_and_mod_zero
 from draugr.drawers import MplDrawer, MockDrawer
-from neodroid.utilities import EnvironmentSnapshot, to_one_hot
+from neodroid.utilities import to_one_hot
 
 
 class OffPolicyBatched(Procedure):

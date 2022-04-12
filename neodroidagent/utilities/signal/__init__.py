@@ -6,6 +6,6 @@ __doc__ = ""
 
 from .advantage_estimation import *
 from .discounting import *
-from .numpy_discounting import *
 from .experimental import *
+from .numpy_discounting import *
 from .objective_regressor import *

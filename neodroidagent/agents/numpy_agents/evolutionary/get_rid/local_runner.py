@@ -5,14 +5,13 @@ import time
 
 import cloudpickle
 import psutil
-
 from garage.experiment.deterministic import get_seed, set_seed
 from garage.experiment.snapshotter import Snapshotter
 from garage.sampler import parallel_sampler
-from garage.sampler.sampler_deprecated import BaseSampler
 
 # This is avoiding a circular import
 from garage.sampler.default_worker import DefaultWorker  # noqa: I100
+from garage.sampler.sampler_deprecated import BaseSampler
 from garage.sampler.worker_factory import WorkerFactory
 
 
@@ -245,7 +244,7 @@ class LocalRunner:
             policy weights can be loaded before setup().
 
         Args:
-            algo (garage.np.algos.RLAlgorithm): An algorithm instance.
+            algo (garage.numpy.algos.RLAlgorithm): An algorithm instance.
             env (garage.envs.GarageEnv): An environement instance.
             sampler_cls (garage.sampler.Sampler): A sampler class.
             sampler_args (dict): Arguments to be passed to sampler constructor.
@@ -435,19 +434,19 @@ class LocalRunner:
         pause_for_plot = self._train_args.pause_for_plot
 
         """
-    fmt = '{:<20} {:<15}'
-    logger.log('Restore from snapshot saved in %s' %
-               self._snapshotter.snapshot_dir)
-    logger.log(fmt.format('-- Train Args --', '-- Value --'))
-    logger.log(fmt.format('n_epochs', n_epochs))
-    logger.log(fmt.format('last_epoch', last_epoch))
-    logger.log(fmt.format('batch_size', batch_size))
-    logger.log(fmt.format('store_paths', store_paths))
-    logger.log(fmt.format('pause_for_plot', pause_for_plot))
-    logger.log(fmt.format('-- Stats --', '-- Value --'))
-    logger.log(fmt.format('last_itr', last_itr))
-    logger.log(fmt.format('total_env_steps', total_env_steps))
-    """
+fmt = '{:<20} {:<15}'
+logger.log('Restore from snapshot saved in %s' %
+       self._snapshotter.snapshot_dir)
+logger.log(fmt.format('-- Train Args --', '-- Value --'))
+logger.log(fmt.format('n_epochs', n_epochs))
+logger.log(fmt.format('last_epoch', last_epoch))
+logger.log(fmt.format('batch_size', batch_size))
+logger.log(fmt.format('store_paths', store_paths))
+logger.log(fmt.format('pause_for_plot', pause_for_plot))
+logger.log(fmt.format('-- Stats --', '-- Value --'))
+logger.log(fmt.format('last_itr', last_itr))
+logger.log(fmt.format('total_env_steps', total_env_steps))
+"""
 
         self._train_args.start_epoch = last_epoch + 1
         return copy.copy(self._train_args)
@@ -560,11 +559,11 @@ class LocalRunner:
                 self.save(epoch)
 
                 """
-        if self.enable_logging:
-            self.log_diagnostics(self._train_args.pause_for_plot)
-            logger.dump_all(self.step_itr)
-            tabular.clear()
-        """
+if self.enable_logging:
+self.log_diagnostics(self._train_args.pause_for_plot)
+logger.dump_all(self.step_itr)
+tabular.clear()
+"""
 
     def resume(
         self,

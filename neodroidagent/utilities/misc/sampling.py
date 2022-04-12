@@ -10,7 +10,7 @@ __doc__ = r"""
 from typing import Tuple
 
 import torch
-from torch.distributions import Distribution, Normal
+from torch.distributions import Normal
 
 __all__ = ["normal_tanh_reparameterised_sample"]
 
@@ -19,14 +19,14 @@ def normal_tanh_reparameterised_sample(
     dis: Normal, epsilon=1e-6
 ) -> Tuple[torch.tensor, torch.tensor]:
     """
-  The log-likelihood here is for the TanhNorm distribution instead of only Gaussian distribution.
-  The TanhNorm forces the Gaussian with infinite action range to be finite.
+The log-likelihood here is for the TanhNorm distribution instead of only Gaussian distribution.
+The TanhNorm forces the Gaussian with infinite action range to be finite.
 
-  For the three terms in this log-likelihood estimation:
-   (1). the first term is the log probability of action as in common stochastic Gaussian action policy
-   (without Tanh); \
-  (2). the second term is the caused by the Tanh(), as shown in appendix C. Enforcing Action Bounds of
-  https://arxiv.org/pdf/1801.01290.pdf, the epsilon is for preventing the negative cases in log
+For the three terms in this log-likelihood estimation:
+(1). the first term is the log probability of action as in common stochastic Gaussian action policy
+(without Tanh); \
+(2). the second term is the caused by the Tanh(), as shown in appendix C. Enforcing Action Bounds of
+https://arxiv.org/pdf/1801.01290.pdf, the epsilon is for preventing the negative cases in log
 
 
 :param dis:

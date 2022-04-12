@@ -32,28 +32,28 @@ def snake_space_filling_generator():
     yield x, y
 
     while True:
-        if state is States.expand_x:
+        if state == States.expand_x:
             x += 1
             state = States.inc_y
-        elif state is States.inc_x:
+        elif state == States.inc_x:
             x += 1
-            if y is x:
+            if y == x:
                 state = States.dec_y
-        elif state is States.dec_x:
+        elif state == States.dec_x:
             x -= 1
-            if x is 0:
+            if x == 0:
                 state = States.expand_y
 
-        elif state is States.expand_y:
+        elif state == States.expand_y:
             y += 1
             state = States.inc_x
-        elif state is States.inc_y:
+        elif state == States.inc_y:
             y += 1
-            if y is x:
+            if y == x:
                 state = States.dec_x
-        elif state is States.dec_y:
+        elif state == States.dec_y:
             y -= 1
-            if y is 0:
+            if y == 0:
                 state = States.expand_x
 
         yield x, y

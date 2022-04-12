@@ -8,6 +8,6 @@ __doc__ = r"""
            """
 
 from .bored_module import *
-from .torch_isp_module import *
-from .dopamine_module import *
 from .curiosity import *
+from .dopamine_module import *
+from .torch_isp_module import *

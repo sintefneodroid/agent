@@ -3,17 +3,16 @@
 from typing import Type, Union
 
 import gym
-
 from neodroid.environments import Environment
-from neodroid.environments.gym_environment import NeodroidGymEnvironment
 from neodroid.environments.droid_environment import VectorUnityEnvironment
-from trolls.vector_environments import VectorWrap
+from neodroid.environments.gym_environment import NeodroidGymEnvironment
 from trolls.gym_wrappers import NormalisedActions
+from trolls.vector_environments import VectorWrap
 from warg import super_init_pass_on_kws
-from .procedures import OnPolicyEpisodic, Procedure
-from .single_agent_environment_session import SingleAgentEnvironmentSession
 
 from .environment_session import EnvironmentType
+from .procedures import OnPolicyEpisodic, Procedure
+from .single_agent_environment_session import SingleAgentEnvironmentSession
 
 __author__ = "Christian Heider Nielsen"
 __doc__ = r"""
