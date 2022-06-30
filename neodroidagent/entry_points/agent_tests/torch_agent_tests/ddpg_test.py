@@ -1,5 +1,13 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+
+__author__ = "Christian Heider Nielsen"
+
+__doc__ = r"""
+Description: Config for training
+Author: Christian Heider Nielsen
+"""
+
 from typing import Union
 
 from neodroid.environments.environment import Environment
@@ -8,26 +16,23 @@ from neodroidagent.common import ParallelSession
 from neodroidagent.common.session_factory.vertical.environment_session import (
     EnvironmentType,
 )
+from neodroidagent.configs.test_reference.base_continous_test_config import *
 from neodroidagent.entry_points.session_factory import session_factory
-
-__author__ = "Christian Heider Nielsen"
-
-"""
-Description: Config for training
-Author: Christian Heider Nielsen
-"""
 
 # General
 
 CONFIG_NAME = __name__
-from pathlib import Path
 
 CONFIG_FILE_PATH = Path(__file__)
 
 CONNECT_TO_RUNNING = False
-
+RENDER_MODE = RenderModeEnum.to_screen
+NUM_ENVS = 1
+ENVIRONMENT_NAME = "Pendulum-v1"
+# ENVIRONMENT_NAME = "Pendulum-v1"  # "InvertedPendulum-v2"
 # RENDER_FREQUENCY = 1
 BATCH_SIZE = 256
+# INITIAL_OBSERVATION_PERIOD = 0
 
 ddpg_config = globals()
 

@@ -16,10 +16,11 @@ from pathlib import Path
 
 from cloudpickle import cloudpickle
 from draugr.torch_utilities import CategoricalMLP
+
 from neodroid.environments.droid_environment import DictUnityEnvironment
 from neodroidagent.agents import SoftActorCriticAgent
 
-_find_unsafe = re.compile(r"[a-zA-Z0-9_^@%+=:,./-]").search
+_find_unsafe = re.compile(r"[a-zA-Z\d_^@%+=:,./-]").search
 
 
 def _shellquote(s):
@@ -48,11 +49,11 @@ def _to_param_val(v):
 def to_local_command(
     params, python_command="python", script="garage.experiment.experiment_wrapper"
 ):
-    command = python_command + " -m " + script
+    command = f"{python_command} -m {script}"
 
     garage_env = eval(os.environ.get("GARAGE_ENV", "{}"))
     for k, v in garage_env.items():
-        command = "{}={} ".format(k, v) + command
+        command = f"{k}={v} " + command
     pre_commands = params.pop("pre_commands", None)
     post_commands = params.pop("post_commands", None)
     if pre_commands is not None or post_commands is not None:
@@ -67,11 +68,11 @@ def to_local_command(
         if isinstance(v, dict):
             for nk, nv in v.items():
                 if str(nk) == "_name":
-                    command += "  --{} {}".format(k, _to_param_val(nv))
+                    command += f"  --{k} {_to_param_val(nv)}"
                 else:
-                    command += "  --{}_{} {}".format(k, nk, _to_param_val(nv))
+                    command += f"  --{k}_{nk} {_to_param_val(nv)}"
         else:
-            command += "  --{} {}".format(k, _to_param_val(v))
+            command += f"  --{k} {_to_param_val(v)}"
     return command
 
 

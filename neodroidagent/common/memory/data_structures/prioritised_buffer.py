@@ -57,71 +57,77 @@ class PrioritisedBuffer:
     def add(self, sample: Any, dist: float) -> None:
         """
 
+        :param dist:
+        :type dist:
         :param sample:
-        :param error:
         :return:"""
         self._tree.push(sample, self._get_priority(dist))
 
-    def sample(self, num: int) -> Iterable:
-        """
 
-        :param num:
-        :return:"""
-        segment = self._tree.total / num
-        data = []
-        leaf_indices = []
-        # priorities = []
+def sample(self, num: int) -> Iterable:
+    """
 
-        self._beta = numpy.min([1.0, self._beta + self._beta_increment_per_sampling])
+    :param num:
+    :return:"""
+    segment = self._tree.total / num
+    data = []
+    leaf_indices = []
+    # priorities = []
 
-        for i in range(num):
-            (leaf_index, _, _, data_) = self._tree.get(
-                random.uniform(segment * i, segment * (i + 1)), normalised_sum=False
-            )
-            # priorities.append(priority)
-            data.append(data_)
-            leaf_indices.append(leaf_index)
+    self._beta = numpy.min([1.0, self._beta + self._beta_increment_per_sampling])
 
-        """
+    for i in range(num):
+        (leaf_index, _, _, data_) = self._tree.get(
+            random.uniform(segment * i, segment * (i + 1)), normalised_sum=False
+        )
+        # priorities.append(priority)
+        data.append(data_)
+        leaf_indices.append(leaf_index)
+
+    """
 sampling_probabilities = priorities / self._tree.total
 weights = numpy.power(self._tree._num_entries * sampling_probabilities, -self._beta)
 weights /= (weights.max() + 1e-10)  # Normalize for stability
 """
 
-        self._last_leaf_indices = leaf_indices
+    self._last_leaf_indices = leaf_indices
 
-        return data
+    return data
 
-    def update_last_batch(self, errors: Iterable) -> None:
-        """
 
-        :param errors:
-        :return:"""
-        for leaf_index, error in zip(self._last_leaf_indices, errors):
-            self.update(leaf_index, error)
+def update_last_batch(self, errors: Iterable) -> None:
+    """
 
-    def update(self, leaf_index: int, error: float) -> None:
-        """
+    :param errors:
+    :return:"""
+    for leaf_index, error in zip(self._last_leaf_indices, errors):
+        self.update(leaf_index, error)
 
-        :param leaf_index:
-        :param error:
-        :return:"""
-        self._tree.update_leaf(leaf_index, self._get_priority(error))
 
-    def __len__(self) -> int:
-        """
+def update(self, leaf_index: int, error: float) -> None:
+    """
 
-        :return:"""
-        return len(self._tree)
+    :param leaf_index:
+    :param error:
+    :return:"""
+    self._tree.update_leaf(leaf_index, self._get_priority(error))
 
-    @property
-    def capacity(self) -> int:
-        """
 
-        :return:
-        :rtype:
-        """
-        return self._tree.capacity
+def __len__(self) -> int:
+    """
+
+    :return:"""
+    return len(self._tree)
+
+
+@property
+def capacity(self) -> int:
+    """
+
+    :return:
+    :rtype:
+    """
+    return self._tree.capacity
 
 
 if __name__ == "__main__":

@@ -2,8 +2,9 @@
 # -*- coding: utf-8 -*-
 from neodroidagent.architectures import CNN
 from neodroidagent.configs.agent_test_configs.base_dicrete_test_config import *
-from neodroidagent.utilities import ReplayBuffer
 from warg import GDKC
+
+from neodroidagent.utilities import ReplayBuffer
 
 __author__ = "Christian Heider Nielsen"
 """

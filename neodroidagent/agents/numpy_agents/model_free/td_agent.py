@@ -10,6 +10,7 @@ __doc__ = r"""
 from collections import defaultdict
 
 import numpy
+
 from neodroidagent.agents.numpy_agents.numpy_agent import NumpyAgent
 from neodroidagent.utilities.misc.environment_model import tile_state_space
 

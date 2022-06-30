@@ -6,6 +6,11 @@ import numpy
 import torch
 from draugr.torch_utilities import to_tensor, CategoricalMLP, MultiDimensionalNormalMLP
 from draugr.writers import MockWriter, Writer
+from torch.nn import Module
+from torch.optim import Optimizer
+from tqdm import tqdm
+from warg import GDKC, drop_unused_kws, super_init_pass_on_kws
+
 from neodroid.utilities import (
     non_terminal_numerical_mask,
 )
@@ -16,15 +21,11 @@ from neodroidagent.common import (
     SampleTrajectoryBuffer,
 )
 from neodroidagent.utilities import NoTrajectoryException, discount_rollout_signal_torch
-from torch.nn import Module
-from torch.optim import Optimizer
-from tqdm import tqdm
 from trolls.spaces import (
     ActionSpace,
     ObservationSpace,
     SignalSpace,
 )
-from warg import GDKC, drop_unused_kws, super_init_pass_on_kws
 
 tqdm.monitor_interval = 0
 

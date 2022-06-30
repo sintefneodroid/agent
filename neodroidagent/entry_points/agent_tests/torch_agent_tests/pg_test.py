@@ -1,34 +1,39 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+
+__author__ = "Christian Heider Nielsen"
+__doc__ = r""""""
+
 from typing import Union
 
 import torch
+from draugr.torch_utilities import CategoricalMLP
+from warg import GDKC
+
 from neodroid.environments.environment import Environment
 from neodroidagent.agents import PolicyGradientAgent
 from neodroidagent.common import ParallelSession
-from neodroidagent.configs.test_reference.base_dicrete_test_config import *
-
-__author__ = "Christian Heider Nielsen"
-
-from neodroidagent.entry_points.session_factory import session_factory
-from warg import GDKC
 from neodroidagent.common.session_factory.vertical.environment_session import (
     EnvironmentType,
 )
-from draugr.torch_utilities import CategoricalMLP
+from neodroidagent.configs.test_reference.base_dicrete_test_config import *
+from neodroidagent.entry_points.session_factory import session_factory
+from trolls.render_mode import RenderModeEnum
 
 CONFIG_NAME = __name__
 
 CONFIG_FILE_PATH = Path(__file__)
-
-RENDER_ENVIRONMENT = True
 
 OPTIMISER_SPEC = GDKC(torch.optim.Adam, lr=3e-4)
 SCHEDULER_SPEC = None
 
 POLICY_ARCH_SPEC = GDKC(constructor=CategoricalMLP, hidden_layers=128)
 
-# RENDER_FREQUENCY = 1
+RENDER_ENVIRONMENT = True
+RENDER_FREQUENCY = 1
+NUM_ENVS = 1
+ENVIRONMENT_NAME = "CartPole-v0"
+RENDER_MODE = RenderModeEnum.to_screen
 
 pg_config = globals()
 

@@ -13,6 +13,8 @@ from draugr.metrics import mean_accumulator, total_accumulator
 from draugr.opencv_utilities import blit_fps, blit_numbering_raster_sequence
 from draugr.tqdm_utilities import progress_bar
 from draugr.writers import MockWriter, VideoInputDimsEnum, VideoWriterMixin, Writer
+from warg import drop_unused_kws, is_positive_and_mod_zero, passes_kws_to
+
 from neodroid.environments.environment import Environment
 from neodroid.utilities import EnvironmentSnapshot, to_one_hot
 from neodroidagent.agents.agent import Agent
@@ -20,7 +22,6 @@ from neodroidagent.common.session_factory.vertical.procedures.procedure_specific
     Procedure,
 )
 from trolls.render_mode import RenderModeEnum
-from warg import drop_unused_kws, is_positive_and_mod_zero, passes_kws_to
 
 __author__ = "Christian Heider Nielsen"
 __all__ = ["rollout_on_policy", "OnPolicyEpisodic"]
@@ -38,7 +39,7 @@ def rollout_on_policy(
     rollout_ith: int = None,
     render_mode: RenderModeEnum = RenderModeEnum.none,
     metric_writer: Optional[Writer] = MockWriter(),
-    rollout_drawer: MplDrawer = MockDrawer(),
+    drawer: MplDrawer = MockDrawer(),
     train_agent: bool = True,
     max_length: int = None,
     disable_stdout: bool = False,
@@ -47,9 +48,13 @@ def rollout_on_policy(
 ):
     """Perform a single rollout until termination in environment
 
+      :param select_random_single_render:
+      :type select_random_single_render:
+      :param blit_numbering:
+      :type blit_numbering:
       :param rollout_ith:
     :param agent:
-    :param rollout_drawer:
+    :param drawer:
     :param disable_stdout:
     :param metric_writer:
     :type max_length: int
@@ -109,12 +114,12 @@ def rollout_on_policy(
             frame = env.render(render_mode)
             if frame is not None:
                 frames.append(frame)
-            if rollout_drawer is not None and action is not None:
+            if drawer is not None and action is not None:
                 if env.action_space.is_singular_discrete:
                     action_a = to_one_hot(agent.output_shape, action)
                 else:
                     action_a = action[0]
-                rollout_drawer.draw(action_a)
+                drawer.draw(action_a)
 
         if numpy.array(terminated).all() or (max_length and step_i > max_length):
             break
@@ -137,7 +142,7 @@ def rollout_on_policy(
         if (
             isinstance(metric_writer, VideoWriterMixin)
             and render_mode != RenderModeEnum.none
-            and render_mode != RenderModeEnum.human
+            and render_mode != RenderModeEnum.to_screen
         ):
             video_frames = numpy.array(frames).swapaxes(0, 1)
             input_dims = VideoInputDimsEnum.nthwc

@@ -8,7 +8,7 @@ from typing import Any, Type
 import torch
 
 # import torchsnooper
-from draugr import IgnoreInterruptSignal, sprint
+from warg import IgnoreInterruptSignal, sprint
 from draugr.drawers import DiscreteScrollPlot, SeriesScrollPlot
 from draugr.random_utilities import seed_stack
 from draugr.stopping import (
@@ -17,15 +17,15 @@ from draugr.stopping import (
 )
 from draugr.torch_utilities import TensorBoardPytorchWriter
 from draugr.writers import MockWriter
-from neodroidagent import PROJECT_APP_PATH
-from neodroidagent.agents import Agent
-from neodroidagent.utilities import NoAgent
 from warg import GDKC, passes_kws_to
 from warg.context_wrapper import ContextWrapper
 from warg.decorators.timing import StopWatch
 
+from neodroidagent import PROJECT_APP_PATH
+from neodroidagent.agents import Agent
+from neodroidagent.utilities import NoAgent
 from .environment_session import EnvironmentSession
-from .procedures.procedure_specification import Procedure
+from .procedures.procedure_specification import Procedure, DrawingModeEnum
 
 __author__ = "Christian Heider Nielsen"
 __doc__ = r"""
@@ -53,7 +53,9 @@ class SingleAgentEnvironmentSession(EnvironmentSession):
         continue_training: bool = True,
         train_agent: bool = True,
         debug: bool = False,
-        num_envs: int = cpu_count(),
+        num_envs: int = cpu_count() // 3,
+        drawing_mode: DrawingModeEnum = DrawingModeEnum.all,
+        insist_metric_logging: bool = False,
         **kwargs,
     ):
         """
@@ -109,28 +111,30 @@ class SingleAgentEnvironmentSession(EnvironmentSession):
                     / load_time
                 )
 
-                if self._environment.action_space.is_singular_discrete:
-                    rollout_drawer = GDKC(
+                if (
+                    self._environment.action_space.is_singular_discrete
+                    and drawing_mode == DrawingModeEnum.actions
+                ):
+                    drawer_type = GDKC(
                         DiscreteScrollPlot,
                         num_bins=self._environment.action_space.discrete_steps,
                         default_delta=None,
                     )
                 else:
-                    rollout_drawer = GDKC(
+                    drawer_type = GDKC(
                         SeriesScrollPlot, window_length=100, default_delta=None
                     )
 
-                if (
-                    train_agent
-                ):  # TODO: allow metric writing while not training with flag
+                if (train_agent) or insist_metric_logging:
                     metric_writer = GDKC(TensorBoardPytorchWriter, path=log_directory)
                 else:
                     metric_writer = GDKC(MockWriter)
 
                 with ContextWrapper(metric_writer, train_agent) as metric_writer:
                     with ContextWrapper(
-                        rollout_drawer, not train_agent  # num_envs == 1  # bool test
-                    ) as rollout_drawer:
+                        drawer_type,
+                        not train_agent and drawing_mode != DrawingModeEnum.none,
+                    ) as drawer_instance:
 
                         agent.build(
                             self._environment.observation_space,
@@ -200,7 +204,7 @@ class SingleAgentEnvironmentSession(EnvironmentSession):
                                 with IgnoreInterruptSignal():
                                     training_resume = session_proc(
                                         metric_writer=metric_writer,
-                                        rollout_drawer=rollout_drawer,
+                                        drawer=drawer_instance,
                                         **kwargs,
                                     )
                                     if (

@@ -21,3 +21,7 @@ def sample(iter_set: iter) -> Any:
     if len(a):
         idx = numpy.random.randint(0, len(a))
         return a[idx]
+
+
+if __name__ == "__main__":
+    print(sample(range(10)))

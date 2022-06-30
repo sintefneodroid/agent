@@ -9,6 +9,9 @@ from garage.envs import GarageEnv
 from garage.experiment import SnapshotConfig
 from garage.sampler import LocalSampler, RaySampler
 from garage.tf.policies import CategoricalMLPPolicy
+from tensorflow import Module
+from warg import GDKC
+
 from neodroidagent import PROJECT_APP_PATH
 from neodroidagent.agents.numpy_agents.evolutionary.get_rid.local_tf_runner import (
     LocalTFRunner,
@@ -19,8 +22,6 @@ from neodroidagent.agents.numpy_agents.evolutionary.get_rid.meh_wat import (
 from neodroidagent.agents.numpy_agents.model_free.baseline.linear_feature_gae_estimator import (
     LinearFeatureBaseline,
 )
-from tensorflow import Module
-from warg import GDKC
 
 
 class CovarianceMatrixAdaptationEvolutionStrategyAgent:
@@ -130,6 +131,10 @@ class CovarianceMatrixAdaptationEvolutionStrategyAgent:
             trajectories (list[dict]): A list of collected paths.
         Returns:
             float: The average return in last epoch cycle.
+            :param iteration_number:
+            :type iteration_number:
+            :param trajectories:
+            :type trajectories:
             :param writer:
             :type writer:
         """
@@ -160,17 +165,18 @@ class CovarianceMatrixAdaptationEvolutionStrategyAgent:
 
         return sample_returns
 
-    def update(self) -> None:
-        """ """
-        self._evolution_strategy.tell(
-            self._shared_params, -numpy.array(self._all_returns)
-        )  # Report back results
-        self.policy.set_param_values(
-            self._evolution_strategy.best.get()[0]
-        )  # TODO: DOES NOTHING, as is overwritten everywhere
 
-        self._all_returns.clear()  # Clear for next epoch
-        self._resample_shared_parameters()
+def update(self) -> None:
+    """ """
+    self._evolution_strategy.tell(
+        self._shared_params, -numpy.array(self._all_returns)
+    )  # Report back results
+    self.policy.set_param_values(
+        self._evolution_strategy.best.get()[0]
+    )  # TODO: DOES NOTHING, as is overwritten everywhere
+
+    self._all_returns.clear()  # Clear for next epoch
+    self._resample_shared_parameters()
 
 
 if __name__ == "__main__":

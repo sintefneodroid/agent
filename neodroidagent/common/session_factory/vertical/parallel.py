@@ -3,11 +3,11 @@
 from os import cpu_count
 from typing import Type, Union
 
+from warg import super_init_pass_on_kws
+
 from neodroid.environments.droid_environment import VectorUnityEnvironment
 from neodroid.environments.environment import Environment
 from neodroid.environments.gym_environment import NeodroidVectorGymEnvironment
-from warg import super_init_pass_on_kws
-
 from .environment_session import EnvironmentType
 from .procedures import OnPolicyEpisodic, Procedure
 from .single_agent_environment_session import SingleAgentEnvironmentSession
@@ -26,7 +26,7 @@ class ParallelSession(SingleAgentEnvironmentSession):
         environment: Union[Environment, EnvironmentType],
         procedure: Union[Type[Procedure], Procedure] = OnPolicyEpisodic,
         environment_name: Union[str] = "",
-        num_envs=cpu_count(),
+        num_envs=cpu_count() // 3,
         auto_reset_on_terminal_state=False,
         **kwargs
     ):

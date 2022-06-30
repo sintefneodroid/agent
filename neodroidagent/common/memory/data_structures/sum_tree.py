@@ -8,7 +8,7 @@ __all__ = ["SumTree"]
 
 from typing import Any, Iterator
 
-from draugr import indent_lines
+from warg import indent_lines
 
 
 class SumTree:

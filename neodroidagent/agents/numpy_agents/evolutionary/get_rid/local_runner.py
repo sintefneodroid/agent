@@ -436,7 +436,7 @@ class LocalRunner:
         """
 fmt = '{:<20} {:<15}'
 logger.log('Restore from snapshot saved in %s' %
-       self._snapshotter.snapshot_dir)
+   self._snapshotter.snapshot_dir)
 logger.log(fmt.format('-- Train Args --', '-- Value --'))
 logger.log(fmt.format('n_epochs', n_epochs))
 logger.log(fmt.format('last_epoch', last_epoch))

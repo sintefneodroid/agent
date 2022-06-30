@@ -5,8 +5,9 @@ from collections import namedtuple
 from typing import Any, Optional, Sequence, Tuple
 
 import numpy
-from draugr import sprint
+from warg import sprint
 from draugr.writers import MockWriter, Writer
+
 from neodroid.utilities import EnvironmentSnapshot
 from neodroidagent.utilities import IntrinsicSignalProvider
 from trolls.spaces import (
@@ -277,7 +278,6 @@ class Agent(ABC):
 
           :param snapshot:
           :type snapshot:
-        :param kwargs:
         :return:"""
 
         signal_out = numpy.array(snapshot.signal)

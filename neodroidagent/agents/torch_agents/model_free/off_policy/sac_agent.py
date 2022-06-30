@@ -18,6 +18,12 @@ from draugr.torch_utilities import (
     Architecture,
 )
 from draugr.writers import MockWriter, Writer
+from torch import nn
+from torch.nn.functional import mse_loss
+from torch.optim import Optimizer
+from tqdm import tqdm
+from warg import GDKC, drop_unused_kws, super_init_pass_on_kws, is_zero_or_mod_zero
+
 from neodroidagent.agents.torch_agents.torch_agent import TorchAgent
 from neodroidagent.common import (
     Memory,
@@ -30,12 +36,7 @@ from neodroidagent.utilities import (
     update_target,
 )
 from neodroidagent.utilities.misc.sampling import normal_tanh_reparameterised_sample
-from torch import nn
-from torch.nn.functional import mse_loss
-from torch.optim import Optimizer
-from tqdm import tqdm
 from trolls.spaces import ActionSpace, ObservationSpace, SignalSpace
-from warg import GDKC, drop_unused_kws, super_init_pass_on_kws, is_zero_or_mod_zero
 
 __author__ = "Christian Heider Nielsen"
 __doc__ = r"""
@@ -202,7 +203,7 @@ class SoftActorCriticAgent(TorchAgent):
         :return:"""
         if action_space.is_singular_discrete:
             raise ActionSpaceNotSupported(
-                "discrete action space not supported in this implementation"
+                f"{action_space},discrete action space not supported in this implementation"
             )
 
         self._critic_arch_spec.kwargs["input_shape"] = (
@@ -358,7 +359,6 @@ class SoftActorCriticAgent(TorchAgent):
 
         :param log_prob:
         :type log_prob:
-        :param tensorised:
         :param metric_writer:
         :return:"""
         assert not log_prob.requires_grad
@@ -382,75 +382,75 @@ class SoftActorCriticAgent(TorchAgent):
 
         return out_loss
 
-    def _update(
-        self, *args, metric_writer: Optional[Writer] = MockWriter(), **kwargs
-    ) -> float:
-        """
 
-        :param args:
-        :param metric_writer:
-        :param kwargs:
-        :return:"""
-        accum_loss = 0
-        for ith_inner_update in tqdm(
-            range(self._num_inner_updates),
-            desc="Inner update #",
-            leave=False,
-            postfix=f"Agent update #{self.update_i}",
+def _update(
+    self, *args, metric_writer: Optional[Writer] = MockWriter(), **kwargs
+) -> float:
+    """
+
+    :param args:
+    :param metric_writer:
+    :param kwargs:
+    :return:"""
+    accum_loss = 0
+    for ith_inner_update in tqdm(
+        range(self._num_inner_updates),
+        desc="Inner update #",
+        leave=False,
+        postfix=f"Agent update #{self.update_i}",
+    ):
+        self.inner_update_i += 1
+        batch = self._memory_buffer.sample(self._batch_size)
+        tensorised = TransitionPoint(
+            *[to_tensor(a, device=self._device, dtype=float) for a in batch]
+        )
+
+        with frozen_parameters(self.actor.parameters()):
+            accum_loss += self.update_critics(tensorised, metric_writer=metric_writer)
+
+        with frozen_parameters(
+            itertools.chain(self.critic_1.parameters(), self.critic_2.parameters())
         ):
-            self.inner_update_i += 1
-            batch = self._memory_buffer.sample(self._batch_size)
-            tensorised = TransitionPoint(
-                *[to_tensor(a, device=self._device, dtype=float) for a in batch]
-            )
+            accum_loss += self.update_actor(tensorised, metric_writer=metric_writer)
 
-            with frozen_parameters(self.actor.parameters()):
-                accum_loss += self.update_critics(
-                    tensorised, metric_writer=metric_writer
-                )
+        if is_zero_or_mod_zero(self._target_update_interval, self.inner_update_i):
+            self.update_targets(self._copy_percentage, metric_writer=metric_writer)
 
-            with frozen_parameters(
-                itertools.chain(self.critic_1.parameters(), self.critic_2.parameters())
-            ):
-                accum_loss += self.update_actor(tensorised, metric_writer=metric_writer)
+    if metric_writer:
+        metric_writer.scalar("Accum_loss", accum_loss, self.update_i)
+        metric_writer.scalar("num_inner_updates_i", ith_inner_update, self.update_i)
 
-            if is_zero_or_mod_zero(self._target_update_interval, self.inner_update_i):
-                self.update_targets(self._copy_percentage, metric_writer=metric_writer)
+    return accum_loss
 
-        if metric_writer:
-            metric_writer.scalar("Accum_loss", accum_loss, self.update_i)
-            metric_writer.scalar("num_inner_updates_i", ith_inner_update, self.update_i)
 
-        return accum_loss
+def update_targets(
+    self, copy_percentage: float = 0.005, *, metric_writer: Optional[Writer] = None
+) -> None:
+    """
 
-    def update_targets(
-        self, copy_percentage: float = 0.005, *, metric_writer: Optional[Writer] = None
-    ) -> None:
-        """
+    Interpolation factor in polyak averaging for target networks. Target networks are updated towards main
+    networks according to:
 
-        Interpolation factor in polyak averaging for target networks. Target networks are updated towards main
-        networks according to:
+    \theta_{\text{targ}} \leftarrow
+    \rho \theta_{\text{targ}} + (1-\rho) \theta
 
-        \theta_{\text{targ}} \leftarrow
-        \rho \theta_{\text{targ}} + (1-\rho) \theta
+    where \rho is polyak. (Always between 0 and 1, usually close to 1.)
 
-        where \rho is polyak. (Always between 0 and 1, usually close to 1.)
+    :param metric_writer:
+    :type metric_writer:
+    :param copy_percentage:
+    :return:"""
+    if metric_writer:
+        metric_writer.blip("Target Models Synced", self.update_i)
 
-        :param metric_writer:
-        :type metric_writer:
-        :param copy_percentage:
-        :return:"""
-        if metric_writer:
-            metric_writer.blip("Target Models Synced", self.update_i)
+    update_target(
+        target_model=self.critic_1_target,
+        source_model=self.critic_1,
+        copy_percentage=copy_percentage,
+    )
 
-        update_target(
-            target_model=self.critic_1_target,
-            source_model=self.critic_1,
-            copy_percentage=copy_percentage,
-        )
-
-        update_target(
-            target_model=self.critic_2_target,
-            source_model=self.critic_2,
-            copy_percentage=copy_percentage,
-        )
+    update_target(
+        target_model=self.critic_2_target,
+        source_model=self.critic_2,
+        copy_percentage=copy_percentage,
+    )

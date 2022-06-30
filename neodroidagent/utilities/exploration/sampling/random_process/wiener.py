@@ -14,7 +14,11 @@ __all__ = ["WienerProcess", "wiener"]
 
 
 class WienerProcess(RandomProcess):
-    def __init__(self, delta, dt, initial, size=1):
+    def reset(self):
+        pass
+
+    def __init__(self, delta, dt, initial, size=1, **kwargs):
+        super().__init__(**kwargs)
         self.delta = delta
         self.dt = dt
         self.last_x = initial

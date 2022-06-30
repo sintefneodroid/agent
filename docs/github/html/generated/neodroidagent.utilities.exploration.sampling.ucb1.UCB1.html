@@ -1,0 +1,291 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>neodroidagent.utilities.exploration.sampling.ucb1.UCB1 &#8212; neodroidagent 0.4.8 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/alabaster.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css" />
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <link rel="canonical" href="sintefneodroid.github.io/neodroidagent/generated/neodroidagent.utilities.exploration.sampling.ucb1.UCB1.html" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="neodroidagent.utilities.misc" href="neodroidagent.utilities.misc.html" />
+    <link rel="prev" title="neodroidagent.utilities.exploration.sampling.ucb1" href="neodroidagent.utilities.exploration.sampling.ucb1.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="neodroidagent-utilities-exploration-sampling-ucb1-ucb1">
+<h1>neodroidagent.utilities.exploration.sampling.ucb1.UCB1<a class="headerlink" href="#neodroidagent-utilities-exploration-sampling-ucb1-ucb1" title="Permalink to this heading">¶</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="neodroidagent.utilities.exploration.sampling.ucb1.UCB1">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">neodroidagent.utilities.exploration.sampling.ucb1.</span></span><span class="sig-name descname"><span class="pre">UCB1</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_options</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/neodroidagent/utilities/exploration/sampling/ucb1.html#UCB1"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#neodroidagent.utilities.exploration.sampling.ucb1.UCB1" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>upper confidence bound</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="neodroidagent.utilities.exploration.sampling.ucb1.UCB1.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_options</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/neodroidagent/utilities/exploration/sampling/ucb1.html#UCB1.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#neodroidagent.utilities.exploration.sampling.ucb1.UCB1.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>n_options</strong> – </p>
+</dd>
+</dl>
+</dd></dl>
+
+<p class="rubric">Methods</p>
+<table class="autosummary longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#neodroidagent.utilities.exploration.sampling.ucb1.UCB1.__init__" title="neodroidagent.utilities.exploration.sampling.ucb1.UCB1.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(n_options)</p></td>
+<td><p><dl class="field-list simple">
+<dt class="field-odd">param n_options</dt>
+<dd class="field-odd"><p></p></dd>
+</dl>
+</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">index_of_max</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#neodroidagent.utilities.exploration.sampling.ucb1.UCB1.select_arm" title="neodroidagent.utilities.exploration.sampling.ucb1.UCB1.select_arm"><code class="xref py py-obj docutils literal notranslate"><span class="pre">select_arm</span></code></a>()</p></td>
+<td><p><dl class="field-list simple">
+<dt class="field-odd">return</dt>
+<dd class="field-odd"><p></p></dd>
+</dl>
+</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#neodroidagent.utilities.exploration.sampling.ucb1.UCB1.train" title="neodroidagent.utilities.exploration.sampling.ucb1.UCB1.train"><code class="xref py py-obj docutils literal notranslate"><span class="pre">train</span></code></a>(arms[, rollouts])</p></td>
+<td><p><dl class="field-list simple">
+<dt class="field-odd">param arms</dt>
+<dd class="field-odd"><p></p></dd>
+</dl>
+</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#neodroidagent.utilities.exploration.sampling.ucb1.UCB1.update_belief" title="neodroidagent.utilities.exploration.sampling.ucb1.UCB1.update_belief"><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_belief</span></code></a>(option_index, signal[, min_value])</p></td>
+<td><p><dl class="field-list simple">
+<dt class="field-odd">param option_index</dt>
+<dd class="field-odd"><p></p></dd>
+</dl>
+</p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Attributes</p>
+<table class="autosummary longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#neodroidagent.utilities.exploration.sampling.ucb1.UCB1.counts" title="neodroidagent.utilities.exploration.sampling.ucb1.UCB1.counts"><code class="xref py py-obj docutils literal notranslate"><span class="pre">counts</span></code></a></p></td>
+<td><p>return:</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#neodroidagent.utilities.exploration.sampling.ucb1.UCB1.normalised_values" title="neodroidagent.utilities.exploration.sampling.ucb1.UCB1.normalised_values"><code class="xref py py-obj docutils literal notranslate"><span class="pre">normalised_values</span></code></a></p></td>
+<td><p>return:</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#neodroidagent.utilities.exploration.sampling.ucb1.UCB1.values" title="neodroidagent.utilities.exploration.sampling.ucb1.UCB1.values"><code class="xref py py-obj docutils literal notranslate"><span class="pre">values</span></code></a></p></td>
+<td><p>return:</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py property">
+<dt class="sig sig-object py" id="neodroidagent.utilities.exploration.sampling.ucb1.UCB1.counts">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">counts</span></span><a class="headerlink" href="#neodroidagent.utilities.exploration.sampling.ucb1.UCB1.counts" title="Permalink to this definition">¶</a></dt>
+<dd><p>return:</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="neodroidagent.utilities.exploration.sampling.ucb1.UCB1.normalised_values">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">normalised_values</span></span><a class="headerlink" href="#neodroidagent.utilities.exploration.sampling.ucb1.UCB1.normalised_values" title="Permalink to this definition">¶</a></dt>
+<dd><p>return:</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="neodroidagent.utilities.exploration.sampling.ucb1.UCB1.select_arm">
+<span class="sig-name descname"><span class="pre">select_arm</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/neodroidagent/utilities/exploration/sampling/ucb1.html#UCB1.select_arm"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#neodroidagent.utilities.exploration.sampling.ucb1.UCB1.select_arm" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="neodroidagent.utilities.exploration.sampling.ucb1.UCB1.train">
+<span class="sig-name descname"><span class="pre">train</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">arms</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rollouts</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">100000</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.10)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/neodroidagent/utilities/exploration/sampling/ucb1.html#UCB1.train"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#neodroidagent.utilities.exploration.sampling.ucb1.UCB1.train" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>arms</strong> – </p></li>
+<li><p><strong>rollouts</strong> – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="neodroidagent.utilities.exploration.sampling.ucb1.UCB1.update_belief">
+<span class="sig-name descname"><span class="pre">update_belief</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">option_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">signal</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><span class="pre">float</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1e-09</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/neodroidagent/utilities/exploration/sampling/ucb1.html#UCB1.update_belief"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#neodroidagent.utilities.exploration.sampling.ucb1.UCB1.update_belief" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>option_index</strong> – </p></li>
+<li><p><strong>signal</strong> – </p></li>
+<li><p><strong>min_value</strong> – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="neodroidagent.utilities.exploration.sampling.ucb1.UCB1.values">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">values</span></span><a class="headerlink" href="#neodroidagent.utilities.exploration.sampling.ucb1.UCB1.values" title="Permalink to this definition">¶</a></dt>
+<dd><p>return:</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">neodroidagent</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Notes</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../concepts.html">Core Concepts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cli.html">CLI Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../experiments.html">Experiments</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="neodroidagent.html">neodroidagent</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="neodroidagent.get_version.html">neodroidagent.get_version</a></li>
+<li class="toctree-l2"><a class="reference internal" href="neodroidagent.configs.html">neodroidagent.configs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="neodroidagent.entry_points.html">neodroidagent.entry_points</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="neodroidagent.utilities.html">neodroidagent.utilities</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="neodroidagent.utilities.exceptions.html">neodroidagent.utilities.exceptions</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="neodroidagent.utilities.exploration.html">neodroidagent.utilities.exploration</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="neodroidagent.utilities.exploration.exploration_specification.html">neodroidagent.utilities.exploration.exploration_specification</a></li>
+<li class="toctree-l4"><a class="reference internal" href="neodroidagent.utilities.exploration.intrinsic_signals.html">neodroidagent.utilities.exploration.intrinsic_signals</a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="neodroidagent.utilities.exploration.sampling.html">neodroidagent.utilities.exploration.sampling</a><ul class="current">
+<li class="toctree-l5"><a class="reference internal" href="neodroidagent.utilities.exploration.sampling.random_process.html">neodroidagent.utilities.exploration.sampling.random_process</a></li>
+<li class="toctree-l5"><a class="reference internal" href="neodroidagent.utilities.exploration.sampling.set_sampling.html">neodroidagent.utilities.exploration.sampling.set_sampling</a></li>
+<li class="toctree-l5"><a class="reference internal" href="neodroidagent.utilities.exploration.sampling.snake_space_filling.html">neodroidagent.utilities.exploration.sampling.snake_space_filling</a></li>
+<li class="toctree-l5 current"><a class="reference internal" href="neodroidagent.utilities.exploration.sampling.ucb1.html">neodroidagent.utilities.exploration.sampling.ucb1</a><ul class="current">
+<li class="toctree-l6 current"><a class="current reference internal" href="#">neodroidagent.utilities.exploration.sampling.ucb1.UCB1</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="neodroidagent.utilities.misc.html">neodroidagent.utilities.misc</a></li>
+<li class="toctree-l3"><a class="reference internal" href="neodroidagent.utilities.signal.html">neodroidagent.utilities.signal</a></li>
+<li class="toctree-l3"><a class="reference internal" href="neodroidagent.utilities.transformation.html">neodroidagent.utilities.transformation</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="neodroidagent.html">neodroidagent</a><ul>
+  <li><a href="neodroidagent.utilities.html">neodroidagent.utilities</a><ul>
+  <li><a href="neodroidagent.utilities.exploration.html">neodroidagent.utilities.exploration</a><ul>
+  <li><a href="neodroidagent.utilities.exploration.sampling.html">neodroidagent.utilities.exploration.sampling</a><ul>
+  <li><a href="neodroidagent.utilities.exploration.sampling.ucb1.html">neodroidagent.utilities.exploration.sampling.ucb1</a><ul>
+      <li>Previous: <a href="neodroidagent.utilities.exploration.sampling.ucb1.html" title="previous chapter">neodroidagent.utilities.exploration.sampling.ucb1</a></li>
+      <li>Next: <a href="neodroidagent.utilities.misc.html" title="next chapter">neodroidagent.utilities.misc</a></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 5.0.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../_sources/generated/neodroidagent.utilities.exploration.sampling.ucb1.UCB1.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

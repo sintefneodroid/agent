@@ -82,7 +82,9 @@ def tile_state_space(
     observation space.
     n_states : int
     An integer reflecting the total number of unique states possible under
-    this tile coding regimen."""
+    this tile coding regimen.
+    :param env_stats:
+    :type env_stats:"""
     obs_max = (
         numpy.nan_to_num(env.observation_space.high) if obs_max is None else obs_max
     )
@@ -117,7 +119,7 @@ def tile_state_space(
 
 
 class IHT:
-    "Structure to handle collisions"
+    """Structure to handle collisions"""
 
     def __init__(self, sizeval):
         self.size = sizeval
@@ -125,7 +127,7 @@ class IHT:
         self.dictionary = {}
 
     def __str__(self):
-        "Prepares a string for printing whenever this object is printed"
+        """Prepares a string for printing whenever this object is printed"""
         return (
             "Collision table:"
             + " size:"
@@ -166,7 +168,7 @@ def hashcoords(coordinates, m, readonly=False):
         return m.getindex(tuple(coordinates), readonly)
     if type(m) == int:
         return basehash(tuple(coordinates)) % m
-    if m == None:
+    if m is None:
         return coordinates
 
 

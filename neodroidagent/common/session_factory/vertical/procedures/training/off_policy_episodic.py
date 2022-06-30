@@ -8,13 +8,14 @@ from typing import Optional
 import numpy
 from draugr.metrics.accumulation import mean_accumulator, total_accumulator
 from draugr.writers import MockWriter, Writer
+from warg import drop_unused_kws, is_positive_and_mod_zero, passes_kws_to
+
 from neodroid.environments.environment import Environment
 from neodroidagent.agents import Agent
 from neodroidagent.common.memory.transitions import Transition, TransitionPoint
 from neodroidagent.common.session_factory.vertical.procedures.procedure_specification import (
     Procedure,
 )
-from warg import drop_unused_kws, is_positive_and_mod_zero, passes_kws_to
 
 __author__ = "Christian Heider Nielsen"
 __all__ = ["rollout_off_policy", "OffPolicyEpisodic"]
@@ -36,7 +37,7 @@ def rollout_off_policy(
     train_agent=True,
     disallow_random_sample=False,
     use_episodic_buffer=True,
-    rollout_drawer: MplDrawer = MockDrawer(),
+    drawer: MplDrawer = MockDrawer(),
 ):
     state = agent.extract_features(initial_state)
     episode_length = 0
@@ -67,12 +68,12 @@ def rollout_off_policy(
 
         if render_environment:
             env.render()
-            if rollout_drawer is not None and action is not None:
+            if drawer is not None and action is not None:
                 if env.action_space.is_singular_discrete:
                     action_a = to_one_hot(agent.output_shape, action)
                 else:
                     action_a = action[0]
-                rollout_drawer.draw(action_a)
+                drawer.draw(action_a)
 
         if train_agent:
             if use_episodic_buffer:

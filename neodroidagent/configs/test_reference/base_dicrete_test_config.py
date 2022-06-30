@@ -23,7 +23,7 @@ from neodroidagent.configs.base_config import *
 # ENVIRONMENT_NAME = 'Reacher-v2'
 
 # Box2d
-# ENVIRONMENT_NAME = 'Pendulum-v0'
+# ENVIRONMENT_NAME = 'Pendulum-v1'
 
 # ENVIRONMENT_NAME = 'PongNoFrameskip-v4'
 ENVIRONMENT_NAME = "CartPole-v1"

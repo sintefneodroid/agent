@@ -1,28 +1,30 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+
+__author__ = "Christian Heider Nielsen"
+
+__doc__ = r"""
+Description: Config for training
+Author: Christian Heider Nielsen
+"""
+
 from typing import Union
 
 import torch
+from warg import GDKC
+
+from neodroid.environments.environment import Environment
 from neodroidagent.agents import ProximalPolicyOptimizationAgent
 from neodroidagent.common import (
     ActorCriticMLP,
     CategoricalActorCriticMLP,
     ParallelSession,
 )
-from warg import GDKC
-
-__author__ = "Christian Heider Nielsen"
-
-from neodroid.environments.environment import Environment
-from neodroidagent.entry_points.session_factory import session_factory
 from neodroidagent.common.session_factory.vertical.environment_session import (
     EnvironmentType,
 )
-
-"""
-Description: Config for training
-Author: Christian Heider Nielsen
-"""
+from neodroidagent.entry_points.session_factory import session_factory
+from trolls.render_mode import RenderModeEnum
 
 # General
 
@@ -32,9 +34,13 @@ from pathlib import Path
 CONFIG_FILE_PATH = Path(__file__)
 
 CONNECT_TO_RUNNING = False
+RENDER_MODE = RenderModeEnum.to_screen
 # RENDER_ENVIRONMENT = True
 # RENDER_FREQUENCY = 10
 
+
+NUM_ENVS = 1
+ENVIRONMENT_NAME = "Pendulum-v1"  # "InvertedPendulum-v2"
 INITIAL_OBSERVATION_PERIOD = 0
 
 BATCH_SIZE = 256
@@ -67,6 +73,8 @@ def ppo_run(
 ):
     """
 
+    :param environment:
+    :type environment:
     :param skip_confirmation:
     :type skip_confirmation:
 

@@ -5,14 +5,27 @@ from pathlib import Path
 from typing import Iterable, List, Union
 
 from draugr import min_interval_wrapper_global
+from sorcery import assigned_names
+from warg import drop_unused_kws
+
 from neodroid.environments import Environment
 from neodroidagent.agents import Agent
-from warg import drop_unused_kws
 
 __author__ = "Christian Heider Nielsen"
 __doc__ = r"""
 """
 __all__ = ["Procedure"]
+
+
+class DrawingModeEnum:
+    (
+        none,
+        actions,  # actions single environment actions
+        actions_all,  # actions all environment interactions
+        states,  # actions single environment states,
+        states_all,  # actions all environment states
+        all,  # TODO: not supported yet
+    ) = assigned_names()
 
 
 class Procedure(abc.ABC):
@@ -62,6 +75,8 @@ class Procedure(abc.ABC):
     def model_improved(self, *, step_i, verbose: bool = True, **kwargs):
         """
 
+        :param step_i:
+        :type step_i:
         :param verbose:
         :param kwargs:
         :return:"""
@@ -73,32 +88,34 @@ class Procedure(abc.ABC):
             for cb in self.on_improvement_callbacks
         ]
 
-    @abc.abstractmethod
-    def __call__(
-        self,
-        *,
-        iterations: int = 9999,
-        log_directory: Union[str, Path],
-        render_frequency: int = 100,
-        stat_frequency: int = 10,
-        disable_stdout: bool = False,
-        train_agent: bool = True,
-        **kwargs
-    ):
-        """
-        Collects environment snapshots and forwards it to the agent and vice versa.
 
-        :param agent:
-        :param environment:
-        :param num_steps_per_btach:
-        :param num_updates:
-        :param iterations:
-        :param log_directory:
-        :param render_frequency:
-        :param stat_frequency:
-        :param kwargs:
-        :return:"""
-        raise NotImplementedError
+@abc.abstractmethod
+def __call__(
+    self,
+    *,
+    iterations: int = 9999,
+    log_directory: Union[str, Path],
+    render_frequency: int = 100,
+    stat_frequency: int = 10,
+    disable_stdout: bool = False,
+    train_agent: bool = True,
+    **kwargs
+):
+    """
+    Collects environment snapshots and forwards it to the agent and vice versa.
 
-    def close(self):
-        self.environment.close()
+    :param agent:
+    :param environment:
+    :param num_steps_per_btach:
+    :param num_updates:
+    :param iterations:
+    :param log_directory:
+    :param render_frequency:
+    :param stat_frequency:
+    :param kwargs:
+    :return:"""
+    raise NotImplementedError
+
+
+def close(self):
+    self.environment.close()

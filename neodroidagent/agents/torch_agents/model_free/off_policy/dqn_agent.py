@@ -10,6 +10,10 @@ import numpy
 import torch
 from draugr.torch_utilities import to_scalar, to_tensor, Architecture
 from draugr.writers import MockWriter, Writer
+from torch.nn.functional import smooth_l1_loss
+from torch.optim import Optimizer
+from warg import GDKC, drop_unused_kws, super_init_pass_on_kws, is_zero_or_mod_zero
+
 from neodroidagent.agents.torch_agents.torch_agent import TorchAgent
 from neodroidagent.common import (
     Memory,
@@ -22,10 +26,7 @@ from neodroidagent.utilities import (
     ExplorationSpecification,
     update_target,
 )
-from torch.nn.functional import smooth_l1_loss
-from torch.optim import Optimizer
 from trolls.spaces import ActionSpace, ObservationSpace, SignalSpace
-from warg import GDKC, drop_unused_kws, super_init_pass_on_kws, is_zero_or_mod_zero
 
 __author__ = "Christian Heider Nielsen"
 __doc__ = r"""
@@ -131,7 +132,7 @@ class DeepQNetworkAgent(TorchAgent):
         :return:"""
 
         if action_space.is_continuous:
-            raise ActionSpaceNotSupported
+            raise ActionSpaceNotSupported(action_space)
 
         self._value_arch_spec.kwargs["input_shape"] = self._input_shape
         self._value_arch_spec.kwargs["output_shape"] = self._output_shape

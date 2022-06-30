@@ -6,7 +6,6 @@ from typing import Type, TypeVar, Union
 
 from neodroid.environments import Environment
 from neodroidagent.agents import Agent
-
 from .procedures import OnPolicyEpisodic, Procedure
 
 __author__ = "Christian Heider Nielsen"

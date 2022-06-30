@@ -169,7 +169,9 @@ def action_stats(env, md_action, cont_action):
     A list of all valid actions within the space. If `cont_action` is
     True, this value will be None.
     action_dim : int or None
-    The number of dimensions in a single action."""
+    The number of dimensions in a single action.
+    :param env:
+    :type env:"""
     if cont_action:
         action_dim = 1
         action_ids = None

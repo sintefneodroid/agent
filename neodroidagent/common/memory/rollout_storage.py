@@ -74,14 +74,14 @@ class RolloutStorage(object):
         intrinsic_reward,
     ):
         """
+        :param intrinsic_reward:
+        :type intrinsic_reward:
         :param step:
         :param current_obs:
-        :param state:
         :param action:
         :param action_log_prob:
         :param value_pred:
         :param reward:
-        :param mask:
         :return:"""
         self.observations[step + 1].copy_(current_obs)
         self.actions[step].copy_(action)
@@ -91,70 +91,73 @@ class RolloutStorage(object):
         # self.masks[step + 1].copy_(mask)
         self.intrinsic_rewards[step].copy_(intrinsic_reward)
 
-    def after_update(self):
-        self.observations[0].copy_(self.observations[-1])
-        self.masks[0].copy_(self.masks[-1])
 
-    def compute_returns(self, next_value, use_gae, gamma, tau):
-        """
-        This function is being used to compute the true state values using a bootstrapped
-        estimate and backtracking.
-        :param next_value:
-        :param use_gae: Use generalized advantage estimation
-        :param gamma: Discount factor
-        :param tau:
-        :return:"""
-        # Returns defines the possible sum of rewards/returns from a given state
+def after_update(self):
+    self.observations[0].copy_(self.observations[-1])
+    self.masks[0].copy_(self.masks[-1])
 
-        if use_gae:
-            self.value_preds[-1] = next_value
-            # Initialize the GAE to 0
-            gae = 0
-            # Starting from the back
-            for step in reversed(range(self.rewards.size(0))):
-                # Delta = Reward + discount*Value_next_step - Value_current_step
-                delta = (
-                    (self.rewards[step] + self.intrinsic_rewards[step])
-                    + gamma * self.value_preds[step + 1]
-                    - self.value_preds[step]
-                )
-                # Advantage = delta + gamma*tau*previous_advantage
-                gae = delta + gamma * tau * gae
-                # Final return = gae + value
-                self.returns[step] = gae + self.value_preds[step]
-        else:
-            # Initialize the returns vector with the next predicted value of the state
-            # (Value of the last state of the rollout)
-            self.returns[-1] = next_value
-            for step in reversed(range(self.rewards.size(0))):
-                # Returns at current step = gamma*Returns at next step + rewards_at_current_step
-                self.returns[step] = self.returns[step + 1] * gamma * self.masks[
-                    step + 1
-                ] + (self.rewards[step] + self.intrinsic_rewards[step])
 
-    def feed_forward_generator(self, advantages, mini_batches):
-        num_steps, num_processes = self.rewards.size()[0:2]
-        total_batch_size = num_processes * num_steps
-        assert total_batch_size >= mini_batches, (
-            f"PPO requires the number processes ({num_processes}) "
-            f"* number of steps ({num_steps}) = {num_processes * num_steps} "
-            f"to be greater than or equal to the number of PPO mini batches ({mini_batches})."
-        )
+def compute_returns(self, next_value, use_gae, gamma, tau):
+    """
+    This function is being used to compute the true state values using a bootstrapped
+    estimate and backtracking.
+    :param next_value:
+    :param use_gae: Use generalized advantage estimation
+    :param gamma: Discount factor
+    :param tau:
+    :return:"""
+    # Returns defines the possible sum of rewards/returns from a given state
 
-        mini_batch_size = total_batch_size // mini_batches
-        # Create a random batch sampler
-        sampler = BatchSampler(
-            SubsetRandomSampler(range(total_batch_size)),
-            mini_batch_size,
-            drop_last=False,
-        )
-        for i in sampler:
-            observations_batch = self.observations[:-1].reshape(
-                -1, *self.observations.size()[2:]
-            )[i]
-            actions_batch = self.actions.reshape(-1, self.actions.size(-1))[i]
-            return_batch = self.returns[:-1].reshape(-1, 1)[i]
-            old_action_log_probs_batch = self.action_log_probs.reshape(-1, 1)[i]
-            adv_targ = advantages.reshape(-1, 1)[i]
+    if use_gae:
+        self.value_preds[-1] = next_value
+        # Initialize the GAE to 0
+        gae = 0
+        # Starting from the back
+        for step in reversed(range(self.rewards.size(0))):
+            # Delta = Reward + discount*Value_next_step - Value_current_step
+            delta = (
+                (self.rewards[step] + self.intrinsic_rewards[step])
+                + gamma * self.value_preds[step + 1]
+                - self.value_preds[step]
+            )
+            # Advantage = delta + gamma*tau*previous_advantage
+            gae = delta + gamma * tau * gae
+            # Final return = gae + value
+            self.returns[step] = gae + self.value_preds[step]
+    else:
+        # Initialize the returns vector with the next predicted value of the state
+        # (Value of the last state of the rollout)
+        self.returns[-1] = next_value
+        for step in reversed(range(self.rewards.size(0))):
+            # Returns at current step = gamma*Returns at next step + rewards_at_current_step
+            self.returns[step] = self.returns[step + 1] * gamma * self.masks[
+                step + 1
+            ] + (self.rewards[step] + self.intrinsic_rewards[step])
 
-            yield observations_batch, actions_batch, return_batch, old_action_log_probs_batch, adv_targ
+
+def feed_forward_generator(self, advantages, mini_batches):
+    num_steps, num_processes = self.rewards.size()[0:2]
+    total_batch_size = num_processes * num_steps
+    assert total_batch_size >= mini_batches, (
+        f"PPO requires the number processes ({num_processes}) "
+        f"* number of steps ({num_steps}) = {num_processes * num_steps} "
+        f"to be greater than or equal to the number of PPO mini batches ({mini_batches})."
+    )
+
+    mini_batch_size = total_batch_size // mini_batches
+    # Create a random batch sampler
+    sampler = BatchSampler(
+        SubsetRandomSampler(range(total_batch_size)),
+        mini_batch_size,
+        drop_last=False,
+    )
+    for i in sampler:
+        observations_batch = self.observations[:-1].reshape(
+            -1, *self.observations.size()[2:]
+        )[i]
+        actions_batch = self.actions.reshape(-1, self.actions.size(-1))[i]
+        return_batch = self.returns[:-1].reshape(-1, 1)[i]
+        old_action_log_probs_batch = self.action_log_probs.reshape(-1, 1)[i]
+        adv_targ = advantages.reshape(-1, 1)[i]
+
+        yield observations_batch, actions_batch, return_batch, old_action_log_probs_batch, adv_targ

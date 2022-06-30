@@ -12,6 +12,7 @@ __all__ = ["BraindeadIntrinsicSignalProvider"]
 from typing import Sequence
 
 from draugr.writers import Writer
+
 from neodroid.utilities import (
     EnvironmentSnapshot,
 )

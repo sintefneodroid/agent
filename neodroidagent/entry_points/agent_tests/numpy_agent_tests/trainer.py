@@ -60,7 +60,9 @@ class Trainer(object):
         training. Default is True.
         smooth_factor : float in [0, 1]
         The amount to smooth the cumulative reward across episodes. Larger
-        values correspond to less smoothing."""
+        values correspond to less smoothing.
+        :param render_every:
+        :type render_every:"""
         if seed:
             numpy.random.seed(seed)
             self.env.seed(seed=seed)
@@ -102,48 +104,49 @@ class Trainer(object):
         if plot:
             self.plot_rewards(rwd_greedy)
 
-    def plot_rewards(self, rwd_greedy):
-        """
-        Plot the cumulative reward per episode as a function of episode number.
 
-        Notes
-        -----
-        Saves plot to the file ``./img/<agent>-<env>.png``
+def plot_rewards(self, rwd_greedy):
+    """
+    Plot the cumulative reward per episode as a function of episode number.
 
-        Parameters
-        ----------
-        rwd_greedy : float
-        The cumulative reward earned with a final execution of a greedy
-        target policy."""
-        try:
-            from matplotlib import pyplot
-            import seaborn
+    Notes
+    -----
+    Saves plot to the file ``./img/<agent>-<env>.png``
 
-            # https://seaborn.pydata.org/generated/seaborn.set_context.html
-            # https://seaborn.pydata.org/generated/seaborn.set_style.html
-            seaborn.set_style("white")
-            seaborn.set_context("notebook", font_scale=1)
-        except:
-            fstr = "Error importing `matplotlib` and `seaborn` -- plotting functionality is disabled"
-            raise ImportError(fstr)
+    Parameters
+    ----------
+    rwd_greedy : float
+    The cumulative reward earned with a final execution of a greedy
+    target policy."""
+    try:
+        from matplotlib import pyplot
+        import seaborn
 
-        R = self.rewards
-        fig, ax = pyplot.subplots()
-        x = numpy.arange(len(R["total"]))
-        y = R["smooth_total"]
-        y_raw = R["total"]
+        # https://seaborn.pydata.org/generated/seaborn.set_context.html
+        # https://seaborn.pydata.org/generated/seaborn.set_style.html
+        seaborn.set_style("white")
+        seaborn.set_context("notebook", font_scale=1)
+    except:
+        fstr = "Error importing `matplotlib` and `seaborn` -- plotting functionality is disabled"
+        raise ImportError(fstr)
 
-        ax.plot(x, y, label="smoothed")
-        ax.plot(x, y_raw, alpha=0.5, label="raw")
-        ax.axhline(y=rwd_greedy, xmin=min(x), xmax=max(x), ls=":", label="final greedy")
-        ax.legend()
-        seaborn.despine()
+    R = self.rewards
+    fig, ax = pyplot.subplots()
+    x = numpy.arange(len(R["total"]))
+    y = R["smooth_total"]
+    y_raw = R["total"]
 
-        env = self.agent.env_info["id"]
-        agent = self.agent.hyperparameters["agent"]
+    ax.plot(x, y, label="smoothed")
+    ax.plot(x, y_raw, alpha=0.5, label="raw")
+    ax.axhline(y=rwd_greedy, xmin=min(x), xmax=max(x), ls=":", label="final greedy")
+    ax.legend()
+    seaborn.despine()
 
-        ax.set_xlabel("Episode")
-        ax.set_ylabel("Cumulative reward")
-        ax.set_title(f"{agent} on '{env}'")
-        pyplot.savefig(f"img/{agent}-{env}.png")
-        pyplot.close("all")
+    env = self.agent.env_info["id"]
+    agent = self.agent.hyperparameters["agent"]
+
+    ax.set_xlabel("Episode")
+    ax.set_ylabel("Cumulative reward")
+    ax.set_title(f"{agent} on '{env}'")
+    pyplot.savefig(f"img/{agent}-{env}.png")
+    pyplot.close("all")

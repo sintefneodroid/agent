@@ -1,11 +1,11 @@
 import gym
+
 from neodroidagent.agents import (
     CrossEntropyAgent,
     MonteCarloAgent,
     TemporalDifferenceAgent,
     DynaAgent,
 )
-
 from .trainer import Trainer
 
 

@@ -1,8 +1,6 @@
 import math
 import sys
 
-from warg import NOD
-
 __all__ = ["UCB1"]
 
 
@@ -86,7 +84,7 @@ class UCB1:
             normed[i] = self._values[i] / (sum(self._values) + sys.float_info.epsilon)
         return normed
 
-    def train(self, arms, rollouts: int = 1000) -> NOD:
+    def train(self, arms, rollouts: int = 100000) -> None:
         """
 
         :param arms:
@@ -96,7 +94,6 @@ class UCB1:
             chosen_arm = self.select_arm()
             reward = arms[chosen_arm].draw()
             self.update_belief(chosen_arm, reward)
-        return NOD()
 
 
 if __name__ == "__main__":
@@ -112,10 +109,92 @@ if __name__ == "__main__":
             def draw(self):
                 return random.gauss(self.mu, self.sigma)
 
+        class ExpoDistributionArm:
+            def __init__(self, rate):
+                self.rate = rate
+
+            def draw(self):
+                return -math.log(random.random()) / self.rate
+
+        class UniformDistributionArm:
+            def __init__(self, low, high):
+                self.low = low
+                self.high = high
+
+            def draw(self):
+                return random.uniform(self.low, self.high)
+
+        class BernoulliDistributionArm:
+            def __init__(self, p):
+                self.p = p
+
+            def draw(self):
+                return random.random() < self.p
+
+        class BetaDistributionArm:
+            def __init__(self, alpha, beta):
+                self.alpha = alpha
+                self.beta = beta
+
+            def draw(self):
+                return random.betavariate(self.alpha, self.beta)
+
+        class BinomialDistributionArm:
+            def __init__(self, n, p):
+                self.n = n
+                self.p = p
+
+            def draw(self):
+                return random.binomial(self.n, self.p)
+
+        class GeometricDistributionArm:
+            def __init__(self, p):
+                self.p = p
+
+            def draw(self):
+                return random.geometric(self.p)
+
+        class ParetoDistributionArm:
+            def __init__(self, a):
+                self.a = a
+
+            def draw(self):
+                return random.paretovariate(self.a)
+
+        class PoissonDistributionArm:
+            def __init__(self, mu):
+                self.mu = mu
+
+            def draw(self):
+                return random.poisson(self.mu)
+
+        class UniformIntDistributionArm:
+            def __init__(self, low, high):
+                self.low = low
+                self.high = high
+
+            def draw(self):
+                return random.randint(self.low, self.high)
+
+        class UniformFloatDistributionArm:
+            def __init__(self, low, high):
+                self.low = low
+                self.high = high
+
+            def draw(self):
+                return random.uniform(self.low, self.high)
+
+        class ExpoVariateDistributionArm:
+            def __init__(self, rate):
+                self.rate = rate
+
+            def draw(self):
+                return random.expovariate(self.rate)
+
         arms = [
-            NormalDistributionArm(4.01, 2.0),
-            NormalDistributionArm(4, 2.0),
-            NormalDistributionArm(3.99, 2.0),
+            NormalDistributionArm(10, 1.0),
+            NormalDistributionArm(10, 10.0),
+            NormalDistributionArm(11, 20.0),
         ]
 
         ucb1 = UCB1(len(arms))

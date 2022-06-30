@@ -2,14 +2,12 @@
 # -*- coding: utf-8 -*-
 from typing import Type, Union
 
-import gym
+from warg import super_init_pass_on_kws
+
 from neodroid.environments import Environment
 from neodroid.environments.droid_environment import VectorUnityEnvironment
 from neodroid.environments.gym_environment import NeodroidGymEnvironment
-from trolls.gym_wrappers import NormalisedActions
 from trolls.vector_environments import VectorWrap
-from warg import super_init_pass_on_kws
-
 from .environment_session import EnvironmentType
 from .procedures import OnPolicyEpisodic, Procedure
 from .single_agent_environment_session import SingleAgentEnvironmentSession
@@ -41,7 +39,7 @@ class LinearSession(SingleAgentEnvironmentSession):
                 assert environment_name != ""
                 environment_ = VectorWrap(
                     NeodroidGymEnvironment(
-                        NormalisedActions(gym.make(environment_name)),
+                        environment_name,
                         auto_reset_on_terminal_state=auto_reset_on_terminal_state,
                     )
                 )

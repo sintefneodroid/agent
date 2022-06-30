@@ -79,13 +79,14 @@ def torch_compute_gae(
 
     Computes discounted return and advantage
 
+    :param normalise_adv:
+    :type normalise_adv:
     :param signal:
     :param non_terminal:
     :param values:
     :param discount_factor:
     :param gae_lambda:
     :param device:
-    :param normalise:
     :return:"""
     len_signal = len(signal)
     assert len_signal == len(non_terminal) == len(values) - 1, (

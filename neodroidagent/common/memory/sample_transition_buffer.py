@@ -4,6 +4,7 @@ from dataclasses import dataclass
 from typing import Any, Sequence
 
 from draugr.python_utilities import wrap_args
+
 from neodroidagent.common.memory.data_structures.expandable_circular_buffer import (
     ExpandableCircularBuffer,
 )

@@ -5,7 +5,7 @@ from shutil import rmtree
 __author__ = "Christian Heider Nielsen"
 __doc__ = ""
 
-from draugr import IgnoreInterruptSignal
+from warg import IgnoreInterruptSignal
 
 
 def main(keep_alive=True):

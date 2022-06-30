@@ -180,7 +180,6 @@
         fx="61.518883"
         fy="132.28575"
         gradientTransform="matrix(1,0,0,0.177966,0,108.7434)"
-        gradientUnits="userSpaceOnUse"
         id="radialGradient2801"
         r="29.036913"
         xlink:href="#linearGradient2795"/>
@@ -190,7 +189,6 @@
         fx="61.518883"
         fy="132.28575"
         gradientTransform="matrix(2.382716e-8,-0.296405,1.43676,4.683673e-7,-128.544,150.5202)"
-        gradientUnits="userSpaceOnUse"
         id="radialGradient1480"
         r="29.036913"
         xlink:href="#linearGradient2795"/>

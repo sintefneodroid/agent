@@ -49,6 +49,10 @@ def discount_rollout_signal_torch(
     non_terminal if supplied lets you define a mask for masking terminal state signals.
 
 
+    :param batch_normalised:
+    :type batch_normalised:
+    :param epsilon:
+    :type epsilon:
     :param signal:
     :param discounting_factor:
     :param device:

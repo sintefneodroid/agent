@@ -3,6 +3,8 @@
 from typing import Union
 
 import torch
+from warg import GDKC
+
 from neodroid.environments.environment import Environment
 from neodroidagent.agents import DeepQNetworkAgent
 from neodroidagent.common import (
@@ -14,17 +16,15 @@ from neodroidagent.common.session_factory.vertical.environment_session import (
     EnvironmentType,
 )
 from neodroidagent.configs.test_reference.base_dicrete_test_config import *
-from warg import GDKC
-
-__author__ = "Christian Heider Nielsen"
-
 from neodroidagent.entry_points.session_factory import session_factory
-
 from neodroidagent.utilities.exploration.exploration_specification import (
     ExplorationSpecification,
 )
+from trolls.render_mode import RenderModeEnum
 
-"""
+__author__ = "Christian Heider Nielsen"
+
+__doc__ = r"""
 Description: Config for training
 Author: Christian Heider Nielsen
 """
@@ -39,9 +39,10 @@ OPTIMISER_SPEC = GDKC(torch.optim.Adam, lr=3e-4)
 
 BATCH_SIZE = 512
 INITIAL_OBSERVATION_PERIOD = BATCH_SIZE
-# RENDER_FREQUENCY = 1
+RENDER_FREQUENCY = 1
 LEARNING_FREQUENCY = 1
-# RENDER_ENVIRONMENT = True
+RENDER_ENVIRONMENT = True
+RENDER_MODE = RenderModeEnum.to_screen
 # RUN_TRAINING = False
 MEMORY_BUFFER = TransitionPointPrioritisedBuffer(int(1e6))
 

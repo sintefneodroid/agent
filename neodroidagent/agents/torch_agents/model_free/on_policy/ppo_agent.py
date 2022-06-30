@@ -8,6 +8,17 @@ import torch
 from draugr import mean_accumulator, shuffled_batches
 from draugr.torch_utilities import freeze_model, to_scalar, to_tensor
 from draugr.writers import MockWriter, Writer
+from torch.distributions import Distribution
+from torch.nn.functional import mse_loss
+from torch.optim import Optimizer
+from tqdm import tqdm
+from warg import (
+    GDKC,
+    drop_unused_kws,
+    is_none_or_zero_or_negative_or_mod_zero,
+    super_init_pass_on_kws,
+)
+
 from neodroidagent.agents.agent import TogglableLowHigh
 from neodroidagent.agents.torch_agents.torch_agent import TorchAgent
 from neodroidagent.common import (
@@ -21,17 +32,7 @@ from neodroidagent.utilities import (
     torch_compute_gae,
     update_target,
 )
-from torch.distributions import Distribution
-from torch.nn.functional import mse_loss
-from torch.optim import Optimizer
-from tqdm import tqdm
 from trolls.spaces import ActionSpace, ObservationSpace, SignalSpace
-from warg import (
-    GDKC,
-    drop_unused_kws,
-    is_none_or_zero_or_negative_or_mod_zero,
-    super_init_pass_on_kws,
-)
 
 __author__ = "Christian Heider Nielsen"
 __doc__ = r"""
@@ -68,7 +69,7 @@ class ProximalPolicyOptimizationAgent(TorchAgent):
         continuous_arch_spec: GDKC = GDKC(constructor=ActorCriticMLP),
         discrete_arch_spec: GDKC = GDKC(constructor=CategoricalActorCriticMLP),
         gradient_norm_clipping: TogglableLowHigh = TogglableLowHigh(True, 0, 0.5),
-        **kwargs
+        **kwargs,
     ) -> None:
         """
 
@@ -136,7 +137,7 @@ class ProximalPolicyOptimizationAgent(TorchAgent):
         :param print_model_repr:
         :return:"""
         if action_space.is_mixed:
-            raise ActionSpaceNotSupported()
+            raise ActionSpaceNotSupported(f"{action_space}")
         elif action_space.is_continuous:
             self._continuous_arch_spec.kwargs["input_shape"] = self._input_shape
             self._continuous_arch_spec.kwargs["output_shape"] = self._output_shape
@@ -203,7 +204,7 @@ class ProximalPolicyOptimizationAgent(TorchAgent):
         terminated: Any,
         state: Any,
         successor_state: Any,
-        sample: Any
+        sample: Any,
     ) -> None:
         self._memory_buffer.add_transition_point(
             ValuedTransitionPoint(
@@ -327,7 +328,7 @@ class ProximalPolicyOptimizationAgent(TorchAgent):
         log_prob_batch_old,
         adv_batch,
         *,
-        metric_writer: Optional[Writer] = None
+        metric_writer: Optional[Writer] = None,
     ):
         action_log_probs_new = self.get_log_prob(new_distribution, action_batch)
         ratio = torch.exp(action_log_probs_new - log_prob_batch_old)

@@ -1,0 +1,217 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>neodroidagent.utilities.misc.environment_model.environment_model &#8212; neodroidagent 0.4.8 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../../_static/alabaster.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../../_static/graphviz.css" />
+    <script data-url_root="../../../../../" id="documentation_options" src="../../../../../_static/documentation_options.js"></script>
+    <script src="../../../../../_static/jquery.js"></script>
+    <script src="../../../../../_static/underscore.js"></script>
+    <script src="../../../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../../../../../_static/doctools.js"></script>
+    <link rel="canonical" href="sintefneodroid.github.io/neodroidagent/_modules/neodroidagent/utilities/misc/environment_model/environment_model.html" />
+    <link rel="index" title="Index" href="../../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for neodroidagent.utilities.misc.environment_model.environment_model</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python3</span>
+<span class="c1"># -*- coding: utf-8 -*-</span>
+
+<span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Christian Heider Nielsen&quot;</span>
+<span class="vm">__doc__</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;&quot;&quot;</span>
+
+<span class="s2">           Created on 27/02/2020</span>
+<span class="s2">           &quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">defaultdict</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;EnvModel&quot;</span><span class="p">]</span>
+
+
+<div class="viewcode-block" id="EnvModel"><a class="viewcode-back" href="../../../../../generated/neodroidagent.utilities.misc.environment_model.EnvModel.html#neodroidagent.utilities.misc.environment_model.EnvModel">[docs]</a><span class="k">class</span> <span class="nc">EnvModel</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A simple tabular environment model that maintains the counts of each</span>
+<span class="sd">    reward-outcome pair given the state and action that preceded them. The</span>
+<span class="sd">    model can be queried with</span>
+
+<span class="sd">    &gt;&gt;&gt; M = EnvModel()</span>
+<span class="sd">    &gt;&gt;&gt; M[(state, action, reward, next_state)] += 1</span>
+<span class="sd">    &gt;&gt;&gt; M[(state, action, reward, next_state)]</span>
+<span class="sd">    1</span>
+<span class="sd">    &gt;&gt;&gt; M.state_action_pairs()</span>
+<span class="sd">    [(state, action)]</span>
+<span class="sd">    &gt;&gt;&gt; M.outcome_probs(state, action)</span>
+<span class="sd">    [(next_state, 1)]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="EnvModel.__init__"><a class="viewcode-back" href="../../../../../generated/neodroidagent.utilities.misc.environment_model.EnvModel.html#neodroidagent.utilities.misc.environment_model.EnvModel.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">EnvModel</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_model</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="k">lambda</span><span class="p">:</span> <span class="n">defaultdict</span><span class="p">(</span><span class="k">lambda</span><span class="p">:</span> <span class="mi">0</span><span class="p">))</span></div>
+
+    <span class="k">def</span> <span class="fm">__setitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="n">s</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">s_</span> <span class="o">=</span> <span class="n">key</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="p">[(</span><span class="n">s</span><span class="p">,</span> <span class="n">a</span><span class="p">)][(</span><span class="n">r</span><span class="p">,</span> <span class="n">s_</span><span class="p">)]</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+        <span class="n">s</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">s_</span> <span class="o">=</span> <span class="n">key</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="p">[(</span><span class="n">s</span><span class="p">,</span> <span class="n">a</span><span class="p">)][(</span><span class="n">r</span><span class="p">,</span> <span class="n">s_</span><span class="p">)]</span>
+
+    <span class="k">def</span> <span class="fm">__contains__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+        <span class="n">s</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">s_</span> <span class="o">=</span> <span class="n">key</span>
+        <span class="n">p1</span> <span class="o">=</span> <span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">a</span><span class="p">)</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">state_action_pairs</span><span class="p">()</span>
+        <span class="n">p2</span> <span class="o">=</span> <span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">s_</span><span class="p">)</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">reward_outcome_pairs</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">p1</span> <span class="ow">and</span> <span class="n">p2</span>
+
+<div class="viewcode-block" id="EnvModel.state_action_pairs"><a class="viewcode-back" href="../../../../../generated/neodroidagent.utilities.misc.environment_model.EnvModel.html#neodroidagent.utilities.misc.environment_model.EnvModel.state_action_pairs">[docs]</a>    <span class="k">def</span> <span class="nf">state_action_pairs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return all (state, action) pairs in the environment model&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span></div>
+
+<div class="viewcode-block" id="EnvModel.reward_outcome_pairs"><a class="viewcode-back" href="../../../../../generated/neodroidagent.utilities.misc.environment_model.EnvModel.html#neodroidagent.utilities.misc.environment_model.EnvModel.reward_outcome_pairs">[docs]</a>    <span class="k">def</span> <span class="nf">reward_outcome_pairs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">a</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return all (reward, next_state) pairs associated with taking action `a`</span>
+<span class="sd">        in state `s`.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="p">[(</span><span class="n">s</span><span class="p">,</span> <span class="n">a</span><span class="p">)]</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span></div>
+
+<div class="viewcode-block" id="EnvModel.outcome_probs"><a class="viewcode-back" href="../../../../../generated/neodroidagent.utilities.misc.environment_model.EnvModel.html#neodroidagent.utilities.misc.environment_model.EnvModel.outcome_probs">[docs]</a>    <span class="k">def</span> <span class="nf">outcome_probs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">a</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the probability under the environment model of each outcome</span>
+<span class="sd">        state after taking action `a` in state `s`.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        s : int as returned by ``self._obs2num``</span>
+<span class="sd">        The id for the state/observation.</span>
+<span class="sd">        a : int as returned by ``self._action2num``</span>
+<span class="sd">        The id for the action taken from state `s`.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        outcome_probs : list of (state, prob) tuples</span>
+<span class="sd">        A list of each possible outcome and its associated probability</span>
+<span class="sd">        under the model.&quot;&quot;&quot;</span>
+        <span class="n">items</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="p">[(</span><span class="n">s</span><span class="p">,</span> <span class="n">a</span><span class="p">)]</span><span class="o">.</span><span class="n">items</span><span class="p">())</span>
+        <span class="n">total_count</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">sum</span><span class="p">([</span><span class="n">c</span> <span class="k">for</span> <span class="p">(</span><span class="n">_</span><span class="p">,</span> <span class="n">c</span><span class="p">)</span> <span class="ow">in</span> <span class="n">items</span><span class="p">])</span>
+        <span class="n">outcome_probs</span> <span class="o">=</span> <span class="p">[</span><span class="n">c</span> <span class="o">/</span> <span class="n">total_count</span> <span class="k">for</span> <span class="p">(</span><span class="n">_</span><span class="p">,</span> <span class="n">c</span><span class="p">)</span> <span class="ow">in</span> <span class="n">items</span><span class="p">]</span>
+        <span class="n">outcomes</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span> <span class="k">for</span> <span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">_</span><span class="p">)</span> <span class="ow">in</span> <span class="n">items</span><span class="p">]</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">outcomes</span><span class="p">,</span> <span class="n">outcome_probs</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="EnvModel.state_action_pairs_leading_to_outcome"><a class="viewcode-back" href="../../../../../generated/neodroidagent.utilities.misc.environment_model.EnvModel.html#neodroidagent.utilities.misc.environment_model.EnvModel.state_action_pairs_leading_to_outcome">[docs]</a>    <span class="k">def</span> <span class="nf">state_action_pairs_leading_to_outcome</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">outcome</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return all (state, action) pairs that have a nonzero probability of</span>
+<span class="sd">        producing `outcome` under the current model.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        outcome : int</span>
+<span class="sd">        The outcome state.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        pairs : list of (state, action) tuples</span>
+<span class="sd">        A list of all (state, action) pairs with a nonzero probability of</span>
+<span class="sd">        producing `outcome` under the model.&quot;&quot;&quot;</span>
+        <span class="n">pairs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">sa</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">state_action_pairs</span><span class="p">():</span>
+            <span class="n">outcomes</span> <span class="o">=</span> <span class="p">[</span><span class="n">o</span> <span class="k">for</span> <span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">o</span><span class="p">)</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">reward_outcome_pairs</span><span class="p">(</span><span class="o">*</span><span class="n">sa</span><span class="p">)]</span>
+            <span class="k">if</span> <span class="n">outcome</span> <span class="ow">in</span> <span class="n">outcomes</span><span class="p">:</span>
+                <span class="n">pairs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sa</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">pairs</span></div></div>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../../../index.html">neodroidagent</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Notes</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../getting_started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../concepts.html">Core Concepts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../cli.html">CLI Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../experiments.html">Experiments</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../generated/neodroidagent.html">neodroidagent</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../../../index.html">Module code</a><ul>
+  <li><a href="../../../../neodroidagent.html">neodroidagent</a><ul>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 5.0.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

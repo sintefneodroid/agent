@@ -32,7 +32,7 @@ class OffPolicyStepWise(Procedure):
         disable_stdout: bool = False,
         train_agent: bool = True,
         metric_writer: Optional[Writer] = MockWriter(),
-        rollout_drawer: MplDrawer = MockDrawer(),
+        drawer: MplDrawer = MockDrawer(),
         **kwargs
     ) -> None:
         """
@@ -53,7 +53,8 @@ class OffPolicyStepWise(Procedure):
         signal_since_last_termination = 0
         duration_since_last_termination = 0
 
-        for step_i in tqdm(range(num_environment_steps), desc="Step #", leave=False):
+        it = tqdm(range(num_environment_steps), desc="Step #", leave=False)
+        for step_i in it:
 
             sample = self.agent.sample(state)
             action = self.agent.extract_action(sample)
@@ -116,16 +117,21 @@ class OffPolicyStepWise(Procedure):
                 duration_since_last_termination = 0
 
             if (
-                is_zero_or_mod_below(render_frequency, render_duration, step_i)
+                is_zero_or_mod_below(
+                    render_frequency,
+                    render_duration,
+                    step_i,
+                    residual_printer=it.status_printer,
+                )
                 and render_frequency != 0
             ):
                 self.environment.render()
-                if rollout_drawer is not None and action is not None:
+                if drawer is not None and action is not None:
                     if self.environment.action_space.is_singular_discrete:
                         action_a = to_one_hot(self.agent.output_shape, action)
                     else:
                         action_a = action[0]
-                    rollout_drawer.draw(action_a)
+                    drawer.draw(action_a)
 
             if self.early_stop:
                 break

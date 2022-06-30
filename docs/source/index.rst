@@ -1,3 +1,8 @@
+|organisation| |project| Documentation
+===============================
+
+Version: |version| |today|
+
 .. toctree::
     :glob:
     :hidden:
@@ -8,7 +13,6 @@
     concepts
     cli
     experiments
-    readme
 
 
 .. toctree::
@@ -19,6 +23,12 @@
 
     api/*
 
+..  autosummary::
+    :toctree: generated
+    :template: custom_autosummary/module.rst
+    :recursive:
+
+    neodroidagent
 
 
 What's next?

@@ -1,6 +1,7 @@
 from collections import defaultdict
 
 import numpy
+
 from neodroidagent.agents.numpy_agents.numpy_agent import NumpyAgent
 from neodroidagent.utilities.misc import tile_state_space, EnvModel
 

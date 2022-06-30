@@ -31,7 +31,7 @@ class OffPolicyBatched(Procedure):
         disable_stdout: bool = False,
         train_agent: bool = True,
         metric_writer: Optional[Writer] = MockWriter(),
-        rollout_drawer: MplDrawer = MockDrawer(),
+        drawer: MplDrawer = MockDrawer(),
         **kwargs,
     ) -> None:
         """
@@ -82,12 +82,12 @@ class OffPolicyBatched(Procedure):
 
                 if is_positive_and_mod_zero(render_frequency, batch_i):
                     self.environment.render()
-                    if rollout_drawer is not None and action is not None:
+                    if drawer is not None and action is not None:
                         if self.environment.action_space.is_singular_discrete:
                             action_a = to_one_hot(self.agent.output_shape, action)
                         else:
                             action_a = action[0]
-                        rollout_drawer.draw(action_a)
+                        drawer.draw(action_a)
 
                 if train_agent:
                     self.agent.remember(

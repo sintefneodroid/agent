@@ -1,9 +1,19 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+
+__author__ = "Christian Heider Nielsen"
+__doc__ = r"""
+Description: Test script and config for training a soft actor critic agent
+Author: Christian Heider Nielsen
+"""
+
 from typing import Union
 
 import torch
 from draugr.torch_utilities import PreConcatInputMLP, ShallowStdNormalMLP
+from warg import GDKC
+
+from neodroid.environments.environment import Environment
 from neodroidagent.agents import SoftActorCriticAgent
 from neodroidagent.common import ParallelSession
 from neodroidagent.common.session_factory.vertical.environment_session import (
@@ -13,20 +23,10 @@ from neodroidagent.common.session_factory.vertical.procedures.training.off_polic
     OffPolicyStepWise,
 )
 from neodroidagent.configs.test_reference.base_continous_test_config import *
-from warg import GDKC
-
-__author__ = "Christian Heider Nielsen"
-
-from neodroid.environments.environment import Environment
 from neodroidagent.entry_points.session_factory import session_factory
-
-"""
-Description: Test script and config for training a soft actor critic agent
-Author: Christian Heider Nielsen
-"""
+from trolls.render_mode import RenderModeEnum
 
 CONFIG_NAME = __name__
-from pathlib import Path
 
 CONFIG_FILE_PATH = Path(__file__)
 
@@ -35,7 +35,9 @@ RENDER_ENVIRONMENT = True
 RUN_TRAINING = False
 RENDER_FREQUENCY = 1
 INITIAL_OBSERVATION_PERIOD = 1000
-
+NUM_ENVS = 1
+RENDER_MODE = RenderModeEnum.to_screen
+ENVIRONMENT_NAME = "Pendulum-v1"  # "InvertedPendulum-v2"
 ACTOR_OPTIMISER_SPEC: GDKC = GDKC(constructor=torch.optim.Adam, lr=3e-4, eps=1e-5)
 CRITIC_OPTIMISER_SPEC: GDKC = GDKC(constructor=torch.optim.Adam, lr=3e-4, eps=1e-5)
 ACTOR_ARCH_SPEC: GDKC = GDKC(ShallowStdNormalMLP, mean_head_activation=torch.nn.Tanh())
