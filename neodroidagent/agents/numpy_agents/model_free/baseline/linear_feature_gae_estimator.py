@@ -7,17 +7,14 @@ __doc__ = r"""
            Created on 19/01/2020
            """
 
-from typing import Any, Tuple
+from typing import Any, Optional
 
 import numpy
 from draugr.writers import MockWriter, Writer
+
 from neodroid.utilities import (
-    ActionSpace,
     EnvironmentSnapshot,
-    ObservationSpace,
-    SignalSpace,
 )
-from neodroidagent.agents import Agent
 
 
 class LinearFeatureBaseline:
@@ -26,7 +23,7 @@ class LinearFeatureBaseline:
     (see. Duan et al. 2016, "Benchmarking Deep Reinforcement Learning for Continuous Control", ICML)
 
     Predicts value of GAE (Generalized Advantage Estimation) Baseline.
-  """
+    """
 
     def __init__(self, reg_coeff: float = 1e-5, **kwargs):
         super().__init__(**kwargs)
@@ -37,24 +34,24 @@ class LinearFeatureBaseline:
         self,
         state: EnvironmentSnapshot,
         *args,
-        metric_writer: Writer = MockWriter(),
+        metric_writer: Optional[Writer] = MockWriter(),
         **kwargs
     ) -> Any:
         """
 
-    samples signal
+        samples signal
 
-    @param state:
-    @type state:
-    @param args:
-    @type args:
-    @param metric_writer:
-    @type metric_writer:
-    @param kwargs:
-    @type kwargs:
-    @return:
-    @rtype:
-    """
+        :param state:
+        :type state:
+        :param args:
+        :type args:
+        :param metric_writer:
+        :type metric_writer:
+        :param kwargs:
+        :type kwargs:
+        :return:
+        :rtype:
+        """
         if self._linear_coefficients is None:
             return numpy.zeros(len(state["rewards"]))
         return self.extract_features(state).dot(self._linear_coefficients)
@@ -62,14 +59,14 @@ class LinearFeatureBaseline:
     def extract_features(self, state: EnvironmentSnapshot) -> Any:
         """
 
-    b0 + b1*obs + b2*obs^2 + b3*t + b4*t^2+  b5*t^3
+        b0 + b1*obs + b2*obs^2 + b3*t + b4*t^2+  b5*t^3
 
 
-    @param state:
-    @type state:
-    @return:
-    @rtype:
-    """
+        :param state:
+        :type state:
+        :return:
+        :rtype:
+        """
         obs = numpy.clip(state["observations"], -10, 10)
         trajectory_length = len(state["rewards"])
         # obs = numpy.clip(state.observables, -10, 10) # TODO: Clipping
@@ -78,10 +75,10 @@ class LinearFeatureBaseline:
         return numpy.concatenate(
             [
                 obs,
-                obs ** 2,
+                obs**2,
                 time_steps,
-                time_steps ** 2,
-                time_steps ** 3,
+                time_steps**2,
+                time_steps**3,
                 numpy.ones((trajectory_length, 1)),
             ],
             axis=1,
@@ -100,28 +97,28 @@ class LinearFeatureBaseline:
         self,
         trajectories,
         *args,
-        metric_writer: Writer = MockWriter(),
+        metric_writer: Optional[Writer] = MockWriter(),
         attempts=5,
         **kwargs
     ) -> Any:
         """
 
-    Fit the linear baseline model (signal estimator) with the provided paths via damped least squares
+        Fit the linear baseline model (signal estimator) with the provided paths via damped least squares
 
 
-    @param trajectories:
-    @type trajectories:
-    @param args:
-    @type args:
-    @param metric_writer:
-    @type metric_writer:
-    @param attempts:
-    @type attempts:
-    @param kwargs:
-    @type kwargs:
-    @return:
-    @rtype:
-    """
+        :param trajectories:
+        :type trajectories:
+        :param args:
+        :type args:
+        :param metric_writer:
+        :type metric_writer:
+        :param attempts:
+        :type attempts:
+        :param kwargs:
+        :type kwargs:
+        :return:
+        :rtype:
+        """
         features_matrix = numpy.concatenate(
             [self.extract_features(trajectory) for trajectory in trajectories]
         )

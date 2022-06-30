@@ -6,15 +6,14 @@ import numpy
 class Trainer(object):
     def __init__(self, agent, env):
         """
-An object to facilitate agent training and evaluation.
+        An object to facilitate agent training and evaluation.
 
-Parameters
-----------
-agent : :class:`NumpyAgent` instance
-The agent to train.
-env : ``gym.wrappers`` or ``gym.envs`` instance
-The environment to run the agent on.
-"""
+        Parameters
+        ----------
+        agent : :class:`NumpyAgent` instance
+        The agent to train.
+        env : ``gym.wrappers`` or ``gym.envs`` instance
+        The environment to run the agent on."""
         self.env = env
         self.agent = agent
         self.rewards = {"total": [], "smooth_total": [], "n_steps": [], "duration": []}
@@ -42,27 +41,28 @@ The environment to run the agent on.
         smooth_factor=0.05,
     ):
         """
-Train an agent on an OpenAI gym environment, logging training
-statistics along the way.
+        Train an agent on an OpenAI gym environment, logging training
+        statistics along the way.
 
-Parameters
-----------
-n_episodes : int
-The number of episodes to train the agent across.
-max_steps : int
-The maximum number of steps the agent can take on each episode.
-seed : int or None
-A seed for the random number generator. Default is None.
-plot : bool
-Whether to generate a plot of the cumulative reward as a function
-of training episode. Default is True.
-verbose : bool
-Whether to print intermediate run statistics to stdout during
-training. Default is True.
-smooth_factor : float in [0, 1]
-The amount to smooth the cumulative reward across episodes. Larger
-values correspond to less smoothing.
-"""
+        Parameters
+        ----------
+        n_episodes : int
+        The number of episodes to train the agent across.
+        max_steps : int
+        The maximum number of steps the agent can take on each episode.
+        seed : int or None
+        A seed for the random number generator. Default is None.
+        plot : bool
+        Whether to generate a plot of the cumulative reward as a function
+        of training episode. Default is True.
+        verbose : bool
+        Whether to print intermediate run statistics to stdout during
+        training. Default is True.
+        smooth_factor : float in [0, 1]
+        The amount to smooth the cumulative reward across episodes. Larger
+        values correspond to less smoothing.
+        :param render_every:
+        :type render_every:"""
         if seed:
             numpy.random.seed(seed)
             self.env.seed(seed=seed)
@@ -70,6 +70,7 @@ values correspond to less smoothing.
         t0 = time()
         render_every = numpy.inf if render_every is None else render_every
         sf = smooth_factor
+        smooth_tot = 0
 
         for ep in range(n_episodes):
             tot_rwd, duration, n_steps = self._train_episode(max_steps)
@@ -103,49 +104,49 @@ values correspond to less smoothing.
         if plot:
             self.plot_rewards(rwd_greedy)
 
-    def plot_rewards(self, rwd_greedy):
-        """
-Plot the cumulative reward per episode as a function of episode number.
 
-Notes
------
-Saves plot to the file ``./img/<agent>-<env>.png``
+def plot_rewards(self, rwd_greedy):
+    """
+    Plot the cumulative reward per episode as a function of episode number.
 
-Parameters
-----------
-rwd_greedy : float
-The cumulative reward earned with a final execution of a greedy
-target policy.
-"""
-        try:
-            from matplotlib import pyplot
-            import seaborn as sns
+    Notes
+    -----
+    Saves plot to the file ``./img/<agent>-<env>.png``
 
-            # https://seaborn.pydata.org/generated/seaborn.set_context.html
-            # https://seaborn.pydata.org/generated/seaborn.set_style.html
-            sns.set_style("white")
-            sns.set_context("notebook", font_scale=1)
-        except:
-            fstr = "Error importing `matplotlib` and `seaborn` -- plotting functionality is disabled"
-            raise ImportError(fstr)
+    Parameters
+    ----------
+    rwd_greedy : float
+    The cumulative reward earned with a final execution of a greedy
+    target policy."""
+    try:
+        from matplotlib import pyplot
+        import seaborn
 
-        R = self.rewards
-        fig, ax = pyplot.subplots()
-        x = numpy.arange(len(R["total"]))
-        y = R["smooth_total"]
-        y_raw = R["total"]
+        # https://seaborn.pydata.org/generated/seaborn.set_context.html
+        # https://seaborn.pydata.org/generated/seaborn.set_style.html
+        seaborn.set_style("white")
+        seaborn.set_context("notebook", font_scale=1)
+    except:
+        fstr = "Error importing `matplotlib` and `seaborn` -- plotting functionality is disabled"
+        raise ImportError(fstr)
 
-        ax.plot(x, y, label="smoothed")
-        ax.plot(x, y_raw, alpha=0.5, label="raw")
-        ax.axhline(y=rwd_greedy, xmin=min(x), xmax=max(x), ls=":", label="final greedy")
-        ax.legend()
-        sns.despine()
+    R = self.rewards
+    fig, ax = pyplot.subplots()
+    x = numpy.arange(len(R["total"]))
+    y = R["smooth_total"]
+    y_raw = R["total"]
 
-        env = self.agent.env_info["id"]
-        agent = self.agent.hyperparameters["agent"]
+    ax.plot(x, y, label="smoothed")
+    ax.plot(x, y_raw, alpha=0.5, label="raw")
+    ax.axhline(y=rwd_greedy, xmin=min(x), xmax=max(x), ls=":", label="final greedy")
+    ax.legend()
+    seaborn.despine()
 
-        ax.set_xlabel("Episode")
-        ax.set_ylabel("Cumulative reward")
-        ax.set_title(f"{agent} on '{env}'")
-        pyplot.savefig(f"img/{agent}-{env}.png")
-        pyplot.close("all")
+    env = self.agent.env_info["id"]
+    agent = self.agent.hyperparameters["agent"]
+
+    ax.set_xlabel("Episode")
+    ax.set_ylabel("Cumulative reward")
+    ax.set_title(f"{agent} on '{env}'")
+    pyplot.savefig(f"img/{agent}-{env}.png")
+    pyplot.close("all")

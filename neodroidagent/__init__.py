@@ -2,12 +2,11 @@
 # -*- coding: utf-8 -*-
 import datetime
 import os
+import sys
+from pathlib import Path
 from warnings import warn
 
 import pkg_resources
-import sys
-from pathlib import Path
-
 from apppath import AppPath
 
 __project__ = "NeodroidAgent"
@@ -20,14 +19,12 @@ Created on 27/04/2019
 """
 __all__ = ["PROJECT_APP_PATH", "PROJECT_NAME", "PROJECT_VERSION", "get_version"]
 
-
 from typing import Any
 
 
 def dist_is_editable(dist: Any) -> bool:
     """
-Return True if given Distribution is an editable install.
-"""
+    Return True if given Distribution is an editable installation."""
     for path_item in sys.path:
         egg_link = Path(path_item) / f"{dist.project_name}.egg-link"
         if egg_link.is_file():
@@ -36,10 +33,13 @@ Return True if given Distribution is an editable install.
 
 
 PROJECT_NAME = __project__.lower().strip().replace(" ", "_")
+PROJECT_YEAR = 2018
 PROJECT_VERSION = __version__
+PROJECT_ORGANISATION = "Neodroid"
 PROJECT_AUTHOR = __author__.lower().strip().replace(" ", "_")
 PROJECT_APP_PATH = AppPath(app_name=PROJECT_NAME, app_author=PROJECT_AUTHOR)
-
+PACKAGE_DATA_PATH = Path(pkg_resources.resource_filename(PROJECT_NAME, "data"))
+INCLUDE_PROJECT_READMES = False
 distributions = {v.key: v for v in pkg_resources.working_set}
 if PROJECT_NAME in distributions:
     distribution = distributions[PROJECT_NAME]

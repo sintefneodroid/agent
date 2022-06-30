@@ -18,13 +18,16 @@ def test_single_agent_session():
     from neodroidagent.common.session_factory.single_agent.procedures.rollout_inference import (
         RolloutInference,
     )
+    from neodroidagent.common.session_factory.vertical.environment_session import (
+        EnvironmentType,
+    )
 
     session_entry_point(
         RandomAgent,
         {},
         session=ParallelSession(
             procedure=RolloutInference,
-            environment_type=True,
+            environment=EnvironmentType.zmq_pipe,
             auto_reset_on_terminal_state=True,
         ),
     )

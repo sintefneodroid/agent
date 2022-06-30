@@ -5,10 +5,11 @@ from shutil import rmtree
 __author__ = "Christian Heider Nielsen"
 __doc__ = ""
 
+from warg import IgnoreInterruptSignal
+
 
 def main(keep_alive=True):
     from draugr.torch_utilities.writers.tensorboard.launcher import launch_tensorboard
-    from contextlib import suppress
     from time import sleep
 
     from neodroidagent import PROJECT_APP_PATH
@@ -40,7 +41,7 @@ def main(keep_alive=True):
 
     if keep_alive:
         print(f"tensorboard address: {address} for log_dir {log_dir}")
-        with suppress(KeyboardInterrupt):
+        with IgnoreInterruptSignal():
             while True:
                 sleep(100)
     else:

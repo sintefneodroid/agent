@@ -8,12 +8,12 @@ import random
 
 import numpy
 
-
 __all__ = ["SelfAvoiding"]
 
 
 class SelfAvoiding(RandomProcess):
-    def __init__(self, num_of_options=4, n=10):
+    def __init__(self, num_of_options=4, n=10, **kwargs):
+        super().__init__(**kwargs)
         self.num_of_options = num_of_options
         self.n = n
         self.reset()

@@ -1,16 +1,17 @@
 """Covariance Matrix Adaptation Evolution Strategy."""
 from typing import Sequence
 
-import numpy as np
+import numpy
 from cma import CMAEvolutionStrategy
+from draugr.torch_utilities import TensorBoardPytorchWriter
+from draugr.writers import MockWriter, Writer
 from garage.envs import GarageEnv
 from garage.experiment import SnapshotConfig
 from garage.sampler import LocalSampler, RaySampler
 from garage.tf.policies import CategoricalMLPPolicy
 from tensorflow import Module
+from warg import GDKC
 
-from draugr.torch_utilities import TensorBoardPytorchWriter
-from draugr.writers import MockWriter, Writer
 from neodroidagent import PROJECT_APP_PATH
 from neodroidagent.agents.numpy_agents.evolutionary.get_rid.local_tf_runner import (
     LocalTFRunner,
@@ -21,25 +22,24 @@ from neodroidagent.agents.numpy_agents.evolutionary.get_rid.meh_wat import (
 from neodroidagent.agents.numpy_agents.model_free.baseline.linear_feature_gae_estimator import (
     LinearFeatureBaseline,
 )
-from warg import GDKC
 
 
 class CovarianceMatrixAdaptationEvolutionStrategyAgent:
     """Covariance Matrix Adaptation Evolution Strategy.
-  Note:
-      The CMA-ES method can hardly learn a successful policy even for
-      simple task. It is still maintained here only for consistency with
-      original rllab paper.
-  Args:
-      env_spec (garage.envs.EnvSpec): Environment specification.
-      policy_arch (garage.np.policies.Policy): Action policy.
-      baseline (garage.np.baselines.Baseline): Baseline for GAE
-          (Generalized Advantage Estimation).
-      num_candidate_policies (int): Number of policies sampled in one epoch.
-      discount_factor (float): Environment reward discount.
-      max_rollout_length (int): Maximum length of a single rollout.
-      parameters_variance (float): Initial std for param distribution.
-  """
+    Note:
+        The CMA-ES method can hardly learn a successful policy even for
+        simple task. It is still maintained here only for consistency with
+        original rllab paper.
+    Args:
+        env_spec (garage.envs.EnvSpec): Environment specification.
+        policy_arch (garage.numpy.policies.Policy): Action policy.
+        baseline (garage.numpy.baselines.Baseline): Baseline for GAE
+            (Generalized Advantage Estimation).
+        num_candidate_policies (int): Number of policies sampled in one epoch.
+        discount_factor (float): Environment reward discount.
+        max_rollout_length (int): Maximum length of a single rollout.
+        parameters_variance (float): Initial std for param distribution.
+    """
 
     def __init__(
         self,
@@ -72,15 +72,13 @@ class CovarianceMatrixAdaptationEvolutionStrategyAgent:
 
     def _resample_shared_parameters(self) -> None:
         """Return sample parameters.
-    Returns:
-        np.ndarray: A numpy array of parameter values.
-    """
+        Returns:
+            numpy.ndarray: A numpy array of parameter values.
+        """
         self._shared_params = self._evolution_strategy.ask()
 
     def build(self):
-        """
-
-    """
+        """ """
         pass  # TODO:
 
     def __build__(self, init_mean_parameters: Sequence):
@@ -94,13 +92,13 @@ class CovarianceMatrixAdaptationEvolutionStrategyAgent:
 
     def train(self, runner):
         """Initialize variables and start training.
-    Args:
-        runner (LocalRunner): LocalRunner is passed to give algorithm
-            the access to runner.step_epochs(), which provides services
-            such as snapshotting and sampler control.
-    Returns:
-        float: The average return in last epoch cycle.
-    """
+        Args:
+            runner (LocalRunner): LocalRunner is passed to give algorithm
+                the access to runner.step_epochs(), which provides services
+                such as snapshotting and sampler control.
+        Returns:
+            float: The average return in last epoch cycle.
+        """
         self.__build__(self.policy.get_param_values())
 
         self._all_returns = []
@@ -117,9 +115,7 @@ class CovarianceMatrixAdaptationEvolutionStrategyAgent:
         return last_return
 
     def extract_signal(self):
-        """
-
-    """
+        """ """
         pass
 
     def train_once(
@@ -130,14 +126,18 @@ class CovarianceMatrixAdaptationEvolutionStrategyAgent:
         writer: Writer = MockWriter()
     ):
         """Perform one step of policy optimization given one batch of samples.
-    Args:
-        iteration_number (int): Iteration number.
-        trajectories (list[dict]): A list of collected paths.
-    Returns:
-        float: The average return in last epoch cycle.
-        @param writer:
-        @type writer:
-    """
+        Args:
+            iteration_number (int): Iteration number.
+            trajectories (list[dict]): A list of collected paths.
+        Returns:
+            float: The average return in last epoch cycle.
+            :param iteration_number:
+            :type iteration_number:
+            :param trajectories:
+            :type trajectories:
+            :param writer:
+            :type writer:
+        """
 
         undiscounted_returns = []
         for trajectory in TrajectoryBatch.from_trajectory_list(
@@ -145,7 +145,7 @@ class CovarianceMatrixAdaptationEvolutionStrategyAgent:
         ).split():  # TODO: EEEEW
             undiscounted_returns.append(sum(trajectory.rewards))
 
-        sample_returns = np.mean(undiscounted_returns)
+        sample_returns = numpy.mean(undiscounted_returns)
         self._all_returns.append(sample_returns)
 
         epoch = iteration_number // self._num_candidate_policies
@@ -165,23 +165,21 @@ class CovarianceMatrixAdaptationEvolutionStrategyAgent:
 
         return sample_returns
 
-    def update(self) -> None:
-        """
 
-    """
-        self._evolution_strategy.tell(
-            self._shared_params, -np.array(self._all_returns)
-        )  # Report back results
-        self.policy.set_param_values(
-            self._evolution_strategy.best.get()[0]
-        )  # TODO: DOES NOTHING, as is overwritten everywhere
+def update(self) -> None:
+    """ """
+    self._evolution_strategy.tell(
+        self._shared_params, -numpy.array(self._all_returns)
+    )  # Report back results
+    self.policy.set_param_values(
+        self._evolution_strategy.best.get()[0]
+    )  # TODO: DOES NOTHING, as is overwritten everywhere
 
-        self._all_returns.clear()  # Clear for next epoch
-        self._resample_shared_parameters()
+    self._all_returns.clear()  # Clear for next epoch
+    self._resample_shared_parameters()
 
 
 if __name__ == "__main__":
-
     path = PROJECT_APP_PATH.user_data / "data" / "local" / "experiment"
     snapshot_config = SnapshotConfig(
         snapshot_dir=path, snapshot_mode="last", snapshot_gap=1

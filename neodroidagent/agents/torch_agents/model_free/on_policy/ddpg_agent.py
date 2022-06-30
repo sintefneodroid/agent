@@ -1,19 +1,26 @@
 import copy
-from typing import Any, Dict, Sequence
+from typing import Any, Dict, Optional, Sequence
 
 import numpy
 import torch
-import torch.nn.functional as F
-from torch.optim import Optimizer
-
-from draugr.torch_utilities import freeze_model, frozen_model, to_tensor
+import torch.nn.functional
+from draugr.torch_utilities import (
+    freeze_model,
+    frozen_model,
+    to_tensor,
+    MLP,
+    Architecture,
+    PreConcatInputMLP,
+)
 from draugr.writers import MockWriter, Writer
-from neodroid.utilities import ActionSpace, ObservationSpace, SignalSpace
+from numpy import mean
+from torch.nn import functional
+from torch.optim import Optimizer
+from tqdm import tqdm
+from warg import GDKC, drop_unused_kws, is_zero_or_mod_zero, super_init_pass_on_kws
+
 from neodroidagent.agents.torch_agents.torch_agent import TorchAgent
 from neodroidagent.common import (
-    Architecture,
-    LateConcatInputMLP,
-    MLP,
     Memory,
     TransitionPoint,
     TransitionPointBuffer,
@@ -23,9 +30,7 @@ from neodroidagent.utilities import (
     OrnsteinUhlenbeckProcess,
     update_target,
 )
-from numpy import mean
-from tqdm import tqdm
-from warg import GDKC, drop_unused_kws, is_zero_or_mod_zero, super_init_pass_on_kws
+from trolls.spaces import ActionSpace, ObservationSpace, SignalSpace
 
 __author__ = "Christian Heider Nielsen"
 __doc__ = r"""
@@ -38,33 +43,32 @@ tqdm.monitor_interval = 0
 @super_init_pass_on_kws
 class DeepDeterministicPolicyGradientAgent(TorchAgent):
     """
-The Deep Deterministic Policy Gradient (DDPG) Agent
+    The Deep Deterministic Policy Gradient (DDPG) Agent
 
-Parameters
-----------
-actor_optimizer_spec: OptimiserSpec
-Specifying the constructor and kwargs, as well as learning rate and other
-parameters for the optimiser
-critic_optimizer_spec: OptimiserSpec
-num_feature: int
-The number of features of the environmental state
-num_action: int
-The number of available actions that agent can choose from
-replay_memory_size: int
-How many memories to store in the replay memory.
-batch_size: int
-How many transitions to sample each time experience is replayed.
-tau: float
-The update rate that target networks slowly track the learned networks.
-"""
+    Parameters
+    ----------
+    actor_optimizer_spec: OptimiserSpec
+    Specifying the constructor and kwargs, as well as learning rate and other
+    parameters for the optimiser
+    critic_optimizer_spec: OptimiserSpec
+    num_feature: int
+    The number of features of the environmental state
+    num_action: int
+    The number of available actions that agent can choose from
+    replay_memory_size: int
+    How many memories to store in the replay memory.
+    batch_size: int
+    How many transitions to sample each time experience is replayed.
+    tau: float
+    The update rate that target networks slowly track the learned networks."""
 
     def __init__(
         self,
         random_process_spec: GDKC = GDKC(constructor=OrnsteinUhlenbeckProcess),
         memory_buffer: Memory = TransitionPointBuffer(),
-        evaluation_function: callable = F.mse_loss,
+        evaluation_function: callable = functional.mse_loss,
         actor_arch_spec: GDKC = GDKC(MLP, output_activation=torch.nn.Tanh()),
-        critic_arch_spec: GDKC = GDKC(LateConcatInputMLP),
+        critic_arch_spec: GDKC = GDKC(PreConcatInputMLP),
         discount_factor: float = 0.95,
         update_target_interval: int = 1,
         batch_size: int = 128,
@@ -76,20 +80,19 @@ The update rate that target networks slowly track the learned networks.
     ):
         """
 
-@param random_process_spec:
-@param memory_buffer:
-@param evaluation_function:
-@param actor_arch_spec:
-@param critic_arch_spec:
-@param discount_factor:
-@param update_target_interval:
-@param batch_size:
-@param noise_factor:
-@param copy_percentage:
-@param actor_optimiser_spec:
-@param critic_optimiser_spec:
-@param kwargs:
-"""
+        :param random_process_spec:
+        :param memory_buffer:
+        :param evaluation_function:
+        :param actor_arch_spec:
+        :param critic_arch_spec:
+        :param discount_factor:
+        :param update_target_interval:
+        :param batch_size:
+        :param noise_factor:
+        :param copy_percentage:
+        :param actor_optimiser_spec:
+        :param critic_optimiser_spec:
+        :param kwargs:"""
         super().__init__(**kwargs)
 
         assert 0 <= discount_factor <= 1.0
@@ -116,25 +119,24 @@ The update rate that target networks slowly track the learned networks.
         observation_space: ObservationSpace,
         action_space: ActionSpace,
         signal_space: SignalSpace,
-        metric_writer: Writer = MockWriter(),
+        metric_writer: Optional[Writer] = MockWriter(),
         print_model_repr: bool = True,
     ) -> None:
         """
 
-@param observation_space:
-@param action_space:
-@param signal_space:
-@param metric_writer:
-@param print_model_repr:
-@param critic:
-@param critic_optimiser:
-@param actor:
-@param actor_optimiser:
-@return:
-"""
+        :param observation_space:
+        :param action_space:
+        :param signal_space:
+        :param metric_writer:
+        :param print_model_repr:
+        :param critic:
+        :param critic_optimiser:
+        :param actor:
+        :param actor_optimiser:
+        :return:"""
 
-        if action_space.is_discrete:
-            raise ActionSpaceNotSupported()
+        if action_space.is_singular_discrete:
+            raise ActionSpaceNotSupported(action_space)
 
         self._actor_arch_spec.kwargs["input_shape"] = self._input_shape
         self._actor_arch_spec.kwargs["output_shape"] = self._output_shape
@@ -161,8 +163,7 @@ The update rate that target networks slowly track the learned networks.
     def models(self) -> Dict[str, Architecture]:
         """
 
-@return:
-"""
+        :return:"""
         return {"_actor": self._actor, "_critic": self._critic}
 
     @property
@@ -173,13 +174,14 @@ The update rate that target networks slowly track the learned networks.
         }
 
     def update_targets(
-        self, update_percentage: float, *, metric_writer: Writer = None
+        self, update_percentage: float, *, metric_writer: Optional[Writer] = None
     ) -> None:
         """
 
-@param update_percentage:
-@return:
-"""
+        :param metric_writer:
+        :type metric_writer:
+        :param update_percentage:
+        :return:"""
         with torch.no_grad():
             if metric_writer:
                 metric_writer.blip("Target Model Synced", self.update_i)
@@ -195,89 +197,94 @@ The update rate that target networks slowly track the learned networks.
                 copy_percentage=update_percentage,
             )
 
-    @drop_unused_kws
-    def _remember(self, *, signal, terminated, state, successor_state, sample) -> None:
-        self._memory_buffer.add_transition_point(
-            TransitionPoint(state, sample, successor_state, signal, terminated)
+
+@drop_unused_kws
+def _remember(self, *, signal, terminated, state, successor_state, sample) -> None:
+    self._memory_buffer.add_transition_point(
+        TransitionPoint(state, sample, successor_state, signal, terminated)
+    )
+
+
+@drop_unused_kws
+def _update(self, *, metric_writer: Optional[Writer] = MockWriter()) -> None:
+    """
+    Update
+
+    :return:
+    :rtype:"""
+    tensorised = TransitionPoint(
+        *[to_tensor(a, device=self._device) for a in self._memory_buffer.sample()]
+    )
+
+    self._memory_buffer.clear()
+
+    # Compute next Q value based on which action target actor would choose
+    # Detach variable from the current graph since we don't want gradients for next Q to propagated
+    with torch.no_grad():
+        next_max_q = self._target_critic(
+            tensorised.successor_state, self._target_actor(tensorised.state)
+        )
+        Q_target = tensorised.signal + (
+            self._discount_factor * next_max_q * tensorised.non_terminal_numerical
+        )
+        # Compute the target of the current Q values
+
+    # Compute current Q value, critic takes state and action chosen
+    td_error = self._critic_criteria(
+        self._critic(tensorised.state, tensorised.action), Q_target.detach()
+    )
+    self._critic_optimiser.zero_grad()
+    td_error.backward()
+    self.post_process_gradients(self._critic.parameters())
+    self._critic_optimiser.step()
+
+    with frozen_model(self._critic):
+        policy_loss = -torch.mean(
+            self._critic(tensorised.state, self._actor(tensorised.state))
+        )
+        self._actor_optimiser.zero_grad()
+        policy_loss.backward()
+        self.post_process_gradients(self._actor.parameters())
+        self._actor_optimiser.step()
+
+    if is_zero_or_mod_zero(self._update_target_interval, self.update_i):
+        self.update_targets(self._copy_percentage, metric_writer=metric_writer)
+
+    if metric_writer:
+        metric_writer.scalar("td_error", td_error.cpu().item())
+        metric_writer.scalar("critic_loss", policy_loss.cpu().item())
+
+    with torch.no_grad():
+        return (td_error + policy_loss).cpu().item()
+
+
+def extract_action(self, sample: Any) -> numpy.ndarray:
+    """
+
+    :param sample:
+    :return:"""
+    return sample.to("cpu").numpy()
+
+
+@drop_unused_kws
+def _sample(self, state: Sequence) -> Any:
+    """
+
+    :param state:
+    :param deterministic:
+    :return:"""
+
+    with torch.no_grad():
+        action_out = self._actor(
+            to_tensor(state, device=self._device, dtype=torch.float)
+        ).detach()
+
+    deterministic = False
+    if not deterministic:
+        # Add action space noise for exploration, alternative is parameter space noise
+        noise = self._random_process.sample(action_out.shape)
+        action_out += to_tensor(
+            noise * self._noise_factor, device=self.device, dtype=torch.float
         )
 
-    @drop_unused_kws
-    def _update(self, *, metric_writer: Writer = MockWriter()) -> None:
-        """
-Update
-
-:return:
-:rtype:
-"""
-        tensorised = TransitionPoint(
-            *[to_tensor(a, device=self._device) for a in self._memory_buffer.sample()]
-        )
-
-        self._memory_buffer.clear()
-
-        # Compute next Q value based on which action target actor would choose
-        # Detach variable from the current graph since we don't want gradients for next Q to propagated
-        with torch.no_grad():
-            next_max_q = self._target_critic(
-                tensorised.successor_state, self._target_actor(tensorised.state)
-            )
-            Q_target = tensorised.signal + (
-                self._discount_factor * next_max_q * tensorised.non_terminal_numerical
-            )
-            # Compute the target of the current Q values
-
-        # Compute current Q value, critic takes state and action chosen
-        td_error = self._critic_criteria(
-            self._critic(tensorised.state, tensorised.action), Q_target.detach()
-        )
-        self._critic_optimiser.zero_grad()
-        td_error.backward()
-        self.post_process_gradients(self._critic.parameters())
-        self._critic_optimiser.step()
-
-        with frozen_model(self._critic):
-            policy_loss = -torch.mean(
-                self._critic(tensorised.state, self._actor(tensorised.state))
-            )
-            self._actor_optimiser.zero_grad()
-            policy_loss.backward()
-            self.post_process_gradients(self._actor.parameters())
-            self._actor_optimiser.step()
-
-        if is_zero_or_mod_zero(self._update_target_interval, self.update_i):
-            self.update_targets(self._copy_percentage, metric_writer=metric_writer)
-
-        if metric_writer:
-            metric_writer.scalar("td_error", td_error.cpu().item())
-            metric_writer.scalar("critic_loss", policy_loss.cpu().item())
-
-        with torch.no_grad():
-            return (td_error + policy_loss).cpu().item()
-
-    def extract_action(self, sample: Any) -> numpy.ndarray:
-        """
-
-@param sample:
-@return:
-"""
-        return sample.to("cpu").numpy()
-
-    @drop_unused_kws
-    def _sample(self, state: Sequence) -> Any:
-        """
-
-@param state:
-@param deterministic:
-@return:
-"""
-
-        with torch.no_grad():
-            action_out = self._actor(to_tensor(state, device=self._device)).detach()
-
-        deterministic = False
-        if not deterministic:
-            # Add action space noise for exploration, alternative is parameter space noise
-            noise = self._random_process.sample(action_out.shape)
-            action_out += to_tensor(noise * self._noise_factor, device=self.device)
-
-        return action_out
+    return action_out

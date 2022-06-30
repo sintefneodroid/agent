@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 from neodroidagent.architectures import CategoricalCNN
+
 from neodroidagent.utilities import ReplayBuffer
 
 __author__ = "Christian Heider Nielsen"
@@ -8,12 +9,11 @@ __author__ = "Christian Heider Nielsen"
 Description: Config for training
 Author: Christian Heider Nielsen
 """
-from neodroidagent.configs.base_config import *
 
 CONFIG_NAME = __name__
-import pathlib
+from pathlib import Path
 
-CONFIG_FILE_PATH = pathlib.Path(__file__)
+CONFIG_FILE_PATH = Path(__file__)
 
 ROLLOUTS = 10000
 INITIAL_OBSERVATION_PERIOD = 0

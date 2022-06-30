@@ -39,14 +39,13 @@ def discounted_gae(
 ) -> numpy.ndarray:
     """
 
-:param terminals:
-:param values:
-:param signals:
-:param discount_factor: the discount factor as we know it from n-step rewards
-:param step_factor: can be interpreted as the `n` in n-step rewards. Specifically setting it to 0
-reduces the  equation to be single step TD error, while setting it to 1 means there is no horizon
-so estimate over all steps
-"""
+    :param terminals:
+    :param values:
+    :param signals:
+    :param discount_factor: the discount factor as we know it from n-step rewards
+    :param step_factor: can be interpreted as the `n` in n-step rewards. Specifically setting it to 0
+    reduces the  equation to be single step TD error, while setting it to 1 means there is no horizon
+    so estimate over all steps"""
 
     td_errors = (
         signals + discount_factor * values[:, 1:] * (1.0 - terminals) - values[:, :-1]

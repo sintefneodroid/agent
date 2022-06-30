@@ -1,32 +1,31 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-from typing import Any, Dict, Sequence, Tuple
+from typing import Any, Dict, Optional, Sequence, Tuple
 
 import numpy
 import torch
-from draugr.writers.mixins.graph_writer_mixin import GraphWriterMixin
+from draugr.torch_utilities import to_tensor, CategoricalMLP, MultiDimensionalNormalMLP
+from draugr.writers import MockWriter, Writer
 from torch.nn import Module
 from torch.optim import Optimizer
 from tqdm import tqdm
+from warg import GDKC, drop_unused_kws, super_init_pass_on_kws
 
-from draugr.writers import MockWriter, Writer
-from draugr.torch_utilities import to_tensor
 from neodroid.utilities import (
-    ActionSpace,
-    ObservationSpace,
-    SignalSpace,
     non_terminal_numerical_mask,
 )
 from neodroidagent.agents.torch_agents.torch_agent import TorchAgent
 from neodroidagent.common import (
-    CategoricalMLP,
     Memory,
-    MultiDimensionalNormalMLP,
     SamplePoint,
     SampleTrajectoryBuffer,
 )
 from neodroidagent.utilities import NoTrajectoryException, discount_rollout_signal_torch
-from warg import GDKC, drop_unused_kws, super_init_pass_on_kws
+from trolls.spaces import (
+    ActionSpace,
+    ObservationSpace,
+    SignalSpace,
+)
 
 tqdm.monitor_interval = 0
 
@@ -42,9 +41,11 @@ __all__ = ["PolicyGradientAgent"]
 @super_init_pass_on_kws
 class PolicyGradientAgent(TorchAgent):
     r"""
-REINFORCE, Vanilla Policy Gradient method
+    REINFORCE, Vanilla Policy Gradient method
 
-"""
+    - Williams 1992 paper
+    - Silver and Sutton update the policy in every timestep
+    """
 
     def __init__(
         self,
@@ -59,14 +60,13 @@ REINFORCE, Vanilla Policy Gradient method
         **kwargs,
     ) -> None:
         r"""
-:param evaluation_function:
-:param trajectory_trace:
-:param policy_arch_spec:
-:param discount_factor:
-:param optimiser_spec:
-:param state_type:
-:param kwargs:
-"""
+        :param evaluation_function:
+        :param trajectory_trace:
+        :param policy_arch_spec:
+        :param discount_factor:
+        :param optimiser_spec:
+        :param state_type:
+        :param kwargs:"""
         super().__init__(**kwargs)
 
         assert 0 <= discount_factor <= 1.0
@@ -88,7 +88,7 @@ REINFORCE, Vanilla Policy Gradient method
         observation_space: ObservationSpace,
         action_space: ActionSpace,
         signal_space: SignalSpace,
-        metric_writer: Writer = MockWriter(),
+        metric_writer: Optional[Writer] = MockWriter(),
         print_model_repr: bool = True,
         *,
         distributional_regressor: Module = None,
@@ -96,21 +96,20 @@ REINFORCE, Vanilla Policy Gradient method
     ) -> None:
         """
 
-@param observation_space:
-@param action_space:
-@param signal_space:
-@param metric_writer:
-@param print_model_repr:
-@param distributional_regressor:
-@param optimiser:
-@return:
-"""
+        :param observation_space:
+        :param action_space:
+        :param signal_space:
+        :param metric_writer:
+        :param print_model_repr:
+        :param distributional_regressor:
+        :param optimiser:
+        :return:"""
 
         if distributional_regressor:
             self.distributional_regressor = distributional_regressor
         else:
             self._policy_arch_spec.kwargs["input_shape"] = self._input_shape
-            if action_space.is_discrete:
+            if action_space.is_singular_discrete:
                 self._policy_arch_spec = GDKC(
                     constructor=CategoricalMLP, kwargs=self._policy_arch_spec.kwargs
                 )
@@ -142,8 +141,7 @@ REINFORCE, Vanilla Policy Gradient method
     def models(self) -> dict:
         """
 
-@return:
-"""
+        :return:"""
         return {"distributional_regressor": self.distributional_regressor}
 
     @property
@@ -154,16 +152,15 @@ REINFORCE, Vanilla Policy Gradient method
     def _sample(self, state: Sequence) -> Tuple:
         """
 
-@param state:
-@return:
-"""
+        :param state:
+        :return:"""
         model_input = to_tensor(state, device=self._device, dtype=torch.float)
         distribution = self.distributional_regressor(model_input)
 
         with torch.no_grad():
             action = distribution.sample().detach()
 
-        if self.action_space.is_discrete:
+        if self.action_space.is_singular_discrete:
             action = action.unsqueeze(-1)
         else:
             pass
@@ -178,18 +175,17 @@ REINFORCE, Vanilla Policy Gradient method
     def _remember(self, *, signal: Any, terminated: Any, sample: SamplePoint) -> None:
         """
 
-@param signal:
-@param terminated:
-@param sample:
-@return:
-"""
+        :param signal:
+        :param terminated:
+        :param sample:
+        :return:"""
         action, dist = sample
         self._memory_buffer.add_trajectory_point(signal, terminated, action, dist)
 
     # region Protected
 
     def get_log_prob(self, dist, action):
-        if self.action_space.is_discrete:
+        if self.action_space.is_singular_discrete:
             return dist.log_prob(action.squeeze(-1)).unsqueeze(-1)
         else:
             return dist.log_prob(action).sum(axis=-1, keepdims=True)
@@ -198,10 +194,9 @@ REINFORCE, Vanilla Policy Gradient method
     def _update(self, *, metric_writer=MockWriter()) -> float:
         """
 
-:param metric_writer:
+        :param metric_writer:
 
-:returns:
-"""
+        :returns:"""
 
         if not len(self._memory_buffer) > 0:
             raise NoTrajectoryException

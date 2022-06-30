@@ -17,8 +17,7 @@ from warg import is_none_or_zero_or_negative
 
 class ExpandableCircularBuffer(Memory):
     """
-For storing element in an expandable buffer.
-"""
+    For storing element in an expandable buffer."""
 
     def capacity(self) -> int:
         return self._capacity
@@ -26,8 +25,7 @@ For storing element in an expandable buffer.
     def __init__(self, capacity: int = 0):
         """
 
-@param capacity:
-"""
+        :param capacity:"""
         self._capacity = capacity
         self._memory = []
         self._position = 0
@@ -74,8 +72,7 @@ For storing element in an expandable buffer.
     def clear(self):
         """
 
-@return:
-"""
+        :return:"""
         del self._memory[:]
         self._position = 0
 

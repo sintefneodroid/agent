@@ -7,5 +7,6 @@ __doc__ = r"""
            Created on 25/04/2020
            """
 
+from .braindead import *
 from .intrinsic_signal_provider import *
 from .torch_isp import *

@@ -48,16 +48,16 @@ torch.manual_seed(config.seed)
 
 def _call_method(method, rref, *args, **kwargs):
     r"""
-  a helper function to call a method on the given RRef
-  """
+    a helper function to call a method on the given RRef
+    """
     return method(rref.local_value(), *args, **kwargs)
 
 
 def _remote_method(method, rref, *args, **kwargs):
     r"""
-  a helper function to run method on the owner of rref and fetch back the
-  result using RPC
-  """
+    a helper function to run method on the owner of rref and fetch back the
+    result using RPC
+    """
     return rpc_sync(
         rref.owner(), _call_method, args=(method, rref, *args), kwargs=kwargs
     )
@@ -65,10 +65,10 @@ def _remote_method(method, rref, *args, **kwargs):
 
 class Policy(nn.Module):
     r"""
-  Borrowing the ``Policy`` class from the Reinforcement Learning example.
-  Copying the code to make these two examples independent.
-  See https://github.com/pytorch/examples/tree/master/reinforcement_learning
-  """
+    Borrowing the ``Policy`` class from the Reinforcement Learning example.
+    Copying the code to make these two examples independent.
+    See https://github.com/pytorch/examples/tree/master/reinforcement_learning
+    """
 
     def __init__(self):
         super().__init__()
@@ -87,17 +87,17 @@ class Policy(nn.Module):
 
 class Observer:
     r"""
-  An observer has exclusive access to its own environment. Each observer
-  captures the state from its environment, and send the state to the agent to
-  select an action. Then, the observer applies the action to its environment
-  and reports the reward to the agent.
+    An observer has exclusive access to its own environment. Each observer
+    captures the state from its environment, and send the state to the agent to
+    select an action. Then, the observer applies the action to its environment
+    and reports the reward to the agent.
 
-  It is true that CartPole-v1 is a relatively inexpensive environment, and it
-  might be an overkill to use RPC to connect observers and trainers in this
-  specific use case. However, the main goal of this tutorial to how to build
-  an application using the RPC API. Developers can extend the similar idea to
-  other applications with much more expensive environment.
-  """
+    It is true that CartPole-v1 is a relatively inexpensive environment, and it
+    might be an overkill to use RPC to connect observers and trainers in this
+    specific use case. However, the main goal of this tutorial to how to build
+    an application using the RPC API. Developers can extend the similar idea to
+    other applications with much more expensive environment.
+    """
 
     def __init__(self):
         self.id = rpc.get_worker_info().id
@@ -106,12 +106,12 @@ class Observer:
 
     def run_episode(self, agent_rref, n_steps):
         r"""
-    Run one episode of n_steps.
+        Run one episode of n_steps.
 
-    Arguments:
-        agent_rref (RRef): an RRef referencing the agent object.
-        n_steps (int): number of steps in this episode
-    """
+        Arguments:
+            agent_rref (RRef): an RRef referencing the agent object.
+            n_steps (int): number of steps in this episode
+        """
         state, ep_reward = self.env.reset(), 0
         for step in range(n_steps):
             # send the state to the agent to get an action
@@ -146,14 +146,14 @@ class Agent:
 
     def select_action(self, ob_id, state):
         r"""
-    This function is mostly borrowed from the Reinforcement Learning example.
-    See https://github.com/pytorch/examples/tree/master/reinforcement_learning
-    The main difference is that instead of keeping all probs in one list,
-    the agent keeps probs in a dictionary, one key per observer.
+        This function is mostly borrowed from the Reinforcement Learning example.
+        See https://github.com/pytorch/examples/tree/master/reinforcement_learning
+        The main difference is that instead of keeping all probs in one list,
+        the agent keeps probs in a dictionary, one key per observer.
 
-    NB: no need to enforce thread-safety here as GIL will serialize
-    executions.
-    """
+        NB: no need to enforce thread-safety here as GIL will serialize
+        executions.
+        """
         state = torch.from_numpy(state).float().unsqueeze(0)
         dist = Categorical(logits=self.policy(state))
         action = dist.sample()
@@ -162,14 +162,14 @@ class Agent:
 
     def report_reward(self, ob_id, reward):
         r"""
-    Observers call this function to report rewards.
-    """
+        Observers call this function to report rewards.
+        """
         self.rewards[ob_id].append(reward)
 
     def run_episode(self, n_steps=0):
         r"""
-    Run one episode. The agent will tell each oberser to run n_steps.
-    """
+        Run one episode. The agent will tell each oberser to run n_steps.
+        """
         futs = []
         for (
             ob_rref
@@ -188,12 +188,12 @@ class Agent:
 
     def finish_episode(self) -> torch.Tensor:
         r"""
-    This function is mostly borrowed from the Reinforcement Learning example.
-    See https://github.com/pytorch/examples/tree/master/reinforcement_learning
-    The main difference is that it joins all probs and rewards from
-    different observers into one list, and uses the minimum observer rewards
-    as the reward of the current episode.
-    """
+        This function is mostly borrowed from the Reinforcement Learning example.
+        See https://github.com/pytorch/examples/tree/master/reinforcement_learning
+        The main difference is that it joins all probs and rewards from
+        different observers into one list, and uses the minimum observer rewards
+        as the reward of the current episode.
+        """
 
         # joins probs and rewards from different observers into lists
         R, probs, rewards = 0, [], []
@@ -231,9 +231,9 @@ class Agent:
 
 def run_worker(rank, world_size) -> None:
     r"""
-  This is the entry point for all processes. The rank 0 is the agent. All
-  other ranks are observers.
-  """
+    This is the entry point for all processes. The rank 0 is the agent. All
+    other ranks are observers.
+    """
     os.environ["MASTER_ADDR"] = "localhost"
     os.environ["MASTER_PORT"] = "29500"
     if rank == 0:  # rank0 is the agent

@@ -7,15 +7,17 @@ Description: Config for training
 Author: Christian Heider Nielsen
 """
 
-# noinspection PyUnresolvedReferences
-from neodroidagent.common import CategoricalMLP
-from neodroidagent.configs.base_config import *
+import torch
 from warg import NOD
 
-CONFIG_NAME = __name__
-import pathlib
+# noinspection PyUnresolvedReferences
+from neodroidagent.common import CategoricalMLP
 
-CONFIG_FILE_PATH = pathlib.Path(__file__)
+CONFIG_NAME = __name__
+from pathlib import Path
+from warg import GDKC
+
+CONFIG_FILE_PATH = Path(__file__)
 
 # Architecture
 POLICY_ARCH_SPEC = GDKC(

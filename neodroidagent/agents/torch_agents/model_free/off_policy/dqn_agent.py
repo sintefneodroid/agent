@@ -4,30 +4,29 @@ import copy
 import logging
 import math
 import random
-from typing import Any, Dict, Iterable, Sequence, Tuple
+from typing import Any, Dict, Iterable, Optional, Sequence, Tuple
 
 import numpy
 import torch
+from draugr.torch_utilities import to_scalar, to_tensor, Architecture
+from draugr.writers import MockWriter, Writer
 from torch.nn.functional import smooth_l1_loss
 from torch.optim import Optimizer
+from warg import GDKC, drop_unused_kws, super_init_pass_on_kws, is_zero_or_mod_zero
 
-from draugr.torch_utilities import to_scalar, to_tensor
-from draugr.writers import MockWriter, Writer
-from neodroid.utilities import ActionSpace, ObservationSpace, SignalSpace
 from neodroidagent.agents.torch_agents.torch_agent import TorchAgent
 from neodroidagent.common import (
-    Architecture,
-    DuelingQMLP,
     Memory,
     TransitionPoint,
     TransitionPointPrioritisedBuffer,
+    DuelingQMLP,
 )
 from neodroidagent.utilities import (
     ActionSpaceNotSupported,
     ExplorationSpecification,
     update_target,
 )
-from warg import GDKC, drop_unused_kws, super_init_pass_on_kws,is_zero_or_mod_zero
+from trolls.spaces import ActionSpace, ObservationSpace, SignalSpace
 
 __author__ = "Christian Heider Nielsen"
 __doc__ = r"""
@@ -38,10 +37,9 @@ __all__ = ["DeepQNetworkAgent"]
 @super_init_pass_on_kws(super_base=TorchAgent)
 class DeepQNetworkAgent(TorchAgent):
     """
-Deep Q Network Agent
+    Deep Q Network Agent
 
-https://www.cs.toronto.edu/~vmnih/docs/dqn.pdf
-"""
+    https://www.cs.toronto.edu/~vmnih/docs/dqn.pdf"""
 
     def __init__(
         self,
@@ -49,7 +47,7 @@ https://www.cs.toronto.edu/~vmnih/docs/dqn.pdf
         exploration_spec: ExplorationSpecification = ExplorationSpecification(
             start=0.95, end=0.05, decay=3000
         ),
-        memory_buffer: Memory = TransitionPointPrioritisedBuffer(int(1e5)),
+        memory_buffer: Memory = TransitionPointPrioritisedBuffer(int(1e6)),
         batch_size: int = 256,
         discount_factor: float = 0.95,
         double_dqn: bool = True,
@@ -64,22 +62,21 @@ https://www.cs.toronto.edu/~vmnih/docs/dqn.pdf
         **kwargs,
     ):
         """
-@param value_arch_spec:
-@param exploration_spec:
-@param memory_buffer:
-@param batch_size:
-@param discount_factor:
-@param double_dqn: https://arxiv.org/abs/1509.06461
-@param use_per:  https://arxiv.org/abs/1511.05952
-@param loss_function:  default is huber loss
-@param optimiser_spec:
-@param scheduler_spec:
-@param sync_target_model_frequency:
-@param initial_observation_period:
-@param learning_frequency:
-@param copy_percentage:
-@param kwargs:
-"""
+        :param value_arch_spec:
+        :param exploration_spec:
+        :param memory_buffer:
+        :param batch_size:
+        :param discount_factor:
+        :param double_dqn: https://arxiv.org/abs/1509.06461
+        :param use_per:  https://arxiv.org/abs/1511.05952
+        :param loss_function:  default is huber loss
+        :param optimiser_spec:
+        :param scheduler_spec:
+        :param sync_target_model_frequency:
+        :param initial_observation_period:
+        :param learning_frequency:
+        :param copy_percentage:
+        :param kwargs:"""
         super().__init__(**kwargs)
 
         self._exploration_spec = exploration_spec
@@ -127,16 +124,15 @@ https://www.cs.toronto.edu/~vmnih/docs/dqn.pdf
     ):
         """
 
-@param observation_space:
-@param action_space:
-@param signal_space:
-@param writer:
-@param print_model_repr:
-@return:
-"""
+        :param observation_space:
+        :param action_space:
+        :param signal_space:
+        :param writer:
+        :param print_model_repr:
+        :return:"""
 
         if action_space.is_continuous:
-            raise ActionSpaceNotSupported
+            raise ActionSpaceNotSupported(action_space)
 
         self._value_arch_spec.kwargs["input_shape"] = self._input_shape
         self._value_arch_spec.kwargs["output_shape"] = self._output_shape
@@ -156,8 +152,7 @@ https://www.cs.toronto.edu/~vmnih/docs/dqn.pdf
     def models(self) -> Dict[str, Architecture]:
         """
 
-@return:
-"""
+        :return:"""
         return {"value_model": self.value_model}
 
     @property
@@ -166,9 +161,8 @@ https://www.cs.toronto.edu/~vmnih/docs/dqn.pdf
 
     def _exploration_sample(self, steps_taken, metric_writer=None):
         """
-:param steps_taken:
-:return:
-"""
+        :param steps_taken:
+        :return:"""
 
         if steps_taken == 0:
             return True
@@ -191,15 +185,14 @@ https://www.cs.toronto.edu/~vmnih/docs/dqn.pdf
         self,
         state: Sequence,
         deterministic: bool = False,
-        metric_writer: Writer = MockWriter(),
+        metric_writer: Optional[Writer] = MockWriter(),
     ) -> numpy.ndarray:
         """
 
-@param state:
-@param deterministic:
-@param metric_writer:
-@return:
-"""
+        :param state:
+        :param deterministic:
+        :param metric_writer:
+        :return:"""
         if not deterministic and self._exploration_sample(
             self._sample_i, metric_writer
         ):
@@ -214,13 +207,12 @@ https://www.cs.toronto.edu/~vmnih/docs/dqn.pdf
     def _remember(self, *, signal, terminated, transition):
         """
 
-@param state:
-@param action:
-@param signal:
-@param next_state:
-@param terminated:
-@return:
-"""
+        :param state:
+        :param action:
+        :param signal:
+        :param next_state:
+        :param terminated:
+        :return:"""
         if transition:
             a = [TransitionPoint(*s) for s in zip(*transition, signal, terminated)]
             if self._use_per:
@@ -232,15 +224,14 @@ https://www.cs.toronto.edu/~vmnih/docs/dqn.pdf
                 for a_ in a:
                     self._memory_buffer.add_transition_point(a_)
         else:
-            raise ValueError('Missing transition')
+            raise ValueError("Missing transition")
 
     @drop_unused_kws
     def _sample_model(self, state: Any) -> numpy.ndarray:
         """
 
-@param state:
-@return:
-"""
+        :param state:
+        :return:"""
         with torch.no_grad():
             max_q_action = self.value_model(
                 to_tensor(state, device=self._device, dtype=self._state_type)
@@ -250,9 +241,8 @@ https://www.cs.toronto.edu/~vmnih/docs/dqn.pdf
     def _max_q_successor(self, successor_state: torch.Tensor) -> torch.tensor:
         """
 
-@param successor_state:
-@return:
-"""
+        :param successor_state:
+        :return:"""
         with torch.no_grad():
             Q_successors = self.value_model(successor_state).detach()
 
@@ -295,12 +285,11 @@ https://www.cs.toronto.edu/~vmnih/docs/dqn.pdf
         return Q_expected - Q_state, Q_expected, Q_state
 
     @drop_unused_kws
-    def _update(self, *, metric_writer: Writer = MockWriter()) -> None:
+    def _update(self, *, metric_writer: Optional[Writer] = MockWriter()) -> None:
         """
 
-@param metric_writer:
-@return:
-"""
+        :param metric_writer:
+        :return:"""
 
         loss_ = math.inf
 

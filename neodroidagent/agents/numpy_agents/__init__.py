@@ -8,6 +8,6 @@ __doc__ = r"""
            """
 
 from .evolutionary import *
+from .model_based import *
 from .model_free import *
 from .numpy_agent import *
-from .model_based import *

@@ -1,9 +1,10 @@
-from typing import Any
+from typing import Any, Optional
 
 from draugr.writers import MockWriter, Writer
-from neodroid.utilities import ActionSpace, ObservationSpace, SignalSpace
-from neodroid.utilities.unity_specifications import EnvironmentSnapshot
+
+from neodroid.utilities.specifications.unity_specifications import EnvironmentSnapshot
 from neodroidagent.agents.agent import Agent
+from trolls.spaces import ActionSpace, ObservationSpace, SignalSpace
 
 __all__ = ["RandomAgent"]
 
@@ -12,7 +13,9 @@ class RandomAgent(Agent):
     def eval(self) -> None:
         pass
 
-    def _update(self, *args, metric_writer: Writer = MockWriter(), **kwargs) -> None:
+    def _update(
+        self, *args, metric_writer: Optional[Writer] = MockWriter(), **kwargs
+    ) -> None:
         pass
 
     def _sample(
@@ -20,18 +23,17 @@ class RandomAgent(Agent):
         state: EnvironmentSnapshot,
         *args,
         deterministic: bool = False,
-        metric_writer: Writer = MockWriter(),
+        metric_writer: Optional[Writer] = MockWriter(),
         **kwargs
     ) -> Any:
         """
 
-@param state:
-@param args:
-@param deterministic:
-@param metric_writer:
-@param kwargs:
-@return:
-"""
+        :param state:
+        :param args:
+        :param deterministic:
+        :param metric_writer:
+        :param kwargs:
+        :return:"""
         self._sample_i_since_last_update += 1
         return self.action_space.sample()
 
@@ -50,12 +52,11 @@ class RandomAgent(Agent):
     ) -> None:
         """
 
-@param observation_space:
-@param action_space:
-@param signal_space:
-@param kwargs:
-@return:
-"""
+        :param observation_space:
+        :param action_space:
+        :param signal_space:
+        :param kwargs:
+        :return:"""
         self.action_space = action_space
 
     def models(self):

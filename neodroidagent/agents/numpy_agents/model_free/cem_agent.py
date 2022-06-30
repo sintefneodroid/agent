@@ -10,15 +10,16 @@ __doc__ = r"""
 from typing import Tuple
 
 import numpy
+
 from neodroidagent.agents.numpy_agents.numpy_agent import NumpyAgent
 
 
 class CrossEntropyAgent(NumpyAgent):
-    """
+    """ """
 
-  """
-
-    def __init__(self, env, n_samples_per_episode=500, retain_percentage=0.2):
+    def __init__(
+        self, env, n_samples_per_episode: int = 500, retain_percentage: float = 0.2
+    ):
         """
 A cross-entropy method agent.
 
@@ -104,32 +105,31 @@ the parameter update at the end of the episode. Default is 0.2.
 
     def sample(self, obs):
         """
-Generate actions according to a softmax policy.
+        Generate actions according to a softmax policy.
 
-Notes
------
-The softmax policy assumes that the pmf over actions in state :math:`x_t` is
-given by:
+        Notes
+        -----
+        The softmax policy assumes that the pmf over actions in state :math:`x_t` is
+        given by:
 
-.. math::
+        .. math::
 
-\pi(a | x^{(t)}) = \\text{softmax}(
-\\text{obs}^{(t)} \cdot \mathbf{W}_i^{(t)} + \mathbf{b}_i^{(t)} )
+        \pi(a | x^{(t)}) = \\text{softmax}(
+        \\text{obs}^{(t)} \cdot \mathbf{W}_i^{(t)} + \mathbf{b}_i^{(t)} )
 
-where :math:`\mathbf{W}` is a learned weight matrix, `obs` is the observation
-at timestep `t`, and **b** is a learned bias vector.
+        where :math:`\mathbf{W}` is a learned weight matrix, `obs` is the observation
+        at timestep `t`, and **b** is a learned bias vector.
 
-Parameters
-----------
-obs : int or :py:class:`ndarray <numpy.ndarray>`
-An observation from the environment.
+        Parameters
+        ----------
+        obs : int or :py:class:`ndarray <numpy.ndarray>`
+        An observation from the environment.
 
-Returns
--------
-action : int, float, or :py:class:`ndarray <numpy.ndarray>`
-An action sampled from the distribution over actions defined by the
-softmax policy.
-"""
+        Returns
+        -------
+        action : int, float, or :py:class:`ndarray <numpy.ndarray>`
+        An action sampled from the distribution over actions defined by the
+        softmax policy."""
         E, P = self.env_info, self.parameters
         W, b = P["W"], P["b"]
 
@@ -147,23 +147,22 @@ softmax policy.
 
     def run_episode(self, max_steps, render=False):
         """
-Run the agent on a single episode.
+        Run the agent on a single episode.
 
-Parameters
-----------
-max_steps : int
-The maximum number of steps to run an episode
-render : bool
-Whether to render the episode during training
+        Parameters
+        ----------
+        max_steps : int
+        The maximum number of steps to run an episode
+        render : bool
+        Whether to render the episode during training
 
-Returns
--------
-reward : float
-The total reward on the episode, averaged over the theta samples.
-steps : float
-The total number of steps taken on the episode, averaged over the
-theta samples.
-"""
+        Returns
+        -------
+        reward : float
+        The total reward on the episode, averaged over the theta samples.
+        steps : float
+        The total number of steps taken on the episode, averaged over the
+        theta samples."""
         self._sample_thetas()
 
         E, D = self.env_info, self.derived_variables
@@ -187,26 +186,25 @@ theta samples.
 
     def _episode(self, W, b, max_steps, render):
         """
-Run the agent for an episode.
+        Run the agent for an episode.
 
-Parameters
-----------
-W : :py:class:`ndarray <numpy.ndarray>` of shape `(obs_dim, n_actions)`
-The weights for the softmax policy.
-b : :py:class:`ndarray <numpy.ndarray>` of shape `(bias_len, )`
-The bias for the softmax policy.
-max_steps : int
-The maximum number of steps to run the episode.
-render : bool
-Whether to render the episode during training.
+        Parameters
+        ----------
+        W : :py:class:`ndarray <numpy.ndarray>` of shape `(obs_dim, n_actions)`
+        The weights for the softmax policy.
+        b : :py:class:`ndarray <numpy.ndarray>` of shape `(bias_len, )`
+        The bias for the softmax policy.
+        max_steps : int
+        The maximum number of steps to run the episode.
+        render : bool
+        Whether to render the episode during training.
 
-Returns
--------
-reward : float
-The total reward on the episode.
-steps : float
-The total number of steps taken on the episode.
-"""
+        Returns
+        -------
+        reward : float
+        The total reward on the episode.
+        steps : float
+        The total number of steps taken on the episode."""
         rwds, sa = [], []
         H = self.episode_history
         total_reward, n_steps = 0.0, 1
@@ -237,15 +235,14 @@ The total number of steps taken on the episode.
 
     def update(self):
         """
-Update :math:`\mu` and :math:`\Sigma` according to the rewards accrued on
-the current episode.
+        Update :math:`\mu` and :math:`\Sigma` according to the rewards accrued on
+        the current episode.
 
-Returns
--------
-avg_reward : float
-The average reward earned by the best `retain_prcnt` theta samples
-on the current episode.
-"""
+        Returns
+        -------
+        avg_reward : float
+        The average reward earned by the best `retain_prcnt` theta samples
+        on the current episode."""
         D, P = self.derived_variables, self.parameters
         n_retain = int(self.retain_prcnt * self.n_samples_per_episode)
 
@@ -259,9 +256,8 @@ on the current episode.
 
     def _sample_thetas(self) -> None:
         """
-Sample `n_samples_per_episode` thetas from a multivariate Gaussian with
-mean `theta_mean` and covariance `diag(theta_var)`
-"""
+        Sample `n_samples_per_episode` thetas from a multivariate Gaussian with
+        mean `theta_mean` and covariance `diag(theta_var)`"""
         P, N = self.parameters, self.n_samples_per_episode
         Mu, Sigma = P["theta_mean"], numpy.diag(P["theta_var"])
         samples = numpy.random.multivariate_normal(Mu, Sigma, N)
@@ -269,22 +265,21 @@ mean `theta_mean` and covariance `diag(theta_var)`
 
     def greedy_policy(self, max_steps, render=True) -> Tuple:
         """
-Execute a greedy policy using the current agent parameters.
+        Execute a greedy policy using the current agent parameters.
 
-Parameters
-----------
-max_steps : int
-The maximum number of steps to run the episode.
-render : bool
-Whether to render the episode during execution.
+        Parameters
+        ----------
+        max_steps : int
+        The maximum number of steps to run the episode.
+        render : bool
+        Whether to render the episode during execution.
 
-Returns
--------
-total_reward : float
-The total reward on the episode.
-n_steps : float
-The total number of steps taken on the episode.
-"""
+        Returns
+        -------
+        total_reward : float
+        The total reward on the episode.
+        n_steps : float
+        The total number of steps taken on the episode."""
         E, D, P = self.env_info, self.derived_variables, self.parameters
         Mu, Sigma = P["theta_mean"], numpy.diag(P["theta_var"])
         sample = numpy.random.multivariate_normal(Mu, Sigma, 1)

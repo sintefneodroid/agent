@@ -3,6 +3,9 @@
 Getting Started
 ================
 
+pip install |PROJECT_NAME| -U
+
+
 .. seealso::
 
     It might be helpful to take a look at :doc:`concepts`.

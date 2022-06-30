@@ -2,16 +2,30 @@
 # -*- coding: utf-8 -*-
 import abc
 from pathlib import Path
-from typing import List, Union
+from typing import Iterable, List, Union
 
-from neodroid import Environment
-from neodroidagent.agents import Agent
+from draugr import min_interval_wrapper_global
+from sorcery import assigned_names
 from warg import drop_unused_kws
+
+from neodroid.environments import Environment
+from neodroidagent.agents import Agent
 
 __author__ = "Christian Heider Nielsen"
 __doc__ = r"""
 """
 __all__ = ["Procedure"]
+
+
+class DrawingModeEnum:
+    (
+        none,
+        actions,  # actions single environment actions
+        actions_all,  # actions all environment interactions
+        states,  # actions single environment states,
+        states_all,  # actions all environment states
+        all,  # TODO: not supported yet
+    ) = assigned_names()
 
 
 class Procedure(abc.ABC):
@@ -25,70 +39,83 @@ class Procedure(abc.ABC):
         environment: Environment,
         on_improvement_callbacks=None,
         save_best_throughout_training: bool = True,
-        train_agent: bool = True
+        train_agent: bool = True,
+        min_save_interval: int = 0
     ):
         """
 
-@param agent:
-@param environment:
-@param on_improvement_callbacks:
-@param save_best_throughout_training:
-"""
-        if on_improvement_callbacks is None:
+        :param agent:
+        :param environment:
+        :param on_improvement_callbacks:
+        :param save_best_throughout_training:"""
+        if not isinstance(on_improvement_callbacks, List) and isinstance(
+            on_improvement_callbacks, Iterable
+        ):
+            on_improvement_callbacks = [*on_improvement_callbacks]
+        elif on_improvement_callbacks is None:
             on_improvement_callbacks = []
 
         self.agent = agent
         self.environment = environment
         if save_best_throughout_training and train_agent:
-            on_improvement_callbacks.append(self.agent.save)
-            print('Saving best model throughout training')
+            func = self.agent.save
+            if min_save_interval:
+                min_interval_wrapper_global(func, min_interval=min_save_interval)
+            on_improvement_callbacks.append(func)
         self.on_improvement_callbacks = on_improvement_callbacks
 
     @staticmethod
     def stop_procedure() -> None:
         """
 
-@return:
-"""
+        :return:"""
+        print("STOPPING PROCEDURE!")
         Procedure.early_stop = True
 
-    def call_on_improvement_callbacks(self, *, verbose: bool = True, **kwargs):
+    def model_improved(self, *, step_i, verbose: bool = True, **kwargs):
         """
 
-@param verbose:
-@param kwargs:
-@return:
-"""
+        :param step_i:
+        :type step_i:
+        :param verbose:
+        :param kwargs:
+        :return:"""
         if verbose:
             print("Model improved")
 
-        if self.on_improvement_callbacks:
-            [cb(verbose=verbose, **kwargs) for cb in self.on_improvement_callbacks]
+        [
+            cb(step_i=step_i, verbose=verbose, **kwargs)
+            for cb in self.on_improvement_callbacks
+        ]
 
-    @abc.abstractmethod
-    def __call__(
-        self,
-        *,
-        iterations: int = 9999,
-        log_directory: Union[str, Path],
-        render_frequency: int = 100,
-        stat_frequency: int = 10,
-        disable_stdout: bool = False,
-        train_agent: bool = True,
-        **kwargs
-    ):
-        """
-Collects environment snapshots and forwards it to the agent and vice versa.
 
-:param agent:
-:param environment:
-:param num_steps_per_btach:
-:param num_updates:
-:param iterations:
-:param log_directory:
-:param render_frequency:
-:param stat_frequency:
-:param kwargs:
-:return:
-"""
-        raise NotImplementedError
+@abc.abstractmethod
+def __call__(
+    self,
+    *,
+    iterations: int = 9999,
+    log_directory: Union[str, Path],
+    render_frequency: int = 100,
+    stat_frequency: int = 10,
+    disable_stdout: bool = False,
+    train_agent: bool = True,
+    **kwargs
+):
+    """
+    Collects environment snapshots and forwards it to the agent and vice versa.
+
+    :param agent:
+    :param environment:
+    :param num_steps_per_btach:
+    :param num_updates:
+    :param iterations:
+    :param log_directory:
+    :param render_frequency:
+    :param stat_frequency:
+    :param kwargs:
+    :return:"""
+    raise NotImplementedError
+
+
+def close(self):
+    self.environment.close()

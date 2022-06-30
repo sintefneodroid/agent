@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 import abc
+from enum import Enum
 from typing import Type, TypeVar, Union
 
 from neodroid.environments import Environment
@@ -16,15 +17,22 @@ __all__ = ["EnvironmentSession"]
 ProcedureType = TypeVar("ProcedureType", bound=Procedure)
 
 
+class EnvironmentType(Enum):
+    gym = "gym"
+    zmq_pipe = "zmq_pipe"
+    unity = "unity"
+    blender = "blender"
+
+
 class EnvironmentSession(abc.ABC):
     def __init__(
         self,
         *,
-        environments: Environment,
+        environment: Union[Environment, EnvironmentType],
         procedure: Union[Type[ProcedureType], Procedure] = OnPolicyEpisodic,
         **kwargs,
     ):
-        self._environment = environments
+        self._environment = environment
         self._procedure = procedure
 
     @abc.abstractmethod

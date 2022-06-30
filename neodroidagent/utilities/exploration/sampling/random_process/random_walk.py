@@ -13,7 +13,10 @@ class RandomWalk(RandomProcess):
     def reset(self):
         pass
 
-    def __init__(self, options=[-1, +1]):
+    def __init__(self, options=None, **kwargs):
+        super().__init__(**kwargs)
+        if options is None:
+            options = [-1, +1]
         self.options = options
 
     def sample(self, size=1):

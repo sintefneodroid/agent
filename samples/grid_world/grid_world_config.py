@@ -1,23 +1,25 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+import torch
+from draugr.torch_utilities import MLP
+from warg import GDKC
+
 from neodroidagent.agents.torch_agents.model_free import PolicyGradientAgent
-from neodroidagent.memory import ReplayBuffer
 
 __author__ = "Christian Heider Nielsen"
 
-from neodroidagent.common import MLP
 from neodroidagent.utilities import ExplorationSpecification
 
 """
 Description: Config for training
 Author: Christian Heider Nielsen
 """
-from neodroidagent.configs.base_config import *
 
 CONFIG_NAME = __name__
-import pathlib
+from pathlib import Path
+from neodroidagent.utilities import ReplayBuffer
 
-CONFIG_FILE_PATH = pathlib.Path(__file__)
+CONFIG_FILE_PATH = Path(__file__)
 
 ROLLOUTS = 1000
 INITIAL_OBSERVATION_PERIOD = 0

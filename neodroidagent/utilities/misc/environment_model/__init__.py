@@ -7,6 +7,6 @@ __doc__ = r"""
            Created on 27/02/2020
            """
 
-from .environment_utilities import *
 from .environment_model import *
+from .environment_utilities import *
 from .tiles import *

@@ -1,0 +1,172 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>neodroidagent.utilities.signal.numpy_discounting &#8212; neodroidagent 0.4.8 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/alabaster.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css" />
+    <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
+    <script src="../../../../_static/jquery.js"></script>
+    <script src="../../../../_static/underscore.js"></script>
+    <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../../../../_static/doctools.js"></script>
+    <link rel="canonical" href="sintefneodroid.github.io/neodroidagent/_modules/neodroidagent/utilities/signal/numpy_discounting.html" />
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for neodroidagent.utilities.signal.numpy_discounting</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python3</span>
+<span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">Union</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span>
+
+<span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Christian Heider Nielsen&quot;</span>
+<span class="vm">__doc__</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;&quot;&quot;</span>
+
+<span class="s2">           Created on 09/10/2019</span>
+<span class="s2">           &quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">scipy.signal</span> <span class="kn">import</span> <span class="n">lfilter</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;discount_signal&quot;</span><span class="p">,</span> <span class="s2">&quot;discount_signal_numpy&quot;</span><span class="p">]</span>
+
+
+<span class="c1"># @jit(nopython=True, nogil=True)</span>
+<div class="viewcode-block" id="discount_signal"><a class="viewcode-back" href="../../../../generated/neodroidagent.utilities.signal.numpy_discounting.discount_signal.html#neodroidagent.utilities.signal.numpy_discounting.discount_signal">[docs]</a><span class="k">def</span> <span class="nf">discount_signal</span><span class="p">(</span><span class="n">signal</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span> <span class="n">discounting_factor</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">    :param signal:</span>
+<span class="sd">    :param discounting_factor:</span>
+<span class="sd">    :return:&quot;&quot;&quot;</span>
+    <span class="n">signals</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">r_</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">signal</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">signal</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
+        <span class="n">r_</span> <span class="o">=</span> <span class="n">r</span> <span class="o">+</span> <span class="n">discounting_factor</span> <span class="o">*</span> <span class="n">r_</span>
+        <span class="n">signals</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">r_</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">signals</span></div>
+
+
+<span class="c1"># @jit(nopython=True, nogil=True)</span>
+<div class="viewcode-block" id="discount_signal_numpy"><a class="viewcode-back" href="../../../../generated/neodroidagent.utilities.signal.numpy_discounting.discount_signal_numpy.html#neodroidagent.utilities.signal.numpy_discounting.discount_signal_numpy">[docs]</a><span class="k">def</span> <span class="nf">discount_signal_numpy</span><span class="p">(</span>
+    <span class="n">signal</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">],</span> <span class="n">discounting_factor</span><span class="p">:</span> <span class="nb">float</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    signal = [s_1, s_2, s_3 ..., s_N]</span>
+<span class="sd">    returns [s_1 + s_2*discounting_factor + s_3*discounting_factor^2 + ...,</span>
+<span class="sd">         s_2 + s_3*discounting_factor + s_4*discounting_factor^2 + ...,</span>
+<span class="sd">           s_3 + s_4*discounting_factor + s_5*discounting_factor^2 + ...,</span>
+<span class="sd">              ..., ..., s_N]</span>
+
+
+<span class="sd">    # See https://docs.scipy.org/doc/scipy/reference/tutorial/signal.html#difference-equation-filtering</span>
+<span class="sd">    # Here, we have y[t] - discount*y[t+1] = x[t]</span>
+<span class="sd">    # or rev(y)[t] - discount*rev(y)[t-1] = rev(x)[t]</span>
+
+<span class="sd">    C[i] = R[i] + discount * C[i+1]</span>
+<span class="sd">    signal.lfilter(b, a, x, axis=-1, zi=None)</span>
+<span class="sd">    a[0]*y[n] = b[0]*x[n] + b[1]*x[n-1] + ... + b[M]*x[n-M]</span>
+<span class="sd">                - a[1]*y[n-1] - ... - a[N]*y[n-N]&quot;&quot;&quot;</span>
+
+    <span class="c1"># return numpy.sum(signal * (discounting_factor ** numpy.arange(len(signal))))</span>
+
+    <span class="n">a</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="n">lfilter</span><span class="p">(</span>
+        <span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="n">discounting_factor</span><span class="p">],</span> <span class="n">numpy</span><span class="o">.</span><span class="n">flip</span><span class="p">(</span><span class="n">signal</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">),</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span>
+    <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">numpy</span><span class="o">.</span><span class="n">flip</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span></div>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../../index.html">neodroidagent</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Notes</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../getting_started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../concepts.html">Core Concepts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../cli.html">CLI Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../experiments.html">Experiments</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../generated/neodroidagent.html">neodroidagent</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../../index.html">Module code</a><ul>
+  <li><a href="../../../neodroidagent.html">neodroidagent</a><ul>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 5.0.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

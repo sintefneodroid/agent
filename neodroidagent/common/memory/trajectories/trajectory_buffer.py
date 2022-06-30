@@ -3,12 +3,13 @@
 from dataclasses import dataclass
 from typing import Any, Sequence
 
+from draugr.python_utilities import wrap_args
+from warg import OrdinalIndexingDictMixin, IterDictValuesMixin
+
 from neodroidagent.common.memory.data_structures.expandable_circular_buffer import (
     ExpandableCircularBuffer,
 )
 from neodroidagent.utilities import NoData
-from warg import OrdinalIndexingDictMixin, IterDictValuesMixin
-from warg.arguments import wrap_args
 
 __author__ = "Christian Heider Nielsen"
 
@@ -18,8 +19,7 @@ __all__ = ["SampleTrajectoryBuffer", "SampleTrajectoryPoint", "SamplePoint"]
 @dataclass
 class SamplePoint(IterDictValuesMixin, OrdinalIndexingDictMixin):
     """
-__slots__=["action", "distribution"]
-"""
+    __slots__=["action", "distribution"]"""
 
     action: Any
     distribution: Any
@@ -28,23 +28,20 @@ __slots__=["action", "distribution"]
     def get_fields() -> Sequence:
         """
 
-@return:
-"""
+        :return:"""
         return SamplePoint.__slots__
 
     def __len__(self):
         """
 
-@return:
-"""
+        :return:"""
         return len(self.action)
 
 
 @dataclass
 class SampleTrajectoryPoint(IterDictValuesMixin, OrdinalIndexingDictMixin):
     """
-__slots__=["signal", "terminated", "action", "distribution"]
-"""
+    __slots__=["signal", "terminated", "action", "distribution"]"""
 
     signal: Any
     terminated: Any
@@ -54,15 +51,13 @@ __slots__=["signal", "terminated", "action", "distribution"]
     def __len__(self):
         """
 
-@return:
-"""
+        :return:"""
         return len(self.signal)
 
 
 class SampleTrajectoryBuffer(ExpandableCircularBuffer):
     """
-Expandable buffer for storing rollout trajectories
-"""
+    Expandable buffer for storing rollout trajectories"""
 
     def __init__(self):
         super().__init__()
@@ -71,16 +66,14 @@ Expandable buffer for storing rollout trajectories
     def add_trajectory_point(self, point: SampleTrajectoryPoint):
         """
 
-@param point:
-@return:
-"""
+        :param point:
+        :return:"""
         self._add(point)
 
     def retrieve_trajectory(self) -> SampleTrajectoryPoint:
         """
 
-@return:
-"""
+        :return:"""
         if len(self):
             return SampleTrajectoryPoint(*zip(*self._sample()))
         raise NoData

@@ -1,12 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-import pytest
 
 __author__ = "Christian Heider Nielsen"
 __doc__ = "Tests of agents"
 
 
-@pytest.mark.slow
 def test_pg_agent_optimisation():
     pass
     # env = NeodroidGymWrapper(None)
@@ -14,7 +12,6 @@ def test_pg_agent_optimisation():
     # agent_test(agent,env)
 
 
-@pytest.mark.slow
 def test_dqn_agent_optimisation():
     pass
     # env = NeodroidGymWrapper(None)
@@ -22,7 +19,6 @@ def test_dqn_agent_optimisation():
     # agent_test(agent,env)
 
 
-@pytest.mark.slow
 def test_ppo_agent_optimisation():
     pass
     # env = NeodroidGymWrapper(None)
@@ -30,7 +26,6 @@ def test_ppo_agent_optimisation():
     # agent_test(agent,env)
 
 
-@pytest.mark.slow
 def test_ddpg_agent_optimisation():
     pass
     # env = NeodroidGymWrapper(None)

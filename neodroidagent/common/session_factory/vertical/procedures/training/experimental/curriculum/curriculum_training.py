@@ -2,8 +2,11 @@
 # -*- coding: utf-8 -*-
 import time
 from pathlib import Path
+from typing import Union
 
 import torch
+from draugr.torch_utilities import TensorBoardPytorchWriter
+from draugr.visualisation import sprint
 from neodroidagent.utilities.specifications import TR
 from samples.rl import (
     display_actor_configurations,
@@ -12,15 +15,13 @@ from samples.rl import (
     get_initial_configuration_from_goal,
 )
 from tqdm import tqdm
+from warg.arguments import get_upper_case_vars_or_protected_of
 
 import neodroidagent.configs.curriculum.curriculum_config as C
-from draugr.visualisation import sprint
-from draugr.torch_utilities import TensorBoardPytorchWriter
 from neodroid.wrappers import NeodroidCurriculumWrapper
 from neodroidagent.agents.torch_agents.model_free import PolicyGradientAgent
 from neodroidagent.agents.torch_agents.torch_agent import TorchAgent
 from neodroidagent.utilities.exploration import sample
-from warg.arguments import get_upper_case_vars_or_protected_of
 
 __author__ = "Christian Heider Nielsen"
 

@@ -18,9 +18,7 @@ from neodroidagent.common.memory.transitions.transitions import TransitionPoint
 
 
 class TransitionPointPrioritisedBuffer(PrioritisedBuffer):
-    """
-
-"""
+    """ """
 
     def add_transition_point(self, sample: Any, error: float = 0.0) -> None:
         super().add(sample, error)
@@ -32,7 +30,7 @@ class TransitionPointPrioritisedBuffer(PrioritisedBuffer):
 if __name__ == "__main__":
 
     def stest_experience_buffer():
-        capacity = 2 ** 8
+        capacity = 2**8
         batch_size = 4
 
         rb = TransitionPointPrioritisedBuffer(capacity)

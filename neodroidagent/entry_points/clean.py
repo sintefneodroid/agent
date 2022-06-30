@@ -11,59 +11,52 @@ __all__ = ["clean_all", "clean_cache", "clean_config", "clean_data", "clean_log"
 
 
 def clean_data() -> None:
-  """
-
-  """
-  print(f"Wiping {PROJECT_APP_PATH.user_data}")
-  if PROJECT_APP_PATH.user_data.exists():
-    data_dir = str(PROJECT_APP_PATH.user_data)
-    rmtree(data_dir)
-  else:
-    PROJECT_APP_PATH.user_data.mkdir()
+    """ """
+    print(f"Wiping {PROJECT_APP_PATH.user_data}")
+    if PROJECT_APP_PATH.user_data.exists():
+        data_dir = str(PROJECT_APP_PATH.user_data)
+        rmtree(data_dir)
+    else:
+        PROJECT_APP_PATH.user_data.mkdir()
 
 
 def clean_log() -> None:
-  """
-
-  """
-  print(f"Wiping {PROJECT_APP_PATH.user_log}")
-  if PROJECT_APP_PATH.user_log.exists():
-    log_dir = str(PROJECT_APP_PATH.user_log)
-    rmtree(log_dir)
-  else:
-    PROJECT_APP_PATH.user_log.mkdir()
+    """ """
+    print(f"Wiping {PROJECT_APP_PATH.user_log}")
+    if PROJECT_APP_PATH.user_log.exists():
+        log_dir = str(PROJECT_APP_PATH.user_log)
+        rmtree(log_dir)
+    else:
+        PROJECT_APP_PATH.user_log.mkdir()
 
 
 def clean_cache() -> None:
-  """
-
-  """
-  print(f"Wiping {PROJECT_APP_PATH.user_cache}")
-  if PROJECT_APP_PATH.user_cache.exists():
-    cache_dir = str(PROJECT_APP_PATH.user_cache)
-    rmtree(cache_dir)
-  else:
-    PROJECT_APP_PATH.user_cache.mkdir()
+    """ """
+    print(f"Wiping {PROJECT_APP_PATH.user_cache}")
+    if PROJECT_APP_PATH.user_cache.exists():
+        cache_dir = str(PROJECT_APP_PATH.user_cache)
+        rmtree(cache_dir)
+    else:
+        PROJECT_APP_PATH.user_cache.mkdir()
 
 
 def clean_config() -> None:
-  """
-
-  """
-  print(f"Wiping {PROJECT_APP_PATH.user_config}")
-  if PROJECT_APP_PATH.user_config.exists():
-    config_dir = str(PROJECT_APP_PATH.user_config)
-    rmtree(config_dir)
-  else:
-    PROJECT_APP_PATH.user_config.mkdir()
+    """ """
+    print(f"Wiping {PROJECT_APP_PATH.user_config}")
+    if PROJECT_APP_PATH.user_config.exists():
+        config_dir = str(PROJECT_APP_PATH.user_config)
+        rmtree(config_dir)
+    else:
+        PROJECT_APP_PATH.user_config.mkdir()
 
 
 def clean_all() -> None:
-  clean_config()
-  clean_data()
-  clean_cache()
-  clean_log()
+    """ """
+    clean_config()
+    clean_data()
+    clean_cache()
+    clean_log()
 
 
 if __name__ == "__main__":
-  clean_all()
+    clean_all()

@@ -2,7 +2,9 @@
 # -*- coding: utf-8 -*-
 import argparse
 
-from neodroid.environments.droid_environment import SingleUnityEnvironment
+from neodroid.environments.droid_environment.unity.deprecated import (
+    SingleUnityEnvironment,
+)
 from neodroid.utilities import Displayable
 from neodroidagent.agents.numpy_agents.numpy_agent import NumpyAgent
 from neodroidagent.utilities.exploration.sampling.ucb1 import UCB1
@@ -23,7 +25,7 @@ def construct_displayables(normed, tries, totals):
     return [d1, d2, d3, d12, d22, d32, d13, d23, d33]
 
 
-def main(connect_to_running=True):
+def main(connect_to_running: bool = True):
     parser = argparse.ArgumentParser(prog="mab")
     parser.add_argument(
         "-C", action="store_true", help="connect to running", default=connect_to_running

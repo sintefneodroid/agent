@@ -9,18 +9,16 @@ __doc__ = r"""
 
 __all__ = ["BraindeadIntrinsicSignalProvider"]
 
-from abc import abstractmethod
 from typing import Sequence
 
 from draugr.writers import Writer
+
 from neodroid.utilities import (
-    ActionSpace,
     EnvironmentSnapshot,
-    ObservationSpace,
-    SignalSpace,
 )
-from neodroidagent.utilities import IntrinsicSignalProvider
-from warg import drop_unused_kws
+from neodroidagent.utilities.exploration.intrinsic_signals.intrinsic_signal_provider import (
+    IntrinsicSignalProvider,
+)
 
 
 class BraindeadIntrinsicSignalProvider(IntrinsicSignalProvider):
@@ -33,13 +31,13 @@ class BraindeadIntrinsicSignalProvider(IntrinsicSignalProvider):
     ) -> Sequence:
         """
 
-    @param environment_snapshot:
-    @type environment_snapshot:
-    @param writer:
-    @type writer:
-    @param kwargs:
-    @type kwargs:
-    @return:
-    @rtype:
-    """
+        :param environment_snapshot:
+        :type environment_snapshot:
+        :param writer:
+        :type writer:
+        :param kwargs:
+        :type kwargs:
+        :return:
+        :rtype:
+        """
         return self._signal_space.n * [0]

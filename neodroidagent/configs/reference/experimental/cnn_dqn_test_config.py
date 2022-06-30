@@ -2,6 +2,8 @@
 # -*- coding: utf-8 -*-
 from neodroidagent.architectures import CNN
 from neodroidagent.configs.agent_test_configs.base_dicrete_test_config import *
+from warg import GDKC
+
 from neodroidagent.utilities import ReplayBuffer
 
 __author__ = "Christian Heider Nielsen"
@@ -11,9 +13,9 @@ Author: Christian Heider Nielsen
 """
 
 CONFIG_NAME = __name__
-import pathlib
+from pathlib import Path
 
-CONFIG_FILE_PATH = pathlib.Path(__file__)
+CONFIG_FILE_PATH = Path(__file__)
 
 # Exploration
 EXPLORATION_EPSILON_START = 1.0
