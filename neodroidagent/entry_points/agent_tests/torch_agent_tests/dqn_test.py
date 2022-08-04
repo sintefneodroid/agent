@@ -5,15 +5,12 @@ from typing import Union
 import torch
 from warg import GDKC
 
-from neodroid.environments.environment import Environment
+from neodroid.environments.environment import Environment, EnvironmentType
 from neodroidagent.agents import DeepQNetworkAgent
 from neodroidagent.common import (
     OffPolicyEpisodic,
     ParallelSession,
     TransitionPointPrioritisedBuffer,
-)
-from neodroidagent.common.session_factory.vertical.environment_session import (
-    EnvironmentType,
 )
 from neodroidagent.configs.test_reference.base_dicrete_test_config import *
 from neodroidagent.entry_points.session_factory import session_factory
@@ -50,7 +47,7 @@ dqn_config = globals()
 
 
 def dqn_run(
-    skip_confirmation: bool = True,
+    skip_confirmation: bool = False,
     environment: Union[EnvironmentType, Environment] = EnvironmentType.zmq_pipe,
     config=None,
     **kwargs

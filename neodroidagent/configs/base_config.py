@@ -1,5 +1,12 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+__author__ = "Christian Heider Nielsen"
+"""
+Description: Config for training
+Author: Christian Heider Nielsen
+"""
+
+
 import time
 from os import cpu_count
 from pathlib import Path
@@ -7,14 +14,9 @@ from pathlib import Path
 from draugr.torch_utilities import global_torch_device
 
 from neodroidagent import PROJECT_NAME
-from neodroidagent.agents.agent import TogglableLowHigh
+from neodroidagent.agents.agent import TogglableLowHigh, TogglableValue
 from trolls.render_mode import RenderModeEnum
 
-__author__ = "Christian Heider Nielsen"
-"""
-Description: Config for training
-Author: Christian Heider Nielsen
-"""
 
 PROJECT_NAME = PROJECT_NAME
 CONFIG_NAME = __name__
@@ -31,7 +33,6 @@ CONNECT_TO_RUNNING = False
 RENDER_ENVIRONMENT = False
 RENDER_FREQUENCY = 0
 RENDER_MODE = RenderModeEnum.rgb_array
-# CONTINUE_TRAINING = False
 NUM_ENVS = cpu_count()
 
 # Training parameters
@@ -41,7 +42,7 @@ LOAD_PREVIOUS_MODEL_IF_AVAILABLE = False
 SIGNAL_CLIPPING = TogglableLowHigh(False, -1.0, 1.0)
 ACTION_CLIPPING = TogglableLowHigh(False, -1.0, 1.0)
 GRADIENT_CLIPPING = TogglableLowHigh(False, -1.0, 1.0)
-GRADIENT_NORM_CLIPPING = TogglableLowHigh(False, 0, 1.0)
+GRADIENT_NORM_CLIPPING = TogglableValue(False, 1.0)
 
 DISCOUNT_FACTOR = 0.99  # For sparse signal settings is it very important to keep the long term signals relevant by making them stretch far back in the rollout trace
 

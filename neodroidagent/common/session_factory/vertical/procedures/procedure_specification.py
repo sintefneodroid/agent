@@ -1,5 +1,12 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+
+
+__author__ = "Christian Heider Nielsen"
+__doc__ = r"""
+"""
+__all__ = ["Procedure"]
+
 import abc
 from pathlib import Path
 from typing import Iterable, List, Union
@@ -10,11 +17,6 @@ from warg import drop_unused_kws
 
 from neodroid.environments import Environment
 from neodroidagent.agents import Agent
-
-__author__ = "Christian Heider Nielsen"
-__doc__ = r"""
-"""
-__all__ = ["Procedure"]
 
 
 class DrawingModeEnum:
@@ -40,7 +42,7 @@ class Procedure(abc.ABC):
         on_improvement_callbacks=None,
         save_best_throughout_training: bool = True,
         train_agent: bool = True,
-        min_save_interval: int = 0
+        min_save_interval: int = 0,
     ):
         """
 
@@ -65,14 +67,14 @@ class Procedure(abc.ABC):
         self.on_improvement_callbacks = on_improvement_callbacks
 
     @staticmethod
-    def stop_procedure() -> None:
+    def stop_procedure(reason="None given") -> None:
         """
 
         :return:"""
-        print("STOPPING PROCEDURE!")
+        print(f"STOPPING PROCEDURE! Reason: {reason}")
         Procedure.early_stop = True
 
-    def model_improved(self, *, step_i, verbose: bool = True, **kwargs):
+    def model_improved(self, *, step_i, verbose: bool = False, **kwargs):
         """
 
         :param step_i:
@@ -83,39 +85,35 @@ class Procedure(abc.ABC):
         if verbose:
             print("Model improved")
 
-        [
+        for cb in self.on_improvement_callbacks:
             cb(step_i=step_i, verbose=verbose, **kwargs)
-            for cb in self.on_improvement_callbacks
-        ]
 
+    @abc.abstractmethod
+    def __call__(
+        self,
+        *,
+        iterations: int = 9999,
+        log_directory: Union[str, Path],
+        render_frequency: int = 100,
+        stat_frequency: int = 10,
+        disable_stdout: bool = False,
+        train_agent: bool = True,
+        **kwargs,
+    ):
+        """
+        Collects environment snapshots and forwards it to the agent and vice versa.
 
-@abc.abstractmethod
-def __call__(
-    self,
-    *,
-    iterations: int = 9999,
-    log_directory: Union[str, Path],
-    render_frequency: int = 100,
-    stat_frequency: int = 10,
-    disable_stdout: bool = False,
-    train_agent: bool = True,
-    **kwargs
-):
-    """
-    Collects environment snapshots and forwards it to the agent and vice versa.
+        :param agent:
+        :param environment:
+        :param num_steps_per_btach:
+        :param num_updates:
+        :param iterations:
+        :param log_directory:
+        :param render_frequency:
+        :param stat_frequency:
+        :param kwargs:
+        :return:"""
+        raise NotImplementedError
 
-    :param agent:
-    :param environment:
-    :param num_steps_per_btach:
-    :param num_updates:
-    :param iterations:
-    :param log_directory:
-    :param render_frequency:
-    :param stat_frequency:
-    :param kwargs:
-    :return:"""
-    raise NotImplementedError
-
-
-def close(self):
-    self.environment.close()
+    def close(self):
+        self.environment.close()

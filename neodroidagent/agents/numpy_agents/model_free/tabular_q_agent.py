@@ -5,7 +5,7 @@ from typing import Any, Tuple
 
 import gym
 import numpy
-from tqdm import tqdm
+from draugr.tqdm_utilities import progress_bar
 
 from neodroid.environments.gym_environment import NeodroidGymEnvironment
 from neodroidagent.agents.numpy_agents.numpy_agent import NumpyAgent
@@ -256,7 +256,7 @@ if __name__ == "__main__":
 
             penalities = 0
 
-            sess = tqdm(range(10000))
+            sess = progress_bar(range(10000))
             for i in sess:
                 state = env.reset()
 

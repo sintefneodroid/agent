@@ -42,7 +42,7 @@ def run_and_read_all(run_lambda, command):
     """Runs command using run_lambda; reads and returns entire output if rc is 0"""
     rc, out, _ = run_lambda(command)
     if rc is not 0:
-        return None
+        return
     return out
 
 
@@ -50,10 +50,10 @@ def run_and_parse_first_match(run_lambda, command, regex):
     """Runs command using run_lambda, returns the first regex match if it exists"""
     rc, out, _ = run_lambda(command)
     if rc is not 0:
-        return None
+        return
     match = re.search(regex, out)
     if match is None:
-        return None
+        return
     return match.group(1)
 
 
@@ -99,7 +99,7 @@ def get_os(run_lambda):
     if platform == "darwin":
         version = get_mac_version(run_lambda)
         if version is None:
-            return None
+            return
         return f"Mac OSX {version}"
 
     if platform == "linux":

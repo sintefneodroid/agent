@@ -7,7 +7,7 @@ import random
 from types import coroutine
 
 import numpy
-from tqdm import tqdm
+from draugr.tqdm_utilities import progress_bar
 
 from neodroid.utilities import Configuration, Displayable, Reaction, ReactionParameters
 
@@ -140,7 +140,7 @@ def estimate_initial_state_expected_return(
 
     rollout_signals = 0
     rollout_session = range(1, N_c_r + 1)
-    rollout_session = tqdm(rollout_session, leave=False, disable=False)
+    rollout_session = progress_bar(rollout_session, disable=False)
     for j in rollout_session:
         rollout_session.set_description(
             f"Candidate rollout #{j} of {N_c_r} | " f"Est: {rollout_signals / N_c_r}"

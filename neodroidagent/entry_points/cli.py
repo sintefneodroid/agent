@@ -9,6 +9,7 @@ __doc__ = r"""
 
 import draugr
 import fire
+import warg
 from pyfiglet import Figlet
 from warg import NOD
 from warg.arguments import upper_dict
@@ -17,7 +18,7 @@ from neodroidagent import get_version
 from neodroidagent.entry_points.agent_tests import AGENT_CONFIG, AGENT_OPTIONS
 
 margin_percentage = 0 / 6
-terminal_width = draugr.get_terminal_size().columns
+terminal_width = warg.get_terminal_size().columns
 margin = int(margin_percentage * terminal_width)
 width = terminal_width - 2 * margin
 underline = "_" * width
@@ -47,8 +48,8 @@ class RunAgent(object):
 
         self.agent_callable(config=default_config, **explicit_overrides)
 
-    def run(self):
-        self.train(
+    def run(self, **explicit_overrides) -> None:
+        kws = dict(
             train_agent=False,
             render_frequency=1,
             save=False,
@@ -56,6 +57,9 @@ class RunAgent(object):
             num_envs=1,
             save_best_throughout_training=False,
         )
+        kws.update(explicit_overrides)
+
+        self.train(**kws)
 
 
 class NeodroidAgentCLI:

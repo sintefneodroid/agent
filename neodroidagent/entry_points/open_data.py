@@ -1,12 +1,14 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+
+
+__author__ = "Christian Heider Nielsen"
+__doc__ = r"""This script will open data the directory of Neodroid Agent platform"""
+
 import subprocess
 import sys
 
 from neodroidagent import PROJECT_APP_PATH
-
-__author__ = "Christian Heider Nielsen"
-__doc__ = r"""This script will open data the directory of Neodroid Agent platform"""
 
 
 def main() -> None:

@@ -1,16 +1,19 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-import logging
-from typing import Optional
-
-from draugr.metrics.accumulation import mean_accumulator
-from draugr.writers import MockWriter, Writer
-from tqdm import tqdm
-
 __author__ = "Christian Heider Nielsen"
 
 __all__ = ["OffPolicyBatched"]
 __doc__ = "Collects agent experience in a batched fashion for off policy agents"
+
+import logging
+from typing import Optional
+
+from draugr.metrics.accumulation import mean_accumulator
+from draugr.tqdm_utilities import progress_bar
+from draugr.writers import MockWriter, Writer
+
+
+from neodroidagent.utilities.misc.common_metrics import CommonEnvironmentScalarEnum
 
 from neodroidagent.common.session_factory.vertical.procedures.procedure_specification import (
     Procedure,
@@ -24,10 +27,10 @@ class OffPolicyBatched(Procedure):
     def __call__(
         self,
         *,
-        batch_size=1000,
-        iterations=10000,
-        stat_frequency=10,
-        render_frequency=10,
+        batch_size: int = 1000,
+        iterations: int = 10000,
+        stat_frequency: int = 10,
+        render_frequency: int = 10,
         disable_stdout: bool = False,
         train_agent: bool = True,
         metric_writer: Optional[Writer] = MockWriter(),
@@ -60,18 +63,16 @@ class OffPolicyBatched(Procedure):
         best_running_signal = None
         running_mean_action = mean_accumulator()
 
-        for batch_i in tqdm(
+        for batch_i in progress_bar(
             range(1, iterations),
-            leave=False,
             disable=disable_stdout,
-            desc="Batch #",
+            description="Batch #",
             postfix=f"Agent update #{self.agent.update_i}",
         ):
-            for _ in tqdm(
+            for _ in progress_bar(
                 range(batch_size),
-                leave=False,
                 disable=disable_stdout,
-                desc="Step #",
+                description="Step #",
             ):
 
                 sample = self.agent.sample(state)
@@ -107,8 +108,12 @@ class OffPolicyBatched(Procedure):
             rma = next(running_mean_action)
 
             if is_positive_and_mod_zero(stat_frequency, batch_i):
-                metric_writer.scalar("Running signal", sig, batch_i)
-                metric_writer.scalar("running_mean_action", rma, batch_i)
+                metric_writer.scalar(
+                    CommonEnvironmentScalarEnum.running_signal.value, sig, batch_i
+                )
+                metric_writer.scalar(
+                    CommonEnvironmentScalarEnum.running_mean_action.value, rma, batch_i
+                )
 
             if train_agent:
                 loss = self.agent.update(metric_writer=metric_writer)

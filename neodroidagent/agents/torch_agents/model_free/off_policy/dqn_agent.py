@@ -1,15 +1,22 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+
+__author__ = "Christian Heider Nielsen"
+__doc__ = r"""
+"""
+__all__ = ["DeepQNetworkAgent"]
+
 import copy
 import logging
 import math
 import random
-from typing import Any, Dict, Iterable, Optional, Sequence, Tuple
+from typing import Any, Dict, Iterable, Optional, Sequence, Tuple, Union
 
 import numpy
 import torch
 from draugr.torch_utilities import to_scalar, to_tensor, Architecture
 from draugr.writers import MockWriter, Writer
+from neodroidagent.utilities.misc.common_metrics import CommonProcedureScalarEnum
 from torch.nn.functional import smooth_l1_loss
 from torch.optim import Optimizer
 from warg import GDKC, drop_unused_kws, super_init_pass_on_kws, is_zero_or_mod_zero
@@ -27,11 +34,6 @@ from neodroidagent.utilities import (
     update_target,
 )
 from trolls.spaces import ActionSpace, ObservationSpace, SignalSpace
-
-__author__ = "Christian Heider Nielsen"
-__doc__ = r"""
-"""
-__all__ = ["DeepQNetworkAgent"]
 
 
 @super_init_pass_on_kws(super_base=TorchAgent)
@@ -156,8 +158,8 @@ class DeepQNetworkAgent(TorchAgent):
         return {"value_model": self.value_model}
 
     @property
-    def optimisers(self) -> Dict[str, Optimizer]:
-        return {"_optimiser": self._optimiser}
+    def optimisers(self) -> Dict[str, Dict[str, Optimizer]]:
+        return {"value_model": {"_optimiser": self._optimiser}}
 
     def _exploration_sample(self, steps_taken, metric_writer=None):
         """
@@ -204,7 +206,7 @@ class DeepQNetworkAgent(TorchAgent):
         return numpy.random.choice(numpy.arange(self._output_shape[0]), (len(state), 1))
 
     @drop_unused_kws
-    def _remember(self, *, signal, terminated, transition):
+    def _remember(self, *, signal: Any, terminated: Any, transition: Any) -> None:
         """
 
         :param state:
@@ -285,7 +287,9 @@ class DeepQNetworkAgent(TorchAgent):
         return Q_expected - Q_state, Q_expected, Q_state
 
     @drop_unused_kws
-    def _update(self, *, metric_writer: Optional[Writer] = MockWriter()) -> None:
+    def _update(
+        self, *, metric_writer: Optional[Writer] = MockWriter()
+    ) -> Union[int, float]:
         """
 
         :param metric_writer:
@@ -308,13 +312,23 @@ class DeepQNetworkAgent(TorchAgent):
 
                     self._optimiser.zero_grad()
                     loss.backward()
-                    self.post_process_gradients(self.value_model.parameters())
+                    self.post_process_gradients(
+                        self.value_model.parameters(),
+                        metric_writer=metric_writer,
+                        parameter_set_name="value_model_parameters",
+                    )
                     self._optimiser.step()
 
                     loss_ = to_scalar(loss)
                     if metric_writer:
-                        metric_writer.scalar("td_error", td_error.mean(), self.update_i)
-                        metric_writer.scalar("loss", loss_, self.update_i)
+                        metric_writer.scalar(
+                            CommonProcedureScalarEnum.td_error.value,
+                            td_error.mean(),
+                            self.update_i,
+                        )
+                        metric_writer.scalar(
+                            CommonProcedureScalarEnum.loss.value, loss_, self.update_i
+                        )
 
                     if self._scheduler:
                         self._scheduler.step()
@@ -341,6 +355,6 @@ class DeepQNetworkAgent(TorchAgent):
                         copy_percentage=self._copy_percentage,
                     )
                 if metric_writer:
-                    metric_writer.blip("Target Model Synced", self.update_i)
+                    metric_writer.blip("Target Model(s) Synced", self.update_i)
 
         return loss_

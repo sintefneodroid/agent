@@ -102,7 +102,7 @@ class SumTree:
 
         leaf_index = self._retrieve_leaf(sum)
         data_index = leaf_index - self.capacity + 1
-        return (leaf_index, data_index, self._tree[leaf_index], self._data[data_index])
+        return leaf_index, data_index, self._tree[leaf_index], self._data[data_index]
 
     def push(self, data: Any, sum: float) -> None:
         """

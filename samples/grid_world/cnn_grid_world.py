@@ -7,9 +7,7 @@ from neodroid.wrappers import BinaryActionEncodingWrapper
 __author__ = "Christian Heider Nielsen"
 
 import torch
-from tqdm import tqdm
 
-tqdm.monitor_interval = 0
 
 from neodroidagent import utilities as U
 import experiments as C

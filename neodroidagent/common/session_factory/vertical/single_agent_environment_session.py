@@ -1,5 +1,13 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+
+
+__author__ = "Christian Heider Nielsen"
+__doc__ = r"""
+"""
+
+__all__ = ["SingleAgentEnvironmentSession"]
+
 import inspect
 import time
 from os import cpu_count
@@ -13,7 +21,6 @@ from draugr.drawers import DiscreteScrollPlot, SeriesScrollPlot
 from draugr.random_utilities import seed_stack
 from draugr.stopping import (
     CaptureEarlyStop,
-    add_early_stopping_key_combination,
 )
 from draugr.torch_utilities import TensorBoardPytorchWriter
 from draugr.writers import MockWriter
@@ -27,16 +34,14 @@ from neodroidagent.utilities import NoAgent
 from .environment_session import EnvironmentSession
 from .procedures.procedure_specification import Procedure, DrawingModeEnum
 
-__author__ = "Christian Heider Nielsen"
-__doc__ = r"""
-"""
-
-__all__ = ["SingleAgentEnvironmentSession"]
-
 
 class SingleAgentEnvironmentSession(EnvironmentSession):
+    """
+    Description
+    """
+
     @passes_kws_to(
-        add_early_stopping_key_combination,
+        CaptureEarlyStop.__init__,
         Agent.__init__,
         Agent.save,
         Procedure.__init__,
@@ -50,21 +55,45 @@ class SingleAgentEnvironmentSession(EnvironmentSession):
         seed: int = 0,
         save_ending_model: bool = False,
         save_training_resume: bool = False,
-        continue_training: bool = True,
+        load_previous_model_if_available: bool = False,
         train_agent: bool = True,
         debug: bool = False,
         num_envs: int = cpu_count() // 3,
         drawing_mode: DrawingModeEnum = DrawingModeEnum.all,
         insist_metric_logging: bool = False,
         **kwargs,
-    ):
+    ) -> None:
         """
+
         Start a session, builds Agent and starts/connect environment(s), and runs Procedure
 
-
-        :param args:
+        :param agent:
+        :type agent:
+        :param load_time:
+        :type load_time:
+        :param seed:
+        :type seed:
+        :param save_ending_model:
+        :type save_ending_model:
+        :param save_training_resume:
+        :type save_training_resume:
+        :param load_previous_model_if_available:
+        :type load_previous_model_if_available:
+        :param train_agent:
+        :type train_agent:
+        :param debug:
+        :type debug:
+        :param num_envs:
+        :type num_envs:
+        :param drawing_mode:
+        :type drawing_mode:
+        :param insist_metric_logging:
+        :type insist_metric_logging:
         :param kwargs:
-        :return:"""
+        :type kwargs:
+        :return:
+        :rtype:
+        """
         kwargs.update(num_envs=num_envs)
         kwargs.update(train_agent=train_agent)
         kwargs.update(debug=debug)
@@ -125,7 +154,7 @@ class SingleAgentEnvironmentSession(EnvironmentSession):
                         SeriesScrollPlot, window_length=100, default_delta=None
                     )
 
-                if (train_agent) or insist_metric_logging:
+                if train_agent or insist_metric_logging:
                     metric_writer = GDKC(TensorBoardPytorchWriter, path=log_directory)
                 else:
                     metric_writer = GDKC(MockWriter)
@@ -153,7 +182,7 @@ class SingleAgentEnvironmentSession(EnvironmentSession):
                         )
 
                         found = False
-                        if continue_training:
+                        if load_previous_model_if_available:
                             sprint(
                                 "Searching for previously trained models for initialisation for this configuration "
                                 "(Architecture, Action Space, Observation Space, ...)",
@@ -199,7 +228,9 @@ class SingleAgentEnvironmentSession(EnvironmentSession):
                             **kwargs,
                         )
 
-                        with CaptureEarlyStop(self._procedure.stop_procedure, **kwargs):
+                        with CaptureEarlyStop(
+                            self._procedure.stop_procedure, combinations=[], **kwargs
+                        ):
                             with StopWatch() as timer:
                                 with IgnoreInterruptSignal():
                                     training_resume = session_proc(

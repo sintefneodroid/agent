@@ -37,7 +37,7 @@ def read_reqs(file: str, path: Path) -> List[str]:
                 *recursive_flatten_ignore_str(seq[0]),
                 *recursive_flatten_ignore_str(seq[1:]),
             )
-        return (*seq[:1], *recursive_flatten_ignore_str(seq[1:]))
+        return *seq[:1], *recursive_flatten_ignore_str(seq[1:])
 
     def unroll_nested_reqs(req_str: str, base_path: Path):
         """"""

@@ -1,5 +1,12 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+__author__ = "Christian Heider Nielsen"
+__doc__ = r"""
+            Base class for all Neodroid Agents
+          """
+
+__all__ = ["Agent", "TogglableValue", "TogglableLowHigh"]
+
 from abc import ABC, abstractmethod
 from collections import namedtuple
 from typing import Any, Optional, Sequence, Tuple
@@ -16,14 +23,9 @@ from trolls.spaces import (
     SignalSpace,
 )
 
-__author__ = "Christian Heider Nielsen"
-__doc__ = r"""
-            Base class for all Neodroid Agents
-          """
 
-__all__ = ["Agent"]
-
-TogglableLowHigh = namedtuple("ClipFeature", ("enabled", "low", "high"))
+TogglableLowHigh = namedtuple("SpanClipFeature", ("enabled", "low", "high"))
+TogglableValue = namedtuple("ThresholdClipFeature", ("enabled", "value"))
 
 
 class Agent(ABC):

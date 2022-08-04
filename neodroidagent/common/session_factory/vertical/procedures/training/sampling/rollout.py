@@ -1,6 +1,6 @@
 from itertools import count
 
-from tqdm import tqdm
+from draugr.tqdm_utilities import progress_bar
 
 from neodroid.environments.droid_environment import VectorUnityEnvironment
 
@@ -9,7 +9,7 @@ def run(self, environment: VectorUnityEnvironment, render: bool = True) -> None:
     state = environment.reset().observables
 
     F = count(1)
-    F = tqdm(F, leave=False, disable=not render)
+    F = progress_bar(F, disable=not render)
     for frame_i in F:
         F.set_description(f"Frame {frame_i}")
 

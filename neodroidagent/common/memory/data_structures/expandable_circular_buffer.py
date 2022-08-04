@@ -45,7 +45,7 @@ class ExpandableCircularBuffer(Memory):
 
     def _sample(self, num: int = None) -> Iterable:
         """Samples random values from memory"""
-        if self._capacity > 0:
+        if num and self._capacity > 0:
             if is_none_or_zero_or_negative(num):
                 a = self._memory
                 numpy.random.shuffle(a)

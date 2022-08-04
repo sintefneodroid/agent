@@ -1,21 +1,23 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+
+
+__author__ = "Christian Heider Nielsen"
+__doc__ = r"""
+          """
+__all__ = ["ParallelSession"]
+
+
 from os import cpu_count
 from typing import Type, Union
 
 from warg import super_init_pass_on_kws
 
 from neodroid.environments.droid_environment import VectorUnityEnvironment
-from neodroid.environments.environment import Environment
+from neodroid.environments.environment import Environment, EnvironmentType
 from neodroid.environments.gym_environment import NeodroidVectorGymEnvironment
-from .environment_session import EnvironmentType
 from .procedures import OnPolicyEpisodic, Procedure
 from .single_agent_environment_session import SingleAgentEnvironmentSession
-
-__author__ = "Christian Heider Nielsen"
-__doc__ = r"""
-          """
-__all__ = ["ParallelSession"]
 
 
 @super_init_pass_on_kws

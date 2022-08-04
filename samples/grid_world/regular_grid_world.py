@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 import draugr
+from draugr.stopping import add_early_stopping_key_combination
 from warg import get_upper_case_vars_or_protected_of, parse_arguments
 
 from neodroid.wrappers import BinaryActionEncodingWrapper, NeodroidGymWrapper
@@ -8,9 +9,7 @@ from neodroid.wrappers import BinaryActionEncodingWrapper, NeodroidGymWrapper
 __author__ = "Christian Heider Nielsen"
 
 import torch
-from tqdm import tqdm
 
-tqdm.monitor_interval = 0
 
 from neodroidagent import utilities as U
 

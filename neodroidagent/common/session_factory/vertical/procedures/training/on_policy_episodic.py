@@ -1,5 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+
+__author__ = "Christian Heider Nielsen"
+__all__ = ["rollout_on_policy", "OnPolicyEpisodic"]
+__doc__ = "Collects agent experience for episodic on policy training"
+
 import logging
 import math
 import random
@@ -21,13 +26,8 @@ from neodroidagent.agents.agent import Agent
 from neodroidagent.common.session_factory.vertical.procedures.procedure_specification import (
     Procedure,
 )
+from neodroidagent.utilities.misc.common_metrics import CommonEnvironmentScalarEnum
 from trolls.render_mode import RenderModeEnum
-
-__author__ = "Christian Heider Nielsen"
-__all__ = ["rollout_on_policy", "OnPolicyEpisodic"]
-__doc__ = "Collects agent experience for episodic on policy training"
-
-from tqdm import tqdm
 
 
 @drop_unused_kws
@@ -81,9 +81,8 @@ def rollout_on_policy(
         rollout_description += f" #{rollout_ith}"
     for step_i in progress_bar(
         count(1),
-        rollout_description,
+        description=rollout_description,
         unit="th step",
-        leave=False,
         disable=disable_stdout,
         postfix=f"Agent update #{agent.update_i}",
     ):
@@ -133,12 +132,18 @@ def rollout_on_policy(
     episode_return = next(episode_signal)
 
     if metric_writer:
-        metric_writer.scalar("duration", step_i, agent.update_i)
         metric_writer.scalar(
-            "running_mean_action", next(running_mean_action), agent.update_i
+            CommonEnvironmentScalarEnum.duration.value, step_i, agent.update_i
         )
-        metric_writer.scalar("signal", episode_return, agent.update_i)
-        metric_writer.scalar("fps", fps, agent.update_i)
+        metric_writer.scalar(
+            CommonEnvironmentScalarEnum.running_mean_action.value,
+            next(running_mean_action),
+            agent.update_i,
+        )
+        metric_writer.scalar(
+            CommonEnvironmentScalarEnum.signal.value, episode_return, agent.update_i
+        )
+        metric_writer.scalar(CommonEnvironmentScalarEnum.fps.value, fps, agent.update_i)
         if (
             isinstance(metric_writer, VideoWriterMixin)
             and render_mode != RenderModeEnum.none
@@ -200,7 +205,7 @@ class OnPolicyEpisodic(Procedure):
         :rtype: TR"""
 
         E = range(1, iterations)
-        E = tqdm(E, desc="Rollout #", leave=False)
+        E = progress_bar(E, description="Rollout #")
 
         best_episode_return = -math.inf
         render_this_episode = False

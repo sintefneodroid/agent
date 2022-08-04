@@ -150,7 +150,7 @@ class IHT:
         if obj in d:
             return d[obj]
         elif readonly:
-            return None
+            return
         size = self.size
         count = self.count()
         if count >= size:

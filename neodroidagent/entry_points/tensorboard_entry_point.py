@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-from shutil import rmtree
+
 
 __author__ = "Christian Heider Nielsen"
 __doc__ = ""
 
+
+from shutil import rmtree
 from warg import IgnoreInterruptSignal
 
 

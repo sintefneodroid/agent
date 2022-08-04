@@ -1,6 +1,11 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+__author__ = "Christian Heider Nielsen"
+__doc__ = r"""
 
+           Created on 9/5/19
+           """
+__all__ = ["SoftActorCriticAgent"]
 
 import copy
 import itertools
@@ -9,20 +14,21 @@ from typing import Any, Dict, Optional, Tuple
 import numpy
 import torch
 from draugr.torch_utilities import (
+    Architecture,
+    PreConcatInputMLP,
+    ShallowStdNormalMLP,
     freeze_model,
     frozen_parameters,
     to_scalar,
     to_tensor,
-    ShallowStdNormalMLP,
-    PreConcatInputMLP,
-    Architecture,
 )
+from draugr.tqdm_utilities import progress_bar
 from draugr.writers import MockWriter, Writer
+from neodroidagent.utilities.misc.common_metrics import CommonProcedureScalarEnum
 from torch import nn
 from torch.nn.functional import mse_loss
 from torch.optim import Optimizer
-from tqdm import tqdm
-from warg import GDKC, drop_unused_kws, super_init_pass_on_kws, is_zero_or_mod_zero
+from warg import GDKC, drop_unused_kws, is_zero_or_mod_zero, super_init_pass_on_kws
 
 from neodroidagent.agents.torch_agents.torch_agent import TorchAgent
 from neodroidagent.common import (
@@ -38,13 +44,6 @@ from neodroidagent.utilities import (
 from neodroidagent.utilities.misc.sampling import normal_tanh_reparameterised_sample
 from trolls.spaces import ActionSpace, ObservationSpace, SignalSpace
 
-__author__ = "Christian Heider Nielsen"
-__doc__ = r"""
-
-           Created on 9/5/19
-           """
-__all__ = ["SoftActorCriticAgent"]
-
 
 @super_init_pass_on_kws
 class SoftActorCriticAgent(TorchAgent):
@@ -58,22 +57,33 @@ class SoftActorCriticAgent(TorchAgent):
         self,
         *,
         copy_percentage: float = 1e-2,
-        batch_size: int = 100,
-        discount_factor: float = 0.999,
+        batch_size: int = 128,
+        discount_factor: float = 0.99,
         target_update_interval: int = 1,
-        num_inner_updates: int = 20,
+        num_batch_epochs: int = 20,
         sac_alpha: float = 1e-2,
         memory_buffer: Memory = TransitionPointBuffer(1000000),
-        auto_tune_sac_alpha: bool = False,
+        auto_tune_sac_alpha: bool = True,
         auto_tune_sac_alpha_optimiser_spec: GDKC = GDKC(
-            constructor=torch.optim.Adam, lr=3e-4
+            constructor=torch.optim.Adam, lr=1e-3
         ),
-        actor_optimiser_spec: GDKC = GDKC(constructor=torch.optim.Adam, lr=3e-4),
-        critic_optimiser_spec: GDKC = GDKC(constructor=torch.optim.Adam, lr=3e-4),
+        actor_optimiser_spec: GDKC = GDKC(
+            constructor=torch.optim.Adam, lr=1e-3, weight_decay=1e-3
+        ),
+        critic_optimiser_spec: GDKC = GDKC(
+            constructor=torch.optim.Adam, lr=1e-3, weight_decay=1e-3
+        ),
         actor_arch_spec: GDKC = GDKC(
-            ShallowStdNormalMLP, mean_head_activation=torch.tanh
+            ShallowStdNormalMLP,
+            hidden_layer_sizes=(256, 256),
+            hidden_layer_activation=nn.Tanh(),
+            mean_head_activation=nn.Tanh(),
         ),
-        critic_arch_spec: GDKC = GDKC(PreConcatInputMLP),
+        critic_arch_spec: GDKC = GDKC(
+            PreConcatInputMLP,
+            # hidden_layer_sizes=(128, 128),
+            hidden_layer_activation=nn.Tanh(),
+        ),
         critic_criterion: callable = mse_loss,
         **kwargs,
     ):
@@ -105,12 +115,12 @@ class SoftActorCriticAgent(TorchAgent):
         self._actor_arch_spec = actor_arch_spec
         self._critic_arch_spec = critic_arch_spec
 
-        self._num_inner_updates = num_inner_updates
+        self._num_batch_epochs = num_batch_epochs
         self._critic_criterion = critic_criterion
 
         self._auto_tune_sac_alpha = auto_tune_sac_alpha
         self._auto_tune_sac_alpha_optimiser_spec = auto_tune_sac_alpha_optimiser_spec
-        self.inner_update_i = 0
+        self.batch_epoch_i = 0
 
     @drop_unused_kws
     def _remember(
@@ -129,7 +139,6 @@ class SoftActorCriticAgent(TorchAgent):
         :param state:
         :param successor_state:
         :param sample:
-        :param kwargs:
         :return:"""
         a = [
             TransitionPoint(*s)
@@ -147,13 +156,34 @@ class SoftActorCriticAgent(TorchAgent):
             "critic_1": self.critic_1,
             "critic_2": self.critic_2,
             "actor": self.actor,
+            **(
+                {"log_sac_alpha": self.log_sac_alpha}
+                if self._auto_tune_sac_alpha
+                else {}
+            ),
         }
 
     @property
-    def optimisers(self) -> Dict[str, Optimizer]:
+    def optimisers(self) -> Dict[str, Dict[str, Optimizer]]:
         return {
-            "actor_optimiser": self.actor_optimiser,
-            "critic_optimiser": self.critic_optimiser,
+            "actor": {
+                "actor_optimiser": self.actor_optimiser,
+            },
+            "critic_1": {
+                "critic_optimiser": self.critic_optimiser,
+            },
+            "critic_2": {
+                "critic_optimiser": self.critic_optimiser,
+            },
+            **(
+                {
+                    "log_sac_alpha": {
+                        "sac_alpha_optimiser": self.sac_alpha_optimiser,
+                    }
+                }
+                if self._auto_tune_sac_alpha
+                else {}
+            ),
         }
 
     @drop_unused_kws
@@ -162,6 +192,7 @@ class SoftActorCriticAgent(TorchAgent):
         state: Any,
         *args,
         deterministic: bool = False,
+        tanh_action: bool = False,
         metric_writer: Optional[Writer] = MockWriter(),
     ) -> Tuple[torch.Tensor, Any]:
         """
@@ -175,7 +206,12 @@ class SoftActorCriticAgent(TorchAgent):
         distribution = self.actor(to_tensor(state, device=self._device, dtype=float))
 
         with torch.no_grad():
-            return (torch.tanh(distribution.sample().detach()), distribution)
+            action = distribution.sample().detach()
+
+            if tanh_action:
+                action = torch.tanh(action)
+
+            return action, distribution
 
     def extract_action(self, sample: SamplePoint) -> numpy.ndarray:
         """
@@ -232,12 +268,13 @@ class SoftActorCriticAgent(TorchAgent):
             self._target_entropy = -torch.prod(
                 to_tensor(self._output_shape, device=self._device, dtype=float)
             ).item()
-            self._log_sac_alpha = nn.Parameter(
+            print(f"target entropy: {self._target_entropy, self._output_shape}")
+            self.log_sac_alpha = nn.Parameter(
                 torch.log(to_tensor(self._sac_alpha, device=self._device, dtype=float)),
                 requires_grad=True,
             )
             self.sac_alpha_optimiser = self._auto_tune_sac_alpha_optimiser_spec(
-                [self._log_sac_alpha]
+                [self.log_sac_alpha]
             )
 
     def on_load(self) -> None:
@@ -285,14 +322,24 @@ class SoftActorCriticAgent(TorchAgent):
         assert critic_loss.requires_grad
         self.critic_optimiser.zero_grad()
         critic_loss.backward()
-        self.post_process_gradients(self.critic_1.parameters())
-        self.post_process_gradients(self.critic_2.parameters())
+        self.post_process_gradients(
+            self.critic_1.parameters(),
+            metric_writer=metric_writer,
+            parameter_set_name="critic1_model_parameters",
+        )
+        self.post_process_gradients(
+            self.critic_2.parameters(),
+            metric_writer=metric_writer,
+            parameter_set_name="critic2_model_parameters",
+        )
         self.critic_optimiser.step()
 
         out_loss = to_scalar(critic_loss)
 
         if metric_writer:
-            metric_writer.scalar("Critics_loss", out_loss, self.update_i)
+            metric_writer.scalar(
+                CommonProcedureScalarEnum.critic_loss.value, out_loss, self.update_i
+            )
             metric_writer.scalar(
                 "q_value_loss1", to_scalar(q_value_loss1), self.update_i
             )
@@ -333,16 +380,22 @@ class SoftActorCriticAgent(TorchAgent):
         policy_loss = torch.mean(self._sac_alpha * log_prob - torch.min(*q_values))
         self.actor_optimiser.zero_grad()
         policy_loss.backward()
-        self.post_process_gradients(self.actor.parameters())
+        self.post_process_gradients(
+            self.actor.parameters(),
+            metric_writer=metric_writer,
+            parameter_set_name="actor_model_parameters",
+        )
         self.actor_optimiser.step()
 
         out_loss = to_scalar(policy_loss)
 
         if metric_writer:
-            metric_writer.scalar("Policy_loss", out_loss)
+            metric_writer.scalar(CommonProcedureScalarEnum.policy_loss.value, out_loss)
             metric_writer.scalar("q_value_1", to_scalar(q_values[0]))
             metric_writer.scalar("q_value_2", to_scalar(q_values[1]))
-            metric_writer.scalar("policy_stddev", to_scalar(dist.stddev))
+            metric_writer.scalar(
+                CommonProcedureScalarEnum.policy_std.value, to_scalar(dist.stddev)
+            )
             metric_writer.scalar("policy_log_prob", to_scalar(log_prob))
 
         if self._auto_tune_sac_alpha:
@@ -364,15 +417,21 @@ class SoftActorCriticAgent(TorchAgent):
         assert not log_prob.requires_grad
 
         alpha_loss = -torch.mean(
-            self._log_sac_alpha * (log_prob + self._target_entropy)
+            self.log_sac_alpha
+            * (log_prob + self._target_entropy)
+            # .detach() # Unesssary to detach as it has already been detached
         )
 
         self.sac_alpha_optimiser.zero_grad()
         alpha_loss.backward()
-        self.post_process_gradients(self._log_sac_alpha)
+        self.post_process_gradients(
+            self.log_sac_alpha,
+            metric_writer=metric_writer,
+            parameter_set_name="log_sav_alpha_parameter",
+        )
         self.sac_alpha_optimiser.step()
 
-        self._sac_alpha = self._log_sac_alpha.exp()
+        self._sac_alpha = self.log_sac_alpha.exp()
 
         out_loss = alpha_loss.detach().cpu().item()
 
@@ -382,75 +441,81 @@ class SoftActorCriticAgent(TorchAgent):
 
         return out_loss
 
+    def _update(
+        self, *args, metric_writer: Optional[Writer] = MockWriter(), **kwargs
+    ) -> float:
+        """
 
-def _update(
-    self, *args, metric_writer: Optional[Writer] = MockWriter(), **kwargs
-) -> float:
-    """
-
-    :param args:
-    :param metric_writer:
-    :param kwargs:
-    :return:"""
-    accum_loss = 0
-    for ith_inner_update in tqdm(
-        range(self._num_inner_updates),
-        desc="Inner update #",
-        leave=False,
-        postfix=f"Agent update #{self.update_i}",
-    ):
-        self.inner_update_i += 1
-        batch = self._memory_buffer.sample(self._batch_size)
-        tensorised = TransitionPoint(
-            *[to_tensor(a, device=self._device, dtype=float) for a in batch]
-        )
-
-        with frozen_parameters(self.actor.parameters()):
-            accum_loss += self.update_critics(tensorised, metric_writer=metric_writer)
-
-        with frozen_parameters(
-            itertools.chain(self.critic_1.parameters(), self.critic_2.parameters())
+        :param args:
+        :param metric_writer:
+        :param kwargs:
+        :return:"""
+        accum_loss = 0
+        for ith_batch_epoch in progress_bar(
+            range(self._num_batch_epochs),
+            description="Batch update #",
+            postfix=f"Agent update #{self.update_i}",
         ):
-            accum_loss += self.update_actor(tensorised, metric_writer=metric_writer)
+            self.batch_epoch_i += 1
+            batch = self._memory_buffer.sample(self._batch_size)
+            tensorised = TransitionPoint(
+                *[to_tensor(a, device=self._device, dtype=float) for a in batch]
+            )
 
-        if is_zero_or_mod_zero(self._target_update_interval, self.inner_update_i):
+            with frozen_parameters(self.actor.parameters()):
+                accum_loss += self.update_critics(
+                    tensorised, metric_writer=metric_writer
+                )
+
+            with frozen_parameters(
+                itertools.chain(self.critic_1.parameters(), self.critic_2.parameters())
+            ):
+                accum_loss += self.update_actor(tensorised, metric_writer=metric_writer)
+
+        if is_zero_or_mod_zero(self._target_update_interval, self.update_i):
             self.update_targets(self._copy_percentage, metric_writer=metric_writer)
 
-    if metric_writer:
-        metric_writer.scalar("Accum_loss", accum_loss, self.update_i)
-        metric_writer.scalar("num_inner_updates_i", ith_inner_update, self.update_i)
+        if metric_writer:
+            metric_writer.scalar(
+                CommonProcedureScalarEnum.loss.value, accum_loss, self.update_i
+            )
+            metric_writer.scalar(
+                CommonProcedureScalarEnum.num_batch_epochs.value,
+                ith_batch_epoch,
+                self.update_i,
+            )
 
-    return accum_loss
+        return accum_loss
 
+    def update_targets(
+        self, copy_percentage: float = 0.005, *, metric_writer: Optional[Writer] = None
+    ) -> None:
+        """
 
-def update_targets(
-    self, copy_percentage: float = 0.005, *, metric_writer: Optional[Writer] = None
-) -> None:
-    """
+        Interpolation factor in polyak averaging for target networks. Target networks are updated towards main
+        networks according to:
 
-    Interpolation factor in polyak averaging for target networks. Target networks are updated towards main
-    networks according to:
+        \theta_{\text{targ}} \leftarrow
+        \rho \theta_{\text{targ}} + (1-\rho) \theta
 
-    \theta_{\text{targ}} \leftarrow
-    \rho \theta_{\text{targ}} + (1-\rho) \theta
+        where \rho is polyak. (Always between 0 and 1, usually close to 1.)
 
-    where \rho is polyak. (Always between 0 and 1, usually close to 1.)
+        :param metric_writer:
+        :type metric_writer:
+        :param copy_percentage:
+        :return:"""
 
-    :param metric_writer:
-    :type metric_writer:
-    :param copy_percentage:
-    :return:"""
-    if metric_writer:
-        metric_writer.blip("Target Models Synced", self.update_i)
+        update_target(
+            target_model=self.critic_1_target,
+            source_model=self.critic_1,
+            copy_percentage=copy_percentage,
+        )
 
-    update_target(
-        target_model=self.critic_1_target,
-        source_model=self.critic_1,
-        copy_percentage=copy_percentage,
-    )
+        update_target(
+            target_model=self.critic_2_target,
+            source_model=self.critic_2,
+            copy_percentage=copy_percentage,
+        )
 
-    update_target(
-        target_model=self.critic_2_target,
-        source_model=self.critic_2,
-        copy_percentage=copy_percentage,
-    )
+        if metric_writer:
+            metric_writer.blip("Target Model(s) Synced", self.update_i)

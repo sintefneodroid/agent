@@ -1,5 +1,12 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+
+
+__author__ = "Christian Heider Nielsen"
+__doc__ = r"""
+"""
+__all__ = ["LinearSession"]
+
 from typing import Type, Union
 
 from warg import super_init_pass_on_kws
@@ -8,14 +15,9 @@ from neodroid.environments import Environment
 from neodroid.environments.droid_environment import VectorUnityEnvironment
 from neodroid.environments.gym_environment import NeodroidGymEnvironment
 from trolls.vector_environments import VectorWrap
-from .environment_session import EnvironmentType
+from neodroid.environments.environment import EnvironmentType
 from .procedures import OnPolicyEpisodic, Procedure
 from .single_agent_environment_session import SingleAgentEnvironmentSession
-
-__author__ = "Christian Heider Nielsen"
-__doc__ = r"""
-"""
-__all__ = ["LinearSession"]
 
 
 @super_init_pass_on_kws

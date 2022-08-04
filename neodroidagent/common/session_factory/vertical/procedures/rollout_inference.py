@@ -1,15 +1,5 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-from itertools import count
-from pathlib import Path
-from typing import Union
-
-import torch
-from draugr.torch_utilities import TensorBoardPytorchWriter
-from tqdm import tqdm
-from warg import drop_unused_kws
-
-from .procedure_specification import Procedure
 
 __author__ = "Christian Heider Nielsen"
 __doc__ = r"""
@@ -18,6 +8,18 @@ __doc__ = r"""
            """
 
 __all__ = ["RolloutInference"]
+
+from itertools import count
+from pathlib import Path
+from typing import Union
+
+import torch
+from draugr.torch_utilities import TensorBoardPytorchWriter
+from draugr.tqdm_utilities import progress_bar
+
+from warg import drop_unused_kws
+
+from .procedure_specification import Procedure
 
 
 class RolloutInference(Procedure):
@@ -31,19 +33,16 @@ class RolloutInference(Procedure):
         stat_frequency: int = 10,
     ):
         """
-
-        :param num_steps_per_btach:
-        :param num_updates:
         :param iterations:
         :param log_directory:
         :param render_frequency:
         :param stat_frequency:
-        :param kwargs:
-        :return:"""
+        :return:
+        """
         with torch.no_grad():
             with TensorBoardPytorchWriter(log_directory) as metric_writer:
 
-                B = tqdm(count(), f"step {0}, {iterations}", leave=False)
+                B = progress_bar(count(), description=f"step {0}, {iterations}")
 
                 for _ in B:
                     initial_state = self.environment.reset()

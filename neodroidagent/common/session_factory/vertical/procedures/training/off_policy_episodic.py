@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+__author__ = "Christian Heider Nielsen"
+__all__ = ["rollout_off_policy", "OffPolicyEpisodic"]
+__doc__ = "Collects agent experience for episodic off policy training"
+
 import logging
 import math
 from itertools import count
@@ -7,7 +11,9 @@ from typing import Optional
 
 import numpy
 from draugr.metrics.accumulation import mean_accumulator, total_accumulator
+from draugr.tqdm_utilities import progress_bar
 from draugr.writers import MockWriter, Writer
+from neodroidagent.utilities.misc.common_metrics import CommonEnvironmentScalarEnum
 from warg import drop_unused_kws, is_positive_and_mod_zero, passes_kws_to
 
 from neodroid.environments.environment import Environment
@@ -17,11 +23,7 @@ from neodroidagent.common.session_factory.vertical.procedures.procedure_specific
     Procedure,
 )
 
-__author__ = "Christian Heider Nielsen"
-__all__ = ["rollout_off_policy", "OffPolicyEpisodic"]
-__doc__ = "Collects agent experience for episodic off policy training"
 
-from tqdm import tqdm
 from draugr.drawers import MplDrawer, MockDrawer
 from neodroid.utilities import EnvironmentSnapshot, to_one_hot
 
@@ -48,10 +50,9 @@ def rollout_off_policy(
     if use_episodic_buffer:
         episode_buffer = []
 
-    for step_i in tqdm(
+    for step_i in progress_bar(
         count(),
-        desc="Step #",
-        leave=False,
+        description="Step #",
         disable=not render_environment,
         postfix=f"Agent update #{agent.update_i}",
     ):
@@ -115,9 +116,14 @@ def rollout_off_policy(
         episode_return = next(episode_signal)
 
         if metric_writer:
-            metric_writer.scalar("duration", step_i)
-            metric_writer.scalar("running_mean_action", next(running_mean_action))
-            metric_writer.scalar("signal", episode_return)
+            metric_writer.scalar(CommonEnvironmentScalarEnum.duration.value, step_i)
+            metric_writer.scalar(
+                CommonEnvironmentScalarEnum.running_mean_action.value,
+                next(running_mean_action),
+            )
+            metric_writer.scalar(
+                CommonEnvironmentScalarEnum.signal.value, episode_return
+            )
 
         return episode_return, step_i
     else:
@@ -151,7 +157,7 @@ class OffPolicyEpisodic(Procedure):
         :rtype: TR"""
 
         E = range(1, iterations)
-        E = tqdm(E, desc="Rollout #", leave=False)
+        E = progress_bar(E, description="Rollout #")
 
         best_episode_return = -math.inf
         for episode_i in E:

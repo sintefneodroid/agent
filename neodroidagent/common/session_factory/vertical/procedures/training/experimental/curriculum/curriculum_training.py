@@ -6,6 +6,7 @@ from typing import Union
 
 import torch
 from draugr.torch_utilities import TensorBoardPytorchWriter
+from draugr.tqdm_utilities import progress_bar
 from draugr.visualisation import sprint
 from neodroidagent.utilities.specifications import TR
 from samples.rl import (
@@ -14,7 +15,7 @@ from samples.rl import (
     estimate_initial_state_expected_return,
     get_initial_configuration_from_goal,
 )
-from tqdm import tqdm
+
 from warg.arguments import get_upper_case_vars_or_protected_of
 
 import neodroidagent.configs.curriculum.curriculum_config as C
@@ -25,7 +26,6 @@ from neodroidagent.utilities.exploration import sample
 
 __author__ = "Christian Heider Nielsen"
 
-tqdm.monitor_interval = 0
 torch.manual_seed(C.SEED)
 # neo.seed(C.SEED)
 
@@ -85,7 +85,7 @@ def main(
             )
 
             train_session = range(1, rollouts + 1)
-            train_session = tqdm(train_session, leave=False, disable=False)
+            train_session = progress_bar(train_session, disable=False)
 
             for i in train_session:
                 if not environment.is_connected:
@@ -106,8 +106,8 @@ def main(
                         save_snapshot=save_snapshot,
                     )
 
-                num_candidates = tqdm(
-                    range(1, C.CANDIDATE_SET_SIZE + 1), leave=False, disable=False
+                num_candidates = progress_bar(
+                    range(1, C.CANDIDATE_SET_SIZE + 1), disable=False
                 )
                 for c in num_candidates:
                     if _plot_stats:

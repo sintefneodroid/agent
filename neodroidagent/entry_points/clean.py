@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-from shutil import rmtree
-
-from neodroidagent import PROJECT_APP_PATH
-
 __author__ = "Christian Heider Nielsen"
 __doc__ = r"""This script clean all Neodroid Agent related data from the environment"""
 
 __all__ = ["clean_all", "clean_cache", "clean_config", "clean_data", "clean_log"]
+
+from shutil import rmtree
+
+from neodroidagent import PROJECT_APP_PATH
 
 
 def clean_data() -> None:

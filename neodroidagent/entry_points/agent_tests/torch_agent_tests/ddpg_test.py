@@ -10,12 +10,9 @@ Author: Christian Heider Nielsen
 
 from typing import Union
 
-from neodroid.environments.environment import Environment
+from neodroid.environments.environment import Environment, EnvironmentType
 from neodroidagent.agents import DeepDeterministicPolicyGradientAgent
 from neodroidagent.common import ParallelSession
-from neodroidagent.common.session_factory.vertical.environment_session import (
-    EnvironmentType,
-)
 from neodroidagent.configs.test_reference.base_continous_test_config import *
 from neodroidagent.entry_points.session_factory import session_factory
 
@@ -38,7 +35,7 @@ ddpg_config = globals()
 
 
 def ddpg_run(
-    skip_confirmation: bool = True,
+    skip_confirmation: bool = False,
     environment: Union[EnvironmentType, Environment] = EnvironmentType.zmq_pipe,
     config=None,
     **kwargs

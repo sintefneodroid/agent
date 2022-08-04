@@ -11,14 +11,14 @@ from typing import Union
 
 import torch
 from draugr.torch_utilities import PreConcatInputMLP, ShallowStdNormalMLP
+from draugr.torch_utilities.optimisation.parameters.initialisation.fan_in_weight_init import (
+    ortho_init,
+)
 from warg import GDKC
 
-from neodroid.environments.environment import Environment
+from neodroid.environments.environment import Environment, EnvironmentType
 from neodroidagent.agents import SoftActorCriticAgent
 from neodroidagent.common import ParallelSession
-from neodroidagent.common.session_factory.vertical.environment_session import (
-    EnvironmentType,
-)
 from neodroidagent.common.session_factory.vertical.procedures.training.off_policy_step_wise import (
     OffPolicyStepWise,
 )
@@ -40,8 +40,18 @@ RENDER_MODE = RenderModeEnum.to_screen
 ENVIRONMENT_NAME = "Pendulum-v1"  # "InvertedPendulum-v2"
 ACTOR_OPTIMISER_SPEC: GDKC = GDKC(constructor=torch.optim.Adam, lr=3e-4, eps=1e-5)
 CRITIC_OPTIMISER_SPEC: GDKC = GDKC(constructor=torch.optim.Adam, lr=3e-4, eps=1e-5)
-ACTOR_ARCH_SPEC: GDKC = GDKC(ShallowStdNormalMLP, mean_head_activation=torch.nn.Tanh())
-CRITIC_ARCH_SPEC: GDKC = GDKC(PreConcatInputMLP)
+ACTOR_ARCH_SPEC: GDKC = GDKC(
+    ShallowStdNormalMLP,
+    mean_head_activation=torch.nn.Tanh(),
+    # default_init= ortho_init,
+    hidden_layer_activation=torch.nn.Tanh(),
+)
+CRITIC_ARCH_SPEC: GDKC = GDKC(
+    PreConcatInputMLP,
+    # hidden_layers=(64,),
+    # default_init= ortho_init,
+    hidden_layer_activation=torch.nn.Tanh(),
+)
 sac_config = globals()
 
 
@@ -52,7 +62,7 @@ def sac_gym_test(config=None, **kwargs):
 
 
 def sac_run(
-    skip_confirmation: bool = True,
+    skip_confirmation: bool = False,
     environment: Union[EnvironmentType, Environment] = EnvironmentType.zmq_pipe,
     config=None,
     **kwargs

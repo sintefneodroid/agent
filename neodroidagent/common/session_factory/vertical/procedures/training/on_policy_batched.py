@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-
 __author__ = "Christian Heider Nielsen"
 __all__ = ["OffPolicyStepWise"]
 __doc__ = "Collects agent experience in a step wise fashion"
@@ -46,8 +45,7 @@ class OffPolicyStepWise(Procedure):
         :param stat_frequency:
         :param render_frequency:
         :param disable_stdout:
-        :return:
-        """
+        :return:"""
 
         state = self.agent.extract_features(self.environment.reset())
 
@@ -58,9 +56,7 @@ class OffPolicyStepWise(Procedure):
         signal_since_last_termination = 0
         duration_since_last_termination = 0
 
-        it = progress_bar(
-            range(num_environment_steps), description="Step #", leave=False
-        )
+        it = progress_bar(range(num_environment_steps), description="Step #")
         for step_i in it:
 
             sample = self.agent.sample(state)

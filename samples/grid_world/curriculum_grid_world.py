@@ -1,15 +1,15 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 import draugr
+from draugr.stopping import add_early_stopping_key_combination
 
 from neodroid.wrappers import BinaryActionEncodingWrapper
 
 __author__ = "Christian Heider Nielsen"
 
 import torch
-from tqdm import tqdm
 
-tqdm.monitor_interval = 0
+
 from neodroidagent import utilities as U
 
 

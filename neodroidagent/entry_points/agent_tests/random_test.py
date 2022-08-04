@@ -10,12 +10,9 @@ __doc__ = r"""
 import logging
 from typing import Union
 
-from neodroid.environments.environment import Environment
+from neodroid.environments.environment import Environment, EnvironmentType
 from neodroidagent.agents import RandomAgent
 from neodroidagent.common import ParallelSession
-from neodroidagent.common.session_factory.vertical.environment_session import (
-    EnvironmentType,
-)
 from neodroidagent.entry_points.session_factory import session_factory
 
 # ENVIRONMENT_NAME = "CartPole-v1"
@@ -28,7 +25,7 @@ random_config = globals()
 
 def random_run(
     rollouts=None,
-    skip_confirmation: bool = True,
+    skip_confirmation: bool = False,
     environment: Union[EnvironmentType, Environment] = EnvironmentType.zmq_pipe,
     config=None,
     **kwargs

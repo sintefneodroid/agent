@@ -6,11 +6,10 @@ __doc__ = r"""
 
            Created on 11/02/2020
            """
+__all__ = ["check_tensorised_shapes"]
 
 from typing import Sequence
 from warnings import warn
-
-__all__ = ["check_tensorised_shapes"]
 
 
 def check_tensorised_shapes(tensorised: Sequence) -> None:

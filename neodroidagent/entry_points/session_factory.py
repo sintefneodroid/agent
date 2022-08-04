@@ -8,6 +8,7 @@ __doc__ = r"""
            """
 
 import inspect
+from enum import Enum
 from os import getenv
 from typing import Callable, Type, TypeVar, Union
 
@@ -32,7 +33,7 @@ def session_factory(
     session: Union[Type[EnvironmentSessionType], EnvironmentSession, Callable],
     save: bool = True,
     has_x_server: bool = True,
-    skip_confirmation: bool = True,
+    skip_confirmation: bool = False,
     **kwargs,
 ):
     r"""
@@ -63,15 +64,18 @@ def session_factory(
         for key, arg in config_mapping:
             print(f"{key} = {arg}")
 
-        input("\nPress Enter to begin... ")
+        if input("\nPress Enter to begin...  or Any other key to edit") != "":
+            return  # TODO: Implement edit config functionality
 
     if session is None:
         raise NoProcedure
     elif inspect.isclass(session):
         session = session(**config_mapping)  # Use passed config arguments
     elif isinstance(session, GDKC):
+        kws = config_mapping
+        kws.update(**kwargs)
         session = session(
-            **kwargs
+            **kws
         )  # Assume some kw parameters is set prior to passing session, only override with explicit overrides
 
     try:

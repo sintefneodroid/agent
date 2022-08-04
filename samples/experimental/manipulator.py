@@ -5,12 +5,12 @@ import draugr
 __author__ = "Christian Heider Nielsen"
 
 import torch
+from draugr.stopping import add_early_stopping_key_combination
 
-from tqdm import tqdm
 
-tqdm.monitor_interval = 0
-
-from neodroid.environments.gym_wrapper import NeodroidGymEnvironment as neo
+from neodroid.environments.gym_environment.gym_wrapper import (
+    NeodroidGymEnvironment as neo,
+)
 from neodroidagent import utilities as U
 
 

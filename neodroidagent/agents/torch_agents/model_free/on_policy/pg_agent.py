@@ -1,14 +1,23 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+
+__author__ = "Christian Heider Nielsen"
+__doc__ = r"""
+
+           Created on 23/09/2019
+           """
+
+__all__ = ["PolicyGradientAgent"]
+
 from typing import Any, Dict, Optional, Sequence, Tuple
 
 import numpy
 import torch
 from draugr.torch_utilities import to_tensor, CategoricalMLP, MultiDimensionalNormalMLP
 from draugr.writers import MockWriter, Writer
+from neodroidagent.utilities.misc.common_metrics import CommonProcedureScalarEnum
 from torch.nn import Module
 from torch.optim import Optimizer
-from tqdm import tqdm
 from warg import GDKC, drop_unused_kws, super_init_pass_on_kws
 
 from neodroid.utilities import (
@@ -27,16 +36,6 @@ from trolls.spaces import (
     SignalSpace,
 )
 
-tqdm.monitor_interval = 0
-
-__author__ = "Christian Heider Nielsen"
-__doc__ = r"""
-
-           Created on 23/09/2019
-           """
-
-__all__ = ["PolicyGradientAgent"]
-
 
 @super_init_pass_on_kws
 class PolicyGradientAgent(TorchAgent):
@@ -50,7 +49,9 @@ class PolicyGradientAgent(TorchAgent):
     def __init__(
         self,
         evaluation_function: callable = torch.nn.CrossEntropyLoss(),
-        policy_arch_spec: GDKC = GDKC(constructor=CategoricalMLP),
+        policy_arch_spec: GDKC = GDKC(
+            constructor=CategoricalMLP, hidden_layer_activation=torch.nn.Tanh()
+        ),
         discount_factor: float = 0.95,
         optimiser_spec: GDKC = GDKC(constructor=torch.optim.Adam, lr=3e-4),
         scheduler_spec: GDKC = GDKC(
@@ -145,8 +146,8 @@ class PolicyGradientAgent(TorchAgent):
         return {"distributional_regressor": self.distributional_regressor}
 
     @property
-    def optimisers(self) -> Dict[str, Optimizer]:
-        return {"_optimiser": self._optimiser}
+    def optimisers(self) -> Dict[str, Dict[str, Optimizer]]:
+        return {"distributional_regressor": {"_optimiser": self._optimiser}}
 
     @drop_unused_kws
     def _sample(self, state: Sequence) -> Tuple:
@@ -228,7 +229,11 @@ class PolicyGradientAgent(TorchAgent):
 
         self._optimiser.zero_grad()
         loss.backward()
-        self.post_process_gradients(self.distributional_regressor.parameters())
+        self.post_process_gradients(
+            self.distributional_regressor.parameters(),
+            metric_writer=metric_writer,
+            parameter_set_name="distributional_regressor_model_parameters",
+        )
         self._optimiser.step()
 
         if self._scheduler:
@@ -239,7 +244,7 @@ class PolicyGradientAgent(TorchAgent):
 
         loss_cpu = loss.detach().to("cpu").numpy()
         if metric_writer:
-            metric_writer.scalar("Loss", loss_cpu)
+            metric_writer.scalar(CommonProcedureScalarEnum.loss.value, loss_cpu)
 
         return loss_cpu.item()
 

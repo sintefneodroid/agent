@@ -18,9 +18,7 @@ def test_single_agent_session():
     from neodroidagent.common.session_factory.single_agent.procedures.rollout_inference import (
         RolloutInference,
     )
-    from neodroidagent.common.session_factory.vertical.environment_session import (
-        EnvironmentType,
-    )
+    from neodroid.environments.environment import EnvironmentType
 
     session_entry_point(
         RandomAgent,

@@ -1,28 +1,29 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+__author__ = "Christian Heider Nielsen"
+__all__ = ["torch_advantage_estimate", "torch_compute_gae"]
+__doc__ = r"""
+
+"""
+
 from typing import Union
 
 import numpy
-from draugr.torch_utilities import to_tensor
-
-__author__ = "Christian Heider Nielsen"
-
 import torch
-
-__all__ = ["torch_advantage_estimate", "torch_compute_gae"]
+from draugr.torch_utilities import to_tensor
 
 
 def torch_advantage_estimate(
-    signal,
-    non_terminal,
-    value_estimate,
+    signal: torch.tensor,
+    non_terminal: torch.tensor,
+    value_estimate: torch.tensor,
     *,
     discount_factor: float = 0.95,
     tau: float = 0.97,
     device: Union[str, torch.device] = "cpu",
     normalise: bool = True,
     divide_by_zero_safety: float = 1e-10,
-):
+) -> torch.tensor:
     """
     Computes advantages and discounted returns.
     If the advantage is positive for an action, then it yielded a more positive signal than expected. And thus
@@ -66,14 +67,14 @@ def torch_advantage_estimate(
 
 
 def torch_compute_gae(
-    signal,
-    non_terminal,
-    values,
+    signal: torch.tensor,
+    non_terminal: torch.tensor,
+    values: torch.tensor,
     *,
-    discount_factor=0.95,
-    gae_lambda=0.95,
+    discount_factor: float = 0.95,
+    gae_lambda: float = 0.95,
     device: Union[str, torch.device] = "cpu",
-    normalise_adv=True,
+    normalise_adv: bool = True,
 ) -> torch.tensor:
     """
 
