@@ -7,7 +7,6 @@ __author__ = "Christian Heider Nielsen"
 import torch
 from draugr.stopping import add_early_stopping_key_combination
 
-
 from neodroid.environments.gym_environment.gym_wrapper import (
     NeodroidGymEnvironment as neo,
 )

@@ -11,7 +11,6 @@ from typing import Any, Optional
 
 import numpy
 from draugr.writers import MockWriter, Writer
-
 from neodroid.utilities import (
     EnvironmentSnapshot,
 )

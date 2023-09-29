@@ -7,15 +7,13 @@ __doc__ = r"""
            Created on 19/01/2020
            """
 
-import draugr
 import fire
 import warg
+from neodroidagent import get_version
+from neodroidagent.entry_points.agent_tests import AGENT_CONFIG, AGENT_OPTIONS
 from pyfiglet import Figlet
 from warg import NOD
 from warg.arguments import upper_dict
-
-from neodroidagent import get_version
-from neodroidagent.entry_points.agent_tests import AGENT_CONFIG, AGENT_OPTIONS
 
 margin_percentage = 0 / 6
 terminal_width = warg.get_terminal_size().columns

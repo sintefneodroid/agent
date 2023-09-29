@@ -1,7 +1,6 @@
 from collections import defaultdict
 
 import numpy
-
 from neodroidagent.agents.numpy_agents.numpy_agent import NumpyAgent
 from neodroidagent.utilities.misc import tile_state_space, EnvModel
 
@@ -363,7 +362,7 @@ class DynaAgent(NumpyAgent):
             pairs = env_model.state_action_pairs_leading_to_outcome(s_sim)
 
             # add predecessors to queue if their priority exceeds thresh
-            for (_s, _a) in pairs:
+            for _s, _a in pairs:
                 self._update_queue(_s, _a)
 
     def _update(self, s, a):

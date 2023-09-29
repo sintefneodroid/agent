@@ -9,13 +9,13 @@ __all__ = ["LinearSession"]
 
 from typing import Type, Union
 
-from warg import super_init_pass_on_kws
-
 from neodroid.environments import Environment
 from neodroid.environments.droid_environment import VectorUnityEnvironment
+from neodroid.environments.environment import EnvironmentType
 from neodroid.environments.gym_environment import NeodroidGymEnvironment
 from trolls.vector_environments import VectorWrap
-from neodroid.environments.environment import EnvironmentType
+from warg import super_init_pass_on_kws
+
 from .procedures import OnPolicyEpisodic, Procedure
 from .single_agent_environment_session import SingleAgentEnvironmentSession
 

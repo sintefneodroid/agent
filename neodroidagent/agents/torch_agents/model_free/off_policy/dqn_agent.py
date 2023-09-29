@@ -16,11 +16,6 @@ import numpy
 import torch
 from draugr.torch_utilities import to_scalar, to_tensor, Architecture
 from draugr.writers import MockWriter, Writer
-from neodroidagent.utilities.misc.common_metrics import CommonProcedureScalarEnum
-from torch.nn.functional import smooth_l1_loss
-from torch.optim import Optimizer
-from warg import GDKC, drop_unused_kws, super_init_pass_on_kws, is_zero_or_mod_zero
-
 from neodroidagent.agents.torch_agents.torch_agent import TorchAgent
 from neodroidagent.common import (
     Memory,
@@ -33,7 +28,11 @@ from neodroidagent.utilities import (
     ExplorationSpecification,
     update_target,
 )
+from neodroidagent.utilities.misc.common_metrics import CommonProcedureScalarEnum
+from torch.nn.functional import smooth_l1_loss
+from torch.optim import Optimizer
 from trolls.spaces import ActionSpace, ObservationSpace, SignalSpace
+from warg import GDKC, drop_unused_kws, super_init_pass_on_kws, is_zero_or_mod_zero
 
 
 @super_init_pass_on_kws(super_base=TorchAgent)

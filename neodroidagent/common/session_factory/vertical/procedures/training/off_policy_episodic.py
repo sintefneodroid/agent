@@ -10,22 +10,19 @@ from itertools import count
 from typing import Optional
 
 import numpy
-from draugr.metrics.accumulation import mean_accumulator, total_accumulator
-from draugr.tqdm_utilities import progress_bar
+from draugr.drawers import MplDrawer, MockDrawer
+from draugr.metrics import mean_accumulator, total_accumulator
+from draugr.visualisation import progress_bar
 from draugr.writers import MockWriter, Writer
-from neodroidagent.utilities.misc.common_metrics import CommonEnvironmentScalarEnum
-from warg import drop_unused_kws, is_positive_and_mod_zero, passes_kws_to
-
 from neodroid.environments.environment import Environment
+from neodroid.utilities import EnvironmentSnapshot, to_one_hot
 from neodroidagent.agents import Agent
 from neodroidagent.common.memory.transitions import Transition, TransitionPoint
 from neodroidagent.common.session_factory.vertical.procedures.procedure_specification import (
     Procedure,
 )
-
-
-from draugr.drawers import MplDrawer, MockDrawer
-from neodroid.utilities import EnvironmentSnapshot, to_one_hot
+from neodroidagent.utilities.misc.common_metrics import CommonEnvironmentScalarEnum
+from warg import drop_unused_kws, is_positive_and_mod_zero, passes_kws_to
 
 
 @drop_unused_kws

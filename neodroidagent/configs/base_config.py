@@ -6,17 +6,14 @@ Description: Config for training
 Author: Christian Heider Nielsen
 """
 
-
 import time
 from os import cpu_count
 from pathlib import Path
 
 from draugr.torch_utilities import global_torch_device
-
 from neodroidagent import PROJECT_NAME
 from neodroidagent.agents.agent import TogglableLowHigh, TogglableValue
 from trolls.render_mode import RenderModeEnum
-
 
 PROJECT_NAME = PROJECT_NAME
 CONFIG_NAME = __name__

@@ -21,17 +21,17 @@ from draugr.torch_utilities import (
     save_model_parameters,
 )
 from draugr.writers import MockWriter, Writer
-from torch import nn
-from torch.nn import Parameter
-from torch.optim import Optimizer
-from warg import drop_unused_kws, passes_kws_to, sprint, super_init_pass_on_kws
-
 from neodroidagent.agents.agent import Agent, TogglableLowHigh, TogglableValue
 from neodroidagent.utilities import IntrinsicSignalProvider
 from neodroidagent.utilities.exploration.intrinsic_signals.braindead import (
     BraindeadIntrinsicSignalProvider,
 )
+from torch import nn
+from torch.nn import Parameter
+from torch.optim import Optimizer
 from trolls.spaces import ActionSpace, ObservationSpace, SignalSpace
+from draugr.python_utilities import sprint
+from warg import drop_unused_kws, passes_kws_to, super_init_pass_on_kws
 
 
 @super_init_pass_on_kws(super_base=Agent)
@@ -209,7 +209,7 @@ class TorchAgent(Agent, ABC):
 
         :param kwargs:
         :return:"""
-        for (k, v) in self.models.items():
+        for k, v in self.models.items():
             o = None
             if k in self.optimisers:
                 o = next(iter(self.optimisers[k].values()))
@@ -251,7 +251,7 @@ class TorchAgent(Agent, ABC):
         loaded = True
         if save_directory.exists():
             print(f"Loading models from: {str(save_directory)}")
-            for (model_key, model) in self.models.items():
+            for model_key, model in self.models.items():
                 print(f"Loading model: {model_key}")
                 model_identifier = self.model_name(model_key, model)
                 optimiser_key, optimiser = next(

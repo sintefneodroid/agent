@@ -3,8 +3,6 @@
 from typing import Union
 
 import torch
-from warg import GDKC
-
 from neodroid.environments.environment import Environment, EnvironmentType
 from neodroidagent.agents import DeepQNetworkAgent
 from neodroidagent.common import (
@@ -18,6 +16,7 @@ from neodroidagent.utilities.exploration.exploration_specification import (
     ExplorationSpecification,
 )
 from trolls.render_mode import RenderModeEnum
+from warg import GDKC
 
 __author__ = "Christian Heider Nielsen"
 

@@ -1,4 +1,5 @@
-If you are submitting a feature request, please preface the title with [feature request]. If you are submitting a bug report, please fill in the following details.
+If you are submitting a feature request, please preface the title with [feature request]. If you are submitting a bug
+report, please fill in the following details.
 
 ## Issue description
 

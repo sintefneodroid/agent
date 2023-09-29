@@ -15,8 +15,7 @@ from typing import Union
 
 import torch
 from draugr.torch_utilities import TensorBoardPytorchWriter
-from draugr.tqdm_utilities import progress_bar
-
+from draugr.visualisation import progress_bar
 from warg import drop_unused_kws
 
 from .procedure_specification import Procedure
@@ -41,7 +40,6 @@ class RolloutInference(Procedure):
         """
         with torch.no_grad():
             with TensorBoardPytorchWriter(log_directory) as metric_writer:
-
                 B = progress_bar(count(), description=f"step {0}, {iterations}")
 
                 for _ in B:

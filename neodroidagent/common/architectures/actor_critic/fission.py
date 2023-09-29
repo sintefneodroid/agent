@@ -15,7 +15,7 @@ import numpy
 import torch
 from draugr.torch_utilities import MLP, to_tensor, ortho_init
 from torch import nn
-from torch.distributions import Categorical, Normal, MultivariateNormal
+from torch.distributions import Categorical, MultivariateNormal
 
 
 # TODO:  Beta distribution then use ReLU and for Normal distribution tanh activation

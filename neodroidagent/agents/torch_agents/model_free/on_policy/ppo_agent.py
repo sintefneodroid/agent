@@ -6,45 +6,42 @@ __doc__ = r"""
 """
 __all__ = ["ProximalPolicyOptimizationAgent"]
 
-
 import copy
 from typing import Any, Dict, Optional, Tuple
 
 import numpy
 import torch
-from draugr import mean_accumulator, shuffled_batches
+from draugr.metrics import mean_accumulator
+from draugr.python_utilities import shuffled_batches
 from draugr.torch_utilities import freeze_model, to_scalar, to_tensor
-from draugr.tqdm_utilities import progress_bar
+from draugr.visualisation import progress_bar
 from draugr.writers import MockWriter, Writer
-from neodroidagent.utilities.misc.common_metrics import CommonProcedureScalarEnum
-
-from neodroidagent.common.architectures.actor_critic.fission import (
-    CategoricalActorCriticFissionMLP,
-    ActorCriticFissionMLP,
-)
-from torch.distributions import Distribution
-from torch.nn.functional import mse_loss
-from torch.optim import Optimizer
-
-from warg import (
-    GDKC,
-    drop_unused_kws,
-    is_none_or_zero_or_negative_or_mod_zero,
-    super_init_pass_on_kws,
-)
-
-from neodroidagent.agents.agent import TogglableLowHigh, TogglableValue
+from neodroidagent.agents.agent import TogglableValue
 from neodroidagent.agents.torch_agents.torch_agent import TorchAgent
 from neodroidagent.common import (
     TransitionPointTrajectoryBuffer,
     ValuedTransitionPoint,
+)
+from neodroidagent.common.architectures.actor_critic.fission import (
+    CategoricalActorCriticFissionMLP,
+    ActorCriticFissionMLP,
 )
 from neodroidagent.utilities import (
     ActionSpaceNotSupported,
     torch_compute_gae,
     update_target,
 )
+from neodroidagent.utilities.misc.common_metrics import CommonProcedureScalarEnum
+from torch.distributions import Distribution
+from torch.nn.functional import mse_loss
+from torch.optim import Optimizer
 from trolls.spaces import ActionSpace, ObservationSpace, SignalSpace
+from warg import (
+    GDKC,
+    drop_unused_kws,
+    is_none_or_zero_or_negative_or_mod_zero,
+    super_init_pass_on_kws,
+)
 
 
 @super_init_pass_on_kws

@@ -1,7 +1,7 @@
 # If you are building a simple GitHub user page (https://username.github.io) then use these settings:
-url:     "https://sintefneodroid.github.io/agent"
+url: "https://sintefneodroid.github.io/agent"
 baseurl: ""
-title:   Agentdoc
+title: Agentdoc
 
 include:
   - docs

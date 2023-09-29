@@ -10,7 +10,6 @@ __author__ = "Christian Heider Nielsen"
 
 import torch
 
-
 from neodroidagent import utilities as U
 
 

@@ -8,19 +8,16 @@ __doc__ = "Collects agent experience in a batched fashion for off policy agents"
 import logging
 from typing import Optional
 
-from draugr.metrics.accumulation import mean_accumulator
-from draugr.tqdm_utilities import progress_bar
+from draugr.drawers import MplDrawer, MockDrawer
+from draugr.metrics import mean_accumulator
+from draugr.visualisation import progress_bar
 from draugr.writers import MockWriter, Writer
-
-
-from neodroidagent.utilities.misc.common_metrics import CommonEnvironmentScalarEnum
-
+from neodroid.utilities import to_one_hot
 from neodroidagent.common.session_factory.vertical.procedures.procedure_specification import (
     Procedure,
 )
+from neodroidagent.utilities.misc.common_metrics import CommonEnvironmentScalarEnum
 from warg import is_positive_and_mod_zero
-from draugr.drawers import MplDrawer, MockDrawer
-from neodroid.utilities import to_one_hot
 
 
 class OffPolicyBatched(Procedure):
@@ -74,7 +71,6 @@ class OffPolicyBatched(Procedure):
                 disable=disable_stdout,
                 description="Step #",
             ):
-
                 sample = self.agent.sample(state)
                 action = self.agent.extract_action(sample)
                 snapshot = self.environment.react(action)

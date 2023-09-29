@@ -174,7 +174,6 @@ class Agent:
         for (
             ob_rref
         ) in self.ob_rrefs:  # make async RPC to kick off an episode on all observers
-
             futs.append(
                 rpc_async(
                     ob_rref.owner(),
@@ -237,7 +236,6 @@ def run_worker(rank, world_size) -> None:
     os.environ["MASTER_ADDR"] = "localhost"
     os.environ["MASTER_PORT"] = "29500"
     if rank == 0:  # rank0 is the agent
-
         rpc.init_rpc(AGENT_NAME, rank=rank, world_size=world_size)
 
         agent = Agent(world_size)

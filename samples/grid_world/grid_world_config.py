@@ -2,9 +2,8 @@
 # -*- coding: utf-8 -*-
 import torch
 from draugr.torch_utilities import MLP
-from warg import GDKC
-
 from neodroidagent.agents.torch_agents.model_free import PolicyGradientAgent
+from warg import GDKC
 
 __author__ = "Christian Heider Nielsen"
 

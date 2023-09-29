@@ -4,10 +4,15 @@ import time
 from pathlib import Path
 from typing import Union
 
+import neodroidagent.configs.curriculum.curriculum_config as C
 import torch
 from draugr.torch_utilities import TensorBoardPytorchWriter
-from draugr.tqdm_utilities import progress_bar
-from draugr.visualisation import sprint
+from draugr.visualisation import progress_bar
+from draugr.python_utilities import sprint
+from neodroid.wrappers import NeodroidCurriculumWrapper
+from neodroidagent.agents.torch_agents.model_free import PolicyGradientAgent
+from neodroidagent.agents.torch_agents.torch_agent import TorchAgent
+from neodroidagent.utilities.exploration import sample
 from neodroidagent.utilities.specifications import TR
 from samples.rl import (
     display_actor_configurations,
@@ -15,14 +20,7 @@ from samples.rl import (
     estimate_initial_state_expected_return,
     get_initial_configuration_from_goal,
 )
-
 from warg.arguments import get_upper_case_vars_or_protected_of
-
-import neodroidagent.configs.curriculum.curriculum_config as C
-from neodroid.wrappers import NeodroidCurriculumWrapper
-from neodroidagent.agents.torch_agents.model_free import PolicyGradientAgent
-from neodroidagent.agents.torch_agents.torch_agent import TorchAgent
-from neodroidagent.utilities.exploration import sample
 
 __author__ = "Christian Heider Nielsen"
 

@@ -5,8 +5,7 @@ from typing import Any, Tuple
 
 import gym
 import numpy
-from draugr.tqdm_utilities import progress_bar
-
+from draugr.visualisation import progress_bar
 from neodroid.environments.gym_environment import NeodroidGymEnvironment
 from neodroidagent.agents.numpy_agents.numpy_agent import NumpyAgent
 
@@ -19,7 +18,6 @@ class TabularQAgent(NumpyAgent):
     # region Private
 
     def __defaults__(self) -> None:
-
         self._action_n = 6
 
         self._init_mean = 0.0
@@ -195,7 +193,6 @@ class TabularQAgent(NumpyAgent):
         pass
 
     def __build__(self, env, **kwargs) -> None:
-
         if hasattr(self._last_connected_environment.action_space, "num_binary_actions"):
             self._action_n = (
                 self._last_connected_environment.action_space.num_binary_actions

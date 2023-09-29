@@ -52,7 +52,6 @@ class OrnsteinUhlenbeckProcess(AnnealedGaussianProcess):
 
 
 if __name__ == "__main__":
-
     random_process = OrnsteinUhlenbeckProcess(theta=0.5)
 
     for i in range(1000):

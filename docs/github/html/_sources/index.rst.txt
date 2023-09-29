@@ -1,4 +1,4 @@
-|organisation| |project| Documentation
+|organisation| |project|Documentation
 ===============================
 
 Version: |version| |today|

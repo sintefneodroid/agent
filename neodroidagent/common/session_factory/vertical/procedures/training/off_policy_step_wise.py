@@ -9,16 +9,13 @@ from typing import Optional
 
 from draugr.drawers import MockDrawer, MplDrawer
 from draugr.metrics.accumulation import mean_accumulator
-from draugr.tqdm_utilities import progress_bar
+from draugr.visualisation import progress_bar
 from draugr.writers import MockWriter, Writer
-
-
-from neodroidagent.utilities.misc.common_metrics import CommonEnvironmentScalarEnum
-
 from neodroid.utilities import to_one_hot
 from neodroidagent.common.session_factory.vertical.procedures.procedure_specification import (
     Procedure,
 )
+from neodroidagent.utilities.misc.common_metrics import CommonEnvironmentScalarEnum
 from warg import is_positive_and_mod_zero, is_zero_or_mod_below
 
 
@@ -62,7 +59,6 @@ class OffPolicyStepWise(Procedure):
             range(num_environment_steps), description="Step #", leave=False
         )
         for step_i in it:
-
             sample = self.agent.sample(state)
             action = self.agent.extract_action(sample)
 

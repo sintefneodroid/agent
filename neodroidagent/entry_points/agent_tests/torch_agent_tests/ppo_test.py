@@ -14,23 +14,21 @@ import torch
 from draugr.torch_utilities.optimisation.parameters.initialisation.fan_in_weight_init import (
     ortho_init,
 )
-
-from neodroidagent.common.architectures.actor_critic.fission import (
-    CategoricalActorCriticFissionMLP,
-    ActorCriticFissionMLP,
-)
-from warg import GDKC
-
 from neodroid.environments.environment import Environment, EnvironmentType
 from neodroidagent.agents import ProximalPolicyOptimizationAgent, TogglableValue
 from neodroidagent.common import (
     ParallelSession,
+)
+from neodroidagent.common.architectures.actor_critic.fission import (
+    CategoricalActorCriticFissionMLP,
+    ActorCriticFissionMLP,
 )
 from neodroidagent.common.session_factory.vertical.procedures.training.off_policy_step_wise import (
     OffPolicyStepWise,
 )
 from neodroidagent.entry_points.session_factory import session_factory
 from trolls.render_mode import RenderModeEnum
+from warg import GDKC
 
 # General
 

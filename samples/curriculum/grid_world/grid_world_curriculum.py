@@ -7,8 +7,7 @@ import random
 from types import coroutine
 
 import numpy
-from draugr.tqdm_utilities import progress_bar
-
+from draugr.visualisation import progress_bar
 from neodroid.utilities import Configuration, Displayable, Reaction, ReactionParameters
 
 

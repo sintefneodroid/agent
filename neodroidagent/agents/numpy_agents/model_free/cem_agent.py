@@ -10,7 +10,6 @@ __doc__ = r"""
 from typing import Tuple
 
 import numpy
-
 from neodroidagent.agents.numpy_agents.numpy_agent import NumpyAgent
 
 

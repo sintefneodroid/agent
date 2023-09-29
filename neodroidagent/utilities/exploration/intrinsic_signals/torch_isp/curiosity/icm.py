@@ -9,7 +9,6 @@ from draugr.writers import Writer
 from torch import nn
 from torch.distributions import Categorical
 from torch.nn import CrossEntropyLoss, MSELoss
-
 from trolls.spaces import ActionSpace, ObservationSpace, SignalSpace
 
 __author__ = "Christian Heider Nielsen"
@@ -127,7 +126,8 @@ class MLPICM(TorchISPModule):
         :param signal_space: used for scaling the intrinsic reward returned by this module. Can be used to control how
         the fluctuation scale of the intrinsic signal
         :param weight: balances the importance between forward and inverse model
-        :param intrinsic_signal_factor: balances the importance between extrinsic and intrinsic signal."""
+        :param intrinsic_signal_factor: balances the importance between extrinsic and intrinsic signal.
+        """
 
         assert (
             len(observation_space.shape) == 1

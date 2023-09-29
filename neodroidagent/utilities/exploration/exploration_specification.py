@@ -6,7 +6,6 @@ __author__ = "Christian Heider Nielsen"
 __doc__ = ""
 __all__ = ["ExplorationSpecification"]
 
-
 from collections import namedtuple
 
 ExplorationSpecification = namedtuple(

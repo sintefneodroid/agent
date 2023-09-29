@@ -10,6 +10,7 @@ from typing import Type, TypeVar, Union
 from neodroid.environments import Environment
 from neodroid.environments.environment import EnvironmentType
 from neodroidagent.agents import Agent
+
 from .procedures import OnPolicyEpisodic, Procedure
 
 __all__ = ["EnvironmentSession"]

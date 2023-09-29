@@ -14,9 +14,6 @@ from os import cpu_count
 from typing import Any, Type
 
 import torch
-
-# import torchsnooper
-from warg import IgnoreInterruptSignal, sprint
 from draugr.drawers import DiscreteScrollPlot, SeriesScrollPlot
 from draugr.random_utilities import seed_stack
 from draugr.stopping import (
@@ -24,13 +21,17 @@ from draugr.stopping import (
 )
 from draugr.torch_utilities import TensorBoardPytorchWriter
 from draugr.writers import MockWriter
-from warg import GDKC, passes_kws_to
-from warg.context_wrapper import ContextWrapper
-from warg.decorators.timing import StopWatch
-
 from neodroidagent import PROJECT_APP_PATH
 from neodroidagent.agents import Agent
 from neodroidagent.utilities import NoAgent
+from warg import GDKC, passes_kws_to
+
+# import torchsnooper
+from warg import IgnoreInterruptSignal
+from draugr.python_utilities import sprint
+from warg.context_wrapper import ContextWrapper
+from warg.decorators.timing import StopWatch
+
 from .environment_session import EnvironmentSession
 from .procedures.procedure_specification import Procedure, DrawingModeEnum
 
@@ -102,7 +103,6 @@ class SingleAgentEnvironmentSession(EnvironmentSession):
         # with ContextWrapper(torchsnooper.snoop, debug):
         if True:
             with ContextWrapper(torch.autograd.detect_anomaly, debug):
-
                 if agent is None:
                     raise NoAgent
 
@@ -164,7 +164,6 @@ class SingleAgentEnvironmentSession(EnvironmentSession):
                         drawer_type,
                         not train_agent and drawing_mode != DrawingModeEnum.none,
                     ) as drawer_instance:
-
                         agent.build(
                             self._environment.observation_space,
                             self._environment.action_space,

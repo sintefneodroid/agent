@@ -8,19 +8,17 @@ __doc__ = r"""
            """
 
 import inspect
-from enum import Enum
 from os import getenv
 from typing import Callable, Type, TypeVar, Union
 
 import torch
-from warg import sprint
-from warg import GDKC, NOD, config_to_mapping
-
 from neodroidagent.agents import Agent
 from neodroidagent.common.session_factory.vertical.environment_session import (
     EnvironmentSession,
 )
 from neodroidagent.utilities import NoProcedure
+from warg import GDKC, NOD, config_to_mapping
+from draugr.python_utilities import sprint
 
 AgentType = TypeVar("AgentType", bound=Agent)
 EnvironmentSessionType = TypeVar("EnvironmentSessionType", bound=EnvironmentSession)
@@ -38,7 +36,8 @@ def session_factory(
 ):
     r"""
     Entry point start a starting a training session with the functionality of parsing cmdline arguments and
-    confirming configuration to use before training and overwriting of default training configurations"""
+    confirming configuration to use before training and overwriting of default training configurations
+    """
 
     if config is None:
         config = {}

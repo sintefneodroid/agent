@@ -10,7 +10,6 @@ __doc__ = r"""
 from abc import ABC, abstractmethod
 
 import numpy
-
 from neodroidagent.utilities.misc.environment_model import env_stats
 
 

@@ -1,7 +1,6 @@
 from itertools import count
 
-from draugr.tqdm_utilities import progress_bar
-
+from draugr.visualisation import progress_bar
 from neodroid.environments.droid_environment import VectorUnityEnvironment
 
 
@@ -26,7 +25,6 @@ def infer(self, env, render=True):
         state = env.reset()
 
         for frame_i in count(1):
-
             action, *_ = self.sample(state)
             state, signal, terminated, info = env.act(action)
             if render:

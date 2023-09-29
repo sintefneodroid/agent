@@ -11,7 +11,7 @@ from typing import Sequence
 
 import numpy
 import torch
-from draugr.torch_utilities import to_tensor, MLP, global_torch_device, Architecture
+from draugr.torch_utilities import to_tensor, Architecture
 from torch import nn
 from torch.distributions import Categorical, MultivariateNormal
 

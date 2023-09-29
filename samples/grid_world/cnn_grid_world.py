@@ -8,7 +8,6 @@ __author__ = "Christian Heider Nielsen"
 
 import torch
 
-
 from neodroidagent import utilities as U
 import experiments as C
 
@@ -64,7 +63,6 @@ def train_agent(config, agent):
 
 
 if __name__ == "__main__":
-
     from neodroidagent.configs import (
         parse_arguments,
         get_upper_case_vars_or_protected_of,

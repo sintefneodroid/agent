@@ -8,10 +8,10 @@ Author: Christian Heider Nielsen
 """
 
 import torch
-from warg import NOD
 
 # noinspection PyUnresolvedReferences
 from neodroidagent.common import CategoricalMLP
+from warg import NOD
 
 CONFIG_NAME = __name__
 from pathlib import Path

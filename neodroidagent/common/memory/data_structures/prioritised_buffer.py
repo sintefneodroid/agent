@@ -84,10 +84,10 @@ class PrioritisedBuffer:
             leaf_indices.append(leaf_index)
 
         """
-    sampling_probabilities = priorities / self._tree.total
-    weights = numpy.power(self._tree._num_entries * sampling_probabilities, -self._beta)
-    weights /= (weights.max() + 1e-10)  # Normalize for stability
-    """
+sampling_probabilities = priorities / self._tree.total
+weights = numpy.power(self._tree._num_entries * sampling_probabilities, -self._beta)
+weights /= (weights.max() + 1e-10)  # Normalize for stability
+"""
 
         self._last_leaf_indices = leaf_indices
 

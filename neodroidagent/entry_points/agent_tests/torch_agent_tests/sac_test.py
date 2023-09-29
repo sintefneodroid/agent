@@ -11,11 +11,6 @@ from typing import Union
 
 import torch
 from draugr.torch_utilities import PreConcatInputMLP, ShallowStdNormalMLP
-from draugr.torch_utilities.optimisation.parameters.initialisation.fan_in_weight_init import (
-    ortho_init,
-)
-from warg import GDKC
-
 from neodroid.environments.environment import Environment, EnvironmentType
 from neodroidagent.agents import SoftActorCriticAgent
 from neodroidagent.common import ParallelSession
@@ -25,6 +20,7 @@ from neodroidagent.common.session_factory.vertical.procedures.training.off_polic
 from neodroidagent.configs.test_reference.base_continous_test_config import *
 from neodroidagent.entry_points.session_factory import session_factory
 from trolls.render_mode import RenderModeEnum
+from warg import GDKC
 
 CONFIG_NAME = __name__
 

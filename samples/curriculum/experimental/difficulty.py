@@ -2,9 +2,8 @@
 # -*- coding: utf-8 -*-
 __author__ = "Christian Heider Nielsen"
 
-import numpy
-
 import neodroid
+import numpy
 
 
 def calculate_difficulty(current_difficulty, signal, steps_taken, configuration):

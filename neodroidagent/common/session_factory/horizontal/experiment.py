@@ -16,7 +16,6 @@ from pathlib import Path
 
 from cloudpickle import cloudpickle
 from draugr.torch_utilities import CategoricalMLP
-
 from neodroid.environments.droid_environment import DictUnityEnvironment
 from neodroidagent.agents import SoftActorCriticAgent
 
