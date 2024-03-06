@@ -19,3 +19,5 @@ numba
 tensorboard
 #pybullet
 #gym #git clone https://github.com/openai/gym.git #cd gym #pip install -e .
+setuptools>=65.5.1 # not directly required, pinned by Snyk to avoid a vulnerability
+wheel>=0.38.0 # not directly required, pinned by Snyk to avoid a vulnerability
