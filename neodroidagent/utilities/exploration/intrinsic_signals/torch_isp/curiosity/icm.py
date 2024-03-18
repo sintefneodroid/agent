@@ -127,7 +127,8 @@ class MLPICM(TorchISPModule):
         :param signal_space: used for scaling the intrinsic reward returned by this module. Can be used to control how
         the fluctuation scale of the intrinsic signal
         :param weight: balances the importance between forward and inverse model
-        :param intrinsic_signal_factor: balances the importance between extrinsic and intrinsic signal."""
+        :param intrinsic_signal_factor: balances the importance between extrinsic and intrinsic signal.
+        """
 
         assert (
             len(observation_space.shape) == 1

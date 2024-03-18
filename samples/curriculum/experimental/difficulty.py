@@ -66,7 +66,9 @@ def color_sample(identifier):
         neodroid.Configuration(
             identifier + "ColorConfigurableG", numpy.random.sample()
         ),
-        neodroid.Configuration(identifier + "ColorConfigurableB", numpy.random.sample())
+        neodroid.Configuration(
+            identifier + "ColorConfigurableB", numpy.random.sample()
+        ),
         # neodroid.Configuration(id+'ColorConfigurableA',
         #                       numpy.random.sample()),
     ]

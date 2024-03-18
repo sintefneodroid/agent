@@ -37,7 +37,8 @@ def session_factory(
 ):
     r"""
     Entry point start a starting a training session with the functionality of parsing cmdline arguments and
-    confirming configuration to use before training and overwriting of default training configurations"""
+    confirming configuration to use before training and overwriting of default training configurations
+    """
 
     if config is None:
         config = {}

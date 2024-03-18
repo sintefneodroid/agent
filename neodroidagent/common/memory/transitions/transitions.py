@@ -88,7 +88,8 @@ class TransitionPoint(Transition):
 @dataclass
 class ValuedTransitionPoint(TransitionPoint):
     """
-    __slots__=['state','action','successor_state','signal','terminal',"distribution","value_estimate"]"""
+    __slots__=['state','action','successor_state','signal','terminal',"distribution","value_estimate"]
+    """
 
     __slots__ = TransitionPoint.__slots__ + ["distribution", "value_estimate"]
     state: Any
