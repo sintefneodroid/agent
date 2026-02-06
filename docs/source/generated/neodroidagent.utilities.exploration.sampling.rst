@@ -3,21 +3,21 @@ neodroidagent.utilities.exploration.sampling
 
 .. automodule:: neodroidagent.utilities.exploration.sampling
 
-   
-   
-   
 
-   
-   
-   
 
-   
-   
-   
 
-   
-   
-   
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -32,4 +32,3 @@ neodroidagent.utilities.exploration.sampling
    neodroidagent.utilities.exploration.sampling.set_sampling
    neodroidagent.utilities.exploration.sampling.snake_space_filling
    neodroidagent.utilities.exploration.sampling.ucb1
-

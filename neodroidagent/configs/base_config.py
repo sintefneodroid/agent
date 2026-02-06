@@ -1,10 +1,9 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 __author__ = "Christian Heider Nielsen"
-"""
+__doc__ = """
 Description: Config for training
 Author: Christian Heider Nielsen
 """
+
 
 import time
 from os import cpu_count
@@ -16,7 +15,8 @@ from neodroidagent.agents.agent import TogglableLowHigh, TogglableValue
 from trolls.render_mode import RenderModeEnum
 
 PROJECT_NAME = PROJECT_NAME
-CONFIG_NAME = __name__
+
+CONFIG_NAME = f"{__name__}"
 CONFIG_FILE_PATH = Path(__file__)
 CONFIG_AUTHOR = __author__
 LOAD_TIME = str(int(time.time()))

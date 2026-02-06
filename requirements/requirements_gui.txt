@@ -1,4 +1,4 @@
-kivy>=1.10.1
 cv2
 imageio
+kivy>=1.10.1
 pygame

@@ -1,14 +1,13 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-
 __author__ = "Christian Heider Nielsen"
 __doc__ = r"""
 
            Created on 19/01/2020
            """
 
+from typing import Callable
+
 import fire
-import warg
+from draugr.python_utilities import get_terminal_size
 from neodroidagent import get_version
 from neodroidagent.entry_points.agent_tests import AGENT_CONFIG, AGENT_OPTIONS
 from pyfiglet import Figlet
@@ -16,7 +15,7 @@ from warg import NOD
 from warg.arguments import upper_dict
 
 margin_percentage = 0 / 6
-terminal_width = warg.get_terminal_size().columns
+terminal_width = get_terminal_size().columns
 margin = int(margin_percentage * terminal_width)
 width = terminal_width - 2 * margin
 underline = "_" * width
@@ -24,10 +23,10 @@ indent = " " * margin
 sponsors = ("SINTEF Ocean", "Alexandra Institute", "Norges Forskningsråd")
 
 
-class RunAgent(object):
+class RunAgent:
     """ """
 
-    def __init__(self, agent_key: str, agent_callable: callable):
+    def __init__(self, agent_key: str, agent_callable: Callable):
         self.agent_key = agent_key
         self.agent_callable = agent_callable
 

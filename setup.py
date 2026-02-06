@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 from typing import List, Sequence, Union
 
 from setuptools import find_packages, setup
@@ -67,9 +65,7 @@ def read_reqs(file: str, path: Path) -> List[str]:
 
 import re
 
-with open(
-    Path(__file__).parent / "neodroidagent" / "__init__.py", "r"
-) as project_init_file:
+with open(Path(__file__).parent / "neodroidagent" / "__init__.py") as project_init_file:
     str_reg_exp = "['\"]([^'\"]*)['\"]"
     content = project_init_file.read()  # get strings from module
     version = re.search(rf"__version__ = {str_reg_exp}", content, re.M).group(1)

@@ -8,19 +8,13 @@ neodroidagent.utilities.exploration.intrinsic\_signals.braindead.BraindeadIntrin
    :show-inheritance:
    :inherited-members:
 
-   
+
    .. automethod:: __init__
 
-   
+
    .. rubric:: Methods
 
    .. autosummary::
-   
+
       ~BraindeadIntrinsicSignalProvider.__init__
       ~BraindeadIntrinsicSignalProvider.sample
-   
-   
-
-   
-   
-   

@@ -1,10 +1,10 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 import draugr
 
 __author__ = "Christian Heider Nielsen"
 
 import torch
+
+from draugr.python_utilities import sprint
 from draugr.stopping import add_early_stopping_key_combination
 
 from neodroid.environments.gym_environment.gym_wrapper import (

@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 __author__ = "Christian Heider Nielsen"
 __all__ = ["torch_advantage_estimate", "torch_compute_gae"]
 __doc__ = r"""

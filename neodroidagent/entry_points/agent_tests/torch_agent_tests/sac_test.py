@@ -1,6 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-
 __author__ = "Christian Heider Nielsen"
 __doc__ = r"""
 Description: Test script and config for training a soft actor critic agent
@@ -22,7 +19,9 @@ from neodroidagent.entry_points.session_factory import session_factory
 from trolls.render_mode import RenderModeEnum
 from warg import GDKC
 
-CONFIG_NAME = __name__
+from neodroidagent.configs.base_config import *
+
+CONFIG_NAME = f"{__name__} on {CONFIG_NAME}"
 
 CONFIG_FILE_PATH = Path(__file__)
 
@@ -61,7 +60,7 @@ def sac_run(
     skip_confirmation: bool = False,
     environment: Union[EnvironmentType, Environment] = EnvironmentType.zmq_pipe,
     config=None,
-    **kwargs
+    **kwargs,
 ):
     if config is None:
         config = sac_config
@@ -74,10 +73,10 @@ def sac_run(
             environment_name=ENVIRONMENT_NAME,
             auto_reset_on_terminal_state=True,
             environment=environment,
-            **kwargs
+            **kwargs,
         ),
         skip_confirmation=skip_confirmation,
-        **kwargs
+        **kwargs,
     )
 
 

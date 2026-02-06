@@ -1,6 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-
 __author__ = "Christian Heider Nielsen"
 __doc__ = r"""
 
@@ -13,7 +10,7 @@ from torch.utils.data.sampler import BatchSampler, SubsetRandomSampler
 USE_CUDA = torch.cuda.is_available()
 
 
-class RolloutStorage(object):
+class RolloutStorage:
     def __init__(
         self, num_steps, num_processes, obs_shape, action_space, use_cuda, action_shape
     ):

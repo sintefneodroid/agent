@@ -1,6 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-
 import draugr
 from draugr.stopping.stopping_key import add_early_stopping_key_combination
 

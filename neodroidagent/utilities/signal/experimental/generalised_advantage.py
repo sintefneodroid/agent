@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 import numpy
 
 from neodroidagent.utilities.signal.experimental.discounting import valued_discount

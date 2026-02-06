@@ -3,21 +3,21 @@ neodroidagent.configs
 
 .. automodule:: neodroidagent.configs
 
-   
-   
-   
 
-   
-   
-   
 
-   
-   
-   
 
-   
-   
-   
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -32,4 +32,3 @@ neodroidagent.configs
    neodroidagent.configs.curriculum
    neodroidagent.configs.reference
    neodroidagent.configs.test_reference
-

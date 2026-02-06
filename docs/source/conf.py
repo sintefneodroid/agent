@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 #
 # Neo documentation build configuration file, created by
 # sphinx-quickstart on Tue Jul 25 10:23:12 2017.

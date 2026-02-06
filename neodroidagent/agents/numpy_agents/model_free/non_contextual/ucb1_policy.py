@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 import argparse
 
 from neodroid.environments.droid_environment.unity.deprecated import (

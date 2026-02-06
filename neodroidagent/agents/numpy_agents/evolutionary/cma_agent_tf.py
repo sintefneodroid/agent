@@ -1,4 +1,5 @@
 """Covariance Matrix Adaptation Evolution Strategy."""
+
 from typing import Sequence
 
 import numpy

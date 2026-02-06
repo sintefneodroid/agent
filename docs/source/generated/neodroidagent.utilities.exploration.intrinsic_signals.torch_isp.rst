@@ -3,21 +3,21 @@ neodroidagent.utilities.exploration.intrinsic\_signals.torch\_isp
 
 .. automodule:: neodroidagent.utilities.exploration.intrinsic_signals.torch_isp
 
-   
-   
-   
 
-   
-   
-   
 
-   
-   
-   
 
-   
-   
-   
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -32,4 +32,3 @@ neodroidagent.utilities.exploration.intrinsic\_signals.torch\_isp
    neodroidagent.utilities.exploration.intrinsic_signals.torch_isp.curiosity
    neodroidagent.utilities.exploration.intrinsic_signals.torch_isp.dopamine_module
    neodroidagent.utilities.exploration.intrinsic_signals.torch_isp.torch_isp_module
-

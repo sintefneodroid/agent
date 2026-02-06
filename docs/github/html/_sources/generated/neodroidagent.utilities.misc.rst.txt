@@ -3,21 +3,21 @@ neodroidagent.utilities.misc
 
 .. automodule:: neodroidagent.utilities.misc
 
-   
-   
-   
 
-   
-   
-   
 
-   
-   
-   
 
-   
-   
-   
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -35,4 +35,3 @@ neodroidagent.utilities.misc
    neodroidagent.utilities.misc.tanh_normal
    neodroidagent.utilities.misc.target_updates
    neodroidagent.utilities.misc.training_resume
-

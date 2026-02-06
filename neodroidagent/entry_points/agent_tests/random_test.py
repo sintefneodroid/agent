@@ -1,6 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-
 __author__ = "Christian Heider Nielsen"
 __doc__ = r"""
 
@@ -10,7 +7,7 @@ __doc__ = r"""
 import logging
 from typing import Union
 
-from neodroid.environments.environment import Environment, EnvironmentType
+from neodroid.environments import Environment, EnvironmentType
 from neodroidagent.agents import RandomAgent
 from neodroidagent.common import ParallelSession
 from neodroidagent.entry_points.session_factory import session_factory

@@ -8,21 +8,15 @@ neodroidagent.utilities.exploration.intrinsic\_signals.torch\_isp.curiosity.icm.
    :show-inheritance:
    :inherited-members:
 
-   
+
    .. automethod:: __init__
 
-   
+
    .. rubric:: Methods
 
    .. autosummary::
-   
+
       ~MLPICM.__init__
       ~MLPICM.forward
       ~MLPICM.loss
       ~MLPICM.sample
-   
-   
-
-   
-   
-   

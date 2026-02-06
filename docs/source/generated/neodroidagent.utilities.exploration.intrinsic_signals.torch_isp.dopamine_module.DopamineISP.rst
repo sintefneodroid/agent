@@ -8,19 +8,13 @@ neodroidagent.utilities.exploration.intrinsic\_signals.torch\_isp.dopamine\_modu
    :show-inheritance:
    :inherited-members:
 
-   
+
    .. automethod:: __init__
 
-   
+
    .. rubric:: Methods
 
    .. autosummary::
-   
+
       ~DopamineISP.__init__
       ~DopamineISP.sample
-   
-   
-
-   
-   
-   

@@ -3,21 +3,21 @@ neodroidagent.utilities
 
 .. automodule:: neodroidagent.utilities
 
-   
-   
-   
 
-   
-   
-   
 
-   
-   
-   
 
-   
-   
-   
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -33,4 +33,3 @@ neodroidagent.utilities
    neodroidagent.utilities.misc
    neodroidagent.utilities.signal
    neodroidagent.utilities.transformation
-

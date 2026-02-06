@@ -1,10 +1,54 @@
-fail_fast: true
+fail_fast: false
 repos:
+  - repo: https://github.com/asottile/pyupgrade
+    rev: v3.20.0
+    hooks:
+      - id: pyupgrade
+        args:
+          - --py38-plus
+          - --keep-runtime-typing
+
   - repo: https://github.com/ambv/black
-    rev: 23.9.1
+    rev: 25.1.0
     hooks:
       - id: black
         language_version: python3.10
+
+  - repo: https://github.com/abravalheri/validate-pyproject
+    rev: v0.24.1
+    hooks:
+      - id: validate-pyproject
+
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.16.1
+    hooks:
+      - id: mypy
+        verbose: true
+        #exclude: ^tests/
+        entry: bash -c 'mypy "$@" || true' -- # only print
+        #args: [ --strict ]
+
+  - repo: https://github.com/pycqa/flake8
+    rev: 7.3.0 # pick a git hash / tag to point to
+    hooks:
+      - id: flake8 # stop the build if there are Python syntax errors or undefined names
+        additional_dependencies: [flake8-docstrings]
+        exclude: ^exclude*
+        args:
+          - --count
+          - --select=E9,F63,F7,F82
+          - --show-source
+          - --statistics
+      - id: flake8 # only warn
+        additional_dependencies: [flake8-docstrings]
+        exclude: ^exclude*
+        args:
+          - --count
+          - --exit-zero
+          - --max-complexity=10
+          - --max-line-length=127
+          - --statistics
+
   - repo: local
     hooks:
       - id: pytest-check
@@ -13,19 +57,278 @@ repos:
         language: system
         pass_filenames: false
         always_run: true
-  - repo: local
+
+  #  - repo: local
+  #    hooks:
+  #      - id: sphinx-check
+  #        name: sphinx-check
+  #        entry: docs/make.sh
+  #        language: script
+  #        types: [ python ]
+  #        pass_filenames: false
+
+  #  - repo: local
+  #    hooks:
+  #      - id: pytest-check
+  #        name: pytest-check
+  #        entry: pytest migration --ignore-glob=*exclude*
+  #        language: system
+  #        pass_filenames: false
+  #        always_run: true
+
+  #  - repo: https://github.com/jshwi/docsig # BUGGY!
+  #    rev: v0.30.0
+  #    hooks:
+  #      - id: docsig
+  #        args:
+  #          - "--check-class"
+  #          - "--check-dunders"
+  #          - "--check-overridden"
+  #          - "--check-protected"
+  #          - "--summary"
+
+  #- repo: https://github.com/pycqa/pydocstyle # SLOW!
+  #  rev: 6.3.0  # pick a git hash / tag to point to
+  #  hooks:
+  #    - id: pydocstyle
+
+  #  - repo: https://github.com/executablebooks/mdformat
+  #    rev: 0.7.22
+  #    hooks:
+  #      - id: mdformat
+  #        additional_dependencies:
+  #          - mdformat-mkdocs
+  #          - mdformat-admon
+  #        exclude: |
+  #          (?x)^(
+  #            docs/formatter/black\.md
+  #            | docs/\w+\.md
+  #          )$
+
+  #  - repo: https://github.com/igorshubovych/markdownlint-cli
+  #    rev: v0.37.0
+  #    hooks:
+  #      - id: markdownlint-fix
+  #        exclude: |
+  #          (?x)^(
+  #            docs/formatter/black\.md
+  #            | docs/\w+\.md
+  #          )$
+
+  #  - repo: https://github.com/astral-sh/ruff-pre-commit # DISAGREEs WITH BLACK
+  #    rev: v0.1.4
+  #    hooks:
+  #      - id: ruff-format
+  #      - id: ruff
+  #        args: [--fix, --exit-non-zero-on-fix]
+  #        types_or: [python, pyi]
+  #        require_serial: true
+  #        exclude: |
+  #          (?x)^(
+  #            crates/ruff_linter/resources/.*|
+  #            crates/ruff_python_formatter/resources/.*
+  #          )$
+
+  # Prettier
+  - repo: https://github.com/pre-commit/mirrors-prettier
+    rev: v4.0.0-alpha.8
     hooks:
-      - id: flake8-check1 # stop the build if there are Python syntax errors or undefined names
-        name: flake8-check1
-        entry: flake8 neodroidagent --count --select=E9,F63,F7,F82 --show-source --statistics --exclude=*exclude*
-        language: system
+      - id: prettier
+        types: [yaml]
+
+  #  - repo: https://github.com/jsh9/pydoclint
+  #    rev: 0.3.8
+  #    hooks:
+  #      - id: pydoclint
+  #        args:
+  #          [
+  #            --style=sphinx,
+  #            --check-return-types=False,
+  #            --arg-type-hints-in-docstring=False,
+  #          ]
+
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0 # Use the ref you want to point at
+    hooks:
+      - id: check-added-large-files
+        name: check for added large files
+        description: prevents giant files from being committed.
+        entry: check-added-large-files
+        language: python
+      - id: check-ast
+        name: check python ast
+        description: simply checks whether the files parse as valid python.
+        entry: check-ast
+        language: python
+        types: [python]
+      - id: check-byte-order-marker
+        name: "check BOM - deprecated: use fix-byte-order-marker"
+        description: forbids files which have a utf-8 byte-order marker.
+        entry: check-byte-order-marker
+        language: python
+        types: [text]
+      - id: check-builtin-literals
+        name: check builtin type constructor use
+        description: requires literal syntax when initializing empty or zero python builtin types.
+        entry: check-builtin-literals
+        language: python
+        types: [python]
+      - id: check-case-conflict
+        name: check for case conflicts
+        description: checks for files that would conflict in case-insensitive filesystems.
+        entry: check-case-conflict
+        language: python
+      - id: check-docstring-first
+        name: check docstring is first
+        description: checks a common error of defining a docstring after code.
+        entry: check-docstring-first
+        language: python
+        types: [python]
+      - id: check-executables-have-shebangs
+        name: check that executables have shebangs
+        description: ensures that (non-binary) executables have a shebang.
+        entry: check-executables-have-shebangs
+        language: python
+        types: [text, executable]
+        stages: [pre-commit, pre-push, manual]
+      - id: check-json
+        name: check json
+        description: checks json files for parseable syntax.
+        entry: check-json
+        language: python
+        types: [json]
+      - id: check-shebang-scripts-are-executable
+        name: check that scripts with shebangs are executable
+        description: ensures that (non-binary) files with a shebang are executable.
+        entry: check-shebang-scripts-are-executable
+        language: python
+        types: [text]
+        stages: [pre-commit, pre-push, manual]
+      - id: pretty-format-json
+        name: pretty format json
+        description: sets a standard for formatting json files.
+        entry: pretty-format-json
+        language: python
+        types: [json]
+      - id: check-merge-conflict
+        name: check for merge conflicts
+        description: checks for files that contain merge conflict strings.
+        entry: check-merge-conflict
+        language: python
+        types: [text]
+      - id: check-symlinks
+        name: check for broken symlinks
+        description: checks for symlinks which do not point to anything.
+        entry: check-symlinks
+        language: python
+        types: [symlink]
+      - id: check-toml
+        name: check toml
+        description: checks toml files for parseable syntax.
+        entry: check-toml
+        language: python
+        types: [toml]
+      - id: check-vcs-permalinks
+        name: check vcs permalinks
+        description: ensures that links to vcs websites are permalinks.
+        entry: check-vcs-permalinks
+        language: python
+        types: [text]
+      - id: check-xml
+        name: check xml
+        description: checks xml files for parseable syntax.
+        entry: check-xml
+        language: python
+        types: [xml]
+      - id: check-yaml
+        name: check yaml
+        description: checks yaml files for parseable syntax.
+        entry: check-yaml
+        language: python
+        types: [yaml]
+      - id: debug-statements
+        name: debug statements (python)
+        description: checks for debugger imports and py37+ `breakpoint()` calls in python source.
+        entry: debug-statement-hook
+        language: python
+        types: [python]
+      - id: destroyed-symlinks
+        name: detect destroyed symlinks
+        description: detects symlinks which are changed to regular files with a content of a path which that symlink was pointing to.
+        entry: destroyed-symlinks
+        language: python
+        types: [file]
+      #- id: detect-aws-credentials
+      #  name: detect aws credentials
+      #  description: detects *your* aws credentials from the aws cli credentials file.
+      #  entry: detect-aws-credentials
+      #  language: python
+      #  types: [ text ]
+      - id: detect-private-key
+        name: detect private key
+        description: detects the presence of private keys.
+        entry: detect-private-key
+        language: python
+        types: [text]
+      #- id: double-quote-string-fixer
+      #  name: fix double quoted strings
+      #  description: replaces double quoted strings with single quoted strings.
+      #  entry: double-quote-string-fixer
+      #  language: python
+      #  types: [ python ]
+      - id: end-of-file-fixer
+        name: fix end of files
+        description: ensures that a file is either empty, or ends with one newline.
+        entry: end-of-file-fixer
+        language: python
+        types: [text]
+        stages: [pre-commit, pre-push, manual]
+      - id: file-contents-sorter
+        name: file contents sorter
+        description: sorts the lines in specified files (defaults to alphabetical). you must provide list of target files as input in your .pre-commit-config.yaml file.
+        entry: file-contents-sorter
+        language: python
+        files: "^$"
+      - id: fix-byte-order-marker
+        name: fix utf-8 byte order marker
+        description: removes utf-8 byte order marker.
+        entry: fix-byte-order-marker
+        language: python
+        types: [text]
+      - id: forbid-new-submodules
+        name: forbid new submodules
+        description: prevents addition of new git submodules.
+        language: python
+        entry: forbid-new-submodules
+        types: [directory]
+      - id: mixed-line-ending
+        name: mixed line ending
+        description: replaces or checks mixed line ending.
+        entry: mixed-line-ending
+        language: python
+        types: [text]
+      - id: no-commit-to-branch
+        name: "don't commit to branch"
+        entry: no-commit-to-branch
+        language: python
         pass_filenames: false
         always_run: true
-  - repo: local
-    hooks:
-      - id: flake8-check2  # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
-        name: flake8-check2
-        entry: flake8 neodroidagent --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics --exclude=*exclude*
-        language: system
-        pass_filenames: false
-        always_run: true
+      - id: requirements-txt-fixer
+        name: fix requirements.txt
+        description: sorts entries in requirements.txt.
+        entry: requirements-txt-fixer
+        language: python
+        files: requirements.*\.txt$
+      - id: sort-simple-yaml
+        name: sort simple yaml files
+        description: sorts simple yaml files which consist only of top-level keys, preserving comments and blocks.
+        language: python
+        entry: sort-simple-yaml
+        files: "^$"
+      - id: trailing-whitespace
+        name: trim trailing whitespace
+        description: trims trailing whitespace.
+        entry: trailing-whitespace-fixer
+        language: python
+        types: [text]
+        stages: [pre-commit, pre-push, manual]

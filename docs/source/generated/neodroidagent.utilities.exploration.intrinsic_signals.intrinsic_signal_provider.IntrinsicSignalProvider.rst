@@ -8,19 +8,13 @@ neodroidagent.utilities.exploration.intrinsic\_signals.intrinsic\_signal\_provid
    :show-inheritance:
    :inherited-members:
 
-   
+
    .. automethod:: __init__
 
-   
+
    .. rubric:: Methods
 
    .. autosummary::
-   
+
       ~IntrinsicSignalProvider.__init__
       ~IntrinsicSignalProvider.sample
-   
-   
-
-   
-   
-   

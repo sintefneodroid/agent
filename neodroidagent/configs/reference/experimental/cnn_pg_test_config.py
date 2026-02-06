@@ -1,12 +1,13 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
+from neodroidagent.configs.base_config import *
+
 from neodroidagent.architectures import CategoricalCNN
 from neodroidagent.configs.agent_test_configs.base_dicrete_test_config import *
 from warg import GDKC
 
 __author__ = "Christian Heider Nielsen"
+from neodroidagent.configs.base_config import *
 
-CONFIG_NAME = __name__
+CONFIG_NAME = f"{__name__} on {CONFIG_NAME}"
 from pathlib import Path
 
 CONFIG_FILE_PATH = Path(__file__)

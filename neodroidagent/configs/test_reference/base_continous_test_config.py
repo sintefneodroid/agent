@@ -1,12 +1,12 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 __author__ = "Christian Heider Nielsen"
 __doc__ = """
 Description: Config for training
 Author: Christian Heider Nielsen
 """
 
-CONFIG_NAME = __name__
+from neodroidagent.configs.base_config import *
+
+CONFIG_NAME = f"{__name__} on {CONFIG_NAME}"
 
 # noinspection PyUnresolvedReferences
 from neodroidagent.configs.base_config import *

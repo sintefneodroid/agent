@@ -3,21 +3,21 @@ neodroidagent.utilities.exploration
 
 .. automodule:: neodroidagent.utilities.exploration
 
-   
-   
-   
 
-   
-   
-   
 
-   
-   
-   
 
-   
-   
-   
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -31,4 +31,3 @@ neodroidagent.utilities.exploration
    neodroidagent.utilities.exploration.exploration_specification
    neodroidagent.utilities.exploration.intrinsic_signals
    neodroidagent.utilities.exploration.sampling
-

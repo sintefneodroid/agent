@@ -1,6 +1,5 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 import draugr
+from draugr.python_utilities import sprint
 from draugr.stopping import add_early_stopping_key_combination
 
 from neodroid.wrappers import BinaryActionEncodingWrapper

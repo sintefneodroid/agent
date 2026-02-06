@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 import math
 
 __author__ = "Christian Heider Nielsen"

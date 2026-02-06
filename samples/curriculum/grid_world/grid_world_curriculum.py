@@ -1,13 +1,10 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-
 __author__ = "Christian Heider Nielsen"
 
 import random
 from types import coroutine
 
 import numpy
-from draugr.visualisation import progress_bar
+from draugr.progress_bars import progress_bar
 from neodroid.utilities import Configuration, Displayable, Reaction, ReactionParameters
 
 

@@ -8,14 +8,14 @@ neodroidagent.utilities.misc.tanh\_normal.TanhNormal
    :show-inheritance:
    :inherited-members:
 
-   
+
    .. automethod:: __init__
 
-   
+
    .. rubric:: Methods
 
    .. autosummary::
-   
+
       ~TanhNormal.__init__
       ~TanhNormal.cdf
       ~TanhNormal.entropy
@@ -28,15 +28,15 @@ neodroidagent.utilities.misc.tanh\_normal.TanhNormal
       ~TanhNormal.sample
       ~TanhNormal.sample_n
       ~TanhNormal.set_default_validate_args
-   
-   
 
-   
-   
+
+
+
+
    .. rubric:: Attributes
 
    .. autosummary::
-   
+
       ~TanhNormal.arg_constraints
       ~TanhNormal.batch_shape
       ~TanhNormal.event_shape
@@ -46,5 +46,3 @@ neodroidagent.utilities.misc.tanh\_normal.TanhNormal
       ~TanhNormal.stddev
       ~TanhNormal.support
       ~TanhNormal.variance
-   
-   

@@ -1,6 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-
 __author__ = "Christian Heider Nielsen"
 
 __doc__ = r"""
@@ -32,7 +29,9 @@ from warg import GDKC
 
 # General
 
-CONFIG_NAME = __name__
+from neodroidagent.configs.base_config import *
+
+CONFIG_NAME = f"{__name__} on {CONFIG_NAME}"
 from pathlib import Path
 
 CONFIG_FILE_PATH = Path(__file__)
@@ -80,7 +79,7 @@ def ppo_run(
     skip_confirmation: bool = False,
     environment: Union[EnvironmentType, Environment] = EnvironmentType.zmq_pipe,
     config=None,
-    **kwargs
+    **kwargs,
 ):
     """
 
@@ -100,7 +99,7 @@ def ppo_run(
         session=GDKC(ParallelSession, procedure=OffPolicyStepWise),
         environment=environment,
         skip_confirmation=skip_confirmation,
-        **kwargs
+        **kwargs,
     )
 
 

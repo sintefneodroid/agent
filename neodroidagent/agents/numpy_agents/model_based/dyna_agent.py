@@ -110,8 +110,8 @@ class DynaAgent(NumpyAgent):
         self.derived_variables = {
             "episode_num": 0,
             "sweep_queue": {},
-            "visited": set([]),
-            "steps_since_last_visit": defaultdict(lambda: 0),
+            "visited": set(),
+            "steps_since_last_visit": defaultdict(int),
         }
 
         if self.q_plus:
@@ -136,7 +136,7 @@ class DynaAgent(NumpyAgent):
         self.episode_history = {"state_actions": [], "rewards": []}
 
     def sample(self, obs):
-        """
+        r"""
         Execute the behavior policy--an :math:`\epsilon`-soft policy used to
         generate actions during training.
 

@@ -3,21 +3,21 @@ neodroidagent.configs.test\_reference
 
 .. automodule:: neodroidagent.configs.test_reference
 
-   
-   
-   
 
-   
-   
-   
 
-   
-   
-   
 
-   
-   
-   
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -31,4 +31,3 @@ neodroidagent.configs.test\_reference
    neodroidagent.configs.test_reference.base_continous_test_config
    neodroidagent.configs.test_reference.base_dicrete_test_config
    neodroidagent.configs.test_reference.base_torch_config
-

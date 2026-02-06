@@ -3,21 +3,21 @@ neodroidagent.configs.reference
 
 .. automodule:: neodroidagent.configs.reference
 
-   
-   
-   
 
-   
-   
-   
 
-   
-   
-   
 
-   
-   
-   
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -31,4 +31,3 @@ neodroidagent.configs.reference
    neodroidagent.configs.reference.cartpole_test_config
    neodroidagent.configs.reference.experimental
    neodroidagent.configs.reference.mnih_2013_config
-

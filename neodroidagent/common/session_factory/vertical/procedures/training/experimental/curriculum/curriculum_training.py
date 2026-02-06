@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 import time
 from pathlib import Path
 from typing import Union
@@ -7,7 +5,7 @@ from typing import Union
 import neodroidagent.configs.curriculum.curriculum_config as C
 import torch
 from draugr.torch_utilities import TensorBoardPytorchWriter
-from draugr.visualisation import progress_bar
+from draugr.progress_bars import progress_bar
 from draugr.python_utilities import sprint
 from neodroid.wrappers import NeodroidCurriculumWrapper
 from neodroidagent.agents.torch_agents.model_free import PolicyGradientAgent
@@ -27,7 +25,7 @@ __author__ = "Christian Heider Nielsen"
 torch.manual_seed(C.SEED)
 # neo.seed(C.SEED)
 
-"""stats = draugr.StatisticCollection(
+INGORE_THIS = """stats = draugr.StatisticCollection(
     stats={
       'signals',
       'lengths',

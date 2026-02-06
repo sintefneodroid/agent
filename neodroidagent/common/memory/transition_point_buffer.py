@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 from itertools import count
 
 from draugr.python_utilities import wrap_args

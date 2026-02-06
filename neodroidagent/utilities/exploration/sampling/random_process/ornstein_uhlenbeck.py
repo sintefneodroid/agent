@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 from .annealed_guassian import AnnealedGaussianProcess
 
 __author__ = "Christian Heider Nielsen"

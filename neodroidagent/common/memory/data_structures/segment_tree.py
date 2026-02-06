@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 __author__ = "Christian Heider Nielsen"
 
 import operator
@@ -7,7 +5,7 @@ import operator
 __all__ = ["SegmentTree"]
 
 
-class SegmentTree(object):
+class SegmentTree:
     """ """
 
     def __init__(self, capacity, operation, neutral_element):

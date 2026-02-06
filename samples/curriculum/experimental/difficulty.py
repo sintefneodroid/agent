@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 __author__ = "Christian Heider Nielsen"
 
 import neodroid
@@ -65,7 +63,9 @@ def color_sample(identifier):
         neodroid.Configuration(
             identifier + "ColorConfigurableG", numpy.random.sample()
         ),
-        neodroid.Configuration(identifier + "ColorConfigurableB", numpy.random.sample())
+        neodroid.Configuration(
+            identifier + "ColorConfigurableB", numpy.random.sample()
+        ),
         # neodroid.Configuration(id+'ColorConfigurableA',
         #                       numpy.random.sample()),
     ]

@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 from .random_process import RandomProcess
 
 __author__ = "Christian Heider Nielsen"

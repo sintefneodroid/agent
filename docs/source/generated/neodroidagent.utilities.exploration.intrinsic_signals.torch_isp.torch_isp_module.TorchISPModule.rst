@@ -8,19 +8,13 @@ neodroidagent.utilities.exploration.intrinsic\_signals.torch\_isp.torch\_isp\_mo
    :show-inheritance:
    :inherited-members:
 
-   
+
    .. automethod:: __init__
 
-   
+
    .. rubric:: Methods
 
    .. autosummary::
-   
+
       ~TorchISPModule.__init__
       ~TorchISPModule.sample
-   
-   
-
-   
-   
-   

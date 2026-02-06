@@ -3,7 +3,7 @@ from time import time
 import numpy
 
 
-class Trainer(object):
+class Trainer:
     def __init__(self, agent, env):
         """
         An object to facilitate agent training and evaluation.

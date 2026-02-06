@@ -1,6 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-
 __author__ = "Christian Heider Nielsen"
 
 from collections import namedtuple
@@ -8,7 +5,7 @@ from collections import namedtuple
 import numpy
 
 
-class InitStateDistribution(object):
+class InitStateDistribution:
     StateDist = namedtuple("StateDist", ("state", "prob"))
 
     def __init__(self):

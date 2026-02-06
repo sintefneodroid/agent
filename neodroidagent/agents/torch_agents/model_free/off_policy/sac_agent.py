@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 __author__ = "Christian Heider Nielsen"
 __doc__ = r"""
 
@@ -22,7 +20,7 @@ from draugr.torch_utilities import (
     to_scalar,
     to_tensor,
 )
-from draugr.visualisation import progress_bar
+from draugr.progress_bars import progress_bar
 from draugr.writers import MockWriter, Writer
 from neodroidagent.agents.torch_agents.torch_agent import TorchAgent
 from neodroidagent.common import (
@@ -494,7 +492,7 @@ class SoftActorCriticAgent(TorchAgent):
         Interpolation factor in polyak averaging for target networks. Target networks are updated towards main
         networks according to:
 
-        \theta_{\text{targ}} \leftarrow
+        \theta_{\text{targ}} \\leftarrow
         \rho \theta_{\text{targ}} + (1-\rho) \theta
 
         where \rho is polyak. (Always between 0 and 1, usually close to 1.)

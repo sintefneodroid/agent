@@ -1,6 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-
 __author__ = "Christian Heider Nielsen"
 __doc__ = """
 Description: Config for training
@@ -13,7 +10,9 @@ import torch
 from neodroidagent.common import CategoricalMLP
 from warg import NOD
 
-CONFIG_NAME = __name__
+from neodroidagent.configs.base_config import *
+
+CONFIG_NAME = f"{__name__} on {CONFIG_NAME}"
 from pathlib import Path
 from warg import GDKC
 
@@ -34,7 +33,7 @@ POLICY_ARCH_SPEC = GDKC(
 ROLLOUTS = 10000
 
 ENVIRONMENT_NAME = "CartPole-v1"
-"""
+IGNORE_THIS = """
 
 Description
 A pole is attached by an un-actuated joint to a cart, which moves along a frictionless track. The pendulum

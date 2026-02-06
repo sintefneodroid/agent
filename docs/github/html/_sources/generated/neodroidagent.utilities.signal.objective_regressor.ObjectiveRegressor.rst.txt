@@ -8,14 +8,14 @@ neodroidagent.utilities.signal.objective\_regressor.ObjectiveRegressor
    :show-inheritance:
    :inherited-members:
 
-   
+
    .. automethod:: __init__
 
-   
+
    .. rubric:: Methods
 
    .. autosummary::
-   
+
       ~ObjectiveRegressor.__init__
       ~ObjectiveRegressor.add_module
       ~ObjectiveRegressor.apply
@@ -58,17 +58,15 @@ neodroidagent.utilities.signal.objective\_regressor.ObjectiveRegressor
       ~ObjectiveRegressor.type
       ~ObjectiveRegressor.xpu
       ~ObjectiveRegressor.zero_grad
-   
-   
 
-   
-   
+
+
+
+
    .. rubric:: Attributes
 
    .. autosummary::
-   
+
       ~ObjectiveRegressor.T_destination
       ~ObjectiveRegressor.dump_patches
       ~ObjectiveRegressor.training
-   
-   

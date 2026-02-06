@@ -1,6 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-
 __author__ = "Christian Heider Nielsen"
 __doc__ = r"""
 
@@ -33,17 +30,17 @@ timestep `t` is:
 
 .. math::
 
-\\theta_i  &=  \{\mathbf{W}_i^{(t)}, \mathbf{b}_i^{(t)} \} \\\\
-\\theta_i  &\sim  \mathcal{N}(\mu^{(t)}, \Sigma^{(t)})
+\\theta_i  &=  \\{\\mathbf{W}_i^{(t)}, \\mathbf{b}_i^{(t)} \\} \\\\
+\\theta_i  &\\sim  \\mathcal{N}(\\mu^{(t)}, \\Sigma^{(t)})
 
-Weights (:math:`\mathbf{W}_i`) and bias (:math:`\mathbf{b}_i`) are the
+Weights (:math:`\\mathbf{W}_i`) and bias (:math:`\\mathbf{b}_i`) are the
 parameters of the softmax policy:
 
 .. math::
 
-\mathbf{z}_i  &=  \\text{obs} \cdot \mathbf{W}_i + \mathbf{b}_i \\\\
-p(a_i^{(t + 1)})  &=  \\frac{e^{\mathbf{z}_i}}{\sum_j e^{z_{ij}}} \\\\
-a^{(t + 1)}  &=  \\arg \max_j p(a_j^{(t+1)})
+\\mathbf{z}_i  &=  \\text{obs} \\cdot \\mathbf{W}_i + \\mathbf{b}_i \\\\
+p(a_i^{(t + 1)})  &=  \\frac{e^{\\mathbf{z}_i}}{\\sum_j e^{z_{ij}}} \\\\
+a^{(t + 1)}  &=  \\arg \\max_j p(a_j^{(t+1)})
 
 At the end of each episode, the agent takes the top `retain_prcnt`
 highest scoring :math:`\\theta` samples and combines them to generate
@@ -52,8 +49,8 @@ next episode:
 
 .. math::
 
-\mu^{(t+1)}  &=  \\text{avg}(\\texttt{best_thetas}^{(t)}) \\\\
-\Sigma^{(t+1)}  &=  \\text{var}(\\texttt{best_thetas}^{(t)})
+\\mu^{(t+1)}  &=  \\text{avg}(\\texttt{best_thetas}^{(t)}) \\\\
+\\Sigma^{(t+1)}  &=  \\text{var}(\\texttt{best_thetas}^{(t)})
 
 Parameters
 ----------
@@ -113,10 +110,10 @@ the parameter update at the end of the episode. Default is 0.2.
 
         .. math::
 
-        \pi(a | x^{(t)}) = \\text{softmax}(
-        \\text{obs}^{(t)} \cdot \mathbf{W}_i^{(t)} + \mathbf{b}_i^{(t)} )
+        \\pi(a | x^{(t)}) = \\text{softmax}(
+        \\text{obs}^{(t)} \\cdot \\mathbf{W}_i^{(t)} + \\mathbf{b}_i^{(t)} )
 
-        where :math:`\mathbf{W}` is a learned weight matrix, `obs` is the observation
+        where :math:`\\mathbf{W}` is a learned weight matrix, `obs` is the observation
         at timestep `t`, and **b** is a learned bias vector.
 
         Parameters
@@ -233,7 +230,7 @@ the parameter update at the end of the episode. Default is 0.2.
         return total_reward, n_steps
 
     def update(self):
-        """
+        r"""
         Update :math:`\mu` and :math:`\Sigma` according to the rewards accrued on
         the current episode.
 

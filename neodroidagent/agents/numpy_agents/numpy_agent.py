@@ -1,6 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-
 __author__ = "Christian Heider Nielsen"
 __doc__ = r"""
 
@@ -29,14 +26,14 @@ class NumpyAgent(ABC):
         n_actions = numpy.prod(E["n_actions_per_dim"])
 
         # create action -> scalar dictionaries
-        self._num2action = dict()
+        self._num2action = {}
         self._action2num = dict(act_encoder)
         if n_actions != numpy.inf:
             self._action2num = {act: i for i, act in enumerate(E["action_ids"])}
             self._num2action = {i: act for act, i in self._action2num.items()}
 
         # create obs -> scalar dictionaries
-        self._num2obs = dict()
+        self._num2obs = {}
         self._obs2num = dict(obs_encoder)
         if n_states != numpy.inf:
             self._obs2num = {act: i for i, act in enumerate(E["obs_ids"])}

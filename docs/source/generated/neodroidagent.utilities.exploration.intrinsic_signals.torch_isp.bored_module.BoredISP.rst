@@ -8,19 +8,13 @@ neodroidagent.utilities.exploration.intrinsic\_signals.torch\_isp.bored\_module.
    :show-inheritance:
    :inherited-members:
 
-   
+
    .. automethod:: __init__
 
-   
+
    .. rubric:: Methods
 
    .. autosummary::
-   
+
       ~BoredISP.__init__
       ~BoredISP.sample
-   
-   
-
-   
-   
-   

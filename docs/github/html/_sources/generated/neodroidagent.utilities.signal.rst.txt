@@ -3,21 +3,21 @@ neodroidagent.utilities.signal
 
 .. automodule:: neodroidagent.utilities.signal
 
-   
-   
-   
 
-   
-   
-   
 
-   
-   
-   
 
-   
-   
-   
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -33,4 +33,3 @@ neodroidagent.utilities.signal
    neodroidagent.utilities.signal.experimental
    neodroidagent.utilities.signal.numpy_discounting
    neodroidagent.utilities.signal.objective_regressor
-

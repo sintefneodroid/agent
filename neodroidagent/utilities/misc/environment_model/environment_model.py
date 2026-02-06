@@ -1,6 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-
 __author__ = "Christian Heider Nielsen"
 __doc__ = r"""
 
@@ -14,7 +11,7 @@ import numpy
 __all__ = ["EnvModel"]
 
 
-class EnvModel(object):
+class EnvModel:
     """
     A simple tabular environment model that maintains the counts of each
     reward-outcome pair given the state and action that preceded them. The
@@ -31,8 +28,8 @@ class EnvModel(object):
     """
 
     def __init__(self):
-        super(EnvModel, self).__init__()
-        self._model = defaultdict(lambda: defaultdict(lambda: 0))
+        super().__init__()
+        self._model = defaultdict(lambda: defaultdict(int))
 
     def __setitem__(self, key, value):
         s, a, r, s_ = key

@@ -1,17 +1,18 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
+from neodroidagent.configs.base_config import *
+
+
 from neodroidagent.architectures import CNN
 from neodroidagent.configs.agent_test_configs.base_dicrete_test_config import *
 from neodroidagent.utilities import ReplayBuffer
 from warg import GDKC
 
 __author__ = "Christian Heider Nielsen"
-"""
+__doc__ = """
 Description: Config for training
 Author: Christian Heider Nielsen
 """
 
-CONFIG_NAME = __name__
+CONFIG_NAME = f"{__name__} on {CONFIG_NAME}"
 from pathlib import Path
 
 CONFIG_FILE_PATH = Path(__file__)

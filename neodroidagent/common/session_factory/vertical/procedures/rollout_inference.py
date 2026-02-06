@@ -1,6 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-
 __author__ = "Christian Heider Nielsen"
 __doc__ = r"""
 
@@ -15,7 +12,7 @@ from typing import Union
 
 import torch
 from draugr.torch_utilities import TensorBoardPytorchWriter
-from draugr.visualisation import progress_bar
+from draugr.progress_bars import progress_bar
 from warg import drop_unused_kws
 
 from .procedure_specification import Procedure

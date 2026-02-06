@@ -1,6 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-
 __author__ = "Christian Heider Nielsen"
 __all__ = ["rollout_on_policy", "OnPolicyEpisodic"]
 __doc__ = "Collects agent experience for episodic on policy training"
@@ -16,7 +13,7 @@ import numpy
 from draugr.drawers import MockDrawer, MplDrawer
 from draugr.metrics import mean_accumulator, total_accumulator
 from draugr.opencv_utilities import blit_fps, blit_numbering_raster_sequence
-from draugr.visualisation import progress_bar
+from draugr.progress_bars import progress_bar
 from draugr.writers import MockWriter, VideoInputDimsEnum, VideoWriterMixin, Writer
 from neodroid.environments.environment import Environment
 from neodroid.utilities import EnvironmentSnapshot, to_one_hot
@@ -148,29 +145,37 @@ def rollout_on_policy(
             and render_mode != RenderModeEnum.none
             and render_mode != RenderModeEnum.to_screen
         ):
-            video_frames = numpy.array(frames).swapaxes(0, 1)
-            input_dims = VideoInputDimsEnum.nthwc
-            if select_random_single_render:
-                video_frames = video_frames[: random.randint(0, len(video_frames))]
+            frame_array = numpy.array(frames)
 
-            if blit_numbering:  # also include fps
-                fps_writer = int(
-                    max(50, fps)
-                )  # GIF limit, remove if alternative is used
-                video_frames = numpy.array(
-                    [
-                        blit_fps(blit_numbering_raster_sequence(f), fps_writer)
-                        for f in video_frames
-                    ]
+            if frame_array.ndim < 2:
+                logging.warning(
+                    f"Expected at least 2 dimensions for frame array, got {frame_array.ndim}"
                 )
+            else:
 
-            metric_writer.video(
-                f"{render_mode.value}_replay",
-                video_frames,
-                step=agent.update_i,
-                frame_rate=fps,
-                input_dims=input_dims,
-            )  # VERY SLOW so do not run to often!
+                video_frames = frame_array.swapaxes(0, 1)
+                input_dims = VideoInputDimsEnum.nthwc
+                if select_random_single_render:
+                    video_frames = video_frames[: random.randint(0, len(video_frames))]
+
+                if blit_numbering:  # also include fps
+                    fps_writer = int(
+                        max(50, fps)
+                    )  # GIF limit, remove if alternative is used
+                    video_frames = numpy.array(
+                        [
+                            blit_fps(blit_numbering_raster_sequence(f), fps_writer)
+                            for f in video_frames
+                        ]
+                    )
+
+                metric_writer.video(
+                    f"{render_mode.value}_replay",
+                    video_frames,
+                    step=agent.update_i,
+                    frame_rate=fps,
+                    input_dims=input_dims,
+                )  # VERY SLOW so do not run to often!
 
     return episode_return, step_i
 

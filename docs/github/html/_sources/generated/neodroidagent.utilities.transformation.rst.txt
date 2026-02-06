@@ -3,21 +3,21 @@ neodroidagent.utilities.transformation
 
 .. automodule:: neodroidagent.utilities.transformation
 
-   
-   
-   
 
-   
-   
-   
 
-   
-   
-   
 
-   
-   
-   
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -30,4 +30,3 @@ neodroidagent.utilities.transformation
 
    neodroidagent.utilities.transformation.images
    neodroidagent.utilities.transformation.processing
-

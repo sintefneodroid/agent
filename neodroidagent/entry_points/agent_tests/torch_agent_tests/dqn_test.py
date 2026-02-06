@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 from typing import Union
 
 import torch
@@ -25,7 +23,9 @@ Description: Config for training
 Author: Christian Heider Nielsen
 """
 
-CONFIG_NAME = __name__
+from neodroidagent.configs.base_config import *
+
+CONFIG_NAME = f"{__name__} on {CONFIG_NAME}"
 from pathlib import Path
 
 CONFIG_FILE_PATH = Path(__file__)
@@ -49,7 +49,7 @@ def dqn_run(
     skip_confirmation: bool = False,
     environment: Union[EnvironmentType, Environment] = EnvironmentType.zmq_pipe,
     config=None,
-    **kwargs
+    **kwargs,
 ) -> None:
     if config is None:
         config = dqn_config
@@ -61,11 +61,11 @@ def dqn_run(
             environment_name=ENVIRONMENT_NAME,
             procedure=OffPolicyEpisodic,
             environment=environment,
-            **kwargs
+            **kwargs,
         ),
         skip_confirmation=skip_confirmation,
         environment=environment,
-        **kwargs
+        **kwargs,
     )
 
 

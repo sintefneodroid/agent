@@ -3,21 +3,21 @@ neodroidagent.entry\_points
 
 .. automodule:: neodroidagent.entry_points
 
-   
-   
-   
 
-   
-   
-   
 
-   
-   
-   
 
-   
-   
-   
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -34,4 +34,3 @@ neodroidagent.entry\_points
    neodroidagent.entry_points.open_data
    neodroidagent.entry_points.session_factory
    neodroidagent.entry_points.tensorboard_entry_point
-

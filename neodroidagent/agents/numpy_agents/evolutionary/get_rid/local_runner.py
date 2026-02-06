@@ -1,4 +1,5 @@
 """Provides algorithms with access to most of garage's features."""
+
 import copy
 import os
 import time
@@ -376,18 +377,19 @@ class LocalRunner:
 
         # logger.log('Saving snapshot...')
 
-        params = dict()
+        params = {
+            "setup_args": self._setup_args,
+            "train_args": self._train_args,
+            "stats": self._stats,
+            "env": self._env,
+            "algo": self._algo,
+            "n_workers": self._n_workers,
+            "worker_class": self._worker_class,
+            "worker_args": self._worker_args,
+        }
         # Save arguments
-        params["setup_args"] = self._setup_args
-        params["train_args"] = self._train_args
-        params["stats"] = self._stats
 
         # Save states
-        params["env"] = self._env
-        params["algo"] = self._algo
-        params["n_workers"] = self._n_workers
-        params["worker_class"] = self._worker_class
-        params["worker_args"] = self._worker_args
 
         self._snapshotter.save_itr_params(epoch, params)
 

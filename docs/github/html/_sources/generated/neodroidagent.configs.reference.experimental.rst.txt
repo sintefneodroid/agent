@@ -3,21 +3,21 @@ neodroidagent.configs.reference.experimental
 
 .. automodule:: neodroidagent.configs.reference.experimental
 
-   
-   
-   
 
-   
-   
-   
 
-   
-   
-   
 
-   
-   
-   
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -30,4 +30,3 @@ neodroidagent.configs.reference.experimental
 
    neodroidagent.configs.reference.experimental.cnn_dqn_test_config
    neodroidagent.configs.reference.experimental.cnn_pg_test_config
-

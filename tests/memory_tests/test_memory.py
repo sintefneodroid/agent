@@ -1,10 +1,6 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-
 __author__ = "Christian Heider Nielsen"
-__doc__ = "TODO: BROKEN AFTER BIG REFACTOR!"
+__doc__ = """TODO: BROKEN AFTER BIG REFACTOR!"
 
-"""
 def test_replay_buffer():
     rb = ReplayBuffer()
     a = tuple(range(3))
@@ -26,7 +22,7 @@ def test_replay_buffer_more():
     assert [a] == b, f"Expected {a} and {b} to be equal"
 """
 
-"""
+IGNORE_THIS = """
 def test_transition_buffer():
     rb = TransitionBuffer()
     a = tuple(range(3))

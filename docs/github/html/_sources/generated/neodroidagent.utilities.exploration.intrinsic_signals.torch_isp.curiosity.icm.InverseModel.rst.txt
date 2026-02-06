@@ -8,14 +8,14 @@ neodroidagent.utilities.exploration.intrinsic\_signals.torch\_isp.curiosity.icm.
    :show-inheritance:
    :inherited-members:
 
-   
+
    .. automethod:: __init__
 
-   
+
    .. rubric:: Methods
 
    .. autosummary::
-   
+
       ~InverseModel.__init__
       ~InverseModel.add_module
       ~InverseModel.apply
@@ -58,17 +58,15 @@ neodroidagent.utilities.exploration.intrinsic\_signals.torch\_isp.curiosity.icm.
       ~InverseModel.type
       ~InverseModel.xpu
       ~InverseModel.zero_grad
-   
-   
 
-   
-   
+
+
+
+
    .. rubric:: Attributes
 
    .. autosummary::
-   
+
       ~InverseModel.T_destination
       ~InverseModel.dump_patches
       ~InverseModel.training
-   
-   

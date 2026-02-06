@@ -1,6 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-
 __author__ = "Christian Heider Nielsen"
 __doc__ = r"""
 
@@ -134,7 +131,7 @@ class Experiment:
                 raise ValueError("batch_tasks should be callable")
             # ensure variant exists
             if variant is None:
-                variant = dict()
+                variant = {}
 
         if batch_tasks is None:
             batch_tasks = [
@@ -178,7 +175,7 @@ class Experiment:
                 )
             elif "variant" in task:
                 del task["variant"]
-            task["env"] = task.get("env", dict()) or dict()
+            task["env"] = task.get("env", {}) or {}
             task["env"]["GARAGE_FORCE_CPU"] = str(force_cpu)
 
         for task in batch_tasks:
@@ -191,7 +188,7 @@ class Experiment:
                 return
             try:
                 if env is None:
-                    env = dict()
+                    env = {}
                 os.subprocess.run(
                     command, shell=True, env=dict(os.environ, **env), check=True
                 )

@@ -8,27 +8,25 @@ neodroidagent.utilities.misc.training\_resume.TrainingResume
    :show-inheritance:
    :inherited-members:
 
-   
+
    .. automethod:: __init__
 
-   
+
    .. rubric:: Methods
 
    .. autosummary::
-   
+
       ~TrainingResume.__init__
       ~TrainingResume.count
       ~TrainingResume.index
-   
-   
 
-   
-   
+
+
+
+
    .. rubric:: Attributes
 
    .. autosummary::
-   
+
       ~TrainingResume.models
       ~TrainingResume.stats
-   
-   

@@ -1,6 +1,6 @@
 from itertools import count
 
-from draugr.visualisation import progress_bar
+from draugr.progress_bars import progress_bar
 from neodroid.environments.droid_environment import VectorUnityEnvironment
 
 

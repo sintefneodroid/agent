@@ -1,30 +1,30 @@
-﻿neodroidagent
+neodroidagent
 =============
 
 .. automodule:: neodroidagent
 
-   
-   
-   
 
-   
-   
+
+
+
+
+
    .. rubric:: Functions
 
    .. autosummary::
       :toctree:
-   
+
       get_version
-   
-   
 
-   
-   
-   
 
-   
-   
-   
+
+
+
+
+
+
+
+
 
 
 
@@ -40,4 +40,3 @@
    neodroidagent.configs
    neodroidagent.entry_points
    neodroidagent.utilities
-

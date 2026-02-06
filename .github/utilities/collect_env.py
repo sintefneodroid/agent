@@ -41,7 +41,7 @@ def run_cmd(command):
 def run_and_read_all(run_lambda, command):
     """Runs command using run_lambda; reads and returns entire output if rc is 0"""
     rc, out, _ = run_lambda(command)
-    if rc is not 0:
+    if rc != 0:
         return
     return out
 
@@ -49,7 +49,7 @@ def run_and_read_all(run_lambda, command):
 def run_and_parse_first_match(run_lambda, command, regex):
     """Runs command using run_lambda, returns the first regex match if it exists"""
     rc, out, _ = run_lambda(command)
-    if rc is not 0:
+    if rc != 0:
         return
     match = re.search(regex, out)
     if match is None:
@@ -93,7 +93,7 @@ def check_release_file(run_lambda):
 def get_os(run_lambda):
     platform = get_platform()
 
-    if platform is "win32" or platform is "cygwin":
+    if platform == "win32" or platform == "cygwin":
         return get_windows_version(run_lambda)
 
     if platform == "darwin":
@@ -120,7 +120,7 @@ def get_os(run_lambda):
 
 
 def req_grep_fmt():
-    r = "\|".join(
+    r = r"\|".join(
         [
             f'{req.split(">")[0].split("=")[0]}'
             for req in (
@@ -136,7 +136,7 @@ def get_pip_packages(run_lambda):
     def run_with_pip(pip):
         return run_and_read_all(
             run_lambda,
-            pip + f' list - -format=legacy | grep "Neodroid\|{req_grep_fmt()}"',
+            pip + rf' list - -format=legacy | grep "Neodroid\|{req_grep_fmt()}"',
         )
 
     if not PY3:
@@ -147,7 +147,7 @@ def get_pip_packages(run_lambda):
     out3 = run_with_pip("pip3")
 
     number_of_pips = len([x for x in [out2, out3] if x is not None])
-    if number_of_pips is 0:
+    if number_of_pips == 0:
         return "pip", out2
 
     if number_of_pips == 1:

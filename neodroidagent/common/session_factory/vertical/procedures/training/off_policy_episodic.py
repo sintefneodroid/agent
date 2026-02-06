@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 __author__ = "Christian Heider Nielsen"
 __all__ = ["rollout_off_policy", "OffPolicyEpisodic"]
 __doc__ = "Collects agent experience for episodic off policy training"
@@ -12,7 +10,7 @@ from typing import Optional
 import numpy
 from draugr.drawers import MplDrawer, MockDrawer
 from draugr.metrics import mean_accumulator, total_accumulator
-from draugr.visualisation import progress_bar
+from draugr.progress_bars import progress_bar
 from draugr.writers import MockWriter, Writer
 from neodroid.environments.environment import Environment
 from neodroid.utilities import EnvironmentSnapshot, to_one_hot

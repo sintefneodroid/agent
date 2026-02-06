@@ -1,6 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-
 __author__ = "Christian Heider Nielsen"
 __doc__ = r"""
 
@@ -239,7 +236,7 @@ class TemporalDifferenceAgent(NumpyAgent):
         return total_reward, n_steps
 
     def _epsilon_soft_policy(self, s, a=None):
-        """
+        r"""
         Epsilon-soft exploration policy.
 
         In epsilon-soft policies, :math:`\pi(a|s) > 0` for all s ∈ S and all a ∈ A(s) at
@@ -417,7 +414,7 @@ class TemporalDifferenceAgent(NumpyAgent):
             self._on_policy_update(s, a, r, s_, a_)
 
     def sample(self, obs):
-        """
+        r"""
         Execute the behavior policy--an :math:`\epsilon`-soft policy used to
         generate actions during training.
 

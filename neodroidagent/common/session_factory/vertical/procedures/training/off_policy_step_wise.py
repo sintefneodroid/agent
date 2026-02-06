@@ -1,6 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-
 __author__ = "Christian Heider Nielsen"
 __all__ = ["OffPolicyStepWise"]
 __doc__ = "Collects agent experience in a step wise fashion"
@@ -9,7 +6,7 @@ from typing import Optional
 
 from draugr.drawers import MockDrawer, MplDrawer
 from draugr.metrics.accumulation import mean_accumulator
-from draugr.visualisation import progress_bar
+from draugr.progress_bars import progress_bar
 from draugr.writers import MockWriter, Writer
 from neodroid.utilities import to_one_hot
 from neodroidagent.common.session_factory.vertical.procedures.procedure_specification import (

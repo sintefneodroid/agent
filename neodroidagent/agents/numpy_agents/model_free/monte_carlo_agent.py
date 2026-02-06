@@ -1,6 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-
 __author__ = "Christian Heider Nielsen"
 __doc__ = r"""
 
@@ -96,8 +93,8 @@ class MonteCarloAgent(NumpyAgent):
         they require continual exploration (i.e., each state-action pair must
         have nonzero probability of occurring).
 
-        In epsilon-soft policies, :math:`\pi(a \mid s) > 0` for all :math:`s
-        \in S` and all :math:`a \in A(s)` at the start of training. As learning
+        In epsilon-soft policies, :math:`\\pi(a \\mid s) > 0` for all :math:`s
+        \\in S` and all :math:`a \\in A(s)` at the start of training. As learning
         progresses, :math:`pi` gradually shifts closer and closer to a
         deterministic optimal policy.
 
@@ -105,15 +102,15 @@ class MonteCarloAgent(NumpyAgent):
 
         .. math::
 
-        \pi(a \mid s)  &=  1 - \epsilon + \\frac{\epsilon}{|A(s)|}  &&\\text{if} a = a^*
-        \pi(a \mid s)  &=  \\frac{\epsilon}{|A(s)|}                 &&\\text{if} a \\neq a^*
+        \\pi(a \\mid s)  &=  1 - \\epsilon + \\frac{\\epsilon}{|A(s)|}  &&\\text{if} a = a^*
+        \\pi(a \\mid s)  &=  \\frac{\\epsilon}{|A(s)|}                 &&\\text{if} a \\neq a^*
 
         where :math:`|A(s)|` is the number of actions available in state `s`
-        and :math:`a^* \in A(s)` is the greedy action in state `s` (i.e.,
-        :math:`a^* = \\arg \max_a Q(s, a)`).
+        and :math:`a^* \\in A(s)` is the greedy action in state `s` (i.e.,
+        :math:`a^* = \\arg \\max_a Q(s, a)`).
 
         Note that epsilon-greedy policies are instances of epsilon-soft
-        policies, defined as policies for which :math:`\pi(a|s) \geq \epsilon / |A(s)|`
+        policies, defined as policies for which :math:`\\pi(a|s) \\geq \\epsilon / |A(s)|`
         for all states and actions.
 
         Parameters
@@ -197,7 +194,7 @@ class MonteCarloAgent(NumpyAgent):
 
         .. math::
 
-        Q'(s, a) \leftarrow
+        Q'(s, a) \\leftarrow
         \\text{avg}(\\text{reward following first visit to } (s, a)
         \\text{ across all episodes})
 
@@ -265,7 +262,7 @@ class MonteCarloAgent(NumpyAgent):
                 break
 
     def sample(self, obs):
-        """
+        r"""
         Execute the behavior policy--an :math:`\epsilon`-soft policy used to
         generate actions during training.
 

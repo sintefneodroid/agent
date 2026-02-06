@@ -1,5 +1,4 @@
 #!/usr/local/bin/python
-# coding: utf-8
 
 __author__ = "Christian Heider Nielsen"
 __doc__ = r"""
@@ -14,7 +13,7 @@ import torch
 from draugr.metrics import mean_accumulator
 from draugr.python_utilities import shuffled_batches
 from draugr.torch_utilities import freeze_model, to_scalar, to_tensor
-from draugr.visualisation import progress_bar
+from draugr.progress_bars import progress_bar
 from draugr.writers import MockWriter, Writer
 from neodroidagent.agents.agent import TogglableValue
 from neodroidagent.agents.torch_agents.torch_agent import TorchAgent
@@ -374,7 +373,7 @@ class ProximalPolicyOptimizationAgent(TorchAgent):
         entropy_bonus = entropy * self._entropy_regularisation_coefficient
 
         with torch.no_grad():
-            approx_kl = to_scalar((log_prob_batch_old - action_log_probs_new))
+            approx_kl = to_scalar(log_prob_batch_old - action_log_probs_new)
 
         if metric_writer:
             metric_writer.scalar("ratio", to_scalar(ratio))

@@ -5,7 +5,7 @@ from typing import Any, Tuple
 
 import gym
 import numpy
-from draugr.visualisation import progress_bar
+from draugr.progress_bars import progress_bar
 from neodroid.environments.gym_environment import NeodroidGymEnvironment
 from neodroidagent.agents.numpy_agents.numpy_agent import NumpyAgent
 

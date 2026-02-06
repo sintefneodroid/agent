@@ -3,21 +3,21 @@ neodroidagent.utilities.signal.experimental
 
 .. automodule:: neodroidagent.utilities.signal.experimental
 
-   
-   
-   
 
-   
-   
-   
 
-   
-   
-   
 
-   
-   
-   
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -31,4 +31,3 @@ neodroidagent.utilities.signal.experimental
    neodroidagent.utilities.signal.experimental.discounting
    neodroidagent.utilities.signal.experimental.generalised_advantage
    neodroidagent.utilities.signal.experimental.nstep
-
